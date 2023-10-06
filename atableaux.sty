@@ -1,0 +1,184 @@
+%% ----------------------------------------------------------------
+%% atableaux - Andrew Mathas (c) 2022
+%%
+%%  A latex package for symmetric group combinatorics, including:
+%%    - Young diagrams
+%%    - tabloids
+%%    - tableaux
+%%    - abacuses
+%
+%% E-mail: andrew.mathas@gmail.com
+%% Released under the LaTeX Project Public License v1.3c or later
+%% See http://www.latex-project.org/lppl.txt
+%% ----------------------------------------------------------------
+
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{atableaux}[2022/03/41 v0.1 - atableaux: a LaTeX package for symmetric group combinatorics]
+
+\RequirePackage{xparse}
+\RequirePackage{xparse}
+\RequirePackage{tikz}
+
+\tikzset{
+  % all tikz settings are in the atableaux family
+  atableaux/.is family, atableaux/.cd,
+  top/.style={/tikz/baseline=(current bounding box.north)},
+  centre/.style={/tikz/baseline=(current bounding box.center)},
+  bottom/.style={/tikz/baseline=(current bounding box.north)},
+  wall/.style={
+     line cap=rect,
+     MidnightBlue,
+     very thick,
+  },
+  innerwall/.style={RoyalBlue,thin},
+  tableau/.style={},
+  scale/.initial=0.5,
+  runner/.style={very thick, RoyalBlue},
+  bead/.style={ball color=NavyBlue},
+}
+\tikzset{
+  pics/atableaux diagram/.style = {
+    code = {
+      \begin{scope}[scale=\pgfkeysvalueof{/tikz/atableaux/scale}]
+        \def\lastC{0}
+        \foreach \row [count=\r] in {#1} {
+          \foreach \c in {1,...,\row} {
+              \draw[atableaux/innerwall] (\c,-\r) rectangle ++(1,1);
+              \xdef\cc{\c}
+           }
+           \ifnum\r=1\draw[atableaux/wall](1,0)--++(\cc,0);\fi
+           \ifnum\lastC>\cc
+             \draw[atableaux/wall](\cc+1,1-\r)--(\lastC+1,1-\r);
+           \fi
+           \draw[atableaux/wall](1,-\r)--++(0,1);
+           \draw[atableaux/wall](\cc+1,-\r)--++(0,1);
+           \xdef\lastC{\cc}
+           \xdef\rr{\r}
+        }
+        \draw[atableaux/wall](1,-\rr)--++(\lastC,0);
+      \end{scope}
+    }
+  },
+  pics/atableaux tableau/.style = {
+    code = {
+      \begin{scope}[scale=\pgfkeysvalueof{/tikz/atableaux/scale}]
+        \def\lastC{0}
+        \foreach \row [count=\r] in {#1} {
+           \foreach \ent [count=\c] in \row {
+              \coordinate(-\r-\c) at (-\r,\c) {};
+              \draw[atableaux/innerwall] (\c,-\r) rectangle ++(1,1);
+              \node[atableaux/tableau] (-\r-\c) at (0.5+\c,0.5-\r) {\small$\ent$};
+              \xdef\cc{\c}
+           }
+           \ifnum\r=1\draw[atableaux/wall](1,0)--++(\cc,0);\fi
+           \ifnum\lastC>\cc
+             \draw[atableaux/wall](\cc+1,1-\r)--(\lastC+1,1-\r);
+           \fi
+           \draw[atableaux/wall](1,-\r)--++(0,1);
+           \draw[atableaux/wall](\cc+1,-\r)--++(0,1);
+           \xdef\lastC{\cc}
+           \xdef\rr{\r}
+        }
+        \draw[atableaux/wall](1,-\rr)--++(\lastC,0);
+      \end{scope}
+    }
+  },
+  pics/atableaux tabloid/.style = {
+    code = {
+      \begin{scope}[scale=\pgfkeysvalueof{/tikz/atableaux/scale}]
+        \def\lastC{0}
+        \foreach \row [count=\r] in {#1} {
+           \foreach \ent [count=\c] in \row {
+              \coordinate(-\r-\c) at (-\r,\c) {};
+              \draw[atableaux/innerwall] (\c,-\r) rectangle ++(1,1);
+              \node (-\r-\c) at (0.5+\c,0.5-\r) {\ent};
+              \xdef\cc{\c}
+           }
+           \ifnum\r=1\draw[atableaux/wall, DodgerBlue](1,0)--++(\cc,0);\fi
+           \ifnum\lastC>\cc
+             \draw[atableaux/wall, DodgerBlue](1,1-\r)--(\lastC+1,1-\r);
+           \fi
+           \xdef\lastC{\cc}
+           \xdef\rr{\r}
+        }
+        \draw[atableaux/wall, DodgerBlue](1,-\rr)--++(\lastC,0);
+      \end{scope}
+    }
+  },
+  pics/atableaux russiantableau/.style 2 args={% {scope args}{partition}
+    code = {
+      \begin{scope}[scale=\pgfkeysvalueof{/tikz/atableaux/scale},#1]
+        \def\lastC{0}
+        \foreach \row [count=\r] in {#2} {
+           \foreach \ent [count=\c] in \row {
+              \draw[atableaux/innerwall] (\r-\c,\c+\r-2) --++(-1,1)--++(1,1)--++(1,-1)--cycle;
+              \node at (\r-\c,\c+\r-1) {\ent};
+              \xdef\cc{\c}
+           }
+           \ifnum\r=1\draw[atableaux/wall](0,0)--(-\cc,\cc);\fi
+           \ifnum\lastC>\cc\draw[atableaux/wall](\r-\cc-1,\cc+\r-1)--(\r-\lastC-1,\lastC+\r-1);\fi
+           \draw[atableaux/wall](\r-1,\r-1)--++(1,1);
+           \draw[atableaux/wall](\r-\cc-1,\cc+\r-1)--++(1,1);
+           \xdef\lastC{\cc}
+           \xdef\rr{\r}
+        }
+        \draw[atableaux/wall](\rr,\rr)--++(-\lastC,\lastC);
+      \end{scope}
+    }
+  },
+  pics/atableaux abacus/.style args={#1/#2/#3}{% e/rows/partition
+    code = {
+    \begin{scope}[scale=0.45]
+        \foreach \m [count=\c] in {#3} {% determine length of partition
+           \xdef\plen{\c}
+        }
+        \foreach \col [evaluate] in {1,...,#1} {
+          \draw[atableaux/runner] (\col-1,0.4) --++ (0,-#2/1.5-0.2);
+          \foreach \row [parse=true] in {0,...,#2-1} {
+              \draw[atableaux/runner,thin](\col-1.2,-\row/1.5)--++(0.4,0);
+            }
+        }
+        \foreach \mu [count=\c,
+          evaluate=\mu as \col using {mod(\mu+\plen-\c,#1)},
+          evaluate=\mu as \row using {-int((\mu+\plen-\c)/#1)}] in {#3} {
+          \shade[atableaux/bead](\col,\row/1.5) circle[radius=1.3mm];
+        }
+      \end{scope}
+    }
+  },
+}
+
+\newcommand\atabset[1]{\tikzset{atableaux/.cd, #1}}
+
+% \EAbacus{e}{rows}{partition}
+\newcommand\EAbacus[4][]{%
+  \tikz[centered]\atabset{#1}\pic at (0,0){atableaux abacus={#2/#3/#4}};%
+}
+\newcommand\Diagram[2][]{%
+  \tikz[centered]\atabset{#1}\pic at (0,0){atableaux diagram={#2}};%
+}
+\NewDocumentCommand\Tableau{ s O{} D(){0,0} m }{%
+%\typeout{1=#1, 2=#2, 3=#3, 4=#4.}
+  \bgroup%
+    %
+    \IfBooleanTF{#1}%
+      {\atabset{#2}\pic at (#3){atableaux tableau={{#4}}};}%
+      {\tikz[centered]\atabset{#2}\pic at (#3){atableaux tableau={{{#4}}}};}%
+  \egroup%
+}
+\newcommand\Tabloid[2][]{%
+  \tikz[centered]\atabset{#1}\pic at (0,0){atableaux tabloid={#2}};%
+}
+
+
+\newcommand\RussianTableau[2][]{%
+  \begin{center}
+    \begin{tikzpicture}[scale=0.2,draw/.append style={thick,black},#1]
+      \draw (0,0) pic{atableaux russiantableau={scale=0.3}{#2}};
+    \end{tikzpicture}
+  \end{center}%
+}
+
+
+\endinput
+
