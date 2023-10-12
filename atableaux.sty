@@ -16,8 +16,8 @@
 \ProvidesPackage{atableaux}[2022/03/41 v0.1 - atableaux: a LaTeX package for symmetric group combinatorics]
 
 \RequirePackage{xparse}
-\RequirePackage{xparse}
 \RequirePackage{tikz}
+\RequirePackage{xcolor}
 
 \tikzset{
   % all tikz settings are in the atableaux family
@@ -150,7 +150,7 @@
 
 \newcommand\atabset[1]{\tikzset{atableaux/.cd, #1}}
 
-% \EAbacus{e}{rows}{partition}
+% \EAbacus[options]{e}{rows}{partition}
 \newcommand\EAbacus[4][]{%
   \tikz[centered]\atabset{#1}\pic at (0,0){atableaux abacus={#2/#3/#4}};%
 }
