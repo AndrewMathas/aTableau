@@ -16,8 +16,8 @@
 \ProvidesPackage{atableaux}[2022/03/41 v0.1 - atableaux: a LaTeX package for symmetric group combinatorics]
 
 \RequirePackage{xparse}
+\RequirePackage{xparse}
 \RequirePackage{tikz}
-\RequirePackage{xcolor}
 
 \tikzset{
   % all tikz settings are in the atableaux family
@@ -154,6 +154,18 @@
 \newcommand\EAbacus[4][]{%
   \tikz[centered]\atabset{#1}\pic at (0,0){atableaux abacus={#2/#3/#4}};%
 }
+% \EAbacusLabelled[options]{labels}{rows}{partition}
+\newcommand\EAbacusLabelled[4][]{%
+  \begin{tikzpicture}[centered]
+    \atabset{#1}
+    \foreach \lab [count=\c] {#2} {
+       \node at (\c-1,0.6){$\lab$};
+       \xdef\erunners{\c}
+    }
+    \pic at (0,0){atableaux abacus={\erunners/#3/#4}};%
+  \end{tikzpicture}%
+}
+
 \newcommand\Diagram[2][]{%
   \tikz[centered]\atabset{#1}\pic at (0,0){atableaux diagram={#2}};%
 }
@@ -180,5 +192,24 @@
 }
 
 
+% braid diagrams:
+% Usage:
+%  - \braid{a_1,...a_n}   : braid diagram connecting k to a_k
+%  - \braid*{a_1,...a_n}  : braid diagram connecting k to a_k with top labels
+%  - \braid!{a_1,...a_n}  : braid diagram connecting k to a_k with bottom labels
+%  - \braid*!{a_1,...a_n} : braid diagram connecting k to a_k with top and bottom labels
+% The command also accepts an optional argument, which is passed to the
+% underlying TikZ environment.
+\NewDocumentCommand\braid{ O{} s t! m }{%
+  \begin{tikzpicture}[rounded corners, thick, NavyBlue, #1]
+    \foreach \pt [count=\c] in {#4}{
+      \node[atableaux/bead] at (\c,1){};
+      \node[atableaux/bead] at (\pt,0){};
+      \draw[atableaux/wall] (\c,1) -- (\pt,0);
+    }
+    \IfBooleanT{#2}{ \foreach \pt [count=\c] in  {#4} \node at (\c, 1.3) {$\c$}; }
+    \IfBooleanT{#3}{ \foreach \pt [count=\c] in  {#4} \node at (\c,-0.3) {$\c$}; }
+  \end{tikzpicture}%
+}
 \endinput
 
