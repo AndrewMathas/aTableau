@@ -23,6 +23,7 @@
   % all tikz settings are in the atableaux family
   atableaux/.is family, atableaux/.cd,
   top/.style={/tikz/baseline=(current bounding box.north)},
+  centered/.style={/tikz/baseline=(current bounding box.center)},
   centre/.style={/tikz/baseline=(current bounding box.center)},
   bottom/.style={/tikz/baseline=(current bounding box.north)},
   wall/.style={
@@ -172,10 +173,9 @@
 \NewDocumentCommand\Tableau{ s O{} D(){0,0} m }{%
 %\typeout{1=#1, 2=#2, 3=#3, 4=#4.}
   \bgroup%
-    %
     \IfBooleanTF{#1}%
-      {\atabset{#2}\pic at (#3){atableaux tableau={{#4}}};}%
-      {\tikz[centered]\atabset{#2}\pic at (#3){atableaux tableau={{{#4}}}};}%
+    {\atabset{#2}\pic at (#3){atableaux tableau={{#4}}};}%
+    {\tikz[centered]\atabset{#2}\pic at (#3){atableaux tableau={{{#4}}}};}%
   \egroup%
 }
 \newcommand\Tabloid[2][]{%
