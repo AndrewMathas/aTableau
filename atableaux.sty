@@ -170,6 +170,11 @@
 \newcommand\Diagram[2][]{%
   \tikz[centered]\atabset{#1}\pic at (0,0){atableaux diagram={#2}};%
 }
+
+
+% options:
+%    define \tableaux and \Tableaux commands for use in and out of tikzpicture
+%    or use \tikzifinpicture\tableaux_in_tikz}{\tableaux_out_tikz}#
 \NewDocumentCommand\Tableau{ s O{} D(){0,0} m }{%
 %\typeout{1=#1, 2=#2, 3=#3, 4=#4.}
   \bgroup%
