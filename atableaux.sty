@@ -21,42 +21,43 @@
 
 \tikzset{
   % all tikz settings are in the atableaux family
-  atableaux/.is family, atableaux/.cd,
-  top/.style={/tikz/baseline=(current bounding box.north)},
-  centered/.style={/tikz/baseline=(current bounding box.center)},
-  centre/.style={/tikz/baseline=(current bounding box.center)},
-  bottom/.style={/tikz/baseline=(current bounding box.south)},
-  wall/.style={
-     line cap=rect,
-     MidnightBlue,
-     very thick,
-  },
-  innerwall/.style={RoyalBlue,thin},
-  tableau/.style={},
-  scale/.initial=0.5,
-  runner/.style={very thick, RoyalBlue},
-  bead/.style={ball color=NavyBlue},
+  atableaux/.is family,
+    atableaux/.cd,
+    top/.style={/tikz/baseline=(current bounding box.north)},
+    centered/.style={/tikz/baseline=(current bounding box.center)},
+    centre/.style={/tikz/baseline=(current bounding box.center)},
+    bottom/.style={/tikz/baseline=(current bounding box.south)},
+    wall/.style={
+       line cap=rect,
+       MidnightBlue,
+       very thick,
+    },
+    innerwall/.style={RoyalBlue,thin},
+    tableau/.style={},
+    scale/.initial=0.5,
+    runner/.style={very thick, RoyalBlue},
+    bead/.style={ball color=NavyBlue},
 }
 \tikzset{
   pics/atableaux diagram/.style = {
     code = {
       \begin{scope}[scale=\pgfkeysvalueof{/tikz/atableaux/scale}]
         \def\lastC{0}
-        \foreach \row [count=\r] in {#1} {
-          \foreach \c in {1,...,\row} {
-              \draw[atableaux/innerwall] (\c,-\r) rectangle ++(1,1);
-              \xdef\cc{\c}
+        \foreach \row [count=\rtab] in {#1} {
+          \foreach \ctab in {1,...,\row} {
+              \draw[atableaux/innerwall] (\ctab,-\rtab) rectangle ++(1,1);
+              \xdef\cctab{\ctab}
            }
-           \ifnum\r=1\draw[atableaux/wall](1,0)--++(\cc,0);\fi
-           \ifnum\lastC>\cc
-             \draw[atableaux/wall](\cc+1,1-\r)--(\lastC+1,1-\r);
+           \ifnum\rtab=1\draw[atableaux/wall](1,0)--++(\cctab,0);\fi
+           \ifnum\lastC>\cctab
+             \draw[atableaux/wall](\cctab+1,1-\rtab)--(\lastC+1,1-\rtab);
            \fi
-           \draw[atableaux/wall](1,-\r)--++(0,1);
-           \draw[atableaux/wall](\cc+1,-\r)--++(0,1);
-           \xdef\lastC{\cc}
-           \xdef\rr{\r}
+           \draw[atableaux/wall](1,-\rtab)--++(0,1);
+           \draw[atableaux/wall](\cctab+1,-\rtab)--++(0,1);
+           \xdef\lastC{\cctab}
+           \xdef\rrtab{\rtab}
         }
-        \draw[atableaux/wall](1,-\rr)--++(\lastC,0);
+        \draw[atableaux/wall](1,-\rrtab)--++(\lastC,0);
       \end{scope}
     }
   },
@@ -64,23 +65,55 @@
     code = {
       \begin{scope}[scale=\pgfkeysvalueof{/tikz/atableaux/scale}]
         \def\lastC{0}
-        \foreach \row [count=\r] in {#1} {
-           \foreach \ent [count=\c] in \row {
-              \coordinate(-\r-\c) at (-\r,\c) {};
-              \draw[atableaux/innerwall] (\c,-\r) rectangle ++(1,1);
-              \node[atableaux/tableau] (-\r-\c) at (0.5+\c,0.5-\r) {\small$\ent$};
-              \xdef\cc{\c}
+        \foreach \row [count=\rtab] in {#1} {
+           \foreach \ent [count=\ctab] in \row {
+              \coordinate(-\rtab-\ctab) at (-\rtab,\ctab) {};
+              \draw[atableaux/innerwall] (\ctab,-\rtab) rectangle ++(1,1);
+              \node[atableaux/tableau] (-\rtab-\ctab) at (0.5+\ctab,0.5-\rtab) {\small$\ent$};
+              \xdef\cctab{\ctab}
            }
-           \ifnum\r=1\draw[atableaux/wall](1,0)--++(\cc,0);\fi
-           \ifnum\lastC>\cc
-             \draw[atableaux/wall](\cc+1,1-\r)--(\lastC+1,1-\r);
+           \ifnum\rtab=1\draw[atableaux/wall](1,0)--++(\cctab,0);\fi
+           \ifnum\lastC>\cctab
+             \draw[atableaux/wall](\cctab+1,1-\rtab)--(\lastC+1,1-\rtab);
            \fi
-           \draw[atableaux/wall](1,-\r)--++(0,1);
-           \draw[atableaux/wall](\cc+1,-\r)--++(0,1);
-           \xdef\lastC{\cc}
-           \xdef\rr{\r}
+           \draw[atableaux/wall](1,-\rtab)--++(0,1);
+           \draw[atableaux/wall](\cctab+1,-\rtab)--++(0,1);
+           \xdef\lastC{\cctab}
+           \xdef\rrtab{\rtab}
         }
-        \draw[atableaux/wall](1,-\rr)--++(\lastC,0);
+        \draw[atableaux/wall](1,-\rrtab)--++(\lastC,0);
+      \end{scope}
+    }
+  },
+  pics/atableaux shifted/.style = {
+    code = {
+      \begin{scope}[scale=\pgfkeysvalueof{/tikz/atableaux/scale}]
+        \def\lastC{0}
+        \foreach \row [count=\rtab] in {#1} {
+           \foreach \ent [count=\ctab from \rtab] in \row {
+              \coordinate(-\rtab-\ctab) at (-\rtab,\ctab) {};
+              \draw[atableaux/innerwall] (\ctab,-\rtab) rectangle ++(1,1);
+              \node[atableaux/tableau] (-\rtab-\ctab) at (0.5+\ctab,0.5-\rtab) {\small$\ent$};
+              \xdef\cctab{\ctab}
+           }
+           % top line of tableau
+           \ifnum\rtab=1
+            \draw[atableaux/wall](\rtab,0)--++(\cctab,0);
+           \fi
+           % line under previous columns not in this row
+           \ifnum\lastC>\cctab
+             \draw[atableaux/wall](\cctab+1,1-\rtab)--(\lastC+1,1-\rtab);
+           \fi
+           % vertical line at start of row
+           \draw[atableaux/wall](\rtab,-\rtab)--++(0,1);
+           % vertical line at end of row
+           \draw[atableaux/wall,](\cctab+1,-\rtab)--++(0,1);
+           % horizontal line below (r,r) node
+           \draw[atableaux/wall](\rtab,-\rtab)--++(1,0);
+           \xdef\lastC{\cctab}
+           \xdef\rrtab{\rtab}
+        }
+        \draw[atableaux/wall](\rrtab,-\rrtab)--++({\lastC-1},0);
       \end{scope}
     }
   },
@@ -88,21 +121,21 @@
     code = {
       \begin{scope}[scale=\pgfkeysvalueof{/tikz/atableaux/scale}]
         \def\lastC{0}
-        \foreach \row [count=\r] in {#1} {
-           \foreach \ent [count=\c] in \row {
-              \coordinate(-\r-\c) at (-\r,\c) {};
-              \draw[atableaux/innerwall] (\c,-\r) rectangle ++(1,1);
-              \node (-\r-\c) at (0.5+\c,0.5-\r) {\ent};
-              \xdef\cc{\c}
+        \foreach \row [count=\rtab] in {#1} {
+           \foreach \ent [count=\ctab] in \row {
+              \coordinate(-\rtab-\ctab) at (-\rtab,\ctab) {};
+              \draw[atableaux/innerwall] (\ctab,-\rtab) rectangle ++(1,1);
+              \node (-\rtab-\ctab) at (0.5+\ctab,0.5-\rtab) {\ent};
+              \xdef\cctab{\ctab}
            }
-           \ifnum\r=1\draw[atableaux/wall, DodgerBlue](1,0)--++(\cc,0);\fi
-           \ifnum\lastC>\cc
-             \draw[atableaux/wall, DodgerBlue](1,1-\r)--(\lastC+1,1-\r);
+           \ifnum\rtab=1\draw[atableaux/wall, DodgerBlue](1,0)--++(\cctab,0);\fi
+           \ifnum\lastC>\cctab
+             \draw[atableaux/wall, DodgerBlue](1,1-\rtab)--(\lastC+1,1-\rtab);
            \fi
-           \xdef\lastC{\cc}
-           \xdef\rr{\r}
+           \xdef\lastC{\cctab}
+           \xdef\rrtab{\rtab}
         }
-        \draw[atableaux/wall, DodgerBlue](1,-\rr)--++(\lastC,0);
+        \draw[atableaux/wall, DodgerBlue](1,-\rrtab)--++(\lastC,0);
       \end{scope}
     }
   },
@@ -110,28 +143,28 @@
     code = {
       \begin{scope}[scale=\pgfkeysvalueof{/tikz/atableaux/scale},#1]
         \def\lastC{0}
-        \foreach \row [count=\r] in {#2} {
-           \foreach \ent [count=\c] in \row {
-              \draw[atableaux/innerwall] (\r-\c,\c+\r-2) --++(-1,1)--++(1,1)--++(1,-1)--cycle;
-              \node at (\r-\c,\c+\r-1) {\ent};
-              \xdef\cc{\c}
+        \foreach \row [count=\rtab] in {#2} {
+           \foreach \ent [count=\ctab] in \row {
+              \draw[atableaux/innerwall] (\rtab-\ctab,\ctab+\rtab-2) --++(-1,1)--++(1,1)--++(1,-1)--cycle;
+              \node at (\rtab-\ctab,\ctab+\rtab-1) {\ent};
+              \xdef\cctab{\ctab}
            }
-           \ifnum\r=1\draw[atableaux/wall](0,0)--(-\cc,\cc);\fi
-           \ifnum\lastC>\cc\draw[atableaux/wall](\r-\cc-1,\cc+\r-1)--(\r-\lastC-1,\lastC+\r-1);\fi
-           \draw[atableaux/wall](\r-1,\r-1)--++(1,1);
-           \draw[atableaux/wall](\r-\cc-1,\cc+\r-1)--++(1,1);
-           \xdef\lastC{\cc}
-           \xdef\rr{\r}
+           \ifnum\rtab=1\draw[atableaux/wall](0,0)--(-\cctab,\cctab);\fi
+           \ifnum\lastC>\cctab\draw[atableaux/wall](\rtab-\cctab-1,\cctab+\rtab-1)--(\rtab-\lastC-1,\lastC+\rtab-1);\fi
+           \draw[atableaux/wall](\rtab-1,\rtab-1)--++(1,1);
+           \draw[atableaux/wall](\rtab-\cctab-1,\cctab+\rtab-1)--++(1,1);
+           \xdef\lastC{\cctab}
+           \xdef\rrtab{\rtab}
         }
-        \draw[atableaux/wall](\rr,\rr)--++(-\lastC,\lastC);
+        \draw[atableaux/wall](\rrtab,\rrtab)--++(-\lastC,\lastC);
       \end{scope}
     }
   },
   pics/atableaux abacus/.style args={#1/#2/#3}{% e/rows/partition
     code = {
     \begin{scope}[scale=0.45]
-        \foreach \m [count=\c] in {#3} {% determine length of partition
-           \xdef\plen{\c}
+        \foreach \m [count=\ctab] in {#3} {% determine length of partition
+           \xdef\plen{\ctab}
         }
         \foreach \col [evaluate] in {1,...,#1} {
           \draw[atableaux/runner] (\col-1,0.4) --++ (0,-#2/1.5-0.2);
@@ -139,9 +172,9 @@
               \draw[atableaux/runner,thin](\col-1.2,-\row/1.5)--++(0.4,0);
             }
         }
-        \foreach \mu [count=\c,
-          evaluate=\mu as \col using {mod(\mu+\plen-\c,#1)},
-          evaluate=\mu as \row using {-int((\mu+\plen-\c)/#1)}] in {#3} {
+        \foreach \mu [count=\ctab,
+          evaluate=\mu as \col using {mod(\mu+\plen-\ctab,#1)},
+          evaluate=\mu as \row using {-int((\mu+\plen-\ctab)/#1)}] in {#3} {
           \shade[atableaux/bead](\col,\row/1.5) circle[radius=1.3mm];
         }
       \end{scope}
@@ -183,6 +216,26 @@
     {\tikz[centered]\atabset{#2}\pic at (#3){atableaux tableau={{{#4}}}};}%
   \egroup%
 }
+
+% options:
+%    define \tableaux and \Tableaux commands for use in and out of tikzpicture
+%    or use \tikzifinpicture\tableaux_in_tikz}{\tableaux_out_tikz}#
+\NewDocumentCommand\ShiftedTableau{ s O{} D(){0,0} m }{%
+%\typeout{1=#1, 2=#2, 3=#3.}
+  \bgroup%
+    \atabset{#2}
+    \tikzifinpicture
+      {
+        \IfBooleanTF{#1}
+          {\tikz[centered]\pic at (#3){atableaux shifted={{{#4}}}};}%
+          {\pic at (#3){atableaux shifted={{#4}}};}
+      }%
+      {
+        \tikz[centered]\pic at (#3){atableaux shifted={{{#4}}}};
+      }%
+  \egroup%
+}
+
 \newcommand\Tabloid[2][]{%
   \tikz[centered]\atabset{#1}\pic at (0,0){atableaux tabloid={#2}};%
 }
