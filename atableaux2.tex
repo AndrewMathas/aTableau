@@ -1,0 +1,111 @@
+\documentclass{article}
+\usepackage[svgnames]{xcolor}
+\usepackage{atableaux}
+
+\usepackage{listings}
+\lstdefinestyle{latexcode}{
+  language=[LaTeX]TeX,
+  texcsstyle=*\bfseries\color{Blue},
+  texcl=true,
+  backgroundcolor=\color{Ivory},
+  numbers=none,
+  breaklines=true,
+  framerule=2pt,
+  keywordstyle=\color{Blue},
+  commentstyle=\color{Brown},
+  tabsize=2,
+  morekeywords={Diagram, Tableau, EAbacus, braid},
+  resetmargins=true,
+}
+\lstnewenvironment{latexcode}{\lstset{style=latexcode}}{}
+\NewDocumentCommand\LaTeXCode{v}{\lstinline[style=latexcode]|#1|}
+
+\newcommand\heading[1]{\bigskip\noindent\textsf{\large #1}}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% braid diagrams:
+%
+% This isn't great but does what I mentioned
+%
+% Usage:
+%  - \braid{a_1,...a_n}   : braid diagram connecting k to a_k
+%  - \braid*{a_1,...a_n}  : braid diagram connecting k to a_k with top labels
+%  - \braid!{a_1,...a_n}  : braid diagram connecting k to a_k with bottom labels
+%  - \braid*!{a_1,...a_n} : braid diagram connecting k to a_k with top and bottom labels
+% The command also accepts an optional argument, which is passed to the
+% underlying TikZ environment.
+
+\NewDocumentCommand\braid{ O{} s t! m }{%
+  \begin{tikzpicture}[rounded corners, thick, NavyBlue, #1]
+    \foreach \pt [count=\c] in {#4}{
+      \node[atableaux/bead] at (\c,1){};
+      \node[atableaux/bead] at (\pt,0){};
+      \draw[atableaux/wall] (\c,1) -- (\pt,0);
+    }
+    \IfBooleanT{#2}{ \foreach \pt [count=\c] in  {#4} \node at (\c, 1.3) {$\c$}; }
+    \IfBooleanT{#3}{ \foreach \pt [count=\c] in  {#4} \node at (\c,-0.3) {$\c$}; }
+  \end{tikzpicture}%
+}
+
+
+
+\begin{document}
+
+  \heading{Abacuses}
+
+  Use the \LaTeXCode{\EAbacus} command to a typeset an abacus
+
+  \begin{latexcode}
+     Usage:  \textbackslash EAbacus{e}{rows}{partition}
+     \EAbacus{3}{4}{5,4,1,1}   % \EAbacus{3}{4}{5,4,1,1}
+  \end{latexcode}
+
+  \heading{Braid diagrams}
+
+  Use the \LaTeXCode{\braid} command to typeset briad diagrams:
+
+  \begin{latexcode}
+       \braid{1, 4, 2, 3}     % \braid{1, 4, 2, 3}
+       \braid*{3, 1, 4, 2}    % \braid*{3, 1, 4, 2}
+       \braid!{2, 3, 4, 1}    % \braid!{2, 3, 4, 1}
+       \braid*!{4, 3, 2, 1}   % \braid*!{4, 3, 2, 1}
+  \end{latexcode}
+
+  \[
+         \braid[scale=2]*!{4,3,2,1} =
+  \]
+
+                \braid*{3,2,4,1}\braid!{2,3,1,4}
+
+  \heading{Taboids}
+
+  Use the \LaTeXCode{\Tableau} command to typeset a tabloids:
+
+  \begin{latexcode}
+    \Tabloid{{1,3,7,9,11},{2,4,9,10},{6},{8}}   % \Tabloid{{1,3,7,9,11},{2,4,9,10},{6},{8}}
+  \end{latexcode}
+
+  \heading{Tableaux}
+
+  Use the \LaTeXCode{\Tableau} command to a typeset tableau:
+
+  \begin{latexcode}
+    \Tableau{{1,3,7,9,11},{2,4,9,10},{6},{8}}   % \Tableau{{1,3,7,9,11},{2,4,9,10},{6},{8}}
+  \end{latexcode}
+
+  \begin{latexcode}
+      \Tableau{ {,\bullet,,,,},{\bullet,B,\bullet,},{,\bullet,,},{,},{}}
+      %\Tableau{ {,\bullet,,,,},{\bullet,B,\bullet,},{,\bullet,,},{,},{}}
+  \end{latexcode}
+
+  \heading{Young diagrams}
+
+  Use the \LaTeXCode{\Diagram} command to typeset Young diagrams:
+
+  \begin{latexcode}
+       \Diagram{5,4,1,1}     % \Diagram{5,4,1,1} %
+  \end{latexcode}
+
+
+\end{document}
