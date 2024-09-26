@@ -1,0 +1,423 @@
+% ----------------------------------------------------------------
+% atableau - Andrew Mathas (c) 2022-2024
+%
+%  A latex package for symmetric group combinatorics, including:
+%    - Young diagrams
+%    - tabloids
+%    - tableaux
+%    - abacuses
+%    - KLRW diagrams
+%
+% E-mail: andrew.mathas@gmail.com
+% Released under the LaTeX Project Public License v1.3c or later
+% See http://www.latex-project.org/lppl.txt
+% ----------------------------------------------------------------
+
+% package date and version
+\def\atableau@version{2.0}
+\def\atableau@release{2024-10-14}
+
+\providecommand\DeclareRelease[3]{}
+\providecommand\DeclareCurrentRelease[2]{}
+\DeclareRelease{\atableau@version}{\wordle@release}{wordle.sty}
+\DeclareCurrentRelease{}{\atableau@release}
+
+\ProvidesExplPackage{atableau2} {\atableau@release} {\atableau@version}
+  {A latex package for symmetric group combinatorics }
+
+% ----------------------------------------------------------------
+% package variables
+
+\bool_new:N \l__atableau_tabloid_bool % true for tabloids
+
+\fp_new:N \l__atableau_col_dx_fp      % change in x-coordinate between columns
+\fp_new:N \l__atableau_col_dy_fp      % change in y-coordinate between columns
+\fp_new:N \l__atableau_node_x_fp      % width of the tableaux nodes
+\fp_new:N \l__atableau_node_y_fp      % height of the tableaux nodes
+\fp_new:N \l__atableau_row_dx_fp      % change in x-coordinate between rows
+\fp_new:N \l__atableau_row_dy_fp      % change in y-coordinate between rows
+\fp_new:N \l__atableau_x_fp           % x-coordinate of the first node
+\fp_new:N \l__atableau_y_fp           % y-coordinate of the first node
+\fp_new:N \l__atableau_xl_fp          % last x-coordinate of a tableau node
+\fp_new:N \l__atableau_yl_fp          % last y-coordinate of a tableau node
+
+\int_new:N \l__atableau_row_int       % current row index
+\int_new:N \l__atableau_col_int       % current column index
+
+\seq_new:N \l__atableau_skew_seq       % shape of skew tableau
+
+\tl_new:N \l__atableau_dot_tl         % replacement text for a dot
+\tl_new:N \l__atableau_font_tl        % font for tableau nodes
+\tl_new:N \l__atableau_name_tl        % prefix for node names
+\tl_new:N \l__atableau_shape_tl       % shape of tableau nodes
+\tl_new:N \l__atableau_star_tl        % replacement text for a star
+\tl_new:N \l__atableau_style_tl       % tableaux style: australian, english (default), french, ukraine
+\tl_new:N \l__atableau_type_tl        % tableaux type: normal, shifted, skew
+\tl_new:N \l__atableau_text_tl        % text colour for tableau nodes
+
+% ----------------------------------------------------------------
+\RequirePackage{tikz}
+
+\ExplSyntaxOff
+\usetikzlibrary{shapes.geometric}
+\ExplSyntaxOn
+
+\tikzset{
+  % all tikz settings are in the atableau family
+  atableau/.is~family,
+    atableau/.cd,
+    wall/.style={
+       line cap=rect,
+       MidnightBlue,
+       very thick,
+    },
+    node/.style={
+        text           = \l__atableau_text_tl,
+        font           = \l__atableau_font_tl,
+        shape          = \l__atableau_shape_tl,
+        minimum~width  = \fp_to_decimal:N \l__atableau_node_x_fp,
+        minimum~height = \fp_to_decimal:N \l__atableau_node_y_fp,
+    },
+    innerwall/.style = {
+        rectangle,
+        thin,
+        draw=RoyalBlue,
+    },
+    dotstyle/.style  =,
+    starstyle/.style =,
+    scale/.initial=0.5,
+    runner/.style={very thick, RoyalBlue},
+    bead/.style={ball color=NavyBlue},
+}
+
+% ----------------------------------------------------------------
+\cs_new_nopar:Npn \__atableau_set_style:n #1
+{
+    \str_case:en { #1 }
+    {
+        {english}
+        {
+          \fp_set:Nn \l__atableau_col_dx_fp {1}
+          \fp_set:Nn \l__atableau_col_dy_fp {0}
+          \fp_set:Nn \l__atableau_row_dx_fp {0}
+          \fp_set:Nn \l__atableau_row_dy_fp {-1}
+          \tl_set:Nn \l__atableau_style_tl  {english}
+          \tl_set:Nn \l__atableau_shape_tl  {rectangle}
+        }
+        {french}
+        {
+          \fp_set:Nn \l__atableau_col_dx_fp {1}
+          \fp_set:Nn \l__atableau_col_dy_fp {0}
+          \fp_set:Nn \l__atableau_row_dx_fp {0}
+          \fp_set:Nn \l__atableau_row_dy_fp {1}
+          \tl_set:Nn \l__atableau_style_tl  {french}
+          \tl_set:Nn \l__atableau_shape_tl  {rectangle}
+        }
+        {australian}
+        {
+          \fp_set:Nn \l__atableau_col_dx_fp {0.5}
+          \fp_set:Nn \l__atableau_col_dy_fp {-0.5}
+          \fp_set:Nn \l__atableau_row_dx_fp {-0.5}
+          \fp_set:Nn \l__atableau_row_dy_fp {-0.5}
+          \tl_set:Nn \l__atableau_style_tl  {australian}
+          \tl_set:Nn \l__atableau_shape_tl  {diamond}
+        }
+        {ukraine}
+        {
+          \fp_set:Nn \l__atableau_col_dx_fp {0.5}
+          \fp_set:Nn \l__atableau_col_dy_fp {0.5}
+          \fp_set:Nn \l__atableau_row_dx_fp {-0.5}
+          \fp_set:Nn \l__atableau_row_dy_fp {0.5}
+          \tl_set:Nn \l__atableau_style_tl  {ukraine}
+          \tl_set:Nn \l__atableau_shape_tl  {diamond}
+        }
+        {russian}
+        {
+            \__atableau_set_style:n {ukraine}
+        }
+    }
+}
+
+% rescale the node dimensions
+\cs_new_protected_nopar:Npn \__atableau_rescale:nn #1 #2
+{
+   \fp_compare:nNnT {#1} > {0} { \fp_set:Nn \l__atableau_node_x_fp {#1*\l__atableau_node_x_fp} }
+   \fp_compare:nNnT {#2} > {0} { \fp_set:Nn \l__atableau_node_y_fp {#2*\l__atableau_node_y_fp} }
+}
+
+% ----------------------------------------------------------------
+% Keys for the package options and their defaults
+
+\keys_define:nn { atableau }
+{
+    % convention switches
+    Australian .code:n = \__atableau_set_style:n {australian},
+    English    .code:n = \__atableau_set_style:n {english},
+    Russian    .code:n = \__atableau_set_style:n {ukraine},
+    Ukraine    .code:n = \__atableau_set_style:n {ukraine},
+    australian .code:n = \__atableau_set_style:n {australian},
+    english    .code:n = \__atableau_set_style:n {english},
+    french     .code:n = \__atableau_set_style:n {french},
+    russian    .code:n = \__atableau_set_style:n {ukraine},
+    ukraine    .code:n = \__atableau_set_style:n {ukraine},
+    style      .code:n = \__atableau_set_style:n {#1},
+    style      .initial:n = english,
+
+    % tableaux alignment
+    align .choice:,
+    align/top    .code:n = { \tikzset{baseline=(current bounding box.north)} },
+    align/center .code:n = { \tikzset{baseline=(current bounding box.center)} },
+    align/centre .code:n = { \tikzset{baseline=(current bounding box.center)} },
+    align/bottom .code:n = { \tikzset{baseline=(current bounding box.south)} },
+    align/.initial:n     = centre,
+
+    type     .choices:nn = {normal,shifted,skew}{\tl_set:Nn \l__atableau_type_tl {#1}},
+    type      .initial:n = {normal},
+    skew         .code:n = { \tl_set:Nn \l__atableau_type_tl {skew}
+                             \seq_gset_from_clist:Nn \l__atableau_skew_seq {#1}
+                           },
+    shifted      .code:n = { \tl_set:Nn \l__atableau_type_tl {shifted} },
+
+    tabloid  .bool_set:N = \__atableau_tabloid_bool,
+    tabloid  .initial:n  = false,
+
+    name .tl_set:N  = \l__atableau_name_tl,
+    name .initial:n =T,
+
+    % node height and width
+    node~height .fp_set:N  = \l__atableau_node_y_fp,
+    node~height .initial:n = 0.5,
+    node~width  .fp_set:N  = \l__atableau_node_x_fp,
+    node~width  .initial:n = 0.5,
+
+    % scaling -- redundant?
+    scale       .code:n    = { \__atableau_rescale:nn {#1}{#1} },
+    scale       .initial:n = 1,
+    xscale      .code:n    = { \__atableau_rescale:nn {#1}{0} },
+    yscale      .code:n    = { \__atableau_rescale:nn {0}{#1} },
+
+    % dot and stars
+    dot         .tl_set:N  = \l__atableau_dot_tl,
+    dot         .initial:n = \space,
+    dotstyle    .code:n    = { \exp_args:Nx \tikzset {atableau/dotstyle/.style={#1}} },
+    dotstyle    .initial:n = ,
+    star        .tl_set:N  = \l__atableau_star_tl,
+    star        .initial:n = \space,
+    starstyle   .code:n    = { \exp_args:Nx \tikzset {atableau/starstyle/.style={#1}} },
+    starstyle   .initial:n = ,
+
+    % tableaux walls
+    font        .tl_set:N  = \l__atableau_font_tl,
+    font        .initial:n = ,
+    shape       .tl_set:N  = \l__atableau_shape_tl,
+    shape       .initial:n = rectangle,
+    text        .tl_set:N  = \l__atableau_text_tl,
+    text        .initial:n = NavyBlue,
+
+    math~nodes .code:n = { \cs_set_eq:NN \__atableau_entry:n \__atableau_entry_math:n },
+    text~nodes .code:n = { \cs_set_eq:NN \__atableau_entry:n \__atableau_entry_text:n },
+
+  % innerwall .code = \tikzset{atableau/innerwall/.append={#1}},
+  % wall      .code = \tikzset{atableau/wall/.append={#1}},
+}
+
+\NewDocumentCommand\atabset{ m }{ \keys_set:nn { atableau } {#1} }
+
+% ----------------------------------------------------------------
+% diagram commands
+\newcommand\Diagram[2][]{%
+  \tikz[centered]\atabset{#1}\pic at (0,0){atableau diagram={#2}};%
+}
+
+% ----------------------------------------------------------------
+% Tableaux commands
+
+% \Tableau[style](x,y){entries}
+\NewDocumentCommand\Tableau{ O{} d() m }
+{
+   \IfNoValueTF{#2}
+   { \begin{tikzpicture}\__atableau_tableau:nnnn {#1} (0,0) {#3} \end{tikzpicture} }
+   { \__atableau_tableau:nnnn {#1} (#2) {#3} }
+}
+
+% \Tabloid[style](x,y){entries}
+\NewDocumentCommand\Tabloid{ O{} d() m }
+{
+   \IfNoValueTF{#2}
+     { \tikz{\__atableau_tableau:nnnn {#1,tabloid}(0,0){#3}} }
+     {       \__atableau_tableau:nnnn {#1,tabloid}(#2){#3} }
+}
+
+% \ShiftedTableau[style](x,y){entries}
+\NewDocumentCommand\ShiftedTableau{ O{} d() m }
+{
+   \IfNoValueTF{#2}
+     { \tikz{\__atableau_tableau:nnnn {#1,shifted}(0,0){#3}} }
+     {       \__atableau_tableau:nnnn {#1,shifted}(#2){#3} }
+}
+
+% \SkewTableau[style](x,y){skew shape}{entries}
+\NewDocumentCommand\SkewTableau{ O{} d() m m }
+{
+   \IfNoValueTF{#2}
+     { \tikz{\__atableau_tableau:nnnn {#1,skew={#3}}(0,0){#4}} }
+     {       \__atableau_tableau:nnnn {#1,skew={#3}}(#2){#4} }
+}
+
+% by default nodes are typeset in math-mode
+\cs_new_protected:Npn \__atableau_entry_math:n #1 {$#1$}
+\cs_new_protected:Npn \__atableau_entry_text:n #1 {#1}
+\cs_set_eq:NN \__atableau_entry:n \__atableau_entry_math:n
+
+\cs_generate_variant:Nn \int_set:Nn {No}
+
+% usage: \__atableau_tableau:nnnn {style}{x}{y}{entries}
+\cs_new_protected_nopar:Npn \__atableau_tableau:nnnn #1 (#2,#3) #4
+{
+    % use a group so that any changes to the atableau settings local
+    \group_begin:
+        \keys_set:nn {atableau} {#1}
+        \fp_set:Nn \l__atableau_x_fp {#2}
+        \fp_set:Nn \l__atableau_y_fp {#3}
+        \int_zero:N \l__atableau_row_int
+
+        \clist_map_inline:nn {#4}
+        {
+            % the rows in a shifted tableaux are offset by the row index
+            \str_case:enF {\l__atableau_type_tl}
+            {
+                {shifted} { \int_set_eq:NN \l__atableau_col_int \l__atableau_row_int }
+                {skew}    { \int_set:Nn \l__atableau_col_int { 1+{\seq_item:Nn \l__atableau_skew_seq {\l__atableau_row_int+1}} } }
+            }
+            { \int_zero:N \l__atableau_col_int }
+            % process the entries in this row
+            \__atableau_read_entry:w ##1 \q_recursion_tail \q_recursion_stop
+            % increment the row index and repeat
+            \int_incr:N \l__atableau_row_int
+        }
+    \group_end:
+}
+
+% read the next entry in the tableaux together with any optional style
+\cs_new_protected_nopar:Npn \__atableau_read_entry:w
+{
+    \peek_charcode:NTF [
+    { \__atableau_draw_entry:nn }
+    {
+      \peek_charcode_remove:NTF * {\__atableau_draw_entry:nn [atableau/starstyle]}
+                                  {\__atableau_draw_entry:nn []}
+    }
+}
+
+\cs_new_protected_nopar:Npn \__atableau_draw_entry:nn [#1] #2
+{
+    \quark_if_recursion_tail_stop:n {#2}
+    % compute the node name and its coordinates
+    \tl_set:No \l_tmpa_tl {\l__atableau_name_tl-\int_eval:n{1+\l__atableau_row_int}-\int_eval:n {1+\l__atableau_col_int}}
+    \fp_set:Nn \l__atableau_xl_fp {\l__atableau_x_fp+(\l__atableau_row_int*\l__atableau_row_dx_fp+\l__atableau_col_int*\l__atableau_col_dx_fp)*\l__atableau_node_x_fp}
+    \fp_set:Nn \l__atableau_yl_fp {\l__atableau_y_fp+(\l__atableau_row_int*\l__atableau_row_dy_fp+\l__atableau_col_int*\l__atableau_col_dy_fp)*\l__atableau_node_y_fp}
+\typeout{style=#1,~entry=#2:~name=\tl_use:N\l_tmpa_tl,~r=\int_use:N\l__atableau_row_int,~c=\int_use:N\l__atableau_col_int,~x=\fp_use:N\l__atableau_xl_fp,~y=\fp_use:N\l__atableau_yl_fp.}
+    % special processing for dots and stars
+    \str_case:enF {#2}
+    {
+      {.} { \node[atableau/node,atableau/dotstyle,#1] (\l_tmpa_tl) at ({\fp_use:N\l__atableau_xl_fp}, {\fp_use:N\l__atableau_yl_fp})
+                 {\__atableau_entry:n{\l__atableau_dot_tl }}; }
+      {*} { \node[atableau/node,atableau/starstyle,#1](\l_tmpa_tl) at ({\fp_use:N\l__atableau_xl_fp}, {\fp_use:N\l__atableau_yl_fp})
+                 {\__atableau_entry:n{\l__atableau_star_tl}}; }
+    }
+    {
+        \node[atableau/node,#1](\l_tmpa_tl) at ({\fp_use:N\l__atableau_xl_fp}, {\fp_use:N\l__atableau_yl_fp})
+             {\__atableau_entry:n{#2}};
+    }
+    \draw[atableau/innerwall]
+        (\fp_eval:n{\l__atableau_xl_fp-(\l__atableau_row_dx_fp+\l__atableau_col_dx_fp)*\l__atableau_node_x_fp/2},
+             \fp_eval:n{\l__atableau_yl_fp-(\l__atableau_row_dy_fp+\l__atableau_col_dy_fp)*\l__atableau_node_y_fp/2})
+             -- ++(\fp_eval:n{\l__atableau_row_dx_fp*\l__atableau_node_x_fp}, \fp_eval:n{\l__atableau_row_dy_fp*\l__atableau_node_y_fp})
+             -- ++(\fp_eval:n{\l__atableau_col_dx_fp*\l__atableau_node_x_fp}, \fp_eval:n{\l__atableau_col_dy_fp*\l__atableau_node_y_fp})
+             -- ++(\fp_eval:n{-\l__atableau_row_dx_fp*\l__atableau_node_x_fp}, \fp_eval:n{-\l__atableau_row_dy_fp*\l__atableau_node_y_fp})
+           -- cycle;
+    % recurse
+    \int_incr:N \l__atableau_col_int
+    \__atableau_read_entry:w
+}
+
+% ----------------------------------------------------------------
+
+% \EAbacus[options]{e}{rows}{partition}
+\newcommand\EAbacus[4][]{%
+  \tikz[centered]\atabset{#1}\pic at (0,0){atableau abacus={#2/#3/#4}};%
+}
+% \EAbacusLabelled[options]{labels}{rows}{partition}
+\newcommand\EAbacusLabelled[4][]{%
+  \begin{tikzpicture}[centered]
+    \atabset{#1}
+    \foreach \lab [count=\c] {#2} {
+       \node at (\c-1,0.6){$\lab$};
+       \xdef\erunners{\c}
+    }
+    \pic at (0,0){atableau abacus={\erunners/#3/#4}};%
+  \end{tikzpicture}%
+}
+
+
+
+% braid diagrams:
+% Usage:
+%  - \braid{a_1,...a_n}   : braid diagram connecting k to a_k
+%  - \braid*{a_1,...a_n}  : braid diagram connecting k to a_k with top labels
+%  - \braid!{a_1,...a_n}  : braid diagram connecting k to a_k with bottom labels
+%  - \braid*!{a_1,...a_n} : braid diagram connecting k to a_k with top and bottom labels
+% The command also accepts an optional argument, which is passed to the
+% underlying TikZ environment.
+\NewDocumentCommand\braid{ O{} s t! m }{%
+  \begin{tikzpicture}[rounded corners, thick, NavyBlue, #1]
+    \foreach \pt [count=\c] in {#4}{
+      \node[atableau/bead] at (\c,1){};
+      \node[atableau/bead] at (\pt,0){};
+      \draw[atableau/wall] (\c,1) -- (\pt,0);
+    }
+    \IfBooleanT{#2}{ \foreach \pt [count=\c] in  {#4} \node at (\c, 1.3) {$\c$}; }
+    \IfBooleanT{#3}{ \foreach \pt [count=\c] in  {#4} \node at (\c,-0.3) {$\c$}; }
+  \end{tikzpicture}%
+}
+\endinput
+
+
+% ----------------------------------------------------------------
+% CHANGE LOG
+%
+% Version 1.0
+%    - initial version
+%    - Young diagrams, tabloids, tableaux, shifted tableaux, Ukrainian tableaux, abacuses, braids
+%
+% Version 2.0
+%    - completely rewritten using LaTeX3
+%    - allow macros to be used both in and outside of tikzpicture environments
+%    - using a fancier quark-based interface that allows styles to be
+%    applied to each entry in a tableau
+%    - common key interface for the different types of tableaux
+%    - dots and stars
+% ----------------------------------------------------------------
+
+% ----------------------------------------------------------------
+%
+% Copyright (C) 2022-24 by Andrew Mathas <andrew.mathas@gmail.com>
+%
+% This work may be distributed and/or modified under the
+% conditions of the LaTeX Project Public License (LPPL), either
+% version 1.3c of this license or (at your option) any later
+% version.  The latest version of this license is in the file:
+%
+% http://www.latex-project.org/lppl.txt
+%
+% This work is "maintained" (as per LPPL maintenance status) by
+% Andrew Mathas.
+%
+% This package consists of the files:
+%       atableau.sty
+%       atableau.tex
+%       README.md
+%
+% ----------------------------------------------------------------
+
+% end of atableau.sty

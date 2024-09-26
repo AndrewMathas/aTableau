@@ -32,6 +32,7 @@
     \int_incr:N \l__atableau_col_int
 %   \draw[#1]({\l__atableau_row_int},{\l__atableau_col_int})rectangle++(1,1);
     \node[rectangle,draw,#1] at (\l__atableau_row_int,\l__atableau_col_int){#2};
+    \typeout{r=\int_use:N\l__atableau_row_int,~c=\int_use:N\l__atableau_col_int.}
     \__preinsert_atableau_box:w
 }
 
