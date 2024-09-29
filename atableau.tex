@@ -1,8 +1,10 @@
 % ----------------------------------------------------------------
-\documentclass{article}
+\documentclass{amsart}
 \usepackage[svgnames]{xcolor}
 \typeout{about to load package}
-\usepackage{atableau2}
+\usepackage{atableau}
+\usepackage{xspace}
+\usepackage{booktabs}
 \typeout{package loaded}
 \usepackage{enumitem}
 \setlist[description]{font=\sffamily\bfseries\color{NavyBlue},labelwidth=\textwidth}
@@ -49,6 +51,12 @@
   #1}
 {#2}
 
+\newcommand\aTableau{\keyword{aTableau}\xspace}
+
+% hyperref links to ctan
+\newcommand\ctan[1]{\href{https://www.ctan.org/pkg/#1}{\texttt{#1}}}
+\newcommand\TikZ{\ctan{TikZ}\xspace}
+
 \lstdefinestyle{tikz}{style=tcblatex,
   classoffset=0,
   texcsstyle=*\color{DarkGoldenrod},%
@@ -63,7 +71,7 @@
   },%
   classoffset=1,
   keywordstyle=\color{NavyBlue},%
-  morekeywords={wordle,GrilleSutom},
+  morekeywords={tikzpicture,tikz,node,draw},
   classoffset=2,
   keywordstyle=\color{Crimson},%
   morekeywords={
@@ -110,6 +118,19 @@
 }
 
 
+\DeclareTCBListing{Example}{ !O{} }{%
+  skin=bicolor,
+  colframe=RoyalBlue!50,
+  colbacklower=OldLace,
+  colback=LightSkyBlue!20,
+  width=\textwidth,
+  listing style=tikz,
+  text and listing,
+  text outside listing,
+  boxsep = 0pt,
+  #1
+}
+
 % ----------------------------------------------------------------
 % manual title
 \makeatletter
@@ -119,12 +140,12 @@
 \tikzset{
   shadowed/.style={
     blur shadow={shadow blur steps=5},
-    bottom color=LightSkyBlue!30,
+    bottom color=RoyalBlue,
     draw=NavyBlue!70,
     shade,
     font=\normalfont\Huge\bfseries\scshape,
     rounded corners=8pt,
-    top color=RoyalBlue,
+    top color=LightSkyBlue!30,
   },
   boxes/.style={draw=RoyalBlue,
     fill=AliceBlue,
@@ -140,7 +161,7 @@
       \node[yshift=-3cm] at (current page.north west)
         {\begin{tikzpicture}[remember picture, overlay]
           \draw[shadowed](30mm,0) rectangle node[white]{aTableau} (\paperwidth-30mm,16mm);
-          \node[anchor=west,boxes] at (4cm,0cm) {\@author};
+          \node[anchor=west,boxes] at (4cm,0cm) {Andrew Mathas};
           \node[anchor=east,boxes] at (\paperwidth-4cm,0) {Version \atableau@version};
          \end{tikzpicture}
         };
@@ -148,7 +169,7 @@
    \vspace*{20mm}
 }
 
-\def\@oddfoot{\textsc{Wordle} --- \atableau@version~(released~\atableau@release)\hfill\thepage}
+\def\@oddfoot{\textsf{aTableau} --- \atableau@version~(released~\atableau@release)\hfill\thepage}
 
 \usepackage[colorlinks=true,linkcolor=blue,urlcolor=MediumBlue]{hyperref}
 \hypersetup{
@@ -170,10 +191,39 @@
 
   \tableofcontents
 
-  This package provides commands for drawing Young diagrams and
-  tableaux, which are
+  Young diagrams, tableaux and abacuses are common objects used in
+  algebraic combinatorics and representation theory. Partly because of
+  their ubiquity, there are several different conventions in use and
+  authors often want to decorate these objects in weird and wonderful
+  ways.
 
-\section{Tableaux}
+  This package provides highly customisable ways of drawing
+  combinatorial objects.  The aim to to make to provide commands that
+  are easy to use and understand and that, at the same time, give a
+  straightforward way to further embellish the diagrams using a
+  key-value interface.  All of the common styles and conventions are
+  supported. In addition, the commands either be used by themselves in
+  your document or as part of a \keyword{tikzpicture} environment, when
+  more advanced formatting is required.
+
+  \begin{Example}
+    \Tableau{1234,56,7}
+    \Tableau[french]{1234,56,7}
+    \Tableau[ukraine]{1234,56,7}
+    \Tableau[australian]{1234,56,7}
+    \Tableau[skew={2,1^2}]{1234,56,7}
+  \end{Example}
+
+  There are several other \LaTeX\ packages available for drawing
+  tableaux, Young diagrams etc.
+
+
+  \section{Young diagrams}
+
+  \Diagram{4,3^5,1^4}
+  \Diagram{4,3,3,1}
+
+  \section{Tableaux}
 
   \begin{example}
     \Tableau{123,45}
@@ -183,14 +233,14 @@
     \begin{tikzpicture}
       \node at (1,1) {$\bullet$};
       \node at (2,2.5) {$\bullet$};
-      \Tableau(1,1) {134,5,.7}
+      \Tableau(1,1) {134{1001},5,7}
       \Tableau(2,2.5) {{10}{11},19,8}
     \end{tikzpicture}
   \end{example}
 
   \begin{example}
     \Tableau[starstyle={fill=blue}]{..*., .*.*., .*.}
-    \Tableau[dotstyle={fill=blue!20}]{..., ..., ..}
+    \Tableau[dotstyle={fill=blue!20}]{.{.}.., .[atableau/dotstyle]\cdot ., ..}
     \Tableau[dot=x]{..., ..., ..}
   \end{example}
   \begin{example}
@@ -205,8 +255,8 @@
   \end{example}
 
   \begin{example}
-    \tikzset{R/.style={fill=blue!20,draw=NavyBlue}}
-    \Tableau[Australian]{12[R]3,45}
+    \tikzset{R/.style={fill=blue!20,draw=NavyBlue, thick}}
+    \Tableau[Australian]{12[R, thick]3,45}
   \end{example}
 
   \begin{example}
@@ -230,6 +280,35 @@
     \SkewTableau[french]{2,1}{12[R]3,45,67}
   \end{example}
 
+  \section{Tabloids}
+  \section{Abacuses}
+  \section{Dynkin quivers}
+  \section{Braid diagrams}
+  \section{KLRW diagrams}
+
+  \section{The code}
+  All of the commands provided by \aTableau use \TikZ, with the bulk
+  of the code in the package being written in \LaTeX3. Most of the tableau
+  commands are special cases of the \keyword{\Tableau} command. Here is
+  a dictionary:
+  \begin{center}
+     \begin{tabular}{ll}\toprule
+           Command & Equivalent \keyword{\Tableau} command \\\midrule
+           \keyword{\ShiftedTableau{...}}
+                & \keyword{\Tableau[shifted]{...}}\\
+           \keyword{\SkewTableau{$\mu$}{...}}
+                & \keyword{\Tableau[skew=$\mu$]{...}}\\
+           \keyword{\Tabloid}\{...\}
+                & \keyword{\Tableau[tabloid]{...}}\\
+           \bottomrule
+     \end{tabular}
+  \end{center}
+
+  The \keyword{\Diagram} command also invokes the \keyword{\Tableau}
+  command, however, this requires some involved internal trickery.
+  For example, \keyword{\Diagram{3,2^2}} is the same as
+  \keyword{\Tableau{...,..,..}}.
+
 \end{document}
   \heading{Abacuses}
 
@@ -242,7 +321,7 @@
 
   \heading{Braid diagrams}
 
-  Use the \LaTeXCode{\braid} command to typeset briad diagrams:
+  Use the \LaTeXCode{\braid} command to typeset braid diagrams:
 
   \begin{example}
        \braid{1, 4, 2, 3}     % \braid{1, 4, 2, 3}
