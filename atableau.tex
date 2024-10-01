@@ -1,11 +1,14 @@
-% ----------------------------------------------------------------
+% ----------------------------------------------------------------------
+% Title:    aTableau.
+% Author:   Andrew Mathas
+% Created:  October 2023
+% Modified: 09:25 Tuesday, 01 October 2024
+% ----------------------------------------------------------------------
 \documentclass{amsart}
 \usepackage[svgnames]{xcolor}
-\typeout{about to load package}
 \usepackage{atableau}
 \usepackage{xspace}
 \usepackage{booktabs}
-\typeout{package loaded}
 \usepackage{enumitem}
 \setlist[description]{font=\sffamily\bfseries\color{NavyBlue},labelwidth=\textwidth}
 \usepackage[a4paper,margin=18mm]{geometry}
@@ -14,8 +17,6 @@
 \parskip=2mm
 
 \newcommand\heading[1]{\bigskip\noindent\textsf{\large #1}}
-
-\newcommand\Section[1]{\subsection{\textcolor{NavyBlue}{#1}}}
 
 \ExplSyntaxOn
 \NewDocumentCommand\option{ omo }{%
@@ -29,12 +30,12 @@
 }
 \ExplSyntaxOff
 
-% ----------------------------------------------------------------
+% ---------------------------------------------------------------------------
 \usepackage{imakeidx}
 \indexsetup{level=\section*, toclevel=section, noclearpage}
 \makeindex[intoc,columns=3]
 
-% ----------------------------------------------------------------
+% ---------------------------------------------------------------------------
 \usepackage[skins,listings]{tcolorbox}
 \usetikzlibrary{backgrounds, shapes.geometric} % for tikz={framed,...}
 
@@ -51,7 +52,7 @@
   #1}
 {#2}
 
-\newcommand\aTableau{\keyword{aTableau}\xspace}
+\newcommand\aTableau{\textcolor{MediumBlue}{\sffamily aTableau}\xspace}
 
 % hyperref links to ctan
 \newcommand\ctan[1]{\href{https://www.ctan.org/pkg/#1}{\texttt{#1}}}
@@ -62,16 +63,27 @@
   texcsstyle=*\color{DarkGoldenrod},%
   deletetexcs={begin, end},
   moretexcs={,%
+    atabset,
+    Abacus,
+    Diagram,
+    Multidiagram,
+    Multitableau,
+    RibbonTableau,
+    ShiftedDiagram,
+    ShiftedTableau,
+    SkewTableau,
+    SkewDiagram,
     Tableau,
     Tabloid,
-    ShiftedTableau,
-    Diagram,
-    ShiftedDiagram,
-    Abacus,
   },%
   classoffset=1,
   keywordstyle=\color{NavyBlue},%
-  morekeywords={tikzpicture,tikz,node,draw},
+  morekeywords={
+    draw,
+    node,
+    tikz,
+    tikzpicture,
+  },
   classoffset=2,
   keywordstyle=\color{Crimson},%
   morekeywords={
@@ -87,6 +99,7 @@
     infinite,
     shape,
     scale,
+    skew,
     yscale,
     xscale,
     shifted,
@@ -131,7 +144,7 @@
   #1
 }
 
-% ----------------------------------------------------------------
+% ---------------------------------------------------------------------------
 % manual title
 \makeatletter
 \author{Andrew Mathas}
@@ -156,6 +169,8 @@
     text=MidnightBlue,
   }
 }
+
+% define the heading as a command because it contains \atableau@version
 \newcommand\ATableau{%
   \begin{tikzpicture}[remember picture,overlay]
       \node[yshift=-3cm] at (current page.north west)
@@ -178,7 +193,7 @@
     Author  ={ Andrew Mathas },
     Keywords={ algebraic combinatorics, tableau, abacus, combinatorics,  },
     License ={ LaTeX Project Public License v1.3c or later },
-    Subject ={ LaTeXing Wordle puzzles },
+    Subject ={ LaTeXing tableaux and friends },
     Title   ={ ATableau - \atableau@version }
   },
 }
@@ -210,8 +225,9 @@
     \Tableau{1234,56,7}
     \Tableau[french]{1234,56,7}
     \Tableau[ukraine]{1234,56,7}
-    \Tableau[australian]{1234,56,7}
-    \Tableau[skew={2,1^2}]{1234,56,7}
+    \Tableau[australian]{1234,56,.7}
+    \Tableau[skew={2,1^2}]{1234,56,7,8,9}
+    \Tableau{....,..,..,.}
   \end{Example}
 
   There are several other \LaTeX\ packages available for drawing
@@ -222,6 +238,22 @@
 
   \Diagram{4,3^5,1^4}
   \Diagram{4,3,3,1}
+
+  \begin{example}
+    \Diagram[australian]{3,2,1}
+  \end{example}
+
+  \begin{example}
+    \Diagram[english]{3,2,1}
+  \end{example}
+
+  \begin{example}
+    \Diagram[french]{3,2,1}
+  \end{example}
+
+  \begin{example}
+    \Diagram[ukraine]{3,2,1}
+  \end{example}
 
   \section{Tableaux}
 
@@ -256,13 +288,23 @@
 
   \begin{example}
     \tikzset{R/.style={fill=blue!20,draw=NavyBlue, thick}}
-    \Tableau[Australian]{12[R, thick]3,45}
+    \Tableau[Australian]{12[{R, thick}]3,45}
   \end{example}
 
   \begin{example}
     \tikzset{R/.style={fill=red!20,circle, radius=0.2}}
     \Tableau[french]{12[R]3,45}
   \end{example}
+
+  \section{Skew tableau}
+
+  \begin{example}
+    \tikzset{R/.style={fill=red!20,circle}}
+    \SkewTableau{2,1}{12[R]3,45,67}
+    \SkewTableau[french]{2,1}{12[R]3,45,67}
+  \end{example}
+
+  \section{Shifted tableau}
 
   \begin{example}
     \tikzset{R/.style={fill=red!20,circle}}
@@ -274,27 +316,50 @@
     \ShiftedTableau[french]{12[R]3,45}
   \end{example}
 
+  \section{Tabloids}
+
+  \section{Ribbon tableaux}
+
+  \section{Multidiagrams and multitableaux}
+
+    \begin{example}
+      \Multidiagram{3,2^2|2,1^2|1}
+      \Multidiagram{3,2^2|...|2,1^2}
+    \end{example}
+
+    \begin{example}
+      \Multitableau{123,45,67|89,{10},{11}|{12}}
+    \end{example}
+
+% Ribbon Tableaux
+% \RibbonTableau[options]{ijrcrrccr, klrrccrrrc,....}
+% The ribbon tableau are specified by a comma separated list that consists of
+% the row and column indices of the rightmost node in the ribbon, followed by a
+% sequences of r's and c's that indicate whether the ribbon moves along the row
+% or down the column. As always, each term accepts an optional style.
+
+
+  \section{Abacuses}
+
   \begin{example}
-    \tikzset{R/.style={fill=red!20,circle}}
-    \SkewTableau{2,1}{12[R]3,45,67}
-    \SkewTableau[french]{2,1}{12[R]3,45,67}
+     \Abacus{3}{5,4,1,1}
+     \Abacus{3}{5,[R]4,1^2,[S]0^4}
   \end{example}
 
-  \section{Tabloids}
-  \section{Abacuses}
   \section{Dynkin quivers}
   \section{Braid diagrams}
   \section{KLRW diagrams}
 
   \section{The code}
-  All of the commands provided by \aTableau use \TikZ, with the bulk
+  Every command provided by \aTableau
+  uses \TikZ, with the bulk
   of the code in the package being written in \LaTeX3. Most of the tableau
   commands are special cases of the \keyword{\Tableau} command. Here is
   a dictionary:
   \begin{center}
      \begin{tabular}{ll}\toprule
            Command & Equivalent \keyword{\Tableau} command \\\midrule
-           \keyword{\ShiftedTableau{...}}
+           \keyword[width=120mm]{\ShiftedTableau{...}}
                 & \keyword{\Tableau[shifted]{...}}\\
            \keyword{\SkewTableau{$\mu$}{...}}
                 & \keyword{\Tableau[skew=$\mu$]{...}}\\
@@ -310,14 +375,8 @@
   \keyword{\Tableau{...,..,..}}.
 
 \end{document}
-  \heading{Abacuses}
 
   Use the \LaTeXCode{\EAbacus} command to a typeset an abacus
-
-  \begin{example}
-     Usage:  \textbackslash EAbacus{e}{rows}{partition}
-     \EAbacus{3}{4}{5,4,1,1}   % \EAbacus{3}{4}{5,4,1,1}
-  \end{example}
 
   \heading{Braid diagrams}
 
