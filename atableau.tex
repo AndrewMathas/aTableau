@@ -2,7 +2,7 @@
 % Title:    aTableau.
 % Author:   Andrew Mathas
 % Created:  October 2023
-% Modified: 20:29 Thursday, 03 October 2024
+% Modified: 09:27 Friday, 04 October 2024
 % ----------------------------------------------------------------------
 \documentclass{amsart}
 \usepackage[svgnames]{xcolor}
@@ -215,6 +215,12 @@
 
 \begin{document}
 
+\Tableau{12,3}
+
+  \RibbonTableau{ 12cr }
+
+  \end{document}
+
   \ATableau
 
   \begin{center}
@@ -223,8 +229,7 @@
       \normalsize\dbend &
       This version of the code is already quite powerful, but it is
       still in the proof-of-concept phase. There are still many bugs,
-      planned features that are not yet implemented, and everything
-      is subject to change.
+      and features not yet implemented. Everything is subject to change.
     \end{tabularx}
   \end{center}
 
@@ -255,7 +260,6 @@
 
   There are several other \LaTeX\ packages available for drawing
   tableaux, Young diagrams etc.
-
 
   \section{Tableaux}
 

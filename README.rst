@@ -13,7 +13,7 @@ ATableau
 
       *This version of the code is already quite powerful, but it is
       still in the proof-of-concept phase. There are still many bugs,
-      planned features that are not yet implemented, and everything
+      and features still to be yet implemented. Everything
       is subject to change.*
 
 LaTeX macros for symmetric group combinatorics: Young diagrams, tabloids, tableaux, abacuses, ...
