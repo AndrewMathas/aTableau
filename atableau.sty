@@ -77,13 +77,15 @@
 \fp_new:N \l__atableau_tick_width_fp  % half width of abacus ticks
 \fp_new:N \l__atableau_width_fp       % width of the tableaux nodes/separation between abacus runners
 \fp_new:N \l__atableau_x_fp           % x-coordinate of the first node
-\fp_new:N \l__atableau_xl_fp          % x-coordinate of a tableau node
-\fp_new:N \l__atableau_xm_fp          % x-coordinate of a tableau node
-\fp_new:N \l__atableau_xoffsets_seq   % x-offsets for the (1,1)-nodes in a multi-tableau
 \fp_new:N \l__atableau_y_fp           % y-coordinate of the first node
-\fp_new:N \l__atableau_yl_fp          % y-coordinate of a tableau node
-\fp_new:N \l__atableau_ym_fp          % y-coordinate of a tableau node
+\fp_new:N \l__atableau_xoffsets_seq   % x-offsets for the (1,1)-nodes in a multi-tableau
 \fp_new:N \l__atableau_yoffsets_seq   % t-offsets for the (1,1)-nodes in a multi-tableau
+\fp_new:N \l__atableau_xl_fp          % x-coordinate of a tableau node
+\fp_new:N \l__atableau_yl_fp          % y-coordinate of a tableau node
+\fp_new:N \l__atableau_xa_fp          % x-coordinate of a tableau node
+\fp_new:N \l__atableau_ya_fp          % y-coordinate of a tableau node
+\fp_new:N \l__atableau_xb_fp          % x-coordinate of a tableau node
+\fp_new:N \l__atableau_yb_fp          % y-coordinate of a tableau node
 
 \int_new:N \g__atableau_col_max_int   % maximum column index in diagram
 \int_new:N \g__atableau_row_max_int   % maximum row index in diagram
@@ -114,6 +116,7 @@
 \tl_new:N \l__atableau_outer_tl       % colour of tableau outer walls
 \tl_new:N \l__atableau_runner_tl      % abacus runner colour
 \tl_new:N \l__atableau_tick_tl        % abacus tick colour
+\tl_new:N \l__atableau_ribbon_tl      % a ribbon in the ribbon tableau
 \tl_new:N \l__atableau_separator_tl   % the separator between multitableau: | or , or ...
 \tl_new:N \l__atableau_separator_fg_tl% foreground colour of the separator
 \tl_new:N \l__atableau_shape_tl       % shape of tableau nodes
@@ -149,6 +152,12 @@
        line cap=rect,
        very~thick,
        draw = \l__atableau_outer_tl,
+    },
+    ribbon/.style = {
+        inner~sep      = 0pt,
+        minimum~height = \fp_to_decimal:N \l__atableau_height_fp cm,
+        minimum~width  = \fp_to_decimal:N \l__atableau_width_fp cm,
+        shape          = \l__atableau_shape_tl,
     },
     separator/.style = {
        draw          = \l__atableau_separator_fg_tl
@@ -296,12 +305,25 @@
 
 % ---------------------------------------------------------------------------
 % utility functions
+
+% \__atableau_tl_put_right_braced:Nn
+% Add DOUBLE braces around it's argument
 \cs_new_protected:Nn \__atableau_tl_put_right_braced:Nn
  {
   \tl_put_right:Nn #1 { {{#2}} }
  }
 \cs_generate_variant:Nn \__atableau_tl_put_right_braced:Nn { NV, cV, cv, Nx, cx }
 
+
+% \__atableau_residue:nn computes the residue of #1 mod #2. This is
+% positive integer remainder when dividing by #2. As with \int_mod:n,
+% the result is left in the % input stream.
+\cs_new_nopar:Npn \__atableau_residue:nn #1 #2
+{
+    \int_compare:nTF {#1 > 0}
+        { \int_mod:nn {#1} {#2} }
+        { \int_eval:n {\int_mod:nn {#2 + \int_mod:nn {#1} {#2}} {#2}} }% \int_mod:nn is negative
+}
 % ---------------------------------------------------------------------------
 % Parsing input
 
@@ -311,10 +333,10 @@
 {
 \typeout{reading~style~with~1=#1.}
     \peek_charcode:NTF [
-      { \use:c{__atableau_#1:nn} }
+      { \use:c{__atableau_#1} }
       {
-        \peek_charcode_remove:NTF * {\use:c{__atableau_#1:nn} [atableau/starstyle]}
-                                    {\use:c{__atableau_#1:nn} []}
+        \peek_charcode_remove:NTF * {\use:c{__atableau_#1} [atableau/starstyle]}
+                                    {\use:c{__atableau_#1} []}
       }
 }
 
@@ -533,7 +555,7 @@
             { \int_zero:N \l__atableau_col_int }
             % process the entries in this row
             \typeout{reading:~|##1|}
-            \__atableau_read_style:nw {draw_entry} ##1 \q_recursion_tail \q_recursion_stop
+            \__atableau_read_style:nw {draw_entry:nn} ##1 \q_recursion_tail \q_recursion_stop
             % increment the row index and repeat
             \int_incr:N \l__atableau_row_int
         }
@@ -590,7 +612,7 @@
     \__atableau_set_coordinates:nVV {l} \l__atableau_row_int \l__atableau_col_int
     \typeout{drawing~with~style=#1,~entry=|#2|,row=\int_use:N\l__atableau_row_int,col=\int_use:N\l__atableau_col_int.}
 
-    % special processing for dots and stars
+    % special processing for dots
     \str_if_eq:nnTF {#2} {.}
       {
       \typeout{dotted:~\tl_use:N\l__atableau_name_tl}
@@ -603,7 +625,7 @@
       \typeout{node~drawn}
     % recurse
     \int_incr:N \l__atableau_col_int
-    \__atableau_read_style:nw {draw_entry}
+    \__atableau_read_style:nw {draw_entry:nn}
 }
 
 % ---------------------------------------------------------------------------
@@ -630,24 +652,24 @@
         \__atableau_set_coordinates:nVV {l} \g__atableau_row_max_int \g__atableau_col_max_int
         \fp_set:Nn \l__atableau_yl_fp {\l__atableau_yl_fp+\l__atableau_row_dy_fp*\l__atableau_height_fp/2}
 
-        \__atableau_set_coordinates:nnV {m} {0} \g__atableau_col_max_int
-        \fp_set:Nn \l__atableau_xm_fp {\l__atableau_xm_fp+\l__atableau_col_dx_fp*\l__atableau_width_fp/2+\l__atableau_separation_fp/2}
-        \fp_set:Nn \l__atableau_ym_fp {\l__atableau_ym_fp-\l__atableau_row_dy_fp*\l__atableau_height_fp/2}
+        \__atableau_set_coordinates:nnV {a} {0} \g__atableau_col_max_int
+        \fp_set:Nn \l__atableau_xa_fp {\l__atableau_xa_fp+\l__atableau_col_dx_fp*\l__atableau_width_fp/2+\l__atableau_separation_fp/2}
+        \fp_set:Nn \l__atableau_ya_fp {\l__atableau_ya_fp-\l__atableau_row_dy_fp*\l__atableau_height_fp/2}
 
         % add the separator
         \str_case:enF {#1} {
         {|} {
-                \draw[atableau/separator](\fp_use:N\l__atableau_xm_fp,\fp_use:N\l__atableau_ym_fp)--(\fp_use:N\l__atableau_xm_fp,\fp_use:N\l__atableau_yl_fp);
+                \draw[atableau/separator](\fp_use:N\l__atableau_xa_fp,\fp_use:N\l__atableau_ya_fp)--(\fp_use:N\l__atableau_xa_fp,\fp_use:N\l__atableau_yl_fp);
             }
         }
         {   % any other separator is assumed to be text
-            \node[text=\tl_use:N\l__atableau_separator_fg_tl] at (\fp_use:N\l__atableau_xm_fp,\fp_use:N\l__atableau_ym_fp){#1};
+            \node[text=\tl_use:N\l__atableau_separator_fg_tl] at (\fp_use:N\l__atableau_xa_fp,\fp_use:N\l__atableau_ya_fp){#1};
             \hbox_set:Nn \l_tmpa_box {#1}
             \fp_add:Nn \l__atableau_x_fp {\box_wd:N \l_tmpa_box}
         }
 
         % finally, increment x by the separation amount
-        \fp_set:Nn \l__atableau_x_fp {\l__atableau_xm_fp+\l__atableau_col_dx_fp*\l__atableau_width_fp/2+\l__atableau_separation_fp/2}
+        \fp_set:Nn \l__atableau_x_fp {\l__atableau_xa_fp+\l__atableau_col_dx_fp*\l__atableau_width_fp/2+\l__atableau_separation_fp/2}
     }
     % reset the (row and) column max
     \int_gset:Nn \g__atableau_row_max_int {0}
@@ -721,7 +743,7 @@
         \seq_set_split:Nnn \l__atableau_component_seq {|} {#1}
         \seq_map_inline:Nn \l__atableau_component_seq
         {
-        \typeout{Component:~\int_use:N\l__atableau_component_int}
+        \typeout{Component~\int_use:N\l__atableau_component_int=|##1|}
             \__atableau_insert_separator:n \l__atableau_separator_tl
             \int_incr:N \l__atableau_component_int
             \str_if_eq:nnTF {##1} {...}
@@ -732,26 +754,151 @@
                {
                    % insert tableau
                    \tl_set:No \l__atableau_prefix_tl {prefix=\tl_use:N\l__atableau_multiprefix_tl-\int_use:N\l__atableau_component_int}
-                   \__atableau_tableau:nnnn {##1} {} (\fp_use:N\l__atableau_x_fp,\fp_use:N\l__atableau_y_fp)
+                   \__atableau_tableau:nnnn {{##1}} {} (\fp_use:N\l__atableau_x_fp,\fp_use:N\l__atableau_y_fp)
                }
         }
     \group_end:
 }
 
 % ---------------------------------------------------------------------------
+% Ribbon tableaux
 
-% abacuses
-
-% \__atableau_residue:nn computes the residue of #1 mod #2. This is
-% positive integer remainder when dividing by #2. As with \int_mod:n,
-% the result is left in the % input stream.
-\cs_new_nopar:Npn \__atableau_residue:nn #1 #2
+% \__atableau_ribbon:nnnn {ribbons} {style} (x,y)
+% Draw a ribbon tableau. The ribbons are specified by
+\cs_new_protected_nopar:Npn \__atableau_ribbon:nnnn #1 #2 (#3,#4)
 {
-    \int_compare:nTF {#1 > 0}
-        { \int_mod:nn {#1} {#2} }
-        { \int_eval:n {\int_mod:nn {#2 + \int_mod:nn {#1} {#2}} {#2}} }% \int_mod:nn is negative
+\typeout{----------------------------------------------------------------------------}
+\typeout{tableau:~1=|#1|,~2=#2,~(x,y)=(#3,#4)}
+    % using a group makes any changes to the atableau settings local
+    \group_begin:
+        \keys_set:nn {atableau} {#2}
+        \fp_set:Nn \l__atableau_x_fp {#3}
+        \fp_set:Nn \l__atableau_y_fp {#4}
+        \seq_clear:N \l__atableau_shape_seq
+        \typeout{Ribboning}
+        \clist_map_inline:nn {#1}
+        {
+            % the initial column indices in each row depends on the type of tableau
+            \str_case:VnF \l__atableau_type_tl
+            {
+                {shifted} { \int_set_eq:NN \l__atableau_col_int \l__atableau_row_int }
+                {skew}    { % the leading 0 catches the case when the skew shape has fewer rows than \l__atableau_row_int
+                            \int_set:Nn \l__atableau_col_int { 0\seq_item:Nn \l__atableau_skew_seq {\l__atableau_row_int+1}}
+                          }
+            }
+            % process the entries in this row
+            \typeout{ribbon~|##1|}
+            \__atableau_read_style:nw {read_ribbon_head:nnn} ##1 \q_recursion_tail \q_recursion_stop
+            % increment the row index and repeat
+            \int_incr:N \l__atableau_row_int
+        }
+    \group_end:
 }
 
+% Add the first node to the ribbon, with style, and set the row and column
+% indices, and (xl,yl) and (xm,ym) % equal to the top left and bottom right
+% coordinates of the node
+\cs_new_protected_nopar:Npn \__atableau_read_ribbon_head:nnn [#1] #2 #3
+{
+\typeout{Starting~ribbon~at~(#2,#3)~with~style~"#1".}
+    \int_set:Nn \l__atableau_row_int {#2-1}
+    \int_set:Nn \l__atableau_col_int {#3-1}
+
+    \__atableau_set_coordinates:nVV {l} \l__atableau_row_int \l__atableau_col_int
+    \node[atableau/ribbon,#1](\l__atableau_name_tl) at (\fp_use:N\l__atableau_xl_fp, \fp_use:N\l__atableau_yl_fp) {\__atableau_entry:n{#2}};
+
+    % add initial coordinates to \l__atableau_ribbon_tl
+
+    % 1. Make (xl,yl) the top corner of the ribbon and add it
+    \fp_set:Nn \l__atableau_xl_fp {\l__atableau_xl_fp+(\l__atableau_row_dx_fp+\l__atableau_col_dx_fp)*\l__atableau_width_fp/2}
+    \fp_set:Nn \l__atableau_yl_fp {\l__atableau_yl_fp-(\l__atableau_row_dy_fp+\l__atableau_col_dy_fp)*\l__atableau_height_fp/2}
+    \tl_set:Nx \l__atableau_ribbon_tl { (\fp_use:N\l__atableau_xl_fp,\fp_use:N\l__atableau_yl_fp) }
+
+    % 2. Make (xa,ya) the top left of the ribbon and add it on the left (decreasing column)
+    \fp_set:Nn \l__atableau_xa_fp {\l__atableau_xl_fp-\l__atableau_col_dx_fp*\l__atableau_width_fp}
+    \fp_set:Nn \l__atableau_ya_fp {\l__atableau_yl_fp-\l__atableau_col_dy_fp*\l__atableau_height_fp}
+    \tl_put_left:Nx \l__atableau_ribbon_tl { (\fp_use:N\l__atableau_xa_fp,\fp_use:N\l__atableau_ya_fp)-- }
+
+    % 3, Make (xb,yb) the bottom right corner and add it on the right (increasing row)
+    \fp_set:Nn \l__atableau_xb_fp {\l__atableau_xl_fp+\l__atableau_row_dx_fp*\l__atableau_width_fp}
+    \fp_set:Nn \l__atableau_yb_fp {\l__atableau_yl_fp+\l__atableau_row_dy_fp*\l__atableau_height_fp}
+    \tl_put_right:Nx \l__atableau_ribbon_tl { --(\fp_use:N\l__atableau_xb_fp,\fp_use:N\l__atableau_yb_fp) }
+
+    \typeout{initial~riboon=\tl_use:N\l__atableau_ribbon_tl,}
+    % look at the next ribbon specification
+    \__atableau_read_style:nw {read_ribbon_rc:nn}
+}
+
+
+% Read each successive r and c in the ribbon specification, together with
+% style, draw the corresponding nodes and add the new coordinates to the
+% ribbon \l__atableau_ribbon_tl. Finally, draw the ribbon.
+% TODO: ribbon style + build the partition
+\cs_new_protected_nopar:Npn \__atableau_read_ribbon_rc:nn [#1] #2
+{
+    \quark_if_recursion_tail_stop_do:nn {#2}
+    {
+    \typeout{finalising~ribbon}
+          % Add the \draw command and the last node to the ribbon
+          \fp_set:Nn \l__atableau_xa_fp {\l__atableau_xa_fp+\l__atableau_row_dx_fp*\l__atableau_width_fp}
+          \fp_set:Nn \l__atableau_ya_fp {\l__atableau_ya_fp+\l__atableau_row_dy_fp*\l__atableau_height_fp}
+          \tl_put_left:No \l__atableau_ribbon_tl { (\fp_use:N\l__atableau_xa_fp, \fp_use:N\l__atableau_ya_fp)-- }
+          % add a closing cycle
+          \tl_put_right:Nn \l__atableau_ribbon_tl {--cycle}
+
+            \typeout{final~ribbon=\tl_use:N\l__atableau_ribbon_tl.}
+          % draw the ribbon
+          \draw[atableau/innerwall,fill=blue!20] \l__atableau_ribbon_tl;
+    }
+    \str_case:enF {#2}
+    {
+        {c} { % move back one column
+              \int_decr:N \l__atableau_col_int
+
+              % Move (xa,ya) back one column add it to the ribbon on the left
+              \fp_set:Nn \l__atableau_xa_fp {\l__atableau_xa_fp-\l__atableau_col_dx_fp*\l__atableau_width_fp}
+              \fp_set:Nn \l__atableau_ya_fp {\l__atableau_ya_fp-\l__atableau_col_dy_fp*\l__atableau_height_fp}
+              \tl_put_left:No \l__atableau_ribbon_tl { (\fp_use:N\l__atableau_xa_fp,\fp_use:N\l__atableau_ya_fp)-- }
+
+              % Move (xb,xb) back one column add it to the ribbon on the right
+              \fp_set:Nn \l__atableau_xb_fp {\l__atableau_xb_fp-\l__atableau_col_dx_fp*\l__atableau_width_fp}
+              \fp_set:Nn \l__atableau_yb_fp {\l__atableau_yb_fp-\l__atableau_col_dy_fp*\l__atableau_height_fp}
+              \tl_put_right:No \l__atableau_ribbon_tl { --(\fp_use:N\l__atableau_xb_fp,\fp_use:N\l__atableau_yb_fp) }
+            }
+
+        {r} { % move forward one row
+              \int_incr:N \l__atableau_row_int
+
+              % Move (xa,ya) forward one row add it to the ribbon on the left
+              \fp_set:Nn \l__atableau_xa_fp {\l__atableau_xa_fp+\l__atableau_row_dx_fp*\l__atableau_width_fp}
+              \fp_set:Nn \l__atableau_ya_fp {\l__atableau_ya_fp+\l__atableau_row_dy_fp*\l__atableau_height_fp}
+              \tl_put_left:No \l__atableau_ribbon_tl { (\fp_use:N\l__atableau_xa_fp,\fp_use:N\l__atableau_ya_fp)-- }
+
+              % Move (xb,xb) forward one row add it to the ribbon on the right
+              \fp_set:Nn \l__atableau_xb_fp {\l__atableau_xb_fp+\l__atableau_row_dx_fp*\l__atableau_width_fp}
+              \fp_set:Nn \l__atableau_yb_fp {\l__atableau_yb_fp+\l__atableau_row_dy_fp*\l__atableau_height_fp}
+              \tl_put_right:No \l__atableau_ribbon_tl { --(\fp_use:N\l__atableau_xb_fp,\fp_use:N\l__atableau_yb_fp) }
+            }
+    }
+    {
+        \msg_error_text:n {aTableau:~#2~is~not~a~valid~ribbon~specification}
+    }
+
+    \typeout{Adding~to~ribbon~with~1=#1,~2=#2}
+    \typeout{ribbon=\tl_use:N\l__atableau_ribbon_tl.}
+
+    % add the named node with any styling
+    % TODO : allow #1=style|entry to specify both style and the node entry
+    \__atableau_set_coordinates:nVV {l} \l__atableau_row_int \l__atableau_col_int
+    \node[atableau/ribbon,#1](\l__atableau_name_tl) at (\fp_use:N\l__atableau_xl_fp, \fp_use:N\l__atableau_yl_fp) {\__atableau_entry:n{#2}};
+
+    % look at the next ribbon specification
+    \__atableau_read_style:nw {read_ribbon_rc:nn}
+}
+
+% ---------------------------------------------------------------------------
+
+% abacuses
 
 % \__atableau_abacus:nnnn {style} (x,y) {#runners} {partition+style}
 \cs_new_protected_nopar:Npn \__atableau_abacus:nnnn #1 (#2,#3) #4 #5
@@ -779,7 +926,7 @@
         \int_zero:N \l__atableau_beads_int  % will record the number of beads
         \clist_map_inline:nn {#5}
         {
-            \__atableau_read_style:nw {record_style} ##1  \q_recursion_tail \q_recursion_stop
+            \__atableau_read_style:nw {record_style:nn} ##1  \q_recursion_tail \q_recursion_stop
         }
 
         % unless they have been set, determine the number of abacus rows
@@ -795,9 +942,9 @@
             \typeout{adding~runner~##1~<~\int_use:N\l__atableau_cols_int}
             % draw the abacus runners
             \__atableau_set_coordinates:nnn {l} {0} { \int_eval:n{##1-1} }
-            \__atableau_set_coordinates:nVo {m} \l__atableau_rows_int { \int_eval:n{##1-1} }
-        \typeout{Drawing~runner~\int_use:N\l__atableau_row_int :~(\fp_use:N\l__atableau_xl_fp,\fp_use:N\l__atableau_yl_fp)--(\fp_use:N\l__atableau_xm_fp,\fp_use:N\l__atableau_ym_fp)}
-            \draw[atableau/runner] (\fp_use:N\l__atableau_xl_fp,\fp_use:N\l__atableau_yl_fp)--(\fp_use:N\l__atableau_xm_fp,\fp_use:N\l__atableau_ym_fp);
+            \__atableau_set_coordinates:nVo {a} \l__atableau_rows_int { \int_eval:n{##1-1} }
+        \typeout{Drawing~runner~\int_use:N\l__atableau_row_int :~(\fp_use:N\l__atableau_xl_fp,\fp_use:N\l__atableau_yl_fp)--(\fp_use:N\l__atableau_xa_fp,\fp_use:N\l__atableau_ya_fp)}
+            \draw[atableau/runner] (\fp_use:N\l__atableau_xl_fp,\fp_use:N\l__atableau_yl_fp)--(\fp_use:N\l__atableau_xa_fp,\fp_use:N\l__atableau_ya_fp);
             % draw the ticks
             \typeout{About~to~add~\int_use:N\l__atableau_rows_int~\space~ticks~of~width~\fp_use:N\l__atableau_tick_width_fp.}
             \int_zero:N \l__atableau_row_int
@@ -806,10 +953,10 @@
             \typeout{adding~tick~####1~<~\int_use:N\l__atableau_rows_int}
             \__atableau_set_coordinates:noo {l} { \int_eval:n{####1-1} } { \int_eval:n{##1-1} }
                 % add and subtract (half) tick width
-                \fp_set:Nn \l__atableau_xm_fp {\l__atableau_xl_fp+\l__atableau_tick_width_fp}
+                \fp_set:Nn \l__atableau_xa_fp {\l__atableau_xl_fp+\l__atableau_tick_width_fp}
                 \fp_set:Nn \l__atableau_xl_fp {\l__atableau_xl_fp-\l__atableau_tick_width_fp}
-                \typeout{ready~to~draw!~(\fp_use:N\l__atableau_xl_fp,\fp_use:N\l__atableau_yl_fp)--(\fp_use:N\l__atableau_xm_fp,\fp_use:N\l__atableau_yl_fp)}
-                \draw[atableau/tick] (\fp_use:N\l__atableau_xl_fp,\fp_use:N\l__atableau_yl_fp)--(\fp_use:N\l__atableau_xm_fp,\fp_use:N\l__atableau_yl_fp);
+                \typeout{ready~to~draw!~(\fp_use:N\l__atableau_xl_fp,\fp_use:N\l__atableau_yl_fp)--(\fp_use:N\l__atableau_xa_fp,\fp_use:N\l__atableau_yl_fp)}
+                \draw[atableau/tick] (\fp_use:N\l__atableau_xl_fp,\fp_use:N\l__atableau_yl_fp)--(\fp_use:N\l__atableau_xa_fp,\fp_use:N\l__atableau_yl_fp);
                 \typeout{ticked~off:)}
             \typeout{finished~tick~####1.}
             }
