@@ -1,15 +1,23 @@
+.. raw:: html
+
+    <style> .red {color:red} </style>
+
 |version|
 |LaTeX|
+|ctan|
 |LPPL|
 
 ========
 ATableau
 ========
 
+      *This version of the code is already quite powerful, but it is
+      still in the proof-of-concept phase. There are still many bugs,
+      planned features that are not yet implemented, and everything
+      is subject to change.*
 
 LaTeX macros for symmetric group combinatorics: Young diagrams, tabloids, tableaux, abacuses, ...
 
-This version of the code is already quite powerful, but it is still in the proof-of-concept phase and everything is subject to change.
 
 .. code-block:: latex
 
@@ -22,6 +30,7 @@ This version of the code is already quite powerful, but it is still in the proof
     \Abacus{3}{0,2,3,4,5}
 
 
-.. |version| image:: https://img.shields.io/ctan/v/gitinfo-lua
-.. |LPPL| image:: https://img.shields.io/github/license/note286/xduts?style=flat-square
+.. |version| image:: https://img.shields.io/github/v/tag/webquiz/release?color=success&label=version
 .. |LaTeX| image:: https://img.shields.io/badge/LaTeX-008080?logo=latex&logoColor=fff&style=flat
+.. |ctan| image:: https://img.shields.io/ctan/l/webquiz
+.. |LPPL| image:: https://img.shields.io/github/license/note286/xduts?style=flat-square
