@@ -611,7 +611,7 @@
     \typeout{drawing~with~1=|#1|,~2=|#2|}
     % compute the node name and its (x,y)-coordinates
     \__atableau_set_coordinates:nVV {l} \l__atableau_row_int \l__atableau_col_int
-    \typeout{drawing~with~style=#1,~entry=|#2|,row=\int_use:N\l__atableau_row_int,col=\int_use:N\l__atableau_col_int.}
+    \typeout{drawing~with~style=#1,~entry="#2",row=\int_use:N\l__atableau_row_int,col=\int_use:N\l__atableau_col_int.}
 
     % special processing for dots
     \tl_if_eq:nnTF {#2} {.}
@@ -684,7 +684,7 @@
 \cs_new_protected_nopar:Npn \__atableau_multidiagram:nnnn #1 #2 (#3,#4)
 {
 \typeout{----------------------------------------------------------------------------}
-\typeout{multidiagram:~1=|#1|,~2=#2,~(x,y)=(#3,#4)}
+\typeout{multidiagram:~1="#1",~2=#2,~(x,y)=(#3,#4)}
     % using a group makes any changes to the atableau settings local
     \group_begin:
         \keys_set:nn {atableau} {dot=,#2}
@@ -727,7 +727,7 @@
 \cs_new_protected_nopar:Npn \__atableau_multitableau:nnnn #1 #2 (#3,#4)
 {
 \typeout{----------------------------------------------------------------------------}
-\typeout{multitableau:~1=|#1|,~2=#2,~(x,y)=(#3,#4)}
+\typeout{multitableau:~1="#1",~2=#2,~(x,y)=(#3,#4)}
     % using a group makes any changes to the atableau settings local
     \group_begin:
         \keys_set:nn {atableau} {#2}
@@ -744,7 +744,7 @@
         \seq_set_split:Nnn \l__atableau_component_seq {|} {#1}
         \seq_map_inline:Nn \l__atableau_component_seq
         {
-        \typeout{Component~\int_use:N\l__atableau_component_int=|##1|}
+        \typeout{Component~\int_use:N\l__atableau_component_int="##1"}
             \__atableau_insert_separator:n \l__atableau_separator_tl
             \int_incr:N \l__atableau_component_int
             \tl_if_eq:nnTF {##1} {...}
@@ -769,7 +769,7 @@
 \cs_new_protected_nopar:Npn \__atableau_ribbon:nnnn #1 #2 (#3,#4)
 {
 \typeout{----------------------------------------------------------------------------}
-\typeout{tableau:~1=|#1|,~2=#2,~(x,y)=(#3,#4)}
+\typeout{tableau:~1="#1",~2=#2,~(x,y)=(#3,#4)}
     % using a group makes any changes to the atableau settings local
     \group_begin:
         \keys_set:nn {atableau} {#2}
@@ -789,7 +789,7 @@
             }
             \typeout{about~to~regex~"##1"}
             % process the entries in this row
-            \regex_match:nnTF {[A-Za-z].*\|\s*\{?\s*\d*\s*\}*\s*\{?\s*\d*\s*\}?[\src]*} {##1}
+            \regex_match:nnTF {\A[A-Za-z].*\|\s*\{?\s*\d*\s*\}*\s*\{?\s*\d*\s*\}?[\src]*\Z} {##1}
             {
             \typeout{matched!}
                 \seq_set_split:Nnn \l_tmpa_seq {|} {##1}
@@ -801,7 +801,7 @@
                 \tl_set:Nn \l_tmpa_tl {##1}
                 \tl_clear:N \l__atableau_ribbon_style_tl
             }
-            \typeout{ribbon~|##1|~->~style=\tl_use:N\l__atableau_ribbon_style_tl,~ribbon="\l_tmpa_tl"}
+            \typeout{ribbon~|##1|~->~style="\tl_use:N\l__atableau_ribbon_style_tl",~ribbon="\l_tmpa_tl"}
             \exp_last_unbraced:Nnf \__atableau_read_style:nw {read_ribbon_head:nnn} \l_tmpa_tl \q_recursion_tail \q_recursion_stop
             % increment the row index and repeat
             \int_incr:N \l__atableau_row_int
@@ -867,7 +867,7 @@
 
             \typeout{final~ribbon=\tl_use:N\l__atableau_ribbon_tl.}
           % draw the ribbon
-          \draw[atableau/innerwall, \tl_use:N\l__atableau_ribbon_style_tl] \l__atableau_ribbon_tl;
+          \exp_last_unbraced:Nx\draw{[atableau/innerwall, \tl_use:N\l__atableau_ribbon_style_tl]} \l__atableau_ribbon_tl;
     }
 
     \str_case:enF {#2}
