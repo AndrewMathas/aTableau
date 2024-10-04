@@ -25,6 +25,6 @@ LaTeX macros for symmetric group combinatorics: Young diagrams, tabloids, tablea
     \Abacus{3}{0,2,3,4,5}
 
 
-.. |version| image:: https://img.shields.io/github/v/tag/atableau/release?color=success&label=version
+.. |version| image:: https://img.shields.io/github/v/tag/aTableau/release?color=success&label=version
 .. |LaTeX| image:: https://img.shields.io/badge/LaTeX-008080?logo=latex&logoColor=fff&style=flat
 .. |LPPL| image:: https://img.shields.io/github/license/note286/xduts?style=flat-square

@@ -802,7 +802,7 @@
                 \tl_clear:N \l__atableau_ribbon_style_tl
             }
             \typeout{ribbon~|##1|~->~style=\tl_use:N\l__atableau_ribbon_style_tl,~ribbon="\l_tmpa_tl"}
-            \exp_args:Nox \__atableau_read_style:nw {{read_ribbon_head:nnn}} \l_tmpa_tl \q_recursion_tail \q_recursion_stop
+            \exp_last_unbraced:Nnf \__atableau_read_style:nw {read_ribbon_head:nnn} \l_tmpa_tl \q_recursion_tail \q_recursion_stop
             % increment the row index and repeat
             \int_incr:N \l__atableau_row_int
         }
