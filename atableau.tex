@@ -2,7 +2,7 @@
 % Title:    aTableau.
 % Author:   Andrew Mathas
 % Created:  October 2023
-% Modified: 09:27 Friday, 04 October 2024
+% Modified: 17:11 Friday, 04 October 2024
 % ----------------------------------------------------------------------
 \documentclass{amsart}
 \usepackage[svgnames]{xcolor}
@@ -12,6 +12,10 @@
 \usepackage{tabularx}
 \usepackage{booktabs}
 \usepackage{enumitem}
+
+\parindent=0pt
+\parskip=4mm
+
 \setlist[description]{font=\sffamily\bfseries\color{NavyBlue},labelwidth=\textwidth}
 \usepackage[a4paper,margin=18mm]{geometry}
 \synctex=1
@@ -124,6 +128,14 @@
     residue,
     content,
     hook
+  }.
+  classoffset=3,
+  keywordstyle=\color{magenta},% TikZ keys
+  morekeywords={
+    .style,
+    fill,
+    circle,
+    radius,
   }
 }
 
@@ -135,6 +147,8 @@
   lefthand width=0.35\textwidth,
   listing style=tikz,
   sidebyside,
+  left=2mm,
+  right=2mm,
   sidebyside align=center,
   sidebyside gap=4mm,
   text and listing,
@@ -214,12 +228,6 @@
 
 
 \begin{document}
-
-\Tableau{12,3}
-
-  \RibbonTableau{ 12cr }
-
-  \end{document}
 
   \ATableau
 
@@ -362,6 +370,28 @@
   \section{Tabloids}
 
   \section{Ribbon tableaux}
+
+    \begin{example}
+      \RibbonTableau{11rrrrrr}
+      \RibbonTableau{16ccccc}
+      \RibbonTableau{1{10}crcrcrcrc}
+    \end{example}
+
+    \typeout{*************************}
+    \typeout{Ribbon examples}
+    \begin{example}
+      \RibbonTableau{ [fill=blue!20|1]12[fill=red!20|2]c[fill=yellow!20|3]r }
+      \RibbonTableau[french]{ [|1]12[|2]c[|3]r }
+      \RibbonTableau[ukraine]{ [|1]12[|2]c[|3]r }
+      \RibbonTableau[australian]{ [|1]12[|2]c[|3]r }
+    \end{example}
+
+    \begin{example}
+      \RibbonTableau[skew={4,1^2},ukraine]
+        {15,16,26,25crcr,23cr,42cr,61}
+      \RibbonTableau[skew={4,1^2},australian]
+        {fill=blue!10|16crcccrrcrr,26,34cr}
+    \end{example}
 
   \section{Multidiagrams and multitableaux}
 
