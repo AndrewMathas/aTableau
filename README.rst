@@ -3,13 +3,14 @@
 |LPPL|
 
 ========
-ATableau
+aTableau
 ========
 
-      *This version of the code is already quite powerful, but it is
-      still in the proof-of-concept phase. There are still many bugs,
-      and features still to be yet implemented. Everything
-      is subject to change.*
+*This version of the code is already quite powerful, but it is still in
+the proof-of-concept phase. There are bugs and there is
+very little documentation.  Several planned features have not been
+implemented. Everything is subject to change. Comments and suggestions
+are welcome.*
 
 LaTeX macros for symmetric group combinatorics: Young diagrams, tabloids, tableaux, abacuses, ...
 
@@ -25,6 +26,6 @@ LaTeX macros for symmetric group combinatorics: Young diagrams, tabloids, tablea
     \Abacus{3}{0,2,3,4,5}
 
 
-.. |version| image:: https://img.shields.io/github/v/tag/aTableau/release?color=success&label=version
-.. |LaTeX| image:: https://img.shields.io/badge/LaTeX-008080?logo=latex&logoColor=fff&style=flat
-.. |LPPL| image:: https://img.shields.io/github/license/note286/xduts?style=flat-square
+.. |version| image:: https://img.shields.io/github/v/tag/AndrewMathas/aTableau?color=success&label=version
+.. |LaTeX|   image:: https://img.shields.io/badge/LaTeX-008080?logo=latex&logoColor=fff&style=flat
+.. |LPPL|    image:: https://img.shields.io/github/license/note286/xduts?style=flat-square
