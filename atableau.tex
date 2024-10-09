@@ -2,7 +2,7 @@
 % Title:    aTableau.
 % Author:   Andrew Mathas
 % Created:  October 2023
-% Modified: 18:55 Tuesday, 08 October 2024
+% Modified: 12:46 Wednesday, 09 October 2024
 % ----------------------------------------------------------------------
 \documentclass{amsart}
 \usepackage[svgnames]{xcolor}
@@ -347,7 +347,7 @@
     entries sum to~$12$. It is customary to omit the zeros when writing partitions
     and to use exponents for repeated parts, so we also write
     $\lambda=(4,3^2,2)$. Many authors identity a
-    partition~$\lambda=(\lambda_1,\lambda_2,\dots)$ woth is
+    partition~$\lambda=(\lambda_1,\lambda_2,\dots)$ with its
     \emph{diagram}, which is the set
     \[
     [\lambda] = \set{(r,c)|1\le c\le\lambda_r\text{ for }r\ge1}.
@@ -418,9 +418,9 @@
           Y/.style={pattern=north west lines, pattern color=ForestGreen,opacity=0.5},
         ]
         \Diagram(0,0)[ribbons={Y|16ccccrrr, B|16crrcccr}]{6,5^2,2}
-        \draw[->](1.5,1)node[right]{$\alpha=(1,2)$} to [out=180,in=90] (T-1-2.base);
+        \draw[->](1.5, 1)node[right]{  $\alpha=(1,2)$} to [out=180,in=90]  (T-1-2.base);
         \draw[->](1.5,-2)node[right]{$f_\alpha=(4,2)$} to [out=180,in=270] (T-4-2.base);
-        \draw[red,<->,xshift=-1mm]([xshift=-1mm]T-1-1.south west)
+        \draw[red,<->]([xshift=-1mm]T-1-1.south west)
            --node[rotate=90,above]{$l_\alpha=3$}([xshift=-1mm]T-4-1.south west);
       \end{tikzpicture}
     \end{Example}
@@ -653,7 +653,7 @@
   this manual, are for demonstration purposes only: I recommend against
   such garish choices in any self-respecting document!
 
-  \subsection{\textbackslash Tableau options}
+  \subsubsection{\textbackslash Tableau options}
 
   The optional $*$-styles and $[\ldots]$-styles are the main mechanism
   for styling individual nodes in a tableau. Using a key-value syntax,
@@ -729,13 +729,27 @@
 
   \option[]{}[]
 
-  \option[]{ribbons}[]
+  \option[]{ribbons}[a comma separated list of ribbon specifers]
 
-  Adds one or more ribbons to the tableau. The ribbons are given as a
-  comma separated list of ribbon specifiers, which are described in the
-  section on \keyword{\RibbonTableau} below.
+  \option[fill={blue!20}]{ribbonstyle}[]
 
-  \option[fill={blue!20}]{ribbonsstyle}[]
+  Use the \option{ribbons} key to add a comma separated list of ribbons
+  to your tableau. The syntax for adding ribbons is described in the
+  \keyword{\RibbonTableau} section below. The basic idea is that you
+  specify the location of the head of the ribbon, which has minimum row
+  index and maximum column index, and then gives a sequence of
+  \textsf{r}'s and \textsf{c}'s depending on whether the ribbon moves
+  along a row or column -- and, of course, you can add style. Use the
+  \option{ribbonstyle} option to change the default style of the
+  ribbons. For example, noting the a box is a ribbon of length~$1$, the
+  following code uses ribbons of length one (that is, nodes), to
+  highlight the addable nodes of this tableau.
+
+  \begin{example}
+    \Tableau[ribbons={15,24,42,51},
+             ribbonstyle={fill=yellow}]
+             {1234,567,89{10},{{11}}}
+  \end{example}
 
   \option[]{}[]
 
@@ -756,7 +770,7 @@
   \end{example}
 
   The options \option{scale}, \option{xscale} and \option{yscale} can
-  be used to rescale the boxes in tableau and diagrams. The names are
+  be used to rescale the boxes in tableaux and diagrams. The names are
   slightly misleading because \option{xscale} rescales in the direction
   of increasing column index and \option{yscale} rescales in the
   direction of increasing row index.
@@ -797,6 +811,7 @@
   \end{example}
 
   \subsection{Young diagrams}
+  \indexcmd{Diagram}
 
   \begin{example}
     \Tableau{~~~,~~~,~~,~}
@@ -826,6 +841,7 @@
   \typeout{label example!!|}
   \begin{example}
     \Diagram[label=contents]{3,2,1}
+    \Tableau{012,{-1}0,{{-2}}}
   \end{example}
 
 
@@ -834,18 +850,28 @@
   \end{example}
 
   \begin{example}
+    \Diagram[label=final]{3,2,2}
+  \end{example}
+
+  \begin{example}
+    \Diagram[label=initial]{3,2,2}
+  \end{example}
+
+  \begin{example}
     \Diagram[label=residues, e=3]{3,2,1}
   \end{example}
 
   \subsection{Skew tableau}
+  \indexcmd{SkewTableau}
 
   \begin{example}
     \tikzset{R/.style={fill=red!20,circle}}
-    \SkewTableau{2,1}{12[R]3,45,67}
-    \SkewTableau[french]{2,1}{12[R]3,45,67}
+    \SkewTableau{2,1^2}{12[R]3,45,67}
+    \SkewTableau[french,skewwall]{2,1^2}{12[R]3,45,67}
   \end{example}
 
   \subsection{Shifted tableau}
+  \indexcmd{ShiftedTableau}
 
   \begin{example}
     \tikzset{R/.style={fill=red!20,circle}}
@@ -858,9 +884,31 @@
   \end{example}
 
   \subsection{Tabloids}
+  \indexcmd{Tabloid}
+
+  \typeout{TABLOIDS-----------------------------------------------}
+  A \emph{tabloid} is an equivalence class of tableau where two tableaux
+  are equivalent if they have the same entries in each row, up to a
+  permutation. In the literature, tabloids are drawn with (outer wall)
+  lines drawn above and below each row, and no side boundary walls. The
+  \keyword{\Tabloid} command functions in the same way as the
+  \keyword{\Tableau} command, except that it draws tabloids.
+
+  \begin{example}
+    \tikzset{R/.style={fill=red!20,circle}}
+    \Tabloid[australian]{12[R]3,45}
+    \Tabloid[english]{12[R]3,45}
+    \Tabloid[french]{12[R]3,45}
+    \Tabloid[ukrainian]{12[R]3,45}
+  \end{example}
 
   \subsection{Ribbon tableaux}
+  \indexcmd{RibbonTableau}
 
+    A \emph{ribbon} in a tableau, or in a diagram, is a connected strip
+    of nodes that does not contain a \Diagram[scale=0.3]{2^2}-square.
+    The \emph{head} of a ribbon~$R$ is the node $(r,c)\in R$ such that
+    $r'>r$ and $c'<c$ whenever $(r',c')\in R$ and $(r',c')\ne(r,c)$.
     \begin{example}
       \RibbonTableau{11rrrrrr}
       \RibbonTableau{16ccccc}
@@ -883,7 +931,8 @@
         {fill=blue!10|16crcccrrcrr,26,34cr}
     \end{example}
 
-  \subsection{Multidiagrams and multitableaux}
+    \subsection{Multidiagrams and multitableaux}
+    \indexcmd{Multidiagram}\indexcmd{Multitableau}
 
     \begin{example}
       \Multidiagram[scale=0.5]{3,2^2||2,1^2||1}
