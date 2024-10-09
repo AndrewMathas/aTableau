@@ -86,11 +86,12 @@
 % ---------------------------------------------------------------------------
 % package variables
 
-\bool_new:N \l__atableau_shifted_bool   % true for shifted tableau
-\bool_new:N \l__atableau_tabloid_bool   % true for tabloids
-\bool_new:N \l__atableau_finite_bool    % finite abacus runners
-\bool_new:N \l__atableau_frame_bool     % framed abacus runners
-\bool_new:N \l__atableau_outline_bool   % framed abacus runners
+\bool_new:N \l__atableau_finite_bool    % true if finite abacus runners
+\bool_new:N \l__atableau_frame_bool     % true if drawing framed abacus runners
+\bool_new:N \l__atableau_outline_bool   % true if drawing tableau outline
+\bool_new:N \l__atableau_shifted_bool   % true if a shifted tableau
+\bool_new:N \l__atableau_skewwall_bool  % true if drawing skew outline
+\bool_new:N \l__atableau_tabloid_bool   % true if a tabloid
 
 \fp_new:N \l__atableau_col_dx_fp        % change in x-coordinate between columns
 \fp_new:N \l__atableau_col_dy_fp        % change in y-coordinate between columns
@@ -99,7 +100,6 @@
 \fp_new:N \l__atableau_row_dy_fp        % change in y-coordinate between rows
 \fp_new:N \l__atableau_separation_fp    % distance between multitableau
 \fp_new:N \l__atableau_tick_width_fp    % half width of abacus ticks
-\fp_new:N \l__atableau_text_width_fp    % text width of the tableaux nodes
 \fp_new:N \l__atableau_width_fp         % width of the tableaux nodes/separation between abacus runners
 \fp_new:N \l__atableau_x_fp             % x-coordinate of the first node
 \fp_new:N \l__atableau_y_fp             % y-coordinate of the first node
@@ -116,14 +116,17 @@
 \int_new:N \g__atableau_row_max_int     % maximum row index in diagram
 \int_new:N \l__atableau_beads_int       % number of beads in abacus
 \int_new:N \l__atableau_col_int         % current column index
+\int_new:N \l__atableau_c_int           % scratch column counter
 \int_new:N \l__atableau_cols_int        % number of columns in a multitableau/abacus
 \int_new:N \l__atableau_component_int   % component in multidiagrams and tableaux
 \int_new:N \l__atableau_e_int           % quantum characteristic
 \int_new:N \l__atableau_row_int         % current row index
+\int_new:N \l__atableau_r_int           % scratch row counter
 \int_new:N \l__atableau_rows_int        % number of rows in abacus/tableau
 
 \seq_new:N \l__atableau_charge_seq      % charge=residue offset
 \seq_new:N \l__atableau_component_seq   % bead styles
+\seq_new:N \l__atableau_conjugate_seq   % conjugate partition
 \seq_new:N \l__atableau_ribbons_seq     % ribbons to add to tableau/diagram
 \seq_new:N \l__atableau_row_seq         % a tableau row
 \seq_new:N \l__atableau_shape_seq       % a partition
@@ -151,7 +154,7 @@
 \tl_new:N \l__atableau_abacus_style_tl  % tableaux style: north, south, east, west
 \tl_new:N \l__atableau_text_tl          % text colour for tableau nodes
 \tl_new:N \l__atableau_tick_tl          % abacus tick colour
-\tl_new:N \l__atableau_type_tl          % tableaux type: normal, shifted, skew
+\tl_new:N \l__atableau_outline_tl       % diagram outline
 
 % ---------------------------------------------------------------------------
 % TikZ styles
@@ -166,8 +169,6 @@
         inner~sep      = 0pt,
         minimum~height = \fp_to_decimal:N \l__atableau_height_fp cm,
         minimum~width  = \fp_to_decimal:N \l__atableau_width_fp cm,
-       %text~width     = \fp_to_decimal:N \l__atableau_text_width_fp cm,
-       %align          = center,
         shape          = \l__atableau_shape_tl,
         execute~at~begin~node = {
           % copy the font and text colour, as they might be changed by the style settings
@@ -182,7 +183,9 @@
         thin,
     },
     outerwall/.style = {
-       line cap=rect,
+       shift={(\fp_eval:n{-(\l__atableau_row_dx_fp+\l__atableau_col_dx_fp)*\l__atableau_width_fp/2},
+               \fp_eval:n{-(\l__atableau_row_dy_fp+\l__atableau_col_dy_fp)*\l__atableau_height_fp/2})},
+       line~cap=rect,
        very~thick,
        draw = \l__atableau_outer_tl,
     },
@@ -194,6 +197,13 @@
     },
     separator/.style = {
        draw          = \l__atableau_separator_fg_tl
+    },
+    skewwall/.style = {
+       shift={(\fp_eval:n{-(\l__atableau_row_dx_fp+\l__atableau_col_dx_fp)*\l__atableau_width_fp/2},
+               \fp_eval:n{-(\l__atableau_row_dy_fp+\l__atableau_col_dy_fp)*\l__atableau_height_fp/2})},
+       thick,
+       draw=gray,
+       fill=gray!20,
     },
     starstyle/.style =,
     % abacus styles
@@ -250,7 +260,6 @@
           \tl_set:Nn \l__atableau_shape_tl  {diamond}
           \fp_set:Nn \l__atableau_width_fp  {0.7012} % 1/sqrt(2)
           \fp_set:Nn \l__atableau_height_fp {0.7012}
-          \fp_set:Nn \l__atableau_text_width_fp {0.5} % sqrt(2)
         }
       {tableau/ukrainian}
         {
@@ -261,7 +270,6 @@
           \tl_set:Nn \l__atableau_shape_tl  {diamond}
           \fp_set:Nn \l__atableau_width_fp  {0.7012}
           \fp_set:Nn \l__atableau_height_fp {0.7012}
-          \fp_set:Nn \l__atableau_text_width_fp {0.5} % sqrt(2)
         }
       {tableau/russian}
         {
@@ -320,7 +328,6 @@
 \cs_new_protected_nopar:Npn \__atableau_set_xscale:n #1
 {
       \fp_set:Nn \l__atableau_width_fp      {#1*\l__atableau_width_fp}
-      \fp_set:Nn \l__atableau_text_width_fp {#1*\l__atableau_text_width_fp}
       \fp_set:Nn \l__atableau_separation_fp {#1*\l__atableau_separation_fp }
 }
 % \__atableau_set_yscale:n {y-scale} : rescale the y-dimension
@@ -332,8 +339,10 @@
 % ---------------------------------------------------------------------------
 % command variants
 
-\cs_generate_variant:Nn \__atableau_set_coordinates:nnn {nVV, nVn, nVo, nnV, nno, non, noo}
 \cs_generate_variant:Nn \int_set:Nn {No}
+\cs_generate_variant:Nn \seq_set_item:Nnn {Nno}
+
+\cs_generate_variant:Nn \__atableau_set_coordinates:nnn {nVV, nVn, nVo, nnV, nno, non, noo}
 \cs_generate_variant:Nn \__atableau_set_style:nn {nV}
 
 % ---------------------------------------------------------------------------
@@ -446,6 +455,26 @@
   \typeout{ginished~set~partition}
 }
 
+% \__atableau_compute_conjugate_partition:N {seq}
+% compute the conjugate partition and store in \l__atableau_conjugate_seq
+\cs_new_protected_nopar:Npn \__atableau_compute_conjugate_partition:N #1
+{
+    \seq_clear:N \l__atableau_conjugate_seq
+    \int_zero:N \l_tmpa_int % previous part
+    \int_set:No \l__atableau_r_int {\seq_count:N #1}
+\typeout{Starting~with~tmpa=\int_use:N\l_tmpa_int,~row=\int_use:N\l__atableau_r_int}
+    \int_while_do:nn {\l__atableau_r_int > 0}
+    {
+        \int_set:No \l_tmpb_int {\seq_item:NV #1 \l__atableau_r_int }
+        \int_step_inline:nn { \l_tmpb_int - \l_tmpa_int }
+        {
+            \seq_put_right:NV \l__atableau_conjugate_seq \l__atableau_r_int
+        }
+        \int_set_eq:NN \l_tmpa_int \l_tmpb_int
+        \int_decr:N \l__atableau_r_int
+    }
+}
+
 % add parts to the partition \g__tmpc_seq given input
 % of the form k or k^r
 \cs_new_protected_nopar:Npn \__atableau_add_to_partition:n #1
@@ -474,8 +503,8 @@
 }
 
 % Contents diagrams are drawn using the \Tableau command, with
-% \__atableau_shape_to_content:N supplying the content sequence
-\cs_new_protected_nopar:Npn \__atableau_shape_to_content:N #1
+% \__atableau_shape_to_content:Nn {partition sequence} {charge} supplying the content sequence
+\cs_new_protected_nopar:Npn \__atableau_shape_to_content:Nn #1 #2
 {
     \tl_clear:N \l__atableau_entries_tl
     \int_zero:N \l__atableau_row_int
@@ -484,7 +513,7 @@
         \int_incr:N \l__atableau_row_int
         \int_step_inline:nn {##1}
         {
-            \tl_set:Ne \l_tmpc_tl { \int_eval:n{\seq_item:Nn \l__atableau_charge_seq {1} ####1 - \l__atableau_row_int} }
+            \tl_set:Ne \l_tmpc_tl { \int_eval:n{\seq_item:Nn \l__atableau_charge_seq {#2} ####1 - \l__atableau_row_int} }
             \__atableau_tl_put_right_braced:NV \l__atableau_entries_tl \l_tmpc_tl
         }
         \tl_put_right:Nn \l__atableau_entries_tl {,}
@@ -494,25 +523,64 @@
     \typeout{************************************************}
 }
 
+% Contents diagrams are drawn using the \Tableau command, with
+% \__atableau_shape_to_final:Nn {partition sequence} {charge}
+\cs_new_protected_nopar:Npn \__atableau_shape_to_final:Nn #1 #2
+{
+    % compute conjugate of #1 as \l__atableau_conjugate_seq
+    \__atableau_compute_conjugate_partition:N #1
+    \seq_clear:N \l_tmpc_seq % construct the tableau in this sequence and then decant
+    \int_set:Nn \l__atableau_c_int {\seq_item:Nn \l__atableau_charge_seq {#2} }
+    % initialise \l_tmpc_seq -- should not be necessary but otherwise \seq_item:NV fails
+    \seq_map_inline:Nn  \l__atableau_conjugate_seq {\seq_put_right:Nn \l_tmpc_seq {}}
+    \seq_map_inline:Nn  \l__atableau_conjugate_seq
+    {
+        \int_zero:N \l__atableau_r_int
+        \typeout{final:~adding~##1.}
+        \int_step_inline:nn {##1}
+        {
+            \int_incr:N \l__atableau_r_int  % row index
+            \int_incr:N \l__atableau_c_int  % tableau entry
+        \typeout{final:~##1->r=\int_use:N\l__atableau_r_int,~c=\int_use:N\l__atableau_c_int}
+            \tl_set:Nx \l_tmpa_tl {\seq_item:NV \l_tmpc_seq \l__atableau_r_int }
+            \__atableau_tl_put_right_braced:NV \l_tmpa_tl \l__atableau_c_int
+            \seq_set_item:Nno \l_tmpc_seq \l__atableau_r_int \l_tmpa_tl
+        }
+    }
+    % finally, unpack \l_tmpc_tl into l__atableau_entries_tl
+    \tl_clear:N \l__atableau_entries_tl
+    \seq_map_inline:Nn \l_tmpc_seq {\tl_put_right:Nn \l__atableau_entries_tl {##1,}}
+    \typeout{********************* final *********************}
+    \typeout{\tl_use:N \l__atableau_entries_tl}
+    \typeout{************************************************}
+}
+
+% Contents diagrams are drawn using the \Tableau command, with
+% \__atableau_shape_to_initial:Nn {partition sequence} {charge}
+\cs_new_protected_nopar:Npn \__atableau_shape_to_initial:Nn #1 #2
+{
+    \tl_clear:N \l__atableau_entries_tl
+    \int_set:Nn \l__atableau_r_int {\seq_item:Nn \l__atableau_charge_seq {#2} }
+    \seq_map_inline:Nn #1
+    {
+        \int_step_inline:nn {##1}
+        {
+            \int_incr:N \l__atableau_r_int
+            \__atableau_tl_put_right_braced:NV \l__atableau_entries_tl \l__atableau_r_int
+        }
+        \tl_put_right:Nn \l__atableau_entries_tl {,}
+    }
+    \typeout{********************* initial *********************}
+    \typeout{\tl_use:N \l__atableau_entries_tl}
+    \typeout{************************************************}
+}
+
 % Hook length diagrams are drawn using the \Tableau command, with
 % \__atableau_shape_to_hook:N supplying the sequence of hook lengths
 \cs_new_protected_nopar:Npn \__atableau_shape_to_hook:N #1
 {
-    % compute the conjugate partition
-    \int_zero:N \l_tmpa_int % previous part
-    \int_set:No \l__atableau_row_int {\seq_count:N #1}
-\typeout{Starting~with~tmpa=\int_use:N\l_tmpa_int,~row=\int_use:N\l__atableau_row_int}
-    \int_while_do:nn {\l__atableau_row_int > 0}
-    {
-        \int_set:No \l_tmpb_int {\seq_item:NV #1 \l__atableau_row_int }
-        \int_step_inline:nn { \l_tmpb_int - \l_tmpa_int }
-        {
-            \seq_put_right:NV \l_tmpa_seq \l__atableau_row_int
-        }
-        \int_set_eq:NN \l_tmpa_int \l_tmpb_int
-        \int_decr:N \l__atableau_row_int
-    }
-    \typeout{conjugate:~(\seq_use:Nn \l_tmpa_seq {,})}
+    % compute conjugate of #1 as \l__atableau_conjugate_seq
+    \__atableau_compute_conjugate_partition:N #1
     % now construct the hook tableau
     \tl_clear:N \l__atableau_entries_tl
     \int_zero:N \l__atableau_row_int
@@ -521,9 +589,8 @@
         \int_incr:N \l__atableau_row_int
         \int_step_inline:nn {##1}
         {
-    \typeout{conjugate:~(\seq_use:Nn \l_tmpa_seq {,})}
-        \typeout{hook:~m=##1,~m'=\seq_item:Nn \l_tmpa_seq {####1},~r=\int_use:N\l__atableau_row_int,~c=####1n}
-            \tl_set:Ne \l_tmpc_tl { \int_eval:n {##1+\seq_item:Nn \l_tmpa_seq {####1} -\l__atableau_row_int-####1+1} }
+    \typeout{conjugate:~(\seq_use:Nn \l__atableau_conjugate_seq {,})}
+            \tl_set:Ne \l_tmpc_tl { \int_eval:n {##1+\seq_item:Nn \l__atableau_conjugate_seq {####1} -\l__atableau_row_int-####1+1} }
             \__atableau_tl_put_right_braced:NV \l__atableau_entries_tl \l_tmpc_tl
         }
         \tl_put_right:Nn \l__atableau_entries_tl {,}
@@ -533,53 +600,9 @@
     \typeout{************************************************}
 }
 
-% Contents diagrams are drawn using the \Tableau command, with
-% \__atableau_shape_to_content:N supplying the content sequence
-\cs_new_protected_nopar:Npn \__atableau_shape_to_final:N #1
-{
-    \tl_clear:N \l__atableau_entries_tl
-    \int_zero:N \l__atableau_row_int
-    \seq_map_inline:Nn #1
-    {
-       % TODO: fix me!!
-        \int_incr:N \l__atableau_row_int
-        \int_step_inline:nn {##1}
-        {
-            \tl_set:Ne \l_tmpc_tl { \int_eval:n{\seq_item:Nn \l__atableau_charge_seq {1} ####1 - \l__atableau_row_int} }
-            \__atableau_tl_put_right_braced:NV \l__atableau_entries_tl \l_tmpc_tl
-        }
-        \tl_put_right:Nn \l__atableau_entries_tl {,}
-    }
-    \typeout{********************* content *********************}
-    \typeout{\tl_use:N \l__atableau_entries_tl}
-    \typeout{************************************************}
-}
-
-% Contents diagrams are drawn using the \Tableau command, with
-% \__atableau_shape_to_content:N supplying the content sequence
-\cs_new_protected_nopar:Npn \__atableau_shape_to_initial:N #1
-{
-    \tl_clear:N \l__atableau_entries_tl
-    \int_zero:N \l__atableau_row_int
-    \seq_map_inline:Nn #1
-    {
-       % TODO: fix me!!
-        \int_incr:N \l__atableau_row_int
-        \int_step_inline:nn {##1}
-        {
-            \tl_set:Ne \l_tmpc_tl { \int_eval:n{\seq_item:Nn \l__atableau_charge_seq {1} ####1 - \l__atableau_row_int} }
-            \__atableau_tl_put_right_braced:NV \l__atableau_entries_tl \l_tmpc_tl
-        }
-        \tl_put_right:Nn \l__atableau_entries_tl {,}
-    }
-    \typeout{********************* content *********************}
-    \typeout{\tl_use:N \l__atableau_entries_tl}
-    \typeout{************************************************}
-}
-
 % Residue diagrams are drawn using the \Tableau command, with
-% \__atableau_shape_to_content:N supplying the residue sequence
-\cs_new_protected_nopar:Npn \__atableau_shape_to_residue:N #1
+% \__atableau_shape_to_content:Nn {partition sequence} {charge}
+\cs_new_protected_nopar:Npn \__atableau_shape_to_residue:Nn #1 #2
 {
     \tl_clear:N \l__atableau_entries_tl
     \int_zero:N \l__atableau_row_int
@@ -590,8 +613,8 @@
     \typeout{m=##1,~r=\int_use:N\l__atableau_row_int}
         \int_step_inline:nn {##1}
         {
-        \typeout{residue:~m=##1,~r=\int_use:N\l__atableau_row_int,~c=####1,~charge=\seq_item:Nn \l__atableau_charge_seq {1}.}
-            \int_set:Nn \l_tmpa_int {####1 - \l__atableau_row_int + \seq_item:Nn \l__atableau_charge_seq {1}}
+        \typeout{residue:~m=##1,~r=\int_use:N\l__atableau_row_int,~c=####1,~charge=\seq_item:Nn \l__atableau_charge_seq {#2}.}
+            \int_set:Nn \l_tmpa_int {####1 - \l__atableau_row_int + \seq_item:Nn \l__atableau_charge_seq {#2}}
             \tl_set:Nx \l_tmpc_tl { \__atableau_residue:nn { \l_tmpa_int } {\l__atableau_e_int} }
         \typeout{con=\int_use:N\l_tmpa_int,~res=\tl_use:N\l_tmpc_tl,~e=\int_use:N\l__atableau_e_int}
             \__atableau_tl_put_right_braced:Nx \l__atableau_entries_tl \l_tmpc_tl
@@ -601,6 +624,84 @@
     \typeout{********************* residue *********************}
     \typeout{\tl_use:N \l__atableau_entries_tl}
     \typeout{************************************************}
+}
+
+% ---------------------------------------------------------------------------
+% draw diagram outline
+
+% \__atableau_draw_outline:nn #1 #2 {name of sequence} {name of style}
+\cs_new_protected_nopar:Npn \__atableau_draw_outline:nn #1 #2
+{
+\typeout{starting~outline~for~shape=#1,~style=#2.}
+\typeout{shape=(\seq_use:cn {l__atableau_#1_seq} {,})}
+    \int_zero:N \l__atableau_r_int  % row index
+    \int_zero:N \l__atableau_c_int  % column index
+    \tl_clear:N \l__atableau_outline_tl % will hold the outline
+    \seq_map_inline:cn {l__atableau_#1_seq}
+    {
+    \typeout{~-~starting~##1...}
+        \int_set:Nn \l_tmpa_int {0##1}
+        \typeout{~-~adding~##1~->~\int_use:N\l_tmpa_int}
+        \int_compare:nNnT \l_tmpa_int > {0} % only add outlines for nonzero rows
+        {
+            % compute the endpoints of this row
+            \str_if_eq:nnF {skew} {#1}
+            {
+                \int_set:Nn \l__atableau_c_int { 0\seq_item:Nn \l__atableau_skew_seq {\l__atableau_r_int+1}}
+            }
+            \__atableau_set_coordinates:nVV {a}  \l__atableau_r_int \l__atableau_c_int
+            \__atableau_set_coordinates:nVn {b} \l__atableau_r_int {##1}
+            \int_compare:nNnTF {\l__atableau_r_int} = {0}
+            {   % add line at "top" of the diagram
+                \tl_set:Nx \l__atableau_outline_tl {(\fp_use:N\l__atableau_xa_fp,\fp_use:N\l__atableau_ya_fp)--(\fp_use:N\l__atableau_xb_fp,\fp_use:N\l__atableau_yb_fp)}
+
+                \bool_if:NF \l__atableau_tabloid_bool { \__atableau_add_row_ends: }
+            }
+            { % add lines for second and later rows
+
+              % add ends under the row
+                \tl_put_left:Nx  \l__atableau_outline_tl {(\fp_use:N\l__atableau_xa_fp,\fp_use:N\l__atableau_ya_fp)--}
+                \tl_put_right:Nx \l__atableau_outline_tl {--(\fp_use:N\l__atableau_xb_fp,\fp_use:N\l__atableau_yb_fp)}
+                \bool_if:NTF \l__atableau_tabloid_bool
+                {
+                    % fill in the line
+                    \tl_put_right:Nx \l__atableau_outline_tl {(\fp_use:N\l__atableau_xa_fp,\fp_use:N\l__atableau_ya_fp)--(\fp_use:N\l__atableau_xb_fp,\fp_use:N\l__atableau_yb_fp)}
+                }
+                {
+                    \bool_if:NF \l__atableau_tabloid_bool \__atableau_add_row_ends:
+                }
+            }
+            \int_incr:N \l__atableau_r_int
+            \typeout{Outline~\int_use:N\l__atableau_r_int~:~\tl_use:N\l__atableau_outline_tl.}
+        }
+    }
+    \typeout{finished~main~diagram}
+
+    \tl_if_empty:NF \l__atableau_outline_tl
+    {
+      % fill in the last line
+      \tl_put_right:Nx \l__atableau_outline_tl {(\fp_use:N\l__atableau_xa_fp,\fp_use:N\l__atableau_ya_fp)--(\fp_use:N\l__atableau_xb_fp,\fp_use:N\l__atableau_yb_fp)}
+
+      \typeout{outline=\tl_use:N\l__atableau_outline_tl.}
+      % finally,draw the outline
+      \draw[atableau/#2] \l__atableau_outline_tl;
+    }
+}
+
+% \__atableau_add_row_ends: increment the (xa,ya) and (xb,yb) coordinates down
+% one row and add the lines at the left and right hand ends of the row to
+% \l__atableau_outline_tl
+\cs_new_protected_nopar:Nn \__atableau_add_row_ends:
+{
+    % add the left-hand side
+    \fp_add:Nn \l__atableau_xa_fp {\l__atableau_row_dx_fp*\l__atableau_width_fp}
+    \fp_add:Nn \l__atableau_ya_fp {\l__atableau_row_dy_fp*\l__atableau_height_fp}
+    \tl_put_left:Nx \l__atableau_outline_tl {(\fp_use:N\l__atableau_xa_fp,\fp_use:N\l__atableau_ya_fp)--}
+
+    % add the right-hand side
+    \fp_add:Nn \l__atableau_xb_fp {\l__atableau_row_dx_fp*\l__atableau_width_fp}
+    \fp_add:Nn \l__atableau_yb_fp {\l__atableau_row_dy_fp*\l__atableau_height_fp}
+    \tl_put_right:Nx \l__atableau_outline_tl {--(\fp_use:N\l__atableau_xb_fp,\fp_use:N\l__atableau_yb_fp)}
 }
 
 % ---------------------------------------------------------------------------
@@ -638,11 +739,18 @@
 
             % increment the row index, record this in the shape, and repeat
             \int_incr:N \l__atableau_row_int
-            \seq_put_right:NV \l__atableau_shape_seq \l__atableau_row_int
+
+            % record the shape for drawing out the outline
+            \seq_put_right:NV \l__atableau_shape_seq \l__atableau_col_int
         }
         % add any ribbons
         \seq_map_inline:Nn \l__atableau_ribbons_seq {\__atableau_add_ribbon:n {##1}}
-        % TODO: draw outline
+
+        % draw outline
+        \typeout{drawing~outline}
+        \bool_if:NT \l__atableau_skewwall_bool { \__atableau_draw_outline:nn {skew}  {skewwall}  }
+        \bool_if:NT \l__atableau_outline_bool  { \__atableau_draw_outline:nn {shape} {outerwall} }
+
     \group_end:
 }
 
@@ -739,11 +847,11 @@
         \int_compare:nNnT {\l__atableau_cols_int} > {0}
             { \int_gset_eq:NN \g__atableau_col_max_int \l__atableau_cols_int }
         \__atableau_set_coordinates:nVV {l} \g__atableau_row_max_int \g__atableau_col_max_int
-        \fp_set:Nn \l__atableau_yl_fp {\l__atableau_yl_fp+\l__atableau_row_dy_fp*\l__atableau_height_fp/2}
+        \fp_add:Nn \l__atableau_yl_fp {\l__atableau_row_dy_fp*\l__atableau_height_fp/2}
 
         \__atableau_set_coordinates:nnV {a} {0} \g__atableau_col_max_int
-        \fp_set:Nn \l__atableau_xa_fp {\l__atableau_xa_fp+\l__atableau_col_dx_fp*\l__atableau_width_fp/2+\l__atableau_separation_fp/2}
-        \fp_set:Nn \l__atableau_ya_fp {\l__atableau_ya_fp-\l__atableau_row_dy_fp*\l__atableau_height_fp/2}
+        \fp_add:Nn \l__atableau_xa_fp {\l__atableau_col_dx_fp*\l__atableau_width_fp/2+\l__atableau_separation_fp/2}
+        \fp_sub:Nn \l__atableau_ya_fp {\l__atableau_row_dy_fp*\l__atableau_height_fp/2}
 
         % add the separator
         \str_case:enF {#1} {
@@ -868,7 +976,7 @@
         \fp_set:Nn \l__atableau_x_fp {#3}
         \fp_set:Nn \l__atableau_y_fp {#4}
         \seq_clear:N \l__atableau_shape_seq
-        \typeout{Ribboning:~type=\tl_use:N\l__atableau_type_tl}
+        \typeout{Ribboning:~}
         \clist_map_inline:nn {#1} { \__atableau_add_ribbon:n {##1} }
         % TODO: add the outline
     \group_end:
@@ -1157,11 +1265,17 @@
     convention .choices:nn = {australian,english,french,ukraine}{\__atableau_set_style:nn {tableau} {#1}},
     convention  .initial:n = english,
 
-    skew           .code:n = { \__atableau_set_partition:nn {skew} {#1} },
-    skew        .initial:n = ,
+    outline    .bool_set:N = \l__atableau_outline_bool,
+    outline     .initial:n = true,
 
     shifted    .bool_set:N = \l__atableau_shifted_bool,
     shifted    .initial:n  = false,
+
+    skew           .code:n = { \__atableau_set_partition:nn {skew} {#1} },
+    skew        .initial:n = ,
+
+    skewwall   .bool_set:N = \l__atableau_skewwall_bool,
+    skewwall   .initial:n  = false,
 
     tabloid    .bool_set:N = \l__atableau_tabloid_bool,
     tabloid    .initial:n  = false,
@@ -1223,7 +1337,7 @@
     ribbons     .initial:n = ,
 
     ribbonstyle    .code:n = { \exp_args:Nx \tikzset {atableau/ribbon/.style={#1}} }, %.tl_set:N = \l__atableau_ribbon_style_tl,
-    ribbontyle  .initial:n =,
+    ribbonstyle .initial:n =,
 
     % multitableaux and diagrams
     separation  .fp_set:N  = \l__atableau_separation_fp,
@@ -1317,11 +1431,11 @@
       % generate the dot-sequence for the partition
       \str_case:VnF \l__atableau_label_tl
       { % TODO: find a better syntax
-          {contents} { \__atableau_shape_to_content:N  \l__atableau_shape_seq }
-          {final}    { \__atableau_shape_to_final:N    \l__atableau_shape_seq }
+          {contents} { \__atableau_shape_to_content:Nn \l__atableau_shape_seq {1}}
+          {final}    { \__atableau_shape_to_final:Nn   \l__atableau_shape_seq {1}}
           {hooks}    { \__atableau_shape_to_hook:N     \l__atableau_shape_seq }
-          {initial}  { \__atableau_shape_to_initial:N  \l__atableau_shape_seq }
-          {residues} { \__atableau_shape_to_residue:N  \l__atableau_shape_seq }
+          {initial}  { \__atableau_shape_to_initial:Nn \l__atableau_shape_seq {1}}
+          {residues} { \__atableau_shape_to_residue:Nn \l__atableau_shape_seq {1}}
           {}         { \__atableau_diagram_for_shape:N \l__atableau_shape_seq }
       }
       {
@@ -1329,13 +1443,14 @@
       }
       \IfNoValueTF{#1}
         { \tikz{\exp_args:NV \__atableau_tableau:nnnn \l__atableau_entries_tl {} (0,0) } }
-        {       \exp_args:NV \__atableau_tableau:nnnn \l__atableau_entries_tl {} (#1)    }
+        {     \exp_args:NV \__atableau_tableau:nnnn \l__atableau_entries_tl {} (#1)    }
     \group_end:
 }
 
 % \Multidiagram (x,y) [style] {entries}
 \NewDocumentCommand\Multidiagram{ d() O{} m }
 {
+\typeout{Tabloid....................}
     \IfNoValueTF{#1}
       { \tikz{\__atableau_multidiagram:nnnn {#3} {#2} (0,0)} }
       {       \__atableau_multidiagram:nnnn {#3} {#2} (#1)   }
@@ -1377,8 +1492,8 @@
 \NewDocumentCommand\SkewDiagram{ d() O{} m m }
 {
     \IfNoValueTF{#1}
-      { \Diagram[skew=#3,#2]{#4} }
-      { \Diagram(#1)[skew=#3,#2]{#4} }
+      { \Diagram[skew={#3},#2]{#4} }
+      { \Diagram(#1)[skew={#3},#2]{#4} }
 }
 
 % \SkewTableau (x,y) [style]{skew shape}{entries}
@@ -1400,9 +1515,10 @@
 % \Tabloid (x,y) [style]{entries}
 \NewDocumentCommand\Tabloid{ d() O{} m }
 {
+\typeout{tabloids:~1=#1,~2=#2,~3=#3.}
     \IfNoValueTF{#1}
-      { \tikz{\__atableau_tableau:nnnn {#3} {#2,tabloid} (0,0} }
-      {       \__atableau_tableau:nnnn {#3} {#2,tabloid} (#1)  }
+      { \tikz{\__atableau_tableau:nnnn {#3} {tabloid,#2} (0,0)} }
+      {       \__atableau_tableau:nnnn {#3} {tabloid,#2} (#1)   }
 }
 
 
