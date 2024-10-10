@@ -1,6 +1,6 @@
 |version|
-|LaTeX|
 |LPPL|
+|LaTeX|
 
 ========
 aTableau
@@ -17,7 +17,6 @@ LaTeX macros for symmetric group combinatorics: Young diagrams, tabloids, tablea
 
 .. code-block:: latex
 
-    \Tableau{ .\bullet...., \bullet B\bullet., .\bullet.., .}
     \Tabloid{1379{11},249{10},6,8}
     \SkewTableau{3,2,1}{345,56,9{10}}
     \SkewTableau[french]{3,2}{345,56,9{10}}
