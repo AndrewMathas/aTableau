@@ -2,7 +2,7 @@
 % Title:    aTableau.
 % Author:   Andrew Mathas
 % Created:  October 2023
-% Modified: 09:02 Friday, 11 October 2024
+% Modified: 14:07 Friday, 11 October 2024
 % ----------------------------------------------------------------------
 \documentclass{amsart}
 \usepackage[svgnames]{xcolor}
@@ -274,19 +274,19 @@
 }
 
 % define the heading as a command because it contains \atableau@version
-\newcommand\ATableau{%
+\newcommand\aTableauHeader{%
   \begin{center}
     \begin{tikzpicture}
-      \draw[shadowed, rounded corners](30mm,0) rectangle node[white]{ } (\paperwidth-30mm,20mm);
-      \begin{scope}[shift={(2.9,-0.3)}]
+      \draw[shadowed, rounded corners](30mm,0) rectangle node[white]{ } (\paperwidth-30mm,22mm);
+      \begin{scope}[shift={(2.6,-0.2)}]
         \aTabSet{scale=0.5, ribbonstyle={fill=LightSkyBlue!10}, inner wall=MidnightBlue}
-        \Diagram(4,2)   [ribbons={11,12,13,21,23,31,32,33,41,43,51,53}]{}     % A
+        \Diagram(4,2) [ribbons={11,12,13,21,23,31,32,33,41,43,51,53}]{}     % A
         \Diagram(5,2) [ribbons={11,12,13,22,32,42,52}]{}                    % T
-        \Diagram(6,2)   [ribbons={11,12,13,21,23,31,32,33,41,43,51,53}]{}     % A
+        \Diagram(6,2) [ribbons={11,12,13,21,23,31,32,33,41,43,51,53}]{}     % A
         \Diagram(7,2) [ribbons={11,12,13,21,23,31,32,33,41,43,51,52,53}]{}  % B
-        \Diagram(8,2)  [ribbons={11,21,31,41,51,52,53}]{}                    % L
-        \Diagram(9,2)[ribbons={11,12,13,21,31,32,33,41,51,52,53}]{}        % E
-        \Diagram(10,2)  [ribbons={11,12,13,21,23,31,32,33,41,43,51,53}]{}     % A
+        \Diagram(8,2) [ribbons={11,21,31,41,51,52,53}]{}                    % L
+        \Diagram(9,2) [ribbons={11,12,13,21,31,32,33,41,51,52,53}]{}        % E
+        \Diagram(10,2)[ribbons={11,12,13,21,23,31,32,33,41,43,51,53}]{}     % A
         \Diagram(11,2)[ribbons={11,13,21,23,31,33,41,43,51,52,53}]{}        % U
       \end{scope}
       \node[anchor=west,boxes] at (4cm,0cm) {Andrew Mathas};
@@ -311,7 +311,7 @@
 
 \begin{document}
 
-  \ATableau
+  \aTableauHeader
 
   \begin{quote}
 
@@ -464,15 +464,47 @@
     and (\textsf{T-4-2}). When \aTableau draws a tableau, or diagram, it
     creates \TikZ named coordinates for each of the boxes in the
     diagram, so that (\textsf{T-r-c}) refers to the box in row \textsf{r} and
-    column \textsf{c}. Giving finer control, \textsf{(T-r-c.base)} is
-    the middle of the box, and \textsf{(T-r-c.north)},
-    \textsf{(T-r-c.south)}, $\dots$, have the obvious meanings.
+    column \textsf{c}. Giving finer control, the following standard
+    \TikZ \textit{anchors} are available:
+
+    \begin{Example}
+      \begin{tikzpicture}[every node/.style={font=\tiny, text=gray}]
+          \Diagram(0,0)[scale=4]{1}
+          \node[label={above:(T-r-c)}] at (T-1-1){$\bullet$};
+          \node[label={above:(T-r-c.north)}] at (T-1-1.north){$\bullet$};
+          \node[label={below:(T-r-c.south)}] at (T-1-1.south){$\bullet$};
+          \node[label={right:(T-r-c.east)}] at (T-1-1.east){$\bullet$};
+          \node[label={left:(T-r-c.west)}] at (T-1-1.west){$\bullet$};
+          \node[label={above right:(T-r-c.north east)}] at (T-1-1.north east){$\bullet$};
+          \node[label={above left:(T-r-c.north west)}] at (T-1-1.north west){$\bullet$};
+          \node[label={below right:(T-r-c.south east)}] at (T-1-1.south east){$\bullet$};
+          \node[label={below left:(T-r-c.south west)}] at (T-1-1.south west){$\bullet$};
+      \end{tikzpicture}
+      \qquad
+      \begin{tikzpicture}[every node/.style={font=\tiny, text=gray}]
+          \Diagram(0,0)[ukrainian, scale=4]{1}
+          \node[label={above:(T-r-c)}] at (T-1-1){$\bullet$};
+          \node[label={above:(T-r-c.north)}] at (T-1-1.north){$\bullet$};
+          \node[label={below:(T-r-c.south)}] at (T-1-1.south){$\bullet$};
+          \node[label={right:(T-r-c.east)}] at (T-1-1.east){$\bullet$};
+          \node[label={left:(T-r-c.west)}] at (T-1-1.west){$\bullet$};
+          \node[label={above right:(T-r-c.north east)}] at (T-1-1.north east){$\bullet$};
+          \node[label={above left:(T-r-c.north west)}] at (T-1-1.north west){$\bullet$};
+          \node[label={below right:(T-r-c.south east)}] at (T-1-1.south east){$\bullet$};
+          \node[label={below left:(T-r-c.south west)}] at (T-1-1.south west){$\bullet$};
+      \end{tikzpicture}
+    \end{Example}
+
+    Of course, $r$ and $c$ shold be replaced by the row and column
+    indices in the tableau --- and these anchors are only defined for
+    the nodes in the tableau. These \textit{anchors} are a standard part
+    of \TikZ. If you change the shape of the node then the available
+    anchors may change, as described in the \TikZ manual.
 
     The previous example also shows that the \keyword{\Diagram} command
-    accepts a \option{ribbons} option, which adds \textit{ribbons} to
-    the diagram. Moreover, these ribbons can be given \TikZ styling. All
-    of the options to these commands are described in the following
-    sections.
+    accepts a \option{ribbons} option, which adds \textit{ribbons} to the
+    diagram. Moreover, these ribbons can be given \TikZ styling. All of
+    the options to these commands are described in the following sections.
 
     In the example above the Cartesian coordinate $(0,0)$ is necessary
     because the \keyword{\Diagram} command is embedded inside a
@@ -488,7 +520,7 @@
         \aTabSet{ribbonstyle={fill=blue!20, opacity=0.4}}
         \Diagram(0,0)[e=2,show=residues,ribbons={13crc},prefix=A]{3,2}
         \Diagram(0,-2.5)[e=2,show=residues,ribbons={12rcr},prefix=B]{2^2,1}
-        \draw[wave](0.5,-1.2)--(0.5, -2.3);
+        \draw[wave](0.5,-1.1)--(0.5, -2.4);
       \end{tikzpicture}
     \end{example}
 
@@ -871,34 +903,6 @@
         \draw[overlay, very thick, ->,red]
         (0,0)node[right]{Too big!} to [out=180, in=180](A-1-3);
   \end{example}
-
-  \begin{Example}
-    \begin{tikzpicture}[every node/.style={font=\tiny, text=gray}]
-        \Diagram(0,0)[scale=4]{1}
-        \node[label={above:(T-1-1)}] at (T-1-1){$\bullet$};
-        \node[label={above:(T-1-1.north)}] at (T-1-1.north){$\bullet$};
-        \node[label={below:(T-1-1.south)}] at (T-1-1.south){$\bullet$};
-        \node[label={right:(T-1-1.east)}] at (T-1-1.east){$\bullet$};
-        \node[label={left:(T-1-1.west)}] at (T-1-1.west){$\bullet$};
-        \node[label={above right:(T-1-1.north east)}] at (T-1-1.north east){$\bullet$};
-        \node[label={above left:(T-1-1.north west)}] at (T-1-1.north west){$\bullet$};
-        \node[label={below right:(T-1-1.south east)}] at (T-1-1.south east){$\bullet$};
-        \node[label={below left:(T-1-1.south west)}] at (T-1-1.south west){$\bullet$};
-    \end{tikzpicture}
-    \qquad
-    \begin{tikzpicture}[every node/.style={font=\tiny, text=gray}]
-        \Diagram(0,0)[ukrainian, scale=4]{1}
-        \node[label={above:(T-1-1)}] at (T-1-1){$\bullet$};
-        \node[label={above:(T-1-1.north)}] at (T-1-1.north){$\bullet$};
-        \node[label={below:(T-1-1.south)}] at (T-1-1.south){$\bullet$};
-        \node[label={right:(T-1-1.east)}] at (T-1-1.east){$\bullet$};
-        \node[label={left:(T-1-1.west)}] at (T-1-1.west){$\bullet$};
-        \node[label={above right:(T-1-1.north east)}] at (T-1-1.north east){$\bullet$};
-        \node[label={above left:(T-1-1.north west)}] at (T-1-1.north west){$\bullet$};
-        \node[label={below right:(T-1-1.south east)}] at (T-1-1.south east){$\bullet$};
-        \node[label={below left:(T-1-1.south west)}] at (T-1-1.south west){$\bullet$};
-    \end{tikzpicture}
-  \end{Example}
 
   \option[]{tikz}[\TikZ style commands]
 

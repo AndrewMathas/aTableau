@@ -14,6 +14,10 @@
 % ---------------------------------------------------------------------------
 
 % TODO:
+%   o Currently, each command calls \__atableau_set_style:nn, which screws up
+%   the scale... I think that this is necessary because the abacus and tableau
+%   share various settings such as row_dx, row_dy, ... and width and height, so
+%   we need to decouple these.
 %   o add options:
 %       - separation = distance between components
 %       - separator  = actual separator: , |=line, ...?
@@ -1438,8 +1442,9 @@
     \group_end:
 }
 
-% Diagrams are drawn by converting the partition into a dot-sequence, which is
-% then drawn using \Tableau.
+% Diagrams are drawn by converting the partition into a shape-sequence, which is
+% then drawn using \Tableau. For example, \Diagram{2,1} becomes something
+% like \Tableau{~~,~}.
 
 % \Diagram (x,y) [style] {shape}
 \NewDocumentCommand\Diagram{ d() O{} m }
