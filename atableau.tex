@@ -2,7 +2,7 @@
 % Title:    aTableau.
 % Author:   Andrew Mathas
 % Created:  October 2023
-% Modified: 14:07 Friday, 11 October 2024
+% Modified: 17:34 Saturday, 12 October 2024
 % ----------------------------------------------------------------------
 \documentclass{amsart}
 \usepackage[svgnames]{xcolor}
@@ -76,7 +76,7 @@
 \def\l@subsection{\@tocline{2}{0pt}{2.5pc}{5pc}{}}
 \makeatother
 
-\newenvironment{dangerous}{\trivlist\item[\hskip\labelsep\textcolor{red}{\textdbend}]}{\endtrivlist}
+\newenvironment{danger}{\trivlist\item[\hskip\labelsep\textcolor{red}{\textdbend}]}{\endtrivlist}
 
 % ---------------------------------------------------------------------------
 \usepackage[skins,listings]{tcolorbox}
@@ -182,12 +182,13 @@
   classoffset=4,% TikZ keys
   keywordstyle=\color{purple},
   morekeywords={
-    style,
-    fill,
     circle,
+    fill,
+    overlay,
+    picture,
     radius,
     remember,
-    picture,
+    style,
   },
   classoffset=5,   % commands that we want to hide :)
   keywordstyle=\color{LightSkyBlue!20},
@@ -315,7 +316,7 @@
 
   \begin{quote}
 
-    \begin{dangerous}\color{red}
+    \begin{danger}\color{red}
         This version of the package is already quite powerful, but it is
         still in the proof-of-concept phase. There are bugs and there is
         very little documentation.  Several planned features have not
@@ -324,7 +325,7 @@
 
         The package will eventually be released on ctan.
         Comments and suggestions are welcome.
-    \end{dangerous}
+    \end{danger}
 
     This package provides commands for drawing Young diagrams, tableaux,
     abacuses and other common objects used in algebraic combinatorics
@@ -378,6 +379,7 @@
     \emph{shape} of a diagram is the partition that gives the number of
     boxes in each row. Here are some examples of the diagrams and
     tableaux of shape $(2,1^2)$ that can be drawn using \aTableau:
+
     \begin{center}
       \tikzset{
          B/.style={fill=blue!20},
@@ -440,10 +442,10 @@
           Y/.style={pattern=north west lines, pattern color=ForestGreen,opacity=0.5},
         ]
         \Diagram(0,0)[ribbons={Y|16ccccrrr, B|16crrcccr}]{6,5^2,2}
-        \draw[->](1.5, 1)node[right]{  $\alpha=(1,2)$} to [out=180,in=90]  (T-1-2.base);
-        \draw[->](1.5,-2)node[right]{$f_\alpha=(4,2)$} to [out=180,in=270] (T-4-2.base);
-        \draw[red,<->]([xshift=-1mm]T-1-1.south west)
-           --node[rotate=90,above]{$l_\alpha=3$}([xshift=-1mm]T-4-1.south west);
+        \draw[->](1.5, 1)node[right]{  $\alpha=(1,2)$} to [out=180,in=90]  (B-1-2.base);
+        \draw[->](1.5,-2)node[right]{$f_\alpha=(4,2)$} to [out=180,in=270] (B-4-2.base);
+        \draw[red,<->]([xshift=-1mm]B-1-1.south west)
+           --node[rotate=90,above]{$l_\alpha=3$}([xshift=-1mm]B-4-1.south west);
       \end{tikzpicture}
     \end{Example}
 
@@ -460,46 +462,46 @@
     example is that the \keyword{\Diagram} command can be used inside a
     \keyword{tikzpicture} environment because it is equipped with the
     Cartesian coordinate $(0,0)$. The example also uses the four named
-    coordinates, (\textsf{T-1-1}), (\textsf{T-1-2}), (\textsf{T-4-1}),
-    and (\textsf{T-4-2}). When \aTableau draws a tableau, or diagram, it
+    coordinates, (\textsf{B-1-1}), (\textsf{B-1-2}), (\textsf{B-4-1}),
+    and (\textsf{B-4-2}). When \aTableau draws a tableau, or a diagram, it
     creates \TikZ named coordinates for each of the boxes in the
-    diagram, so that (\textsf{T-r-c}) refers to the box in row \textsf{r} and
+    diagram, so that (\textsf{B-r-c}) refers to the box in row \textsf{r} and
     column \textsf{c}. Giving finer control, the following standard
     \TikZ \textit{anchors} are available:
 
-    \begin{Example}
+    \begin{center}
       \begin{tikzpicture}[every node/.style={font=\tiny, text=gray}]
           \Diagram(0,0)[scale=4]{1}
-          \node[label={above:(T-r-c)}] at (T-1-1){$\bullet$};
-          \node[label={above:(T-r-c.north)}] at (T-1-1.north){$\bullet$};
-          \node[label={below:(T-r-c.south)}] at (T-1-1.south){$\bullet$};
-          \node[label={right:(T-r-c.east)}] at (T-1-1.east){$\bullet$};
-          \node[label={left:(T-r-c.west)}] at (T-1-1.west){$\bullet$};
-          \node[label={above right:(T-r-c.north east)}] at (T-1-1.north east){$\bullet$};
-          \node[label={above left:(T-r-c.north west)}] at (T-1-1.north west){$\bullet$};
-          \node[label={below right:(T-r-c.south east)}] at (T-1-1.south east){$\bullet$};
-          \node[label={below left:(T-r-c.south west)}] at (T-1-1.south west){$\bullet$};
+          \node[label={above:(B-r-c)}] at (B-1-1){$\bullet$};
+          \node[label={above:(B-r-c.north)}] at (B-1-1.north){$\bullet$};
+          \node[label={below:(B-r-c.south)}] at (B-1-1.south){$\bullet$};
+          \node[label={right:(B-r-c.east)}] at (B-1-1.east){$\bullet$};
+          \node[label={left:(B-r-c.west)}] at (B-1-1.west){$\bullet$};
+          \node[label={above right:(B-r-c.north east)}] at (B-1-1.north east){$\bullet$};
+          \node[label={above left:(B-r-c.north west)}] at (B-1-1.north west){$\bullet$};
+          \node[label={below right:(B-r-c.south east)}] at (B-1-1.south east){$\bullet$};
+          \node[label={below left:(B-r-c.south west)}] at (B-1-1.south west){$\bullet$};
       \end{tikzpicture}
       \qquad
       \begin{tikzpicture}[every node/.style={font=\tiny, text=gray}]
           \Diagram(0,0)[ukrainian, scale=4]{1}
-          \node[label={above:(T-r-c)}] at (T-1-1){$\bullet$};
-          \node[label={above:(T-r-c.north)}] at (T-1-1.north){$\bullet$};
-          \node[label={below:(T-r-c.south)}] at (T-1-1.south){$\bullet$};
-          \node[label={right:(T-r-c.east)}] at (T-1-1.east){$\bullet$};
-          \node[label={left:(T-r-c.west)}] at (T-1-1.west){$\bullet$};
-          \node[label={above right:(T-r-c.north east)}] at (T-1-1.north east){$\bullet$};
-          \node[label={above left:(T-r-c.north west)}] at (T-1-1.north west){$\bullet$};
-          \node[label={below right:(T-r-c.south east)}] at (T-1-1.south east){$\bullet$};
-          \node[label={below left:(T-r-c.south west)}] at (T-1-1.south west){$\bullet$};
+          \node[label={above:(B-r-c)}] at (B-1-1){$\bullet$};
+          \node[label={above:(B-r-c.north)}] at (B-1-1.north){$\bullet$};
+          \node[label={below:(B-r-c.south)}] at (B-1-1.south){$\bullet$};
+          \node[label={right:(B-r-c.east)}] at (B-1-1.east){$\bullet$};
+          \node[label={left:(B-r-c.west)}] at (B-1-1.west){$\bullet$};
+          \node[label={above right:(B-r-c.north east)}] at (B-1-1.north east){$\bullet$};
+          \node[label={above left:(B-r-c.north west)}] at (B-1-1.north west){$\bullet$};
+          \node[label={below right:(B-r-c.south east)}] at (B-1-1.south east){$\bullet$};
+          \node[label={below left:(B-r-c.south west)}] at (B-1-1.south west){$\bullet$};
       \end{tikzpicture}
-    \end{Example}
+    \end{center}
 
-    Of course, $r$ and $c$ shold be replaced by the row and column
-    indices in the tableau --- and these anchors are only defined for
-    the nodes in the tableau. These \textit{anchors} are a standard part
-    of \TikZ. If you change the shape of the node then the available
-    anchors may change, as described in the \TikZ manual.
+    Here, $r$ and $c$ should be replaced by the row and column index of
+    a box in the tableau.  These anchors are only defined for the nodes
+    in the tableau. These \textit{anchors} are a standard part of \TikZ.
+    If you change the shape of the node then the available anchors may
+    change; for more information see the \TikZ manual.
 
     The previous example also shows that the \keyword{\Diagram} command
     accepts a \option{ribbons} option, which adds \textit{ribbons} to the
@@ -539,15 +541,15 @@
     % \usetikzlibrary{matrix}
     \begin{tikzpicture}[arr/.style={->,SteelBlue, thick}]
       \matrix (M)[matrix of nodes,row sep=4mm,column sep=4mm]{
-        &&&\ShiftedTableau{1234,567} \\
-        && \ShiftedTableau{1235,467}
-           && \ShiftedTableau{1243,567}\\
+        &    &    &\ShiftedTableau{1234,567} \\
+        &    & \ShiftedTableau{1235,467}
+        &    & \ShiftedTableau{1243,567}\\
         &  \ShiftedTableau{1236,457}
-           && \ShiftedTableau{1245,367}
-           && \ShiftedTableau{1253,467}\\
+        &    & \ShiftedTableau{1245,367}
+        &    & \ShiftedTableau{1253,467}\\
         \ShiftedTableau{1237,456}
-           && \ShiftedTableau{1246,357}
-           &&\ShiftedTableau{1254,367}\\
+        &    & \ShiftedTableau{1246,357}
+        &    &\ShiftedTableau{1254,367}\\
         &\ShiftedTableau{1247,356}\\
        };
        \draw[arr](M-1-4)--node[above]{$\sigma_4$}(M-2-3);
@@ -843,10 +845,11 @@
     \Tableau[australian]{12[{B, thick}]3,45}
   \end{example}
 
-  \option[center]{align}[center/bottom/top]
+  \typeout{ALIGN}
+  \option[center]{align}[centre/bottom/top]
 
   By default, tableaux are centred vertically. This can be changed using
-  the align key.
+  the \option{align} key.
 
   \begin{example}
     \Tableau{123,455,674}
@@ -868,43 +871,51 @@
     \Tableau[align=centre]{123,455}
   \end{example}
 
-  The \option{align} key has
   It is not necessary to have the same \option{align} keys on each
   tableau, but this one way to ensure that you get the desired result.
   Here and elsewhere, American spelling variations are also accepted.
 
-  \option[T]{prefix}[string/character]
+  \option[B]{prefix}[string/character]
 
   By default, the boxes can be referenced using the node names
-  \textsf{(T-1-1)}, \textsf{(T-1-2)}, \textsf{(T-1-3)}, \dots, with
-  \textsf{(T-$r$-$c$)} referring to the node in row~$r$ and column~$c$.
+  \textsf{(B-1-1)}, \textsf{(B-1-2)}, \textsf{(B-1-3)}, \dots, with
+  \textsf{(B-$r$-$c$)} referring to the node in row~$r$ and column~$c$.
   This feature is only useful when the tableau is inside a
   \keyword{tikzpicture} environment, or if the \TikZ \textit{remember
   picture} style is being used, which the next example does.
 
   \newpage
   \begin{example}
-    \Tableau[ukrainian, prefix=A, tikz={remember picture}]
-      { 1[fill=blue!20]2[{circle,fill=orange}]3[text=red]45,
+    \Tableau[ukrainian, prefix=A,
+      tikzpicture={remember picture}]
+      { 1[fill=blue!20]23[text=red]45,
         6*78[{draw=cyan,ultra thick}]9,
-        {10}*{11}{12},
+        [{circle,fill=orange}]{10}*{11}{12},
         [{dashed,draw=red,ultra thick}]{13}
       }
   \end{example}
 
   Since \textsf{prefix}=A, the nodes in this tableau are referenced as
   \textsf{(A-1-1)}, \textsf{(A-1-2)}, \textsf{(A-1-3)}, \dots. As the
-  example also uses \option{tikz}=\textit{remember picture}, we can
-  still reference the node names in last tableau. This allows us to do
-  things like this:
+  example also uses \option{tikzpicture}=\textit{remember picture}, we
+  can reference the node names in last tableau from other
+  \keyword{tikzpicture} environments. For example, we can do things like
+  this:
 
   \begin{example}
-     \tikz[remember picture]
-        \draw[overlay, very thick, ->,red]
-        (0,0)node[right]{Too big!} to [out=180, in=180](A-1-3);
+     \tikz[remember picture, overlay]
+       \draw[very thick, ->,red]
+            (0,0)node[right]{This circle is too big!}
+            to [out=180, in=225](A-3-1);
   \end{example}
 
-  \option[]{tikz}[\TikZ style commands]
+  \option[]{tikzpicture}[\TikZ style commands]
+
+  Use this command to add an optional argument to the underlying
+  \keyword{tikzpicture} environment that contains the tableau.
+
+  \option[]{tikz before}[\TikZ commands] \\
+  \option[]{tikz after}[\TikZ commands] \\
 
   \option[]{inner wall}[]
 
@@ -1008,6 +1019,14 @@
   \begin{example}
     \Tableau[ukrainian, xscale=2]{ 13{10}{11}{1+x}, 2{1+x} }
   \end{example}
+
+  \begin{danger}
+    The options, \option{scale}, \option{xscale}, and \option{yscale},
+    affect all \aTableau diagrams. If you want to use \keyword{\aTabSet}
+    to chbnge the sizes of all of the diagrams and tableaux in your
+    document it may be better to use the \option{box height} and
+    \option{box width} options.
+  \end{danger}
 
   \begin{example}
     \Tableau[starstyle={blue}]{..*., .*.*., .*.}
