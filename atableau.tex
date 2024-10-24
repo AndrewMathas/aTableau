@@ -2,7 +2,7 @@
 % Title:    aTableau.
 % Author:   Andrew Mathas
 % Created:  October 2023
-% Modified: 17:34 Saturday, 12 October 2024
+% Modified: 17:40 Thursday, 24 October 2024
 % ----------------------------------------------------------------------
 \documentclass{amsart}
 \usepackage[svgnames]{xcolor}
@@ -11,11 +11,12 @@
 \usepackage{manfnt}
 \usepackage{booktabs}
 
+\usepackage{todonotes}
+\newcommand\Todo[1]{\todo[color=Red!20!White,inline]{To do: #1}}
+
 % ----------------------------------------------------------------------
 \usepackage[a4paper,hmargin=24mm, vmargin=18mm, footskip=10mm]{geometry}
 \synctex=1
-\parindent=0pt
-\parskip=2mm
 \hfuzz=5pt
 \parindent=0pt
 \parskip=4mm
@@ -25,8 +26,8 @@
 \let\@oddhead\@evenhead
 \def\@oddfoot {\color{LightSteelBlue} Version \atableau@version~(\atableau@release)\hfill\thepage}
 \def\@evenfoot{\color{LightSteelBlue} \thepage\hfill Version \atableau@version~(\atableau@release)}
-
 \makeatother
+
 % ----------------------------------------------------------------------
 \usepackage{enumitem}
 \setlist[description]{font=\sffamily\bfseries\color{NavyBlue},labelwidth=\textwidth}
@@ -36,15 +37,17 @@
 \newcommand\heading[1]{\bigskip\noindent\textsf{\large #1}}
 
 \ExplSyntaxOn
-% \option [default value]{option name}[accepts]
-\NewDocumentCommand\option{ omo }{%
-  \IfNoValueTF{#1}{\textsf{#2}}
+% \option*[default value]{option name}[accepts]
+% the *-version does not do a \medskip before the option
+\NewDocumentCommand\option{ somO{} }
+{%
+  \IfNoValueTF{#2}{\textsf{#3}}%
   {%
-    \textbf{\textcolor{DodgerBlue}{#2}}
-    \str_if_empty:nF {#1}{~(default:~\textcolor{DarkRed}{#1})}%
-    \IfNoValueF{#3}{%
-        \str_if_empty:nF {#3} {\hfill\textcolor{Grey}{[accepts:~#3]}}%
-    }%
+    \IfBooleanT{#1}{\medskip}\noindent\textbf{\textcolor{DodgerBlue}{#3}}
+    \str_if_empty:nF {#2}{~(default:~\textcolor{DarkRed}{#2})}%
+    \hfill%
+    \str_if_empty:nF {#4} {\textcolor{Grey}{[accepts:~#4]}}%
+    \newline%
   }%
   \index{#2}%
 }
@@ -68,7 +71,7 @@
 \renewcommand*{\seename}{see}
 
 % ---------------------------------------------------------------------------
-\renewcommand\thesubsection{\thesection\alph{subsection}}
+%\renewcommand\thesubsection{\thesection\Alph{subsection}}
 \setcounter{secnumdepth}{2}
 \setcounter{tocdepth}{2}
 
@@ -79,7 +82,8 @@
 \newenvironment{danger}{\trivlist\item[\hskip\labelsep\textcolor{red}{\textdbend}]}{\endtrivlist}
 
 % ---------------------------------------------------------------------------
-\usepackage[skins,listings]{tcolorbox}
+\usepackage[skins]{tcolorbox}
+\tcbuselibrary{listingsutf8}
 
 \DeclareTotalTCBox\keyword{ O{} v }{
   fontupper=\sffamily,
@@ -87,9 +91,7 @@
   skin=tile,
   verbatim,
   on line,
-  tcbox raise base,
   top=0pt,bottom=0pt,left=0mm,right=0mm,
-  tcbox raise = -4pt,
   colback=OldLace,
   colupper=RoyalBlue!70,
   #1}
@@ -123,51 +125,58 @@
   keywordstyle=\color{Crimson},%
   morekeywords={
     Australian,
-    australian,
-    align,
-    cols,
-    e,
-    east,
     English,
     French,
+    Ukrainian,
+    after,
+    align,
+    australian,
+    before,
+    cols,
+    conjugate,
+    e,
+    east,
     english,
     finite,
     font,
     french,
     infinite,
-    show,
     north,
+    only,
+    outline,
     ribbons,
     ribbonstyle,
     rows,
     scale,
     shape,
     shifted,
+    show,
     skew,
     south,
-    star~style,
     tabloid,
     text,
-    Ukrainian,
     ukrainian,
     west,
     xscale,
     yscale,
+    {star~style},
   },
   classoffset=2, % aTableau values
   keywordstyle=\color{orange},%
   morekeywords={
     beta,
+    bottom,
+    center,
+    centre,
     contents,
+    false,
     final,
     hooks,
     initial,
     residues,
-    top,
-    bottom,
-    center,
-    centre,
     row,
+    top,
+    true,
   },
   classoffset=3, % TikZ drawing commands
   keywordstyle=\color{teal},%
@@ -327,21 +336,6 @@
         Comments and suggestions are welcome.
     \end{danger}
 
-    This package provides commands for drawing Young diagrams, tableaux,
-    abacuses and other common objects used in algebraic combinatorics
-    and representation theory.  The commands are designed to be easy to
-    use and easy to read.  The literature contains many embellishments
-    of the basic diagrams, so we provide mechanisms to customise and
-    style these diagrams.
-
-    The package provides basic commands for drawing these objects,
-    together with styling options and a key-value interface for adding
-    extra features. Under the hood, everything is drawn using \TikZ.
-    It is possible to use all of our commands either as standalone
-    commands, or as components of a \keyword{tikzpicture} environment.
-    This makes it possible to use these commands inside more complicated
-    diagrams.
-
     \begin{center}
       \hfil
       \begin{minipage}{0.75\textwidth}
@@ -349,6 +343,20 @@
       \end{minipage}
     \end{center}
   \end{quote}
+
+  This package provides commands for drawing Young diagrams, tableaux,
+  abacuses and other common objects used in algebraic combinatorics and
+  representation theory.  The commands are designed to be easy to use
+  and easy to read.  The literature contains many embellishments of the
+  basic diagrams, so we provide mechanisms to customise and style these
+  diagrams.
+
+  The package provides basic commands for drawing these objects,
+  together with styling options and a key-value interface for adding
+  extra features. Under the hood, everything is drawn using \TikZ.  It
+  is possible to use all of our commands either as standalone commands,
+  or as components of a \keyword{tikzpicture} environment.  This makes
+  it possible to use these commands inside more complicated diagrams.
 
   \section{Young diagrams and tableaux}
 
@@ -404,12 +412,12 @@
         \aTabSet{align=centre}
         \begin{tabular}{*3l} \toprule
             Convention & \aTableau command & Diagram \\ \midrule
-            English    & \keyword{\Diagram[english]{4,3^2,2}}              & \Diagram{4,3^2,2}\\[10mm]
-            French     & \keyword{\Diagram[french]{4,3,3,2}}      & \Diagram[french]{4,3^2,2}\\[10mm]
+            English    & \keyword{\Tableau[english]{1234,567,89{10},{11}{12}}}    & \Tableau{1234,567,89{10},{11}{12}}\\[10mm]
+            French     & \keyword{\Tableau[french]{1234,567,89{10},{11}{12}}}     & \Tableau[french]{1234,567,89{10},{11}{12}}\\[10mm]
             Ukrainian\footnotemark
-                       & \keyword{\Diagram[ukrainian]{4,3^2,2}}   & \Diagram[ukrainian]{4,3^2,2}\\[10mm]
+                       & \keyword{\Tableau[ukrainian]{1234,567,89{10},{11}{12}}}  & \Tableau[ukrainian]{1234,567,89{10},{11}{12}}\\[10mm]
             Australian\footnotemark
-                      & \keyword{\Diagram[australian]{4,3,3,2}}  & \Diagram[australian]{4,3,3,2,0,0} \\[10mm]
+                       & \keyword{\Tableau[australian]{1234,567,89{10},{11}{12}}} & \Tableau[australian]{1234,567,89{10},{11}{12}} \\[10mm]
             \bottomrule
         \end{tabular}
         \index{english@English}
@@ -419,8 +427,7 @@
         \footnotetext[1]{Some authors call this the Russian convention}
         \footnotetext[2]{I have not seen this convention in the literature, but this name for the convention seems apt.}
     \end{center}
-    As shown, partitions can either be typed out in full or using the,
-    typically shorter, exponential notation. The different conventions
+    The different conventions
     for diagrams, and tableaux, are listed in order of their popularity
     in the literature.  By default, the \textit{English} convention is
     used, so \keyword{\Diagram{4,3,3,2}} produces the first diagram
@@ -441,13 +448,16 @@
           B/.style={pattern=north east lines, pattern color=blue,opacity=0.5},
           Y/.style={pattern=north west lines, pattern color=ForestGreen,opacity=0.5},
         ]
-        \Diagram(0,0)[ribbons={Y|16ccccrrr, B|16crrcccr}]{6,5^2,2}
+        \Diagram(0,0)[ribbons={(Y)16ccccrrr, (B)16crrcccr}]{6,5^2,2}
         \draw[->](1.5, 1)node[right]{  $\alpha=(1,2)$} to [out=180,in=90]  (B-1-2.base);
         \draw[->](1.5,-2)node[right]{$f_\alpha=(4,2)$} to [out=180,in=270] (B-4-2.base);
         \draw[red,<->]([xshift=-1mm]B-1-1.south west)
            --node[rotate=90,above]{$l_\alpha=3$}([xshift=-1mm]B-4-1.south west);
       \end{tikzpicture}
     \end{Example}
+
+    As example shows, partitions can either be typed out in full or you
+    can use the, typically shorter, exponential notation.
 
     Most of the commands in this example are \TikZ commands, but most of
     the picture is drawn by the \keyword{\Diagram} command. The top of
@@ -472,36 +482,38 @@
     \begin{center}
       \begin{tikzpicture}[every node/.style={font=\tiny, text=gray}]
           \Diagram(0,0)[scale=4]{1}
-          \node[label={above:(B-r-c)}] at (B-1-1){$\bullet$};
-          \node[label={above:(B-r-c.north)}] at (B-1-1.north){$\bullet$};
-          \node[label={below:(B-r-c.south)}] at (B-1-1.south){$\bullet$};
-          \node[label={right:(B-r-c.east)}] at (B-1-1.east){$\bullet$};
-          \node[label={left:(B-r-c.west)}] at (B-1-1.west){$\bullet$};
-          \node[label={above right:(B-r-c.north east)}] at (B-1-1.north east){$\bullet$};
-          \node[label={above left:(B-r-c.north west)}] at (B-1-1.north west){$\bullet$};
-          \node[label={below right:(B-r-c.south east)}] at (B-1-1.south east){$\bullet$};
-          \node[label={below left:(B-r-c.south west)}] at (B-1-1.south west){$\bullet$};
+          \node[label={above:(B-r-c)}] at (B-1-1){$\color{red}\bullet$};
+          \node[label={above:(B-r-c.north)}] at (B-1-1.north){$\color{red}\bullet$};
+          \node[label={below:(B-r-c.south)}] at (B-1-1.south){$\color{red}\bullet$};
+          \node[label={right:(B-r-c.east)}] at (B-1-1.east){$\color{red}\bullet$};
+          \node[label={left:(B-r-c.west)}] at (B-1-1.west){$\color{red}\bullet$};
+          \node[label={above right:(B-r-c.north east)}] at (B-1-1.north east){$\color{red}\bullet$};
+          \node[label={above left:(B-r-c.north west)}] at (B-1-1.north west){$\color{red}\bullet$};
+          \node[label={below right:(B-r-c.south east)}] at (B-1-1.south east){$\color{red}\bullet$};
+          \node[label={below left:(B-r-c.south west)}] at (B-1-1.south west){$\color{red}\bullet$};
       \end{tikzpicture}
       \qquad
       \begin{tikzpicture}[every node/.style={font=\tiny, text=gray}]
           \Diagram(0,0)[ukrainian, scale=4]{1}
-          \node[label={above:(B-r-c)}] at (B-1-1){$\bullet$};
-          \node[label={above:(B-r-c.north)}] at (B-1-1.north){$\bullet$};
-          \node[label={below:(B-r-c.south)}] at (B-1-1.south){$\bullet$};
-          \node[label={right:(B-r-c.east)}] at (B-1-1.east){$\bullet$};
-          \node[label={left:(B-r-c.west)}] at (B-1-1.west){$\bullet$};
-          \node[label={above right:(B-r-c.north east)}] at (B-1-1.north east){$\bullet$};
-          \node[label={above left:(B-r-c.north west)}] at (B-1-1.north west){$\bullet$};
-          \node[label={below right:(B-r-c.south east)}] at (B-1-1.south east){$\bullet$};
-          \node[label={below left:(B-r-c.south west)}] at (B-1-1.south west){$\bullet$};
+          \node[label={above:(B-r-c)}] at (B-1-1){$\color{red}\bullet$};
+          \node[label={above:(B-r-c.north)}] at (B-1-1.north){$\color{red}\bullet$};
+          \node[label={below:(B-r-c.south)}] at (B-1-1.south){$\color{red}\bullet$};
+          \node[label={right:(B-r-c.east)}] at (B-1-1.east){$\color{red}\bullet$};
+          \node[label={left:(B-r-c.west)}] at (B-1-1.west){$\color{red}\bullet$};
+          \node[label={above right:(B-r-c.north east)}] at (B-1-1.north east){$\color{red}\bullet$};
+          \node[label={above left:(B-r-c.north west)}] at (B-1-1.north west){$\color{red}\bullet$};
+          \node[label={below right:(B-r-c.south east)}] at (B-1-1.south east){$\color{red}\bullet$};
+          \node[label={below left:(B-r-c.south west)}] at (B-1-1.south west){$\color{red}\bullet$};
       \end{tikzpicture}
     \end{center}
 
     Here, $r$ and $c$ should be replaced by the row and column index of
-    a box in the tableau.  These anchors are only defined for the nodes
+    a box in the tableau, where these anchors are only defined for boxes
     in the tableau. These \textit{anchors} are a standard part of \TikZ.
     If you change the shape of the node then the available anchors may
-    change; for more information see the \TikZ manual.
+    change; for more information see the \TikZ manual. You can change
+    the \textsf{B} in the name of these anchors to anything you like
+    using the \option{prefix} option.
 
     The previous example also shows that the \keyword{\Diagram} command
     accepts a \option{ribbons} option, which adds \textit{ribbons} to the
@@ -529,8 +541,7 @@
     The following sections describe the commands defined by the package
     and how to use them.  We start with the \keyword{\Tableau} command
     because all of the diagram and tableau commands, except for
-    \keyword{\RibbonTableau}, are derived from the \keyword{\Tableaux}
-    command.
+    \keyword{\RibbonTableau}, are derived from \keyword{\Tableau}.
 
     Finally, the condition that coordinates are required only when these
     diagrams are being used inside a \keyword{tikzpicture} environment
@@ -571,7 +582,7 @@
     This section describes the \keyword{\Tableau} command, which draws
     tableau or labelled diagrams. The syntax for this command is:
 
-     \keyword{\Tableau (x,y) [options] {tableau entries}}
+    \keyword{\Tableau (x,y) [options] {tableau entries}}
 
     \begin{syntax}
       \item[$(x,y)$]\index{xy@$(x,y)$} The Cartesian coordinates $(x,y)$
@@ -593,10 +604,10 @@
 
   \begin{example}
     \Tableau{ 1234, 56, 7, 8 }       \qquad
-    \Tableau{ \alpha\beta\gamma\delta,
+    \Tableau{ \alpha\gamma\delta q,
               xy\eta,
-              \lambda\mu\nu,
-              \pi\rho\sum }
+              \lambda\mu,
+              \pi\sum }
   \end{example}
 
   You can put all of the tableau specifications on one line, without any
@@ -616,20 +627,22 @@
     \Tableau{ 13{10}{11}{2x}, 2{x^2} }
   \end{example}
 
-  There is one additional caveat for braced-entries: \textit{any single
-  braced entry in a row needs to be double-braced}. In practical terms,
-  the need to double-bracing is shown by the following example:
+  There is one additional caveat for braced-entries: any
+  \textit{singleton} braced entry \keyword{{...}} in a row needs to be
+  double-braced. The following example shows the difference between
+  single and double-bracing of tableau entries.
   \index{tableau entries!double-braced}
 
   \begin{example}
     \Tableau{ 1345, 8{10}, {11}, {12} } \qquad
-    \Tableau{ 1345, 8{{10}}, {{11}}, {{12}} }
+    \Tableau{ 1345, 8{10}, {{11}}, {{12}} }
   \end{example}
 
-  The $\{11\}$ and $\{12\}$ in the first tableau are both treated as
-  spanning two columns in the tableau because they are not
-  doubled-braced; in contrast,they occupy only one column in the second
-  tableau because they are double-braced.
+  The need to double-bracing only applies when you have a single entry
+  in a column that requires braces. The $\{11\}$ and $\{12\}$ in the
+  first tableau are both treated as spanning two columns in the tableau
+  because they are not doubled-braced; in contrast, they occupy one
+  column in the second tableau because they are double-braced.
 
   The need for double-bracing of singleton entries is a consequence of
   how \LaTeX3 detects braced commas in comma separated lists. If you
@@ -648,7 +661,8 @@
   are not necessarily in decreasing order. \index{composition}
 
   \begin{example}
-    \Tableau{ 245,82751,231 }
+    \Tableau{ 245,82751,31 }
+    \SkewTableau{1,2}{ 245,827,231 }
   \end{example}
 
   Empty rows in tableaux and Young diagrams are not supported!
@@ -666,9 +680,8 @@
   styles work. At least to get started, the examples in this manual will
   help.
 
-  The simplest way to change the style of a tableau entry is to give it
-  a $*$-prefix in the tableau specifications. This is the easiest way to
-  add some style to some of the nodes in the tableau:
+  The simplest way to change the style of an entry in a tableau is to
+  add $*$-prefixes to the entry in the tableau specifications.
 
   \begin{example}
     \Tableau{ 1*2*3*4*5, 6*789, {10}*{11}{12}, {{13}} }
@@ -691,53 +704,85 @@
 
   The $*$-syntax is convenient if you want to emphasise some of the
   boxes in a tableau, using a single style. In fact, it is possible to
-  give every box in the tableau its own style by putting the style
-  specification inside square brackets, \keyword{[...]}, before the
+  give every box in the tableau its own style by putting style
+  specifications inside square brackets, \keyword{[...]}, before the
   corresponding letter in the tableau specification.  You can mix the
-  $*$-syntax and the $[....]$-style syntax for different entries,
+  $*$-syntax and the \keyword{[...]}-style syntax for different entries,
   although you can only apply one of these style settings to any given
   node.
 
   \begin{example}
     \Tableau[french]{
-        1[blue!20]2[circle]3[red]4[cyan]5,
-        6*789,
-        {10}*{11}{12},
+        1 [blue!20]2 [circle]3 [red]4 [cyan]5,
+        6 *7 8 9,
+        {10} *{11} {12},
         {{13}} }
   \end{example}
 
+  It is not necessary to add spaces between the entries like this. This
+  example uses spaces only because this (hopefully) makes it clear which
+  style specification applies to which box in the tableau.
+
+  Omitting some technicalities, each box in a tableau is constructed as
+  a \TikZ node, so any \TikZ style settings for a node can be used.
   This example shows that some precision is needed when changing the
   style because simply giving a colour will change both the colour used
   to fill the box and the text colour, which is why some of tableau
-  entries above appear to be blank. Instead of using just a colour, use
-  \keyword{text=...} to change the text colour, \keyword{fill=...} to
-  change the fill colour, and \keyword{draw=...} to change the border
-  colour. If you want to apply more than one style setting to any
-  tableau entry, such as \keyword{circle,fill=orange}, then you need to
-  enclose the all of style settings inside matching square and curly
-  braces \keyword{[\{...\}]}.  This is necessary because commas are used
-  to separate the rows of the tableau.
+  entries above appear to be blank.  If you are already familiar with
+  \TikZ then you will know how to do this. If not, then here is a short
+  list of useful style specifications for \TikZ nodes:
+  \begin{center}
+     \begin{tabular}{ll}\toprule
+       Style & Meaning \\\midrule
+       \keyword{text}$=\langle\text{colour}\rangle$
+            & Sets the text colour in the box \\
+       \keyword{fill}$=\langle\text{colour}\rangle$
+            & Sets the fill, or background, colour of the box\\
+       \keyword{draw}$=\langle\text{colour}\rangle$
+            & Sets the boundary colour of the box\\
+       \bottomrule
+     \end{tabular}
+  \end{center}
+  In the style settings, any valid \LaTeX\ colour name can be used (see
+  the \ctan{xcolor} manual). In addition,
+  \keyword{thin},
+  \keyword{thick},
+  \keyword{very thick},
+  \keyword{ultra thick},
+  \keyword{dashed},
+  \keyword{dotted}, $\dots$ change the border of the corresponding
+  box.
+
+  If you want to apply ``complicated'' style settings that consist of a
+  comma separated list of style settings, such as
+  \keyword{draw=cyan,ultra thick}, then the entire style has to be put
+  inside matching square and curly braces \keyword{[{...}]}.  This is
+  necessary because otherwise \LaTeX\ gets confused since commas are
+  used to separate the rows of the tableau.
 
   \begin{example}
     \Tableau[australian]{
-        1[fill=blue!20]2[{circle,fill=orange}]3[text=red]45,
-        6*78[{draw=cyan,ultra thick}]9,
-        {10}*{11}{12},
+        1 [fill=blue!20]2 3 [text=red]4 5,
+        [{circle,fill=orange}]6 *7 8 9,
+        [{draw=cyan,ultra thick}]{10} *{11} {12},
         [{dashed,draw=red,ultra thick}]{13} }
   \end{example}
 
-  As this example shows, modifying the borders does not add very much
-  emphasis because not very prominent. The orange circle looks too big,
-  but it is what we asked for because it diameter matches the central
-  width of the box. The next example shows that we get a better result
-  for \textit{Australian} and \textit{Ukrainian} tableaux if we add a
-  \textit{minimum size} specification.
+  This last example shows that it is not necessary to double-brace
+  singleton entries when they have a style specification.  As this
+  example shows, modifying the borders of a box does not add much
+  emphasis, so use this sparingly. In addition, the orange circle in
+  this example looks too big, but it is what we asked for because it
+  diameter matches the horizontal width of the box. The next example
+  shows that we get a better result for \textit{Australian} and
+  \textit{Ukrainian} tableaux if we add a \textit{minimum size}
+  specification.
 
   For complicated styles, or styles that are used often, we recommend
   defining the style outside of the \keyword{\Tableau} command by using
   the \keyword{\tikzset} command to define the style:
 
-  \begin{example}
+  \begin{example}[lefthand width=0.3\textwidth]
     \tikzset{
        B/.style={fill=blue!40, text=yellow},
        G/.style={fill=green!80!blue,circle,minimum size=5mm},
@@ -782,7 +827,7 @@
   document then, by default, latter tableaux and Young diagrams will be
   drawn using the Ukrainian convention.
 
-  \option[]{$(x,y)$}
+  \option[]{$(x,y)$}\index{xy@$(x,y)$} The Cartesian coordinates $(x,y)$
 
   The $(x,y)$-coordinates are needed if, and only if,
   \keyword{\Tableau}command is used inside a \keyword{tikzpicture}
@@ -810,20 +855,17 @@
       \Tableau(0,0)    [english]   {123,45}
       \Tableau(0,0.5)  [french]    {123,45}
       \Tableau(2.5,0.5)[ukrainian] {123,45}
-      \Tableau(2.5,0)[australian]{123,45}
+      \Tableau(2.5,0)  [australian]{123,45}
     \end{tikzpicture}
   \end{example}
 
-  \option[english]{english}\\
-  \option[]{french}\\
-  \option[]{ukrainian}\\
-  \option[]{australian}\\
-
-  These four options change the convention that is used to draw the
-  tableaux. By default, the \option{english} convention is used. This can
-  be changed using \keyword{\aTabSet}. The capitalised names,
-  \keyword{Australian}, \keyword{English}, \keyword{French} and
-  \keyword{Ukrainian}, are also recognised.
+  \option[english]{english}
+  \option*[]{french}
+  \option*[]{ukrainian}
+  \option*[]{australian}
+  These four options change the convention, or orientation that is used
+  to draw the tableaux. Rather than define this precisely, we use the
+  tired and true method in combinatorics of defining by example.
 
   \begin{example}
     \tikzset{R/.style={fill=red!20,draw=red}}
@@ -831,43 +873,54 @@
   \end{example}
 
   \begin{example}
-    \tikzset{R/.style={fill=red!20,circle, radius=0.2}}
+    \tikzset{R/.style={fill=red!20, circle, draw=red, ultra thick}}
     \Tableau[french]{12[R]3,45}
   \end{example}
 
   \begin{example}
-    \tikzset{B/.style={fill=blue!20,draw=NavyBlue, thick}}
+    \tikzset{B/.style={fill=blue!20, dashed, thick}}
     \Tableau[english]{12[{B, thick}]3,45}
   \end{example}
 
   \begin{example}
-    \tikzset{B/.style={fill=blue!20,draw=NavyBlue, thick}}
+    \tikzset{B/.style={fill=blue!50, thick, text=white}}
     \Tableau[australian]{12[{B, thick}]3,45}
   \end{example}
 
-  \typeout{ALIGN}
+  By default, the \option{english} convention is used. This can be
+  changed using \keyword{\aTabSet}. The capitalised names,
+  \keyword{Australian}, \keyword{English}, \keyword{French} and
+  \keyword{Ukrainian}, are also recognised. If, for example, your
+  document is only going to \option{french} tableaux and diagrams, then
+  you can specify this when you load the package using
+  \keyword{\usepackage[french]{atableau}}.
+
+  The \keyword{\Tableau} settings used as options to the
+  \keyword{\usepackage} statement change the default settings throughout
+  the document.
+
   \option[center]{align}[centre/bottom/top]
 
   By default, tableaux are centred vertically. This can be changed using
   the \option{align} key.
 
   \begin{example}
-    \Tableau{123,455,674}
+    \Tableau{123,455,674} \qquad
     \Tableau{123,455}
   \end{example}
 
   \begin{example}
-    \Tableau[align=top]{123,455,674}
+    \Tableau[align=top]{123,455,674} \qquad
     \Tableau[align=top]{123,455}
   \end{example}
 
   \begin{example}
-    \Tableau[align=bottom]{123,455,674}
+    \Tableau[align=bottom]{123,455,674} \qquad
     \Tableau[align=bottom]{123,455}
   \end{example}
 
   \begin{example}
-    \Tableau[align=centre]{123,455,674}
+    \Tableau[align=centre]{123,455,674} \qquad
     \Tableau[align=centre]{123,455}
   \end{example}
 
@@ -875,17 +928,33 @@
   tableau, but this one way to ensure that you get the desired result.
   Here and elsewhere, American spelling variations are also accepted.
 
+  \option[false]{conjugate}[false/true]
+
+  Draws the \emph{conjugate} tableau, where the rows and columns are
+  swapped.
+
+  \begin{example}
+    \Tableau[conjugate]{123,45,67} \qquad
+  \end{example}
+
   \option[B]{prefix}[string/character]
 
   By default, the boxes can be referenced using the node names
   \textsf{(B-1-1)}, \textsf{(B-1-2)}, \textsf{(B-1-3)}, \dots, with
   \textsf{(B-$r$-$c$)} referring to the node in row~$r$ and column~$c$.
-  This feature is only useful when the tableau is inside a
-  \keyword{tikzpicture} environment, or if the \TikZ \textit{remember
-  picture} style is being used, which the next example does.
+  This feature is most useful when you have several tableaux inside a
+  \keyword{tikzpicture} environment because if you only have one
+  tableau, then it is unlikely that you need to change the default
+  prefix.
 
-  \newpage
-  \begin{example}
+  \option[]{tikzpicture}[\TikZ style commands]
+
+  Use this command to add an optional argument to the underlying
+  \keyword{tikzpicture} environment that contains the tableau. The
+  \option{tikzpicture} option is ignored  when the \keyword{\Tableau}
+  command is equipped with $(x,y)$-coordinates.
+
+  \begin{example}[lefthand width=0.3\textwidth]
     \Tableau[ukrainian, prefix=A,
       tikzpicture={remember picture}]
       { 1[fill=blue!20]23[text=red]45,
@@ -902,54 +971,100 @@
   \keyword{tikzpicture} environments. For example, we can do things like
   this:
 
-  \begin{example}
+  \vspace*{3mm}
+
+  \begin{example}[lefthand width=0.3\textwidth]
      \tikz[remember picture, overlay]
        \draw[very thick, ->,red]
-            (0,0)node[right]{This circle is too big!}
-            to [out=180, in=225](A-3-1);
+         (0,0) node[right,align=left]
+            {This circle is too big!\\Use minimum size=5mm}
+         to [out=135, in=225](A-3-1);
   \end{example}
 
-  \option[]{tikzpicture}[\TikZ style commands]
+  As a second example, we can use \keyword{tikzpicture=rotate=30} to try
+  to rotate a tableau by 90 degrees with:
 
-  Use this command to add an optional argument to the underlying
-  \keyword{tikzpicture} environment that contains the tableau.
+  \begin{example}
+   \Tableau[tikzpicture={rotate=90}]{123,45} \qquad
+   \begin{tikzpicture}[rotate=90]
+     \Tableau(0,0){123,45}
+   \end{tikzpicture}
+  \end{example}
 
-  \option[]{tikz before}[\TikZ commands] \\
-  \option[]{tikz after}[\TikZ commands] \\
+  The two tableaux constructions in this example are equivalent. The
+  problem with both examples is that the numbers have not been rotate
+  because \emph{rotate} does not affect components objects such as
+  nodes, inside a \TikZ picture. The correct way to do this is using
+  \textit{transform canvas}:
 
+  \vspace*{15mm}
+
+  \begin{example}[valign=top, lefthand width=0.3\textwidth]
+    \Tableau[tikzpicture={transform canvas={rotate=90}}]{123,45}
+  \end{example}
+
+  \begin{Example}[lefthand width=0.14\textwidth]
+   % \usetikzlibrary{decorations.pathmorphing}
+   \begin{tikzpicture}[wave/.style={thick,red,->,decorate,decoration=snake}]
+     \aTabSet{ribbonstyle={fill=blue!20, opacity=0.4}}
+     \draw[help lines](-1,-4) grid (2,1);
+     \Diagram(0,0)[e=2,show=residues,ribbons={13crc},prefix=A]{3,2}
+     \Diagram(0,-2)[e=2,show=residues,ribbons={12rcr},prefix=B]{2^2,1}
+     \draw[->](A-2-1.south east)--(B-1-1.north east);
+   \end{tikzpicture}
+  \end{Example}
+
+  \option[]{tikz before}[\TikZ commands]
+  \option*[]{tikz after}[\TikZ commands]
+
+  These commands inject \TikZ code, before and after the
+  \keyword{\Tableau} command, , respectively, into the underlying
+  \keyword{tikzpicture} environment where the tableau is constructed.
+
+  \begin{example}[lefthand width=0.24\textwidth]
+   \Tableau[
+     tikz before={\draw[help lines,step=0.5](-0.5,-2)grid(2,0.5);},
+     tikz after={\draw[ultra thick,red]
+                   (B-1-3.north east)--(B-1-3.south east)
+                   --(B-2-1.north east)--(B-3-1.south east)
+                   --(B-3-1.south west);
+     }]{134,567,89}
+  \end{example}
+
+  Both before and after hooks are provided because the order in which
+  you place \TikZ commands can affect the drawing, primarily because
+  later commands are drawn over the top of earlier ones.
+
+  \typeout{out~of~example}
   \option[]{inner wall}[]
-
-  \option[]{outer wall}[]
+  \option*[]{outer wall}[]
 
   \option[]{inner style}[]
-
-  \option[]{outer style}[]
-
-  \option[]{}[]
+  \option*[]{outer style}[]
 
   \option[]{}[]
-% nodes
-  \option[]{fill}[]
 
-  \option[]{text}[]
+  \option[]{}[]
+  % nodes
+  \option*[]{fill}[]
 
-  \option[]{font}[]
+  \option*[]{text}[]
 
-  \option[true]{math nodes}[true/false]
-
-  \option[]{text nodes}[true/false]
+  \option*[]{font}[]
 
   \option[]{shape}[]
 
-  \option[]{node height}[]
+  \option[true]{math nodes}[true/false]
+  \option*[false]{text nodes}[true/false]
 
+  \option[]{node height}[]
   \option[]{node width}[]
 
   \option[]{}[]
 
-  \option[]{ribbons}[a comma separated list of ribbon specifiers]\\
-  \option[]{snobs}  [a comma separated list of ribbon specifiers]\\
-  \option[fill={blue!20}]{ribbonstyle}[\TikZ style commands]
+  \option[]{ribbons}[a comma separated list of ribbon specifiers]
+  \option*[]{snobs}  [a comma separated list of ribbon specifiers]
+  \option*[fill={blue!20}]{ribbonstyle}[\TikZ style commands]
 
   Use the \option{ribbons} key to add a comma separated list of ribbons
   to your tableau. The syntax for adding ribbons is described in
@@ -965,18 +1080,17 @@
   highlight the addable nodes of this tableau.
 
   \begin{example}
-    \Tableau[starstyle={fill=green!80!blue,text=white},
-             ribbonstyle={fill=yellow},
-             ribbons={15,24,42,51},
-            ]
-            {123*4,567,89*{10},*{11}}
+   \Tableau[starstyle={fill=green!80!blue,text=white},
+   ribbonstyle={fill=yellow},
+   ribbons={15,24,42,51},
+   ]
+   {123*4,567,89*{10},*{11}}
   \end{example}
-
 
   Use \option{snobs} to add ribbons to the tableau that are placed
   \textit{after} the outline of the diagram has been drawn. (Writing
-  \textit{ribbons} backwards gives \textit{snob}bir.) The default
-  style for a \keyword{snobs} ribbon is given by \keyword{ribbonstyle}.
+  \textit{ribbons} backwards gives \textit{snob}bir.) The default style
+  for a \keyword{snobs} ribbon is given by \keyword{ribbonstyle}.
 
   \begin{example}
     \Tableau[starstyle={fill=green!80!blue,text=white},
@@ -993,9 +1107,11 @@
   \option[]{star style}[]
 
 
-  \option[1]{scale}[a decimal number]\\
-  \option[1]{xscale}[a decimal number]\\
-  \option[1]{yscale}[a decimal number]
+  \option[0.5]{box height}{a decimal number (in centimetres)}
+  \option*[0.5]{box width}{a decimal number (in centimetres)}
+  \option*[1]{scale}[a decimal number]
+  \option*[1]{xscale}[a decimal number]
+  \option*[1]{yscale}[a decimal number]
 
   By design, boxes in tableaux do not automatically resize to fit
   their contents. For example, consider:
@@ -1004,7 +1120,7 @@
     \Tableau{ 13{10}{11}{1+x}, 2{1+x} }
   \end{example}
 
-  This output is clearly not desired.  The options \option{scale},
+  This is unlikely to be the desired output! The options \option{scale},
   \option{xscale} and \option{yscale} can be used to rescale the boxes
   in tableaux and diagrams. The names are slightly misleading because
   \option{xscale} rescales in the direction of increasing column index
@@ -1023,9 +1139,9 @@
   \begin{danger}
     The options, \option{scale}, \option{xscale}, and \option{yscale},
     affect all \aTableau diagrams. If you want to use \keyword{\aTabSet}
-    to chbnge the sizes of all of the diagrams and tableaux in your
-    document it may be better to use the \option{box height} and
-    \option{box width} options.
+    to change the sizes of all diagrams and tableaux in your document it
+    may be better to use the \option{box height} and \option{box width}
+    options.
   \end{danger}
 
   \begin{example}
@@ -1042,56 +1158,171 @@
   \subsection{Young diagrams}
   \indexcmd{Diagram}
 
+  A \emph{Young diagram}, or simply a \emph{diagram}, is an unlabelled
+  tableau. Diagrams can be drawn using the \keyword{\Tableau} command,
+  for example:
+
   \begin{example}
     \Tableau{~~~,~~~,~~,~}
   \end{example}
 
+  This approach works but is slightly cumbersome, so \aTableau provides
+  the \keyword{\Diagram} command, which is uses a similar syntax to the
+  \keyword{\Tableau} command:
+
+  \keyword{\Diagram (x,y) [options] {partition }}
+
+  As with the \keyword{\Tableau} command, the $(x,y)$-coordinates are
+  needed if and only if the diagram is inside a \keyword{tikzpicture}
+  environment.
+
+  Inside the \keyword{\Diagram} command, partitions can be specified as
+  either a comma separated list of weakly decreasing positive integers,
+  or by using exponential notation for partitions:
+
+  \begin{example}
+    \aTabSet{align=centre}
+    \Diagram{4,3^2,1^3} \qquad
+    \Diagram{4,3,3,1}
+  \end{example}
+
+  Internally, \keyword{\Diagram} actually does something like the first
+  example in this section, so all of the options for \keyword{\Tableau}
+  can also be used with \keyword{\Diagram}, so we do not repeat all of
+  the options in this section. There are also new options that apply
+  specifically to diagrams.
+
+  \begin{samepage}
+  We start by advertising that \keyword{\Diagram} supports the four
+  different conventions for diagrams, with \option{english} being the
+  default:
+
+  \option[english]{english}
+  \option*[]{french}
+  \option*[]{ukrainian}
+  \option*[]{australian}
+  \end{samepage}
+
+  \begin{example}
+    \Diagram[australian]{3,2,1} \qquad
+    \Diagram[australian]{3,1^3}
+  \end{example}
+
+  \begin{example} % English is the default convention
+    \Diagram[english]{3,2,1} \qquad
+    \Diagram{3,1^3}
+  \end{example}
+
+  \begin{example}
+    \Diagram[french]{3,2,1} \qquad
+    \Diagram{3,1^3}
+  \end{example}
+
+  \begin{example}
+    \Diagram[ukrainian]{3,2,1} \qquad
+    \Diagram{3,1^3}
+  \end{example}
+
+  \option[false]{conjugate}[false/true]
+  Draws the conjugate diagram.
+
+  \begin{example}
+    \Diagram[conjugate]{3,2,2} \qquad
+    \Diagram[ukrainian, conjugate]{2,1^3}
+  \end{example}
+
+  \option[true]{outline}[true/false]
+  If \option{outline} is true, then the outline of the tableau is drawn.
+  If \option{outline} is false, then the outline of the tableau is not
+  drawn. By default, the outline is drawn.
+
+  \begin{example}
+    \Diagram[outline=false]{3,2,1}
+  \end{example}
+
+  \option[false]{outline only}[false/true]
+  When \option{outline} is true, only the outline of the tableau is down, and not the internal walls.
+
+  \begin{example}
+    \Diagram[outline only]{3,2,1}
+  \end{example}
+
+
+  \option[]{show}[contents,final,hooks,initial,residue]
+  \index{contents}
+  \index{diagram!show}
+  \index{initial tableau}
+  \index{tableau!initial}
+  \index{tableau!final}
+  Use \option{show} option to draw particular types of tableau of the
+  specified shape. The possible choices are:
+  \begin{itemize}
+    \item\option{show=contents} print the diagram where each box is
+    labelled by its \emph{content}, which is the row index minus the
+    column index.
+
     \begin{example}
-      \Diagram{4,3^5,1^4}
-      \Diagram{4,3,3,1}
+      \Diagram[show=contents]{3,2,1} \qquad
+      \Diagram[french,show=contents]{2^2,1}
     \end{example}
 
-  \begin{example}
-    \Diagram[australian]{3,2,1}
-  \end{example}
+    \item\option{show=final} print the \emph{final tableau} of this
+    shape, which has the numbers $1,2\dots,n$ entered in order from top
+    to bottom down successive columns (with appropriate modifications for
+    the non-English conventions).
 
-  \begin{example}
-    \Diagram[english]{3,2,1}
-  \end{example}
+    \index{final tableau}
+    \index{tableau!final}
+    \begin{example}
+      \Diagram[show=final]{3,2,2} \qquad
+      \Diagram[australian,show=contents]{2^2,1}
+    \end{example}
 
-  \begin{example}
-    \Diagram[french]{3,2,1}
-  \end{example}
+    \item\option{show=hooks} print the diagram where each box is
+    labelled by the corresponding \emph{hook length}. If $\lambda$ is a
+    partition and $\lambda'$ is its conjugate partition then the hook
+    length of the box in row~$i$ and column~$j$ is
+    $\lambda_i-i+\lambda'_j-j+1$.
 
-  \begin{example}
-    \Diagram[ukrainian]{3,2,1}
-  \end{example}
+    \index{tableau!hook lengths}
+    \index{hook lengths}
+    \begin{example}
+      \Diagram[show=hooks]{3,2,2} \qquad
+      \Diagram[ukrainian,show=hooks]{2^2,1}
+    \end{example}
 
-  \typeout{label example!!|}
-  \begin{example}
-    \Diagram[show=contents]{3,2,1}
-    \Tableau{012,{-1}0,{{-2}}}
-  \end{example}
+    \item\option{show=initial} print the \emph{initial tableau} of this
+    shape, which has the numbers $1,2\dots,n$ entered in order from top
+    left to right along down successive rows (with appropriate modifications for
+    the non-English conventions).
 
+    \index{initial tableau}
+    \index{tableau!initial}
+    \begin{example}
+      \Diagram[show=initial]{3,2,2} \qquad
+      \Diagram[ukrainian, show=initial]{3^2,2}
+    \end{example}
 
-  \begin{example}
-    \Diagram[show=hooks]{3,2,2}
-  \end{example}
+    \item\option{show=residues} print the diagram where each box is
+    labelled by its \emph{residue}, which is the row index minus the
+    column index modulo some integer~$e$, which must also be supplied.
 
-  \begin{example}
-    \Diagram[show=final]{3,2,2}
-  \end{example}
+    \index{residue}
+    \index{tableau!residues}
+    \begin{example}
+      \Diagram[show=residues, e=2]{3,2,1} \qquad
+      \Diagram[french,show=residues, e=3]{3,2,1}
+    \end{example}
 
-  \begin{example}
-    \Diagram[show=initial]{3,2,2}
-  \end{example}
+  \end{itemize}
 
-  \begin{example}
-    \Diagram[show=residues, e=3]{3,2,1}
-  \end{example}
-
-  \subsection{Skew tableau}
+  \subsection{Skew tableau and skew diagrams}
   \indexcmd{SkewTableau}
+  \indexcmd{SkewDiagram}
+  \index{diagram!skew}
+
+  \keyword{\SkewDiagram (x,y) [options] {partition }}\\
+  \keyword{\SkewTableau (x,y) [options] {partition }}
 
   \begin{example}
     \tikzset{R/.style={fill=red!20,circle}}
@@ -1099,8 +1330,13 @@
     \SkewTableau[french,skewwall]{2,1^2}{12[R]3,45,67}
   \end{example}
 
-  \subsection{Shifted tableau}
+  \subsection{Shifted tableau and shifted diagrams}
   \indexcmd{ShiftedTableau}
+  \indexcmd{ShiftedDiagram}
+  \index{diagram!shifted}
+
+  \keyword{\ShiftedDiagram (x,y) [options] {partition }}\\
+  \keyword{\ShiftedTableau (x,y) [options] {partition }}
 
   \begin{example}
     \tikzset{R/.style={fill=red!20,circle}}
@@ -1115,7 +1351,8 @@
   \subsection{Tabloids}
   \indexcmd{Tabloid}
 
-  \typeout{TABLOIDS-----------------------------------------------}
+  \keyword{\Tabloid (x,y) [options] {partition }}\\
+
   A \emph{tabloid} is an equivalence class of tableau where two tableaux
   are equivalent if they have the same entries in each row, up to a
   permutation. In the literature, tabloids are drawn with (outer wall)
@@ -1124,33 +1361,53 @@
   \keyword{\Tableau} command, except that it draws tabloids.
 
   \begin{example}
-    \tikzset{R/.style={fill=red!20,circle}}
-    \Tabloid[australian]{12[R]3,45}
-    \Tabloid[english]{12[R]3,45}
-    \Tabloid[french]{12[R]3,45}
+    \tikzset{R/.style={fill=red!20,circle,minimum size=5mm}}
     \Tabloid[ukrainian]{12[R]3,45}
+    \Tabloid[english]  {12[R]3,45}
+    \Tabloid[french]   {12[R]3,45}
   \end{example}
 
+  Some authors work with \emph{column tabloids}. Such tableaux do not
+  have a dedicated \aTableau, however, they can be drawn using the
+  \option{conjugate} option.  \index{tabloids!column}
+
+  \begin{example}
+    \Tabloid[conjugate]{123,4}
+  \end{example}
+
+  Similarly, skew tabloids can be drawn using the \option{skew}
+  option.
+  \label{tabloids!skew}
+
+  \begin{example}
+    \aTabSet{align=center}
+    \Tabloid[skew={2,1}]{1379{11},249{10},6,} \qquad
+    \Tabloid[conjugate,skew={1^2}]{1379{11},249{10},6,}
+  \end{example}
+
+
   \subsection{Ribbon tableaux}\label{S:RibbonTableaux}
-  \indexcmd{RibbonTableau}
+  \indexcmd{RibbonTableau}\index{ribbon!head}
 
     A \emph{ribbon} in a tableau, or in a diagram, is a connected strip
-    of nodes that does not contain a \Diagram[scale=0.3,outline=false,align=bottom]{2^2}-square.
-    The \emph{head} of a ribbon~$R$ is the node $(r,c)\in R$ such that
+    of nodes that does not contain a $(2\times2)$-square
+    \Diagram[scale=0.3,outline=false,align=bottom]{2^2}.  The
+    \emph{head} of a ribbon~$R$ is the node $(r,c)\in R$ such that
     $r'>r$ and $c'<c$ whenever $(r',c')\in R$ and $(r',c')\ne(r,c)$.
+
+  \keyword{\RibbonTableau (x,y) [options] {partition }}\\
+
     \begin{example}
-      \RibbonTableau{11rrrrrr}
-      \RibbonTableau{16ccccc}
-      \RibbonTableau{1{10}crcrcrcrc}
+      \RibbonTableau{[blue]11rrrrrr}
+      \RibbonTableau{[blue]16ccccc}
+      \RibbonTableau{[blue]1{10}crcrcrcrc}
     \end{example}
 
-    \typeout{*************************}
-    \typeout{Ribbon examples}
     \begin{example}
-      \RibbonTableau{ [fill=blue!20|1]12[fill=red!20|2]c[fill=yellow!20|3]r }
-      \RibbonTableau[french]{ [|1]12[|2]c[|3]r }
-      \RibbonTableau[ukrainian]{ [|1]12[|2]c[|3]r }
-      \RibbonTableau[australian]{ [|1]12[|2]c[|3]r }
+      \tikzset{every picture/.style={addgrid}}
+      \RibbonTableau[french]{ 12_1c_2r_3 }
+      \RibbonTableau[ukrainian]{ 12_1c_2r_3 }
+      \RibbonTableau[australian]{ 12_1c_2r_3 }
     \end{example}
 
     \begin{example}
@@ -1159,11 +1416,29 @@
       \RibbonTableau[skew={4,1^2},australian]
         {fill=blue!10|16crcccrrcrr,26,34cr}
       \RibbonTableau[australian]
-        {fill=blue!10|16crcccrrcrr,26,34cr}
+        {fill=(blue!10)16crcccrrcrr,26,34cr}
+    \end{example}
+
+    \begin{example}
+      \RibbonTableau{
+         [fill=blue!20]1_12 [fill=red!20]c_2 [fill=yellow!20]r_3 }
     \end{example}
 
     \subsection{Multidiagrams and multitableaux}
-    \indexcmd{Multidiagram}\indexcmd{Multitableau}
+    \indexcmd{Multidiagram}
+    \indexcmd{Multitableau}
+    \index{diagram!multidiagram}
+
+    Multitableaux and multidiagrams, with are $\ell$-tuples of tableaux
+    diagrams respectively, appear in the representation theory of wreath
+    products and cyclotomic Hecke algebras. It is not difficult to
+    construct such tableaux and diagrams using the \keyword{\Tableau}
+    and \keyword{\Diagram} commands. For convenience, \aTableau provides
+    the \keyword{\Multidiagram} and \keyword{\Multitableau} commands for
+    drawing these diagrams.
+
+  \keyword{\Multidiagram (x,y) [options] {multipartition }}\\
+  \keyword{\Multitableau (x,y) [options] {multitableau }}
 
     \begin{example}
       \Multidiagram[scale=0.5]{3,2^2||2,1^2||1}
@@ -1183,18 +1458,11 @@
     \end{example}
 
     \begin{example}
-      \Multitableau[rows=3,scale=0.8,font=\tiny]
+      \Multitableau[rows=3,scale=0.8,font=\scriptsize]
                    {123,45,67||89,{10},{11}||...||{12}}
     \end{example}
 
     \Multitableau{1||1||1||1}
-
-% Ribbon Tableaux
-% \RibbonTableau[options]{ijrcrrccr, klrrccrrrc,....}
-% The ribbon tableau are specified by a comma separated list that consists of
-% the row and column indices of the rightmost node in the ribbon, followed by a
-% sequences of r's and c's that indicate whether the ribbon moves along the row
-% or down the column. As always, each term accepts an optional style.
 
 
   \section{Abacuses}
@@ -1209,31 +1477,39 @@
 
   \begin{example}
      \Abacus{3}{5,4,1,1}
-     \Abacus[show=shape,text=white]{3}{5,4,1,1}
-     \Abacus[show=beta,text=white]{3}{5,4,1,1}
-     \Abacus[show=row,text=white]{3}{5,4,1,1}
-     \Abacus[show=residue,text=white]{3}{5,4,1,1}
+     \Abacus[show=shape,text=yellow]{3}{5,4,1,1}
+     \Abacus[show=beta,text=red]{3}{5,4,1,1}
+     \Abacus[show=rows]{3}{5,4,1,1}
+     \Abacus[show=residue]{3}{5,4,1,1}
   \end{example}
 
   \begin{example}
     \tikzset{R/.style={ball color=red},
-             S/.style={ball color=white}}
+             W/.style={ball color=white},
+             O/.style={ball color=orange}
+    }
 
 
-     \Abacus{3}{5,[R]4,1^2,[S]0^4}
-     \Abacus[north]{3}{5,[R]4,1^2,[S]0^4}
+     \Abacus{3}{5,[R]4,1^2,[W]0^4}
 
-     \Abacus[north, scale=0.5, starstyle={ball color=white}]{3}{5,4,*1^2,*0^4}
+     \Abacus[north]{3}{[O]5^2_{ooo},[R]4,1^2,[W]0^4}
+
+     \Abacus[north, scale=1.2, starstyle={ball color=yellow}]{3}{5,4,*1^2,[W]0^4}
   \end{example}
 
-
-  An abacus:
 
   \begin{example}
      \Abacus[text=white,font=\tiny]{3}{5_a,4_b,1_c,1_d}
   \end{example}
 
-  Done!
+  \begin{example}
+    \aTabSet{align=centre}
+    \tikzset{B/.style={ball color=LightSkyBlue}}
+    \Abacus[beta numbers]{4}{6,4,3,1,0}
+    \quad $\longrightarrow$\quad
+    \Abacus[beta numbers]{4}{7,5,4,2,1,[B]0}
+  \end{example}
+
 
   \section{Dynkin quivers?}
   \section{Braid diagrams and KLRW diagrams?}
