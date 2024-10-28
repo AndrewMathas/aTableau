@@ -30,12 +30,12 @@
 %       - cartan=... for residues A1-e, A2-e, C1-2, D2-2, ...
 %       - conjugate = print conjugate tableau -- avoids need for \ColumnTabloid
 %       - residue=e : allow residues of type C, ...
-%       - snobs = ribbons applied after the outline
+%       - snobs = ribbons applied after the border
 %   o draw tableaux in the following order:
 %     a  - nodes with default style
 %       - nodes with custom style: construct \l__atableau_nodes_tl
 %       - ribbons
-%       - outline
+%       - border
 %       - snob ribbons
 %   o add fill for tableaux
 %   o add fill for skew tableau
@@ -50,8 +50,8 @@
 %
 % Done:
 % options:
-%       - outline = only draw the diagram outline
-%       - skew outline = outline skew shape
+%       - border = only draw the diagram border
+%       - skew border = border skew shape
 %   o make label=residue|content|hooks|initial|final|... ???? maybe show=... is better>?
 %   o fix text=... for nodes
 %   o ribbon tableaux
@@ -103,10 +103,10 @@
 \bool_new:N \l__atableau_finite_bool    % true if finite abacus runners
 \bool_new:N \l__atableau_frame_bool     % true if drawing framed abacus runners
 \bool_new:N \l__atableau_conjugate_bool % true if drawing conjugate tableau/diagram
-\bool_new:N \l__atableau_outline_bool   % true if drawing tableau outline
-\bool_new:N \l__atableau_outline_only_bool % true if only drawing tableau outline
+\bool_new:N \l__atableau_border_bool   % true if drawing tableau border
+\bool_new:N \l__atableau_border_only_bool % true if only drawing tableau border
 \bool_new:N \l__atableau_shifted_bool   % true if a shifted tableau
-\bool_new:N \l__atableau_skewwall_bool  % true if drawing skew outline
+\bool_new:N \l__atableau_skewwall_bool  % true if drawing skew border
 \bool_new:N \l__atableau_tabloid_bool   % true if a tabloid
 
 \fp_new:N \l__atableau_col_dx_fp        % change in x-coordinate between columns
@@ -173,7 +173,7 @@
 \tl_new:N \l__atableau_multiprefix_tl   % prefix used when constructing multinode names
 \tl_new:N \l__atableau_name_tl          % name of a tableau node
 \tl_new:N \l__atableau_outer_tl         % colour of tableau outer walls
-\tl_new:N \l__atableau_outline_tl       % diagram outline
+\tl_new:N \l__atableau_border_tl       % diagram border
 \tl_new:N \l__atableau_prefix_tl        % prefix for node names
 \tl_new:N \l__atableau_ribbon_nodes_tl  % TikZ code for the nodes in a ribbon
 \tl_new:N \l__atableau_ribbon_style_tl  % a ribbon in the ribbon tableau
@@ -682,21 +682,21 @@
 }
 
 % ---------------------------------------------------------------------------
-% draw diagram outline
+% draw diagram border
 
-% usage: \__atableau_draw_outline:nn #1 #2 {name of sequence} {name of style}
-\cs_new_protected_nopar:Npn \__atableau_draw_outline:nn #1 #2
+% usage: \__atableau_draw_border:nn #1 #2 {name of sequence} {name of style}
+\cs_new_protected_nopar:Npn \__atableau_draw_border:nn #1 #2
 {
     \int_zero:N \l__atableau_r_int  % row index
     \int_zero:N \l__atableau_c_int  % column index
-    \tl_clear:N \l__atableau_outline_tl % will hold the outline
+    \tl_clear:N \l__atableau_border_tl % will hold the border
 
-    \typeout{~-~drawing~outline~for~#2.~tabloid=\bool_to_str:N \l__atableau_tabloid_bool,~shape=(\seq_use:cn {l__atableau_#1_seq} {,}).}
+    \typeout{~-~drawing~border~for~#2.~tabloid=\bool_to_str:N \l__atableau_tabloid_bool,~shape=(\seq_use:cn {l__atableau_#1_seq} {,}).}
     \seq_map_inline:cn {l__atableau_#1_seq}
     {
         \int_set:Nn \l_tmpa_int {0##1}
         \typeout{~-~adding~##1~->~\int_use:N\l_tmpa_int}
-        \int_compare:nNnT \l_tmpa_int > {0} % only add outlines for nonzero rows
+        \int_compare:nNnT \l_tmpa_int > {0} % only add borders for nonzero rows
         {
             % compute the endpoints of this row
             \str_if_eq:nnF {skew} {#1}
@@ -708,36 +708,36 @@
             \typeout{outlining~row~\int_use:N\l__atableau_r_int :~(\fp_use:N\l__atableau_xa_fp,\fp_use:N\l__atableau_ya_fp)--(\fp_use:N\l__atableau_xb_fp,\fp_use:N\l__atableau_yb_fp),~\bool_to_str:n{ \int_compare_p:n {\l__atableau_r_int = 0} || \l__atableau_tabloid_bool }}
             \bool_if:nTF { \int_compare_p:n {\l__atableau_r_int = 0} || \l__atableau_tabloid_bool }
             {   % add line along "top" of the row
-                \tl_put_right:Nx \l__atableau_outline_tl {(\fp_use:N\l__atableau_xa_fp,\fp_use:N\l__atableau_ya_fp)--(\fp_use:N\l__atableau_xb_fp,\fp_use:N\l__atableau_yb_fp)}
+                \tl_put_right:Nx \l__atableau_border_tl {(\fp_use:N\l__atableau_xa_fp,\fp_use:N\l__atableau_ya_fp)--(\fp_use:N\l__atableau_xb_fp,\fp_use:N\l__atableau_yb_fp)}
 
                 \__atableau_add_row_ends:
             }
             { % add lines for second and later rows
 
               % add ends under the row
-              \tl_put_left:Nx  \l__atableau_outline_tl {(\fp_use:N\l__atableau_xa_fp,\fp_use:N\l__atableau_ya_fp)--}
-              \tl_put_right:Nx \l__atableau_outline_tl {--(\fp_use:N\l__atableau_xb_fp,\fp_use:N\l__atableau_yb_fp)}
+              \tl_put_left:Nx  \l__atableau_border_tl {(\fp_use:N\l__atableau_xa_fp,\fp_use:N\l__atableau_ya_fp)--}
+              \tl_put_right:Nx \l__atableau_border_tl {--(\fp_use:N\l__atableau_xb_fp,\fp_use:N\l__atableau_yb_fp)}
               \__atableau_add_row_ends:
             }
-            \typeout{outline~at~row=\int_use:N\l__atableau_r_int :~\l__atableau_outline_tl}
+            \typeout{border~at~row=\int_use:N\l__atableau_r_int :~\l__atableau_border_tl}
             \int_incr:N \l__atableau_r_int
         }
     }
 
-    % finally, draw the outline
-    \tl_if_empty:NF \l__atableau_outline_tl
+    % finally, draw the border
+    \tl_if_empty:NF \l__atableau_border_tl
     {
       % fill in the last line
-      \tl_put_right:Nx \l__atableau_outline_tl {(\fp_use:N\l__atableau_xa_fp,\fp_use:N\l__atableau_ya_fp)--(\fp_use:N\l__atableau_xb_fp,\fp_use:N\l__atableau_yb_fp)}
+      \tl_put_right:Nx \l__atableau_border_tl {(\fp_use:N\l__atableau_xa_fp,\fp_use:N\l__atableau_ya_fp)--(\fp_use:N\l__atableau_xb_fp,\fp_use:N\l__atableau_yb_fp)}
 
-      \typeout{****~outline=\l__atableau_outline_tl}
-      \draw[atableau/#2] \l__atableau_outline_tl;
+      \typeout{****~border=\l__atableau_border_tl}
+      \draw[atableau/#2] \l__atableau_border_tl;
     }
 }
 
 % usage: \__atableau_add_row_ends: increment the (xa,ya) and (xb,yb) coordinates down
 % one row and add the lines at the left and right hand ends of the row to
-% \l__atableau_outline_tl. If this is a tabloid then we only want to add the
+% \l__atableau_border_tl. If this is a tabloid then we only want to add the
 % coordinates but otherwise we joint them up
 \cs_new_protected_nopar:Nn \__atableau_add_row_ends:
 {
@@ -753,12 +753,12 @@
 
       \bool_if:NTF \l__atableau_tabloid_bool
       {
-        \tl_put_left:Nx  \l__atableau_outline_tl {--(\fp_use:N\l__atableau_xa_fp,\fp_use:N\l__atableau_ya_fp)}
-        \tl_put_right:Nx \l__atableau_outline_tl {(\fp_use:N\l__atableau_xb_fp,\fp_use:N\l__atableau_yb_fp)--}
+        \tl_put_left:Nx  \l__atableau_border_tl {--(\fp_use:N\l__atableau_xa_fp,\fp_use:N\l__atableau_ya_fp)}
+        \tl_put_right:Nx \l__atableau_border_tl {(\fp_use:N\l__atableau_xb_fp,\fp_use:N\l__atableau_yb_fp)--}
       }
       {
-        \tl_put_left:Nx  \l__atableau_outline_tl {(\fp_use:N\l__atableau_xa_fp,\fp_use:N\l__atableau_ya_fp)--}
-        \tl_put_right:Nx \l__atableau_outline_tl {--(\fp_use:N\l__atableau_xb_fp,\fp_use:N\l__atableau_yb_fp)}
+        \tl_put_left:Nx  \l__atableau_border_tl {(\fp_use:N\l__atableau_xa_fp,\fp_use:N\l__atableau_ya_fp)--}
+        \tl_put_right:Nx \l__atableau_border_tl {--(\fp_use:N\l__atableau_xb_fp,\fp_use:N\l__atableau_yb_fp)}
       }
     }
     {
@@ -773,12 +773,12 @@
 
       \bool_if:NTF \l__atableau_tabloid_bool
       {
-        \tl_put_left:Nx  \l__atableau_outline_tl {(\fp_use:N\l__atableau_xa_fp,\fp_use:N\l__atableau_ya_fp)}
-        \tl_put_right:Nx \l__atableau_outline_tl {(\fp_use:N\l__atableau_xb_fp,\fp_use:N\l__atableau_yb_fp)--}
+        \tl_put_left:Nx  \l__atableau_border_tl {(\fp_use:N\l__atableau_xa_fp,\fp_use:N\l__atableau_ya_fp)}
+        \tl_put_right:Nx \l__atableau_border_tl {(\fp_use:N\l__atableau_xb_fp,\fp_use:N\l__atableau_yb_fp)--}
       }
       {
-        \tl_put_left:Nx  \l__atableau_outline_tl {(\fp_use:N\l__atableau_xa_fp,\fp_use:N\l__atableau_ya_fp)--}
-        \tl_put_right:Nx \l__atableau_outline_tl {--(\fp_use:N\l__atableau_xb_fp,\fp_use:N\l__atableau_yb_fp)}
+        \tl_put_left:Nx  \l__atableau_border_tl {(\fp_use:N\l__atableau_xa_fp,\fp_use:N\l__atableau_ya_fp)--}
+        \tl_put_right:Nx \l__atableau_border_tl {--(\fp_use:N\l__atableau_xb_fp,\fp_use:N\l__atableau_yb_fp)}
       }
     }
 }
@@ -791,7 +791,7 @@
 % to force the entries to expand
 \cs_new_protected_nopar:Npn \__atableau_tableau:n #1
 {
-    \seq_clear:N \l__atableau_shape_seq % record the shape as we go so that we can draw the outline
+    \seq_clear:N \l__atableau_shape_seq % record the shape as we go so that we can draw the border
     \int_zero:N \l__atableau_row_int
     \tl_clear:N \l__atableau_styled_nodes_tl
     \bool_if:NT \l__atableau_shifted_bool { \seq_clear:N \l__atableau_skew_seq }
@@ -812,7 +812,7 @@
         % increment the row index, record this in the shape, and repeat
         \int_incr:N \l__atableau_row_int
 
-        % record the shape for drawing out the outline
+        % record the shape for drawing out the border
         \seq_put_right:NV \l__atableau_shape_seq \l__atableau_col_int
     }
 
@@ -820,11 +820,12 @@
     \l__atableau_styled_nodes_tl
 
     % add any ribbons
+    \cs_set_eq:NN \__atableau_update_shape: \relax % don't update shape
     \seq_map_inline:Nn \l__atableau_ribbons_seq {\__atableau_add_ribbon:n {##1}}
 
-    % draw outline
-    \bool_if:NT \l__atableau_skewwall_bool { \__atableau_draw_outline:nn {skew}  {skewwall}  }
-    \bool_if:NT \l__atableau_outline_bool  { \__atableau_draw_outline:nn {shape} {outerwall} }
+    % draw border
+    \bool_if:NT \l__atableau_skewwall_bool { \__atableau_draw_border:nn {skew}  {skewwall}  }
+    \bool_if:NT \l__atableau_border_bool  { \__atableau_draw_border:nn {shape} {outerwall} }
 
     % add any snobs
     \seq_map_inline:Nn \l__atableau_snobs_seq {\__atableau_add_ribbon:n {##1}}
@@ -964,9 +965,9 @@
     % convert #1 to the partition \l__atableau_shape_seq
     \__atableau_set_partition:nn {shape} {#1}
 
-    \bool_if:NTF \l__atableau_outline_only_bool
+    \bool_if:NTF \l__atableau_border_only_bool
     {
-        \__atableau_draw_outline:nn {shape} {outerwall}
+        \__atableau_draw_border:nn {shape} {outerwall}
     }
     {
         % depending on \l__atableau_show_tl, generate the tableau entries
@@ -1119,12 +1120,13 @@
 \cs_new_protected_nopar:Npn \__atableau_ribbon_tableau:n #1
 {
 \typeout{ribbon~tableau:~1="#1"}
-    \seq_clear:N \l__atableau_shape_seq % record the shape as we go to draw the outline
+    \seq_clear:N \l__atableau_shape_seq % record the shape as we go to draw the border
+    \cs_set_eq:NN \__atableau_update_shape: \__atableau_update_ribbon_tableau_shape:
     \clist_map_inline:nn {#1} { \__atableau_add_ribbon:n {##1} }
 
-    % draw outlines
-    \bool_if:NT \l__atableau_skewwall_bool { \__atableau_draw_outline:nn {skew}  {skewwall}  }
-    \bool_if:NT \l__atableau_outline_bool  { \__atableau_draw_outline:nn {shape} {outerwall} }
+    % draw borders
+    \bool_if:NT \l__atableau_skewwall_bool { \__atableau_draw_border:nn {skew}  {skewwall}  }
+    \bool_if:NT \l__atableau_border_bool  { \__atableau_draw_border:nn {shape} {outerwall} }
 }
 
 % usage: \__atableau_add_ribbon:n {ribbon} add a ribbon to the tableau
@@ -1235,8 +1237,6 @@
     \__atableau_draw_ribbon:
    }
 
-\typeout{save_letter:~#1,~#2.}
-
     % move row and col according to the ribbon specification and update
     % the nodes (xa,ya) and (xb,yb) in the ribbon
     \str_case:enF {#2}
@@ -1287,7 +1287,7 @@
 
 % update the shape of the ribbon tableau using the current values of
 % \l__atableau_row_int and \l__atableau_col_int
-\cs_new_protected_nopar:Nn \__atableau_update_shape:
+\cs_new_protected_nopar:Nn \__atableau_update_ribbon_tableau_shape:
 {
     \int_step_inline:nn { \l__atableau_row_int+1 - \seq_count:N \l__atableau_shape_seq }
     {
@@ -1554,12 +1554,10 @@
         \tl_set:Nx \l_tmpa_tl {\str_lowercase:n {#1}}
         \str_if_eq:VnTF \l_tmpa_tl {true}
         {
-        \typeout{CONJUGATE~true~from~\l_tmpa_tl.}
             \bool_set_true:N \l__atableau_conjugate_bool
             \cs_set_eq:NN \__atableau_set_box_coordinates:nnn \__atableau_set_box_coordinates_conjugate:nnn
         }
         {
-        \typeout{CONJUGATE~false~from~\l_tmpa_tl.}
             \bool_set_false:N \l__atableau_conjugate_bool
             \cs_set_eq:NN \__atableau_set_box_coordinates:nnn \__atableau_set_box_coordinates_normal:nnn
         }
@@ -1567,11 +1565,14 @@
     conjugate   .default:n = true,
     conjugate   .initial:n = false,
 
-    outline    .bool_set:N = \l__atableau_outline_bool,
-    outline     .initial:n = true,
+    border    .bool_set:N = \l__atableau_border_bool,
+    border     .initial:n = true,
+    border     .default:n = true,
+    no~border .bool_set_inverse:N = \l__atableau_border_bool,
+    no~border  .default:n = true,
 
-    outline~only .bool_set:N = \l__atableau_outline_only_bool,
-    outline~only .initial:n = false,
+    border~only .bool_set:N = \l__atableau_border_only_bool,
+    border~only .initial:n = false,
 
     shifted    .bool_set:N = \l__atableau_shifted_bool,
     shifted    .initial:n  = false,
