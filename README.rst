@@ -12,7 +12,12 @@ very little documentation.  Several planned features have not been
 implemented. Everything is subject to change. Comments and suggestions
 are welcome.*
 
-LaTeX macros for symmetric group combinatorics: Young diagrams, tabloids, tableaux, abacuses, ...
+A LaTeX package for symmetric group combinatorics, including:
+    - Young diagrams
+    - tabloids
+    - tableaux
+    - abacuses
+    - KLRW diagrams
 
 
 .. code-block:: latex
