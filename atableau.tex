@@ -2,7 +2,7 @@
 % Title:    aTableau.
 % Author:   Andrew Mathas
 % Created:  October 2023
-% Modified: 17:40 Thursday, 24 October 2024
+% Modified: 14:17 Monday, 28 October 2024
 % ----------------------------------------------------------------------
 \documentclass{amsart}
 \usepackage[svgnames]{xcolor}
@@ -991,11 +991,11 @@
    \end{tikzpicture}
   \end{example}
 
-  The two tableaux constructions in this example are equivalent. The
-  problem with both examples is that the numbers have not been rotate
-  because \emph{rotate} does not affect components objects such as
-  nodes, inside a \TikZ picture. The correct way to do this is using
-  \textit{transform canvas}:
+  The two tableaux constructions in this example are equivalent. An
+  oddity with both of these examples is that the numbers have not been
+  rotated, which is because \emph{rotate} does not affect component
+  objects, such as nodes, inside a \TikZ picture. You can rotate
+  everything in the picture by using \textit{transform canvas}:
 
   \vspace*{15mm}
 
@@ -1414,14 +1414,14 @@
       \RibbonTableau[skew={4,1^2},ukrainian]
         {15,16,26,25crcr,23cr,42cr,61}
       \RibbonTableau[skew={4,1^2},australian]
-        {fill=blue!10|16crcccrrcrr,26,34cr}
+        {(fill=blue!10)16crcccrrcrr,26,34cr}
       \RibbonTableau[australian]
-        {fill=(blue!10)16crcccrrcrr,26,34cr}
+        {(fill=blue!10)16crcccrrcrr,26,34cr}
     \end{example}
 
     \begin{example}
       \RibbonTableau{
-         [fill=blue!20]1_12 [fill=red!20]c_2 [fill=yellow!20]r_3 }
+         [fill=blue!20]12_1 [fill=red!20]c_2 [fill=yellow!20]r_3 }
     \end{example}
 
     \subsection{Multidiagrams and multitableaux}
