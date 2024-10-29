@@ -39,7 +39,7 @@
   { The~available~tableau~styles~are~australian,~english,~french~and~ukrainian~and~the~available~abacus~styles~are~north,~south,~east~and~west~}
 
 \msg_new:nnnn { aTableau } { invalid-ribbon-specification }
-  { Invalid~ribbon~specificiation~'#1'. }
+  { Invalid~ribbon~specificiation~'#1':~expecting~r~or~c. }
   { Ribbon~specifications~must~be~for~the~form:~optional~style|<row><col> sequences of r's and c's}
 
 \msg_new:nnnn { aTableau } { unrecognised-abacus-label }
@@ -151,7 +151,7 @@
   % all tikz settings are in the atableau family
   atableau/.is~family, atableau/.cd,
     % style for tableau boxes
-    node/.style = {
+    box/.style = {
         anchor         = center,
         inner~sep      = 0pt,
         draw           = \l__atableau_inner_tl,
@@ -164,7 +164,6 @@
     % inner tableau wall
     innerwall/.style = {
         draw=\l__atableau_inner_tl,
-        rectangle,
         thin,
     },
     % outer tableau wall
@@ -178,6 +177,7 @@
     % default ribbon style
     ribbon/.style = {
         anchor         = center,
+        draw           = \l__atableau_inner_tl,
         inner~sep      = 0pt,
         minimum~height = \fp_use:N \l__atableau_box_ht_fp cm,
         minimum~width  = \fp_use:N \l__atableau_box_wd_fp cm,
@@ -893,13 +893,13 @@
 
     \tl_if_empty:nTF {#1}
     { % draw box if it has the default styling
-        \node[atableau/node](\l__atableau_name_tl) at (\fp_use:N\l__atableau_xl_fp, \fp_use:N\l__atableau_yl_fp)
+        \node[atableau/box](\l__atableau_name_tl) at (\fp_use:N\l__atableau_xl_fp, \fp_use:N\l__atableau_yl_fp)
           {\__atableau_entry:n{#2}};
     }
     { % save the node to \l__atableau_styled_nodes_tl if it is styled
       \tl_put_right:Nx \l__atableau_styled_nodes_tl
       {
-          \exp_not:N \node [atableau/node,#1](\l__atableau_name_tl)
+          \exp_not:N \node [atableau/box,#1](\l__atableau_name_tl)
               at (\fp_use:N\l__atableau_xl_fp, \fp_use:N\l__atableau_yl_fp)
               {\exp_not:N\__atableau_entry:n{#2}};
       }
@@ -1272,28 +1272,32 @@
     \tl_clear:N \l__atableau_styled_nodes_tl
     \seq_map_inline:Nn \l__atableau_styles_seq
     {
-        % text the row and column indices
+        % pop the text and row and column indices
         \seq_pop_left:NN \l__atableau_texts_seq \l_tmpa_tl
         \seq_pop_left:NN \l__atableau_rcs_seq \l_tmpb_tl
         \int_set:No \l__atableau_row_int \l_tmpb_tl
         \seq_pop_left:NN \l__atableau_rcs_seq  \l_tmpb_tl
         \int_set:No \l__atableau_col_int \l_tmpb_tl
+
+        % compute the box coordinates
         \__atableau_set_box_coordinates:nVV {l} \l__atableau_row_int \l__atableau_col_int
 
         \tl_if_empty:eTF {##1\l_tmpa_tl}
         {   % nodes with default style and no text
-            \node[atableau/ribbon](\l__atableau_name_tl) at (\fp_use:N\l__atableau_xl_fp, \fp_use:N\l__atableau_yl_fp) {};
+            \node[atableau/ribbon](\l__atableau_name_tl)
+                at (\fp_use:N\l__atableau_xl_fp,\fp_use:N\l__atableau_yl_fp)
+                {\__atableau_entry:n{~}};
         }
         {   % nodes with styling go into \l__atableau_styled_nodes_tl
           \tl_put_right:Nx \l__atableau_styled_nodes_tl
           {
-            \exp_not:N \node [atableau/node,##1](\l__atableau_name_tl)
-                  at (\fp_use:N\l__atableau_xl_fp, \fp_use:N\l__atableau_yl_fp)
+            \exp_not:N \node [atableau/box,##1](\l__atableau_name_tl)
+                  at (\fp_use:N\l__atableau_xl_fp,\fp_use:N\l__atableau_yl_fp)
                   {\exp_not:N \__atableau_entry:n{\l_tmpa_tl}};
           }
         }
     }
-    % draw the ribbon
+    % draw the ribbon, applying any style
     \exp_last_unbraced:Ne\draw{[atableau/innerwall, atableau/ribbon, \l__atableau_ribbon_style_tl]} \l__atableau_ribbon_tl;
 
     % finally, add the styled nodes
@@ -1781,7 +1785,7 @@
 }
 
 
-\NewDocumentCommand\aTabSet{ m }{ \keys_set:nn { atableau } {#1} }
+\NewDocumentCommand\aTabset{ m }{ \keys_set:nn { atableau } {#1} }
 
 % ---------------------------------------------------------------------------
 % Finally, now that everything is defined, process the package options.
