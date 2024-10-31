@@ -164,25 +164,24 @@
     % inner tableau wall
     innerwall/.style = {
         draw=\l__atableau_inner_tl,
+        line~cap=rect,
         thin,
     },
     % outer tableau wall
     outerwall/.style = {
-       shift={(\fp_eval:n{-(\l__atableau_row_dx_fp+\l__atableau_col_dx_fp)*\l__atableau_box_wd_fp/2},
-               \fp_eval:n{-(\l__atableau_row_dy_fp+\l__atableau_col_dy_fp)*\l__atableau_box_ht_fp/2})},
-       line~cap=rect,
-       very~thick,
-       draw = \l__atableau_outer_tl,
+        shift={(\fp_eval:n{-(\l__atableau_row_dx_fp+\l__atableau_col_dx_fp)*\l__atableau_box_wd_fp/2},
+                \fp_eval:n{-(\l__atableau_row_dy_fp+\l__atableau_col_dy_fp)*\l__atableau_box_ht_fp/2})},
+        line~cap=rect,
+        very~thick,
+        draw = \l__atableau_outer_tl,
     },
     % default ribbon style
     ribbonstyle/.style = {
-        draw=\l__atableau_inner_tl,
         thin,
     },
     % default ribbon box style
     ribbonbox/.style = {
         anchor         = center,
-        draw           = \l__atableau_inner_tl,
         inner~sep      = 0pt,
         minimum~height = \fp_use:N \l__atableau_box_ht_fp cm,
         minimum~width  = \fp_use:N \l__atableau_box_wd_fp cm,
@@ -190,15 +189,15 @@
     },
     % default separator text style
     separator/.style = {
-       text            = \l__atableau_separator_fg_tl,
+        text            = \l__atableau_separator_fg_tl,
     },
     % style for skew walls
     skewwall/.style = {
-       shift={(\fp_eval:n{-(\l__atableau_row_dx_fp+\l__atableau_col_dx_fp)*\l__atableau_box_wd_fp/2},
-               \fp_eval:n{-(\l__atableau_row_dy_fp+\l__atableau_col_dy_fp)*\l__atableau_box_ht_fp/2})},
-       thick,
-       draw=LightSkyBlue,
-       fill=LightSkyBlue!10,
+        shift={(\fp_eval:n{-(\l__atableau_row_dx_fp+\l__atableau_col_dx_fp)*\l__atableau_box_wd_fp/2},
+                \fp_eval:n{-(\l__atableau_row_dy_fp+\l__atableau_col_dy_fp)*\l__atableau_box_ht_fp/2})},
+        very~thick,
+        draw=LightSkyBlue,
+        fill=LightSkyBlue!10,
     },
     % star style
     starstyle/.style = {
@@ -1219,22 +1218,24 @@
     \seq_map_inline:Nn \l__atableau_styles_seq
     {
         % pop the text and row and column indices
-        \seq_pop_left:NN \l__atableau_texts_seq \l_tmpa_tl
-        \seq_pop_left:NN \l__atableau_rcs_seq \l_tmpb_tl
+        \seq_pop_left:NN \l__atableau_texts_seq \l_tmpa_tl % text
+        \seq_pop_left:NN \l__atableau_rcs_seq \l_tmpb_tl   % row index
         \int_set:No \l__atableau_row_int \l_tmpb_tl
-        \seq_pop_left:NN \l__atableau_rcs_seq  \l_tmpb_tl
+        \seq_pop_left:NN \l__atableau_rcs_seq \l_tmpb_tl   % column index
         \int_set:No \l__atableau_col_int \l_tmpb_tl
 
         % compute the box coordinates
         \__atableau_set_box_coordinates:nVV {l} \l__atableau_row_int \l__atableau_col_int
 
+\typeout{Ribbon~@~(\int_use:N\l__atableau_row_int,\int_use:N\l__atableau_col_int):~text=\l_tmpa_tl,~style="##1"}
         \tl_if_empty:eTF {##1\l_tmpa_tl}
         { % nodes with default style and no text
+\typeout{~-~empty~style~and~text}
           \node[atableau/ribbonbox](\l__atableau_name_tl)
-             at (\fp_use:N\l__atableau_xl_fp,\fp_use:N\l__atableau_yl_fp)
-             {\__atableau_entry:n{~}};
+             at (\fp_use:N\l__atableau_xl_fp,\fp_use:N\l__atableau_yl_fp) {};
         }
         {   % nodes with styling go into \l__atableau_styled_nodes_tl
+\typeout{~-~has~style~or~text}
           \tl_put_right:Nx \l__atableau_styled_nodes_tl
           {
             \exp_not:N \node [atableau/ribbonbox,##1](\l__atableau_name_tl)
@@ -1548,7 +1549,7 @@
     ribbon~box  .default:n =,
     ribbon~box  .initial:n =,
 
-    ribbon~style    .code:n = { \exp_args:Nx \tikzset {atableau/ribbonstyle/.style={#1}} },
+    ribbon~style    .code:n = { \exp_args:Nx \tikzset {atableau/ribbonstyle/.append~style={#1}} },
     ribbon~style .default:n =,
     ribbon~style .initial:n =,
 
