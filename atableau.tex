@@ -2,7 +2,7 @@
 % Title:    aTableau.
 % Author:   Andrew Mathas
 % Created:  October 2023
-% Modified: 09:37 Thursday, 31 October 2024
+% Modified: 15:05 Thursday, 31 October 2024
 % ----------------------------------------------------------------------
 \documentclass{amsart}
 \usepackage[svgnames]{xcolor}
@@ -1497,7 +1497,8 @@
   A \emph{tabloid} is an equivalence class of tableau where two tableaux
   are equivalent if they have the same entries in each row, up to a
   permutation. In the literature, tabloids are usually drawn with lines
-  above and below each row, and no side boundary walls
+  above and below each row, and no side boundary walls. Tabloids can be
+  drawn with the \keyword{\Tabloid} command.
 
   \keyword{\Tabloid (x,y) [options] {partition }}\\
 
@@ -1598,10 +1599,10 @@
   \begin{example}
     \RibbonTableau{
         *1{10}c*rc*rc*rc*rc*cc*cc,
-        *18c[red]rc[blue]rc*rc*cc[teal]c,
-        [green]16c*rc*rc*cc,
-        [purple]14c[purple]cc[orange]r,
-        [yellow]23
+        *18c[fill=red]rc[fill=blue]rc*rc*cc[fill=teal]c,
+        [fill=green]16c*rc*rc*cc,
+        [fill=purple]14c[draw=purple]cc[fill=orange]r,
+        [{fill=yellow,draw=red,ultra thick}]23
     }
   \end{example}
 
