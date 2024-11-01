@@ -2,7 +2,7 @@
 % Title:    aTableau.
 % Author:   Andrew Mathas
 % Created:  October 2023
-% Modified: 10:57 Friday, 01 November 2024
+% Modified: 17:09 Friday, 01 November 2024
 % ----------------------------------------------------------------------
 \documentclass{amsart}
 \usepackage[svgnames]{xcolor}
@@ -352,6 +352,11 @@
 }
 \makeatother
 
+\numberwithin{equation}{subsection}
+\def\equationautorefname~#1\null{(#1)\null}
+\renewcommand\sectionautorefname{Chapter}
+\renewcommand\subsectionautorefname{Section}
+\renewcommand\subsubsectionautorefname{Subsection}
 
 \begin{document}
 
@@ -636,7 +641,9 @@
     \end{tikzpicture}
     \end{Example}
 
-    \subsection{Tableaux}\indexcmd{Tableau}
+    \subsection{Tableaux}
+    \indexcmd{Tableau}
+    \label{S:Tableau}
     This section describes the \keyword{\Tableau} command, which draws
     tableaux or labelled diagrams. The syntax for this command is:
 
@@ -881,6 +888,7 @@
   \end{example}
 
   \subsubsection{Tableau options}
+  \label{SS:TableauOptions}
 
   The optional $*$-styles and $[\ldots]$-styles are the main mechanism
   for styling individual nodes in a tableau. Using a key-value syntax,
@@ -1564,14 +1572,15 @@
   required if and only if the diagram is being used as part of a
   \keyword{tikzpicture} environment. All of the options for the
   \keyword{\Tableau} command can be used for the ribbon command, so we
-  refer to \autoref{SS:tableau} for a description of the available
+  refer to \autoref{S:Tableau} for a description of the available
   options.
 
   \subsubsection{Ribbon specifications}
   Unlike the \keyword{\Tableau} command, the entries of a ribbon tableau
   are given by ribbon specifications (rather than tableau)
   specifications. Ribbon specifications are also used in the
-  \option{ribbons} and \option{snobs} options discussed above.
+  \option{ribbons} and \option{snobs} options discussed in
+  \autoref{SS:TableauOptions}.
 
   To understand the ribbon specifications, observe that
   if $(a,b)$ is the head of a ribbon, then we can walk along the ribbon
@@ -1589,12 +1598,11 @@
     \RibbonTableau{16ccccc}
   \end{example}
 
-  By default ribbons have no styling and are drawn with only a boundary.
-  The ribbon is assumed to be contained within the smallest Young
-  diagram that contains it. The last example uses \option{no border} is
-  disable the tableau borders because, otherwise, we would not be able
-  to see the ribbon boundaries in this example because the ribbon is the
-  full diagram.
+  The boundary of a ribbon tableau is the smallest (skew) partition that
+  contains all of the ribbons.  As the last example shows, the
+  \option{no border} disables the tableau borders because, otherwise, we
+  would not be able to see the ribbon boundary in this example because
+  the ribbon is the full diagram.
 
   The following diagram shows a see-sawing ribbon with head in row~$1$
   and column~10, and tail in row~$5$ and column~$1$.
@@ -1612,18 +1620,18 @@
         *1{10}c*rc*rc*rc*rc*cc*cc,
         *18c[fill=red]rc[fill=blue]rc*rc*cc[fill=teal]c,
         [fill=green]16c*rc*rc*cc,
-        [fill=purple]14c[draw=purple]cc[fill=orange]r,
+        *14c[{draw=purple,ultra thick}]cc[fill=orange]r,
         [{fill=yellow,draw=red,ultra thick}]23
     }
   \end{example}
 
-  In particular, the yellow node in this example shows that boxes are
-  ribbons of length~$1$. Most of the time, you want to style the entire
-  ribbon rather than styling the individual boxes in the ribbon.
+  In particular, the yellow box in this example highlights that boxes
+  are ribbons of length~$1$. Most of the time, you want to style the
+  entire ribbon rather than styling the individual boxes in the ribbon.
   Optionally, style for the entire ribbon can be given inside
   parentheses $(...)$ at the \textit{start} of the ribbon. Unlike the
-  other style specifications, the $*$-shorthand for the
-  \option{star style} cannot be applied to an entire ribbon.
+  other style specifications, the $*$-shorthand for the \option{star
+  style} cannot be applied to an entire ribbon.
 
   \begin{example}
     \RibbonTableau{
@@ -1654,14 +1662,15 @@
 
   This example adds spaces between the entries for the different boxes
   in the ribbon for clarity. There are situations where you might to put
-  a label of a cell. There is no dedicated syntax for this, however, it
-  can be done using \option{tikz after} and the named box coordinates:
+  a label of a box on the boundary between two boxes in the diagram.
+  There is no dedicated syntax for doing this, however, it is not
+  difficult to do this using the named anchors of~\autoref{E:NodeNames}.
 
   \begin{example}
-    \RibbonTableau[tikz after={\node at (B-1-2.east){$1$};
-                               \node at (B-2-2.east){$2$};
-                               \node at (B-3-2.east){$3$};
-    }]{ 14[fill=blue]c[draw]cc, 24ccc, 34ccc }
+    \RibbonTableau[shifted, tikz after={
+        \node at (B-1-2.east){$1$};
+        \node at (B-2-2.east){$2$};
+    }]{ 14ccc, 23c }
   \end{example}
 
   We have now seen the full ribbon specifications. To summarise:
@@ -1685,13 +1694,14 @@
   \keyword{\RibbonTableau} are assumed to be contained in the smallest
   Young diagram that contains all of the ribbons. This said, it is up to
   you to ensure that the boxes in the ribbon not have negative row or
-  column indices. A \option{ribbons}, or \option{snobs}, inside a
-  \keyword{\Diagram} or \keyword{\Tableau} command does not affect the
-  border of the diagram or tableau. Again, it is up to you to ensure
-  that the boxes in the ribbon are inside the diagram or tableau,
-  however, it is a useful feature to be draw outside it. For example,
-  the following picture highlights the \emph{addable} and
-  \emph{removable} nodes of the partition~$(4,3^2)$.
+  column indices. Inside a \keyword{\Diagram} or \keyword{\Tableau}
+  command, any ribbons added using \option{ribbons}, or \option{snobs},
+  do not affect the border of the diagram or tableau, and  it is up to
+  you to ensure that the boxes in the ribbon are inside the diagram or
+  tableau.  This said, it is a useful feature to be able to place boxes
+  outside of the diagrams using \option{ribbons} and \option{snobs}. For
+  example, the following picture uses \option{ribbons} to highlight the
+  \emph{addable} and \emph{removable} nodes of the partition~$(4,3^2)$.
 
   \begin{example}
     \tikzset{A/.style={fill=green!10, text=teal},
@@ -1728,6 +1738,16 @@
       {(fill=blue!10)16crcccrrcrr,26,34cr}
     \RibbonTableau[australian]
       {(fill=blue!10)16crcccrrcrr,26,(fill=yellow!10)34cr}
+  \end{example}
+
+  \begin{example}
+    \RibbonTableau[skew={1^2}, ukrainian]
+       12,16r_\cdot r_\cdot r_\cdot c_\cot c_\cdot *c,
+       18rcrrrrcc*c,19,1{10},1{11},1{12},
+       21_m,22,2{10}rcrrrcc*crrcrcc,
+       2{12}rrcrcrrrcc*c_lrrcrccc,
+       31,*32.41,42,51,52,53,
+       62rc,81,91,{10}1,{10}2,{11}1,{11}2
   \end{example}
 
   \begin{example}

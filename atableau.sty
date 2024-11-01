@@ -178,6 +178,8 @@
     % default ribbon style
     ribbonstyle/.style = {
         thin,
+        draw=\l__atableau_inner_tl,
+        line~cap=rect,
     },
     % default ribbon box style
     ribbonbox/.style = {
@@ -349,6 +351,7 @@
 \cs_generate_variant:Nn \int_while_do:nNnn {oNon}
 \cs_generate_variant:Nn \int_compare:nNnT  {oNVT}
 \cs_generate_variant:Nn \seq_set_item:Nnn  {Nno, NVV,Nox}
+\cs_generate_variant:Nn \seq_put_right:Nn  {Nx}
 
 \cs_generate_variant:Nn \__atableau_entry:n {x}
 \cs_generate_variant:Nn \__atableau_set_bead_coordinates:nnn {nVV, nno, noo, non, noV}
@@ -1188,9 +1191,20 @@
 % \l__atableau_row_int and \l__atableau_col_int
 \cs_new_protected_nopar:Nn \__atableau_update_ribbon_tableau_shape:
 {
+    % ensure that \l__atableau_shape_seq has at least a 0 in each row
     \int_step_inline:nn { \l__atableau_row_int+1 - \seq_count:N \l__atableau_shape_seq }
     {
       \seq_put_right:Nn \l__atableau_shape_seq {0}
+    }
+    % for shifted tableaux we also need to ensure that skew is big enough
+    \bool_if:NT \l__atableau_shifted_bool
+    {
+      \int_set:Nn \l_tmpa_int {\seq_count:N \l__atableau_skew_seq}
+      \int_step_inline:nn { \l__atableau_row_int+1 - \l_tmpa_int }
+      {
+        \seq_put_right:Nx \l__atableau_skew_seq {\int_eval:n{\l_tmpa_int+##1-1 }}
+      }
+      \typeout{row=\int_use:N\l__atableau_row_int, skew=~(\seq_use:Nn \l__atableau_skew_seq{,})}
     }
     \int_compare:nNnT {0\seq_item:Nn \l__atableau_shape_seq {\l__atableau_row_int+1}} < {\l__atableau_col_int+1}
     {
@@ -1227,15 +1241,12 @@
         % compute the box coordinates
         \__atableau_set_box_coordinates:nVV {l} \l__atableau_row_int \l__atableau_col_int
 
-\typeout{Ribbon~@~(\int_use:N\l__atableau_row_int,\int_use:N\l__atableau_col_int):~text=\l_tmpa_tl,~style="##1"}
         \tl_if_empty:eTF {##1\l_tmpa_tl}
         { % nodes with default style and no text
-\typeout{~-~empty~style~and~text}
           \node[atableau/ribbonbox](\l__atableau_name_tl)
              at (\fp_use:N\l__atableau_xl_fp,\fp_use:N\l__atableau_yl_fp) {};
         }
         {   % nodes with styling go into \l__atableau_styled_nodes_tl
-\typeout{~-~has~style~or~text}
           \tl_put_right:Nx \l__atableau_styled_nodes_tl
           {
             \exp_not:N \node [atableau/ribbonbox,##1](\l__atableau_name_tl)
