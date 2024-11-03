@@ -2,7 +2,7 @@
 % Title:    aTableau.
 % Author:   Andrew Mathas
 % Created:  October 2023
-% Modified: 17:09 Friday, 01 November 2024
+% Modified: 10:32 Monday, 04 November 2024
 % ----------------------------------------------------------------------
 \documentclass{amsart}
 \usepackage[svgnames]{xcolor}
@@ -477,7 +477,7 @@
         \index{ukrainian@Ukrainian}
         \index{australian@Australian}
         \footnotetext[1]{Some authors call this the Russian convention}
-        \footnotetext[2]{I have not seen this convention in the literature, but this name for the convention seems apt.}
+        \footnotetext[2]{I have not seen a name for convention in the literature, but calling this this \textit{Australian convention} seems apt.}
     \end{center}
     The different conventions for diagrams, and tableaux, are listed in
     order of (my perception of) their popularity in the literature.  By
@@ -680,7 +680,8 @@
   between the tableau entries to improve readability (although, you
   cannot have blank lines inside a \keyword{\Tableau} command). As this
   example suggests, by default, the entries of a tableau are typeset as
-  mathematics, but this can be changed.
+  mathematics, but this can be changed using the \option{text nodes}
+  option.
 
   As the second example above shows, the tableau entries are
   \textit{not} just individual characters: they also include \TeX\
@@ -694,10 +695,12 @@
 
   There is one additional caveat for braced-entries: any
   \textit{singleton} braced entry \keyword{{...}} in a row needs to be
-  double-braced. Double-bracing if only necessary when you have a row
+  \textit{double-braced}. Double-bracing if only necessary when you have a row
   with a single column and the entry in that column needs braces.  The
   need for double-bracing of singleton entries is a consequence of how
   \LaTeX3 detects braced commas in comma separated lists.
+  \index{tableau entries!double-braced}
+  \index{double-braced}
 
   The following example shows the difference between single and
   double-bracing for tableau entries.
@@ -1021,12 +1024,27 @@
   See the introduction to this section for examples and for more
   information about using node names and anchors.
 
+  \option[]{skew}{a partition}
+
+  Specify the skew shape for a skew tableau or skew diagram. See
+  \autoref{S:Skew} for more details.
+
+  \option[false]{shifted}[true/false]
+
+  Set to \textsf{true} for a shifted tableau or shifted diagram. See
+  \autoref{S:Shifted} for more details.
+
+  \option[false]{tabloid}[true/false]
+
+  Set to \textsf{true} for a tabloid. See \autoref{S:Tabloid} for more
+  details.
+
   \option[]{tikz before}[\TikZ commands]\\
   \option*[]{tikz after}[\TikZ commands]
 
   These commands inject \TikZ code  into the underlying
-  \keyword{tikzpicture} environment,  where the tableau is constructed, before and after the
-  \keyword{\Tableau} command, respectively.
+  \keyword{tikzpicture} environment,  where the tableau is constructed,
+  before and after the \keyword{\Tableau} command, respectively.
 
   \begin{example}[lefthand width=0.24\textwidth]
    \Tableau[
@@ -1117,11 +1135,21 @@
   \option[]{shape}[]
 
   \option[true]{math nodes}[true/false]
+  \newline
   \option*[false]{text nodes}[true/false]
 
-  \option[]{ribbons}[a comma separated list of ribbon specifiers]
-  \option*[]{snobs}  [a comma separated list of ribbon specifiers]
-  \option*[fill={blue!20}]{ribbon style}[\TikZ-style commands]
+  Use the \option{math nodes} and \option{text nodes} to have the
+  tableau entries typeset as either mathematics of text, respectively.
+  By default, the entries of a tableau are typeset as mathematics.
+
+  \begin{example}
+    \Tableau[math nodes]{ABCD, efg, HI} % the default \quad
+    \Tableau[text nodes]{ABCD, efg, HI}
+  \end{example}
+
+  \option[]{ribbons}{list of ribbon specifiers]
+  \newline
+  \option*[]{snobs}  [list of ribbon specifiers]
 
   Use the \option{ribbons} key to add a comma separated list of ribbons
   to your tableau. The syntax for adding ribbons is described in
@@ -1225,8 +1253,8 @@
   are not necessarily in decreasing order
 
   \begin{example}
-    \Tableau{ 245,82751,31 }
-    \SkewTableau{1,2}{ 245,827,231 }
+    \Tableau{ 45,2751,31 } \qquad
+    \SkewTableau{1,2}{ 45,27,31 }
   \end{example}
 
   Empty rows in tableaux and Young diagrams are not supported!
@@ -1453,6 +1481,7 @@
   \end{itemize}
 
   \subsection{Skew tableau and skew diagrams}
+  \label{S:Skew}
   \indexcmd{SkewTableau}
   \indexcmd{SkewDiagram}
   \index{diagram!skew}
@@ -1472,19 +1501,44 @@
   \keyword{\SkewDiagram (x,y) [options] {inner shape} {outer shape}}\\
   \keyword{\SkewTableau (x,y) [options] {inner shape} {skew tableau}}
 
+  \index{exponential notation}
   As with the previous commands, the $(x,y)$--coordinates should be given
   if and only if the picture is inside a \keyword{tikzpicture}
   environment.  The inner and outer shapes can either be given as a
-  comma separated list of integers or in exponential notation. In a
-  \keyword{\SkewTableau}, the tableau entries are specified exactly as
-  in the \keyword{\Tableau} command. In particular, they can be given
-  optional style commands.
-  \index{exponential notation}
+  comma separated list of integers or in exponential notation.
 
-  All of the options for the \keyword{\Diagram} command can be used with
-  the \keyword{\SkewDiagram} command and, similarly, all fo the options
-  for the \keyword{\Tableau} command can be sued with the
-  \keyword{\SkewTableau} command.
+  In fact, the \keyword{\SkewTableau} is just an alias for the
+  \keyword{\Tableau}, using the \option{skew} key to set the inner
+  shape. For this reason, all of the options for the \keyword{\Tableau}
+  command can be used with \keyword{\SkewTableau}. In particular, the
+  entries in a \keyword{\SkewTableau} are specified exactly as in the
+  \keyword{\Tableau} command. In particular, the entries of skew
+  tableaux can, optionally, be given style prefixes, both using a $*$ to
+  add the current \option{star style}, or arbitrary \TikZ-styling using
+  \keywords{[...]}.
+
+  \begin{example}
+    \tikzset{R/.style={fill=red!20,text=red}}
+    \SkewTableau[french]{1^2}{13,5*7,[R]79} \qquad
+    \Tableau[french,skew={1^2}]{13,5*7,[R]79}
+  \end{example}
+
+  Similarly, the \keyword{\SkewDiagram} command is an alias for the
+  \keyword{\Diagram} command, with a \option{skew} key.
+
+  \begin{example}
+    \SkewDiagram[french]{1^2}{2^3} \qquad
+    \Diagram[french,skew={1^2}]{2^3}
+  \end{example}
+
+  Since they are just aliases, all of the options for the
+  \keyword{\Tableau} and \keyword{\diagrams} commands can be used with
+  the \keyword{\SkewTableau} and \keyword{\SkewDiagram} commands. In
+  addition, the following options are supported:
+
+  \option[false]{skew wall}[true/false]
+
+  Draw the skew boundary is when \textsf{true} is \textsf{true}.
 
   \begin{example}
     \tikzset{R/.style={fill=red!20,circle}}
@@ -1492,25 +1546,71 @@
     \SkewTableau[french,skewwall]{2,1^2}{12[R]3,45,67}
   \end{example}
 
+  \option[thin,gray]{skew wall style}[\TikZ styling commands]
+
+  \Todo{Implement the following options}
+
+  \option[false]{skew inner wall}[true/false]
+
+  Draw the inner walls in the inside the inner partition of a skew
+
+
+  \option[false]{skew inner wall}[true/false]
+
+  \option[thin,gray]{skew inner wall style}[\TikZ styling commands]
+
   \subsection{Shifted tableau and shifted diagrams}
+  \label{S:Shifted}
   \indexcmd{ShiftedTableau}
   \indexcmd{ShiftedDiagram}
   \index{diagram!shifted}
+  \index{strict partition}
+  \index{partition!strict}
+  \index{shifted tableau}
+  \index{tableau!shifted }
+
+  \emph{Strict partitions}, which have strictly increasing parts, and
+  \emph{shifted tableaux}, which are of strict partition shape, appear in
+  several places in representation, such as the projective
+  representations of the symmetric groups. These tableau and diagrams
+  are drawn with row~$r$ shifted $r$-units so that the first box in each
+  row has content~$0$. These diagrams and tableaux can be drawn using
+  the following commands:
 
   \keyword{\ShiftedDiagram (x,y) [options] {partition }}\\
-  \keyword{\ShiftedTableau (x,y) [options] {partition }}
+  \keyword{\ShiftedTableau (x,y) [options] {tableau specification}}
 
+  As usual, the $(x,y)$-coordinates are necessary if and only if these
+  commands are used inside a \keyword{tikzpicture} environment. The
+  partition in a~\keyword{\ShiftedDiagram} can be given using
+  exponential notation and the tableau specification for a
+  \keyword{\ShiftedTableau} can include the usual optional style
+  prefixes.
+
+  \Todo{Fix me!}
   \begin{example}
     \tikzset{R/.style={fill=red!20,circle}}
-    \ShiftedTableau{12[R]3,45}
+    \ShiftedTableau{12[R]3,45,*6}  \qquad
+    \ShiftedDiagram[french]{3,2,1}
   \end{example}
 
+  In the literature,  shifted tableaux and shifted diagrams almost always
+  have strict partition shape, however, this is not enforced by these
+  commands. Under the hood, the \keyword{\ShiftedTableau} us the same as
+  the \keyword{\Tabloids} command with the \option{shifted} set to true.
+  Similarly, \keyword{\ShiftedDiagram} is the \keyword{\Diagram} with
+  \option{shifted}. Consequently, all of the options for these commands,
+  can be used with the shifted variants. In particular, options like
+  \option{skew wall} can be used to highlight the shifted part of the
+  diagram
+
   \begin{example}
-    \tikzset{R/.style={fill=red!20,circle}}
-    \ShiftedTableau[french]{12[R]3,45}
+    \ShiftedTableau[skewwall]{1*23,4*5} \quad
+    \ShiftedDiagram[skewwall]{3,2}
   \end{example}
 
   \subsection{Tabloids}
+  \label{S:Tabloid}
   \indexcmd{Tabloid}
 
   A \emph{tabloid} is an equivalence class of tableau where two tableaux
@@ -1547,8 +1647,8 @@
 
   \begin{example}
     \aTabset{align=center}
-    \Tabloid[skew={2,1}]{1379{11},249{10},6,} \qquad
-    \Tabloid[conjugate,skew={1^2}]{1379{11},249{10},6,}
+    \Tabloid[skew={2,1}]{19{11},29{10},6,} \qquad
+    \Tabloid[conjugate,skew={1^2}]{19{11},29{10},6,}
   \end{example}
 
 
@@ -1660,11 +1760,24 @@
     \RibbonTableau[australian]{ 12_{1_a} c_{2_b} r_{3_c} }
   \end{example}
 
-  This example adds spaces between the entries for the different boxes
-  in the ribbon for clarity. There are situations where you might to put
-  a label of a box on the boundary between two boxes in the diagram.
-  There is no dedicated syntax for doing this, however, it is not
-  difficult to do this using the named anchors of~\autoref{E:NodeNames}.
+  Here we have put spaces between the entries for the different boxes
+  in the ribbon for clarity. There are often many ways to draw the same
+  ribbon tableau, especially if all of the entries have styling.
+
+  \begin{example}
+    \tikzset{Fill/.style={fill=#1!20}, B/.style={Fill=blue},
+      R/.style={Fill=red}, Y/.style={Fill=yellow}}
+    \RibbonTableau{ [B]12_1  [R]c_2   [Y]r_3} \qquad
+    \RibbonTableau{ [B]12_1, [R]11_2, [Y]21_3 } \qquad
+    \Tableau{       [B]1     [R]2,    [Y]3 }
+  \end{example}
+
+  As shown, the easiest way to draw this tableau is using the \keyword{\Tableau} command.
+
+  There are situations where you might want to put a label of a box on
+  the boundary between two boxes in the diagram.  There is no dedicated
+  syntax for doing this, however, you can do this using the named
+  anchors of~\autoref{E:NodeNames}.
 
   \begin{example}
     \RibbonTableau[shifted, tikz after={
@@ -1703,10 +1816,28 @@
   example, the following picture uses \option{ribbons} to highlight the
   \emph{addable} and \emph{removable} nodes of the partition~$(4,3^2)$.
 
+  \option[]{ribbon box}{\TikZ styling specificatons}
+
+  \option[]{ribbon style}{\TikZ styling specificatons}
+
+  \option[]{ribbon box}{\TikZ styling specificatons}
+
+  \option[]{ribbons}[ribbon specification]\\
+  \option[]{snobs}[ribbon specification]
+
+  You can add \option{ribbons} and \option{snobs} to a
+  \keyword{\RibbonTableau} in exactly the same way that you add them to
+  \keyword{\Tableau}. Given that ribbon tableaux are composed of
+  ribbons, this seems unnecessary, however, the point is that any
+  ribbon added to a tableau using \option{ribbons} or \option{snobs}
+  does not change the border of the tableau.
+
   \begin{example}
     \tikzset{A/.style={fill=green!10, text=teal},
       R/.style={fill=yellow!10, text=red}}
-    \Diagram[ribbons={[A]15_A,[A]24_A,[A]41_A, [R]14_R,[R]33_R}]{4,3^2}
+    \RibbonTableau[
+      ribbons={[A]15_A,[A]24_A,[A]41_A, [R]14_R,[R]33_R}]
+      {11, (fill=blue!10)12rc, 14crrcc}
   \end{example}
 
   We close this section showing how to draw some tableaux that appear
@@ -1723,8 +1854,17 @@
   \begin{example}[lefthand width=0.24\textwidth]
     \RibbonTableau[skew={4,3,2,1},scale=0.8,
         tikz after = {
-            \foreach \r/\c/\l in {1/6/0, 1/8/6, 2/5/3, 2/7/8}
+          % node labels
+          \foreach \r/\c/\l in {1/6/0, 1/8/6, 2/5/3, 2/7/8}
             { \node at (B-\r-\c.west){\l};}
+          \foreach \r/\c/\l in {5/1/1, 4/2/2, 3/3/5, 7/1/4, 6/2/7}
+            { \node at (B-\r-\c.south){\l};}
+          % arrows
+          \foreach \a/\b in {1/5, 1/7, 2/4, 2/6}
+            { \draw[red,->](B-\a-\b)--++(-0.5,0); }
+          \draw[red,->](B-3-3)--++(0.5,0);
+          \foreach \a/\b in {5/1, 7/1, 4/2, 6/2}
+            { \draw[red,->](B-\a-\b)--++(0,0.5); }
         }
     ]{
         16c,18c, 25c, 27c, 33r, 42r, 51r, 62r,71r
@@ -1732,27 +1872,16 @@
   \end{example}
 
   \begin{example}
-    \RibbonTableau[skew={4,1^2},ukrainian]
-      {15,16,26,25crcr,23cr,42cr,61}
-    \RibbonTableau[skew={4,1^2},australian]
-      {(fill=blue!10)16crcccrrcrr,26,34cr}
-    \RibbonTableau[australian]
-      {(fill=blue!10)16crcccrrcrr,26,(fill=yellow!10)34cr}
-  \end{example}
-
-  \begin{example}
-    \RibbonTableau[skew={1^2}, ukrainian]
-       12,16r_\cdot r_\cdot r_\cdot c_\cot c_\cdot *c,
-       18rcrrrrcc*c,19,1{10},1{11},1{12},
-       21_m,22,2{10}rcrrrcc*crrcrcc,
-       2{12}rrcrcrrrcc*c_lrrcrccc,
-       31,*32.41,42,51,52,53,
-       62rc,81,91,{10}1,{10}2,{11}1,{11}2
-  \end{example}
-
-  \begin{example}
-    \RibbonTableau{
-       [fill=blue!20]12_1 [fill=red!20]c_2 [fill=yellow!20]r_3 }
+    \RibbonTableau[skew={1^2}, ukrainian, scale=0.7,
+      ribbons={(draw=none)21_m}
+    ]{
+       12,16c_\circ c_\circ c_\circ r_\circ r_\circ *r,
+       18crcccrr*r,19,1{10},1{11},1{12},
+       22,29crcccrr*rccrcrr,
+       2{12}ccrcrcccrr*r_lccrcrrr,
+       31,*32,41,42,51,52,53,
+       62cr,81,91,{10}1,{10}2,{11}1,{11}2
+    }
   \end{example}
 
     \subsection{Multidiagrams and multitableaux}

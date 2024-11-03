@@ -1040,14 +1040,22 @@
     \cs_set_eq:NN \__atableau_update_shape: \__atableau_update_ribbon_tableau_shape:
     \clist_map_inline:nn {#1} { \__atableau_add_ribbon:n {##1} }
 
+    % add any ribbons
+    \cs_set_eq:NN \__atableau_update_shape: \relax % don't update shape
+    \seq_map_inline:Nn \l__atableau_ribbons_seq {\__atableau_add_ribbon:n {##1}}
+
     % draw borders
     \bool_if:NT \l__atableau_skewwall_bool { \__atableau_draw_border:nn {skew}  {skewwall}  }
     \bool_if:NT \l__atableau_border_bool  { \__atableau_draw_border:nn {shape} {outerwall} }
+
+    % add any snobs
+    \seq_map_inline:Nn \l__atableau_snobs_seq {\__atableau_add_ribbon:n {##1}}
 }
 
 % usage: \__atableau_add_ribbon:n {ribbon} add a ribbon to the tableau
 \cs_new_protected_nopar:Npn \__atableau_add_ribbon:n #1
 {
+\typeout{adding~ribbon~"\tl_to_str:n{#1}"}
     % reset the sequences that store the node data
     \seq_clear:N \l__atableau_texts_seq  % will contain node text
     \seq_clear:N \l__atableau_styles_seq % will contain node styles
@@ -1078,9 +1086,9 @@
 % head.
 \cs_new_protected_nopar:Npn \__atableau_save_ribbon_head:nnn [#1] #2 #3
 {
+\typeout{ribbon~head:~style="#1"~@~(#2,#3)}
     % save any style
     \seq_put_right:Nx \l__atableau_styles_seq {#1}
-
     % record the row and column indices of the head
     \int_set:Nn \l__atableau_row_int {#2-1}
     \int_set:Nn \l__atableau_col_int {#3-1}
@@ -1127,6 +1135,7 @@
 % save any text for a rode in the ribbon in \l__atableau_texts_seq
 \cs_new_protected_nopar:Npn \__atableau_save_ribbon_text:n #1
 {
+\typeout{ribbon~text:~\tl_to_str:n{#1}.}
     \seq_put_right:No \l__atableau_texts_seq {#1}
     \__atableau_peek_style:nw  {save_ribbon:nn}
 }
@@ -1136,6 +1145,7 @@
 % \l__atableau_styles_seq and then repeat
 \cs_new_protected_nopar:Npn \__atableau_save_ribbon:nn [#1] #2
 {
+\typeout{ribbon~save:~style="\tl_to_str:n{#1},~direction="~\tl_to_str:n{#2}.}
    % draw the ribbon when we run out of nodes
    \quark_if_recursion_tail_stop_do:nn {#2} { \__atableau_draw_ribbon: }
 
@@ -1218,17 +1228,19 @@
 % finally, add the nodes with custom styling or text.
 \cs_new_protected_nopar:Npn \__atableau_draw_ribbon:
 {
-    % Add the \draw command and the last node to the ribbon
+\typeout{drawing~ribbon....}
+    % Add the last node to the ribbon
     \fp_add:Nn \l__atableau_xa_fp {\l__atableau_row_dx_fp*\l__atableau_box_wd_fp}
     \fp_add:Nn \l__atableau_ya_fp {\l__atableau_row_dy_fp*\l__atableau_box_ht_fp}
     \tl_put_left:Nx \l__atableau_ribbon_tl { (\fp_use:N\l__atableau_xa_fp, \fp_use:N\l__atableau_ya_fp)-- }
-
+    \typeout{last~node~added}
     % add a closing cycle
     \tl_put_right:Nn \l__atableau_ribbon_tl {--cycle}
 
     % place the nodes that use the default style and, at the same time add the
     % nodes with style to \l__atableau_styled_nodes_tl
     \tl_clear:N \l__atableau_styled_nodes_tl
+\typeout{styled~nodes:\seq_use:Nn \l__atableau_styles_seq {~,}}
     \seq_map_inline:Nn \l__atableau_styles_seq
     {
         % pop the text and row and column indices
@@ -1240,10 +1252,10 @@
 
         % compute the box coordinates
         \__atableau_set_box_coordinates:nVV {l} \l__atableau_row_int \l__atableau_col_int
-
+        \typeout{placing~text="\tl_to_str:N\l_tmpa_tl"~with~row=\int_use:N\l__atableau_row_int"~and~col=\int_use:N\l__atableau_row_int"}
         \tl_if_empty:eTF {##1\l_tmpa_tl}
         { % nodes with default style and no text
-          \node[atableau/ribbonbox](\l__atableau_name_tl)
+            \node[atableau/ribbonbox](\l__atableau_name_tl)
              at (\fp_use:N\l__atableau_xl_fp,\fp_use:N\l__atableau_yl_fp) {};
         }
         {   % nodes with styling go into \l__atableau_styled_nodes_tl
@@ -1662,17 +1674,24 @@
 {
 \typeout{---------------------------------------------------------------------------}
     \group_begin:
-        % the changes to the settings are local because we are inside a group
-        \keys_set:nn {atableau} {#1}
-        \IfNoValueTF {#2}
-        {   % wrap inside a tikzpicture environment, placing the picture at (0,0)
-            \__atableau_set_origin:nn (0,0)
-            \exp_last_unbraced:Ne \tikz{[\l__atableau_tikzpicture_tl]}{ \l__atableau_tikz_before_tl #3 \l__atableau_tikz_after_tl }
+      % the changes to the settings are local because we are inside a group
+      \keys_set:nn {atableau} {#1}
+      \IfNoValueTF {#2}
+      { % wrap inside a tikzpicture environment, placing the picture at (0,0)
+        \__atableau_set_origin:nn (0,0)
+        \exp_last_unbraced:Ne \tikz{[\l__atableau_tikzpicture_tl]}
+        {
+          \l__atableau_tikz_before_tl
+          #3
+          \l__atableau_tikz_after_tl
         }
-        {   % already inside a tikzpicture environment
-            \__atableau_set_origin:nn (#2)
-            \l__atableau_tikz_before_tl #3 \l__atableau_tikz_after_tl
-        }
+      }
+      { % already inside a tikzpicture environment
+        \__atableau_set_origin:nn (#2)
+        \l__atableau_tikz_before_tl
+        #3
+        \l__atableau_tikz_after_tl
+      }
     \group_end:
 }
 

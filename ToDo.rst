@@ -8,9 +8,10 @@ A ToDo list for a aTableau
    * separation = distance between components
    * separator  = actual separator, \|=line, ...?
    * braces     = ()/[] for multitableau/multidiagrams
-   * beta = allow abacus/partition to be specified by beta numbers
+   * beta? = allow abacus/partition to be specified by beta numbers
    * separator colour = colour of separators
    * skew fill   = fill colour for skew shape
+   * draw inner walls in the inner shape of a skew diagram/tableau
    * rows       = number of rows in abacus
    * dots       = dotted abacus runners
    * checkboard={colours}? = cyclic list of cell background colours...
@@ -23,7 +24,7 @@ A ToDo list for a aTableau
 * add fill for tableaux
 * add fill for skew tableau
 * add separators and proper spacing for multidiagrams and tableaux.
-* allow a mixture of skew and shifted tableaux in the \Multidiagram and \Multitableau. Can just use skew=...
+* ?allow a mixture of skew and shifted tableaux in the \Multidiagram and \Multitableau. Can just use skew=...
 * add features for the abacuses and make customisable
 * multidiagram version of show=residue|content|hooks|initial|final|...
 * decide whether to add quivers and KLRW diagrams
