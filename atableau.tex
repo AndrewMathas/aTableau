@@ -2,7 +2,7 @@
 % Title:    aTableau.
 % Author:   Andrew Mathas
 % Created:  October 2023
-% Modified: 10:32 Monday, 04 November 2024
+% Modified: 15:39 Monday, 04 November 2024
 % ----------------------------------------------------------------------
 \documentclass{amsart}
 \usepackage[svgnames]{xcolor}
@@ -11,6 +11,9 @@
 \usepackage{manfnt}
 \usepackage{booktabs}
 \usepackage{siunitx}
+
+\usepackage{array}
+\newcolumntype{L}{>{\sffamily\color{MidnightBlue}\textbackslash}l}
 
 \usepackage{todonotes}
 \newcommand\Todo[1]{\todo[color=Red!20!White,inline]{To do: #1}}
@@ -88,7 +91,7 @@
 
 % ---------------------------------------------------------------------------
 \usepackage[skins]{tcolorbox}
-\tcbuselibrary{listingsutf8}
+\tcbuselibrary{listingsutf8, breakable}
 
 \DeclareTotalTCBox\keyword{ O{} v }{
   fontupper=\sffamily,
@@ -139,6 +142,7 @@
     align,
     australian,
     before,
+    box,
     cols,
     conjugate,
     e,
@@ -151,8 +155,8 @@
     north,
     only,
     border,
+    ribbon,
     ribbons,
-    ribbon style,
     rows,
     scale,
     shape,
@@ -160,6 +164,7 @@
     show,
     skew,
     south,
+    style,
     tabloid,
     text,
     ukrainian,
@@ -259,8 +264,9 @@
   colbacklower=OldLace,
   colback=LightSkyBlue!20,
   colbacktitle=RoyalBlue!70,
+  breakable,
   width=\textwidth,
-  attach boxed title to top right={xshift=0mm,yshift=-3.1mm},
+  attach boxed title to top right,%={xshift=0mm,yshift=-3.1mm},
   boxed title style={
     size=small,
     arc=1mm,
@@ -360,18 +366,18 @@
 
 \begin{document}
 
-  \begin{quote}
-    \begin{danger}\color{red}
-        The package is already quite powerful, but it is still in the
-        proof-of-concept phase. There are bugs and the documentation is
-        incomplete.  Several planned features have not been implemented
-        and some things that have been implemented are still rough.
-        Everything is subject to change.
-
-        The package will eventually be released on ctan.
-        Comments and suggestions are welcome.
-    \end{danger}
-  \end{quote}
+%  \begin{quote}
+%    \begin{danger}\color{red}
+%        The package is already quite powerful, but it is still in the
+%        proof-of-concept phase. There are bugs and the documentation is
+%        incomplete.  Several planned features have not been implemented
+%        and some things that have been implemented are still rough.
+%        Everything is subject to change.
+%
+%        The package will eventually be released on ctan.
+%        Comments and suggestions are welcome.
+%    \end{danger}
+%  \end{quote}
 
   \aTableauHeader
 
@@ -388,150 +394,173 @@
     \end{minipage}
   \end{center}
 
+  \begin{center}
+    \tikzset{
+       B/.style={fill=blue!20},
+       G/.style={fill=ForestGreen!20},
+       R/.style={fill=red!40,text=white},
+       Y/.style={fill=yellow!20}
+    }
+    \Diagram{2,1^2}\qquad
+    \Tableau{[R]1[B]2,[G]3,[Y]4} \qquad
+    \Tableau[french]{[R]1[B]2,[G]3,[Y]4} \qquad
+    \Tableau[ukrainian]{[R]1[B]2,[G]3,[Y]4} \qquad
+    \Tableau[australian]{[R]1[B]2,[G]3,[Y]4}
+  \end{center}
+
   \section{Introduction}
 
-  The commands are designed to be easy to use
-  and easy to read.  The literature contains many embellishments of the
-  basic diagrams, so we provide mechanisms to customise and style these
-  diagrams.
-
-  The package provides basic commands for drawing these objects,
+  The package provides basic commands for drawing
+  common objects in algebraic combinatorics and representation theory,
+  these objects,
   together with styling options and a key-value interface for adding
   extra features. Under the hood, everything is drawn using \TikZ.  It
   is possible to use all of our commands either as standalone commands,
-  or as components of a \keyword{tikzpicture} environment.  This makes
-  it possible to use these commands inside more complicated diagrams.
+  or as components of a \keyword{tikzpicture} environment. To use the
+  package, add the following line to your document preamble:
 
-  \keyword{\usepackage[options]{atableau]}}
+  \begin{quote}
+    \keyword{\usepackage[options]{atableau}}
+  \end{quote}
 
-  \section{Young diagrams and tableaux}
+  Here, the \textit{options} is an optional comma separated list of
+  \aTableau package options --- we describe the possible options below.
+  For example, to make the tableaux and Young diagrams commands use the
+  \option{French} convention, by default, you could use:
 
-    \emph{Partitions}, which are weakly decreasing sequences of
-    non-negative integers, are fundamental objects in algebraic
-    combinatorics and representation theory.\index{partition}  Rather
-    than working with sequences of integers, it is often useful to
-    visualise partitions as Young \emph{diagrams}, which are arrays of
-    \emph{boxes}, or \emph{nodes}, in the plane. A \emph{tableau} is a (Young) diagram where the
-    boxes are labelled using some alphabet. Equivalently, a diagram is a
-    tableau with empty labels.
-    \index{young diagram@Young diagram|see{diagram}}
-    \index{diagram}
-    \index{tableau}
-    \index{box}
-    \index{node}
-    \index{node|see{box}}
-    \index{exponential notation}
-    \index{partition!exponential notation}
+  \begin{quote}
+    \keyword{\usepackage[french]{atableau}}
+  \end{quote}
 
-    For example, $\lambda=(4,3,3,2,0,0,\dots)$ is a partition of $12$,
-    since the entries sum to~$12$. It is customary to omit the zeros
-    when writing partitions and to use exponents for repeated parts, so
-    we also write partitions in \emph{exponential notation} as
-    $\lambda=(4,3^2,2)$. Many authors identity a
-    partition~$\lambda=(\lambda_1,\lambda_2,\dots)$ with its
-    \emph{diagram}, which is the set
-    \[
-    [\lambda] = \set{(r,c)|1\le c\le\lambda_r\text{ for }r\ge1}.
-    \]
-    The diagram of~$\lambda$ is visualised as a justified array
-    of boxes in the plane, where the first row has~$4$ boxes, the nest
-    two rows have~$3$ boxes and the last row has~$2$ boxes. The
-    \emph{shape} of a diagram is the partition that gives the number of
-    boxes in each row. Here are some examples of the diagrams and
-    tableaux of shape $(2,1^2)$ that can be drawn using \aTableau:
+  You can change the default options at any point in your document using
+  the \keyword{\aTabset} command, and as options to the package
+  commands.
+  \indexcmd{aTabset}
 
-    \begin{center}
-      \tikzset{
-         B/.style={fill=blue!20},
-         G/.style={fill=ForestGreen!20},
-         R/.style={fill=red!40,text=white},
-         Y/.style={fill=yellow!20}
-      }
-      \Diagram{2,1^2}\qquad
-      \Tableau{[R]1[B]2,[G]3,[Y]4} \qquad
-      \Tableau[french]{[R]1[B]2,[G]3,[Y]4} \qquad
-      \Tableau[ukrainian]{[R]1[B]2,[G]3,[Y]4} \qquad
-      \Tableau[australian]{[R]1[B]2,[G]3,[Y]4}
-    \end{center}
-    This choice of colouring is gratuitous, but it emphasises that
-    \aTableau allows you to add style (and, in particular,
-    colour), to every box in these diagrams. This example also shows that
-    \aTableau supports the four different conventions used for drawing Young
-    diagrams and tableaux. The following table shows how to draw the
-    Young diagram of shape $\lambda=(4,3^2,2)$ using the four tableaux
-    conventions supported by \aTableau:
-    \begin{center}
-        \aTabset{align=centre}
-        \begin{tabular}{lp{0.6\textwidth}l} \toprule
-            Convention & \aTableau command & Diagram \\ \midrule
-            English    & \keyword{\Tableau[english]{1234,567,89{10},{11}{12}}}\newline(the default)  & \Tableau{1234,567,89{10},{11}{12}}\\[10mm]
-            French     & \keyword{\Tableau[french]{1234,567,89{10},{11}{12}}}     & \Tableau[french]{1234,567,89{10},{11}{12}}\\[10mm]
-            Ukrainian\footnotemark
-                       & \keyword{\Tableau[ukrainian]{1234,567,89{10},{11}{12}}}  & \Tableau[ukrainian]{1234,567,89{10},{11}{12}}\\[10mm]
-            Australian\footnotemark
-                       & \keyword{\Tableau[australian]{1234,567,89{10},{11}{12}}} & \Tableau[australian]{1234,567,89{10},{11}{12}} \\[10mm]
-            \bottomrule
-        \end{tabular}
-        \index{english@English}
-        \index{french@French}
-        \index{ukrainian@Ukrainian}
-        \index{australian@Australian}
-        \footnotetext[1]{Some authors call this the Russian convention}
-        \footnotetext[2]{I have not seen a name for convention in the literature, but calling this this \textit{Australian convention} seems apt.}
-    \end{center}
-    The different conventions for diagrams, and tableaux, are listed in
-    order of (my perception of) their popularity in the literature.  By
-    default, the \textit{English} convention is used, so
-    \keyword{\Tableau{1234,567,89{10},{11}{12}}} produces the first
-    tableau above.  These four conventions are used in the same
-    way with the \keyword{\Diagram} command, which produces Young
-    diagrams. You can change the default convention using the
-    \keyword{\aTabset} command.
+  The \aTableau package provides the following commands:
+  \begin{center}
+    \begin{tabular}{Ll}\toprule
+      \multicolumn1l{\large\sffamily\color{MidnightBlue}Command}
+                     & \large\sffamily\color{MidnightBlue} Diagram \\\midrule
+      Abacus         & An abacus for a partition\\
+      Diagram        & A Young diagram for a partition\\
+      Multidiagram   & An $\ell$-tuple of Young diagrams\\
+      Multitableau   & An  $\ell$-tuple of tableaux\\
+      RibbonTableau  & A ribbon tableau\\
+      ShiftedDiagram & A shifted Young diagram\\
+      ShiftedTableau & A shifted tableau\\
+      SkewDiagram    & A skew Young diagram\\
+      SkewTableau    & A skew tableau\\
+      Tableau        & A tableau\\
+      Tabloid        & A tabloid\\
+      \bottomrule
+    \end{tabular}
+  \end{center}
+  The commands are intended to be easy to use, easy read, easy to adapt
+  by adding extra to different components of these diagrams. They accept
+  key-value options for modifying the diagrams and optional styling can
+  be applied to the individual components of. Each commands can be used
+  as a standalone part of your document or they can be incorporated into
+  a larger \keyword{tikzpicture} environment, making it possible
+  to use these commands as part of more complicated diagrams.
 
-    This table shows how the commands provided by \aTableau work: there
-    are basic commands for drawing diagrams, and these diagrams can be
-    embellished using optional arguments and a key-value interface. In
-    addition, as the following example shows, by supplying (optional)
-    Cartesian coordinates, these diagrams can be used inside a
-    \keyword{tikzpicture} environment to create more exotic pictures:
+  The syntax of each of these commands is:
+  \begin{quote}
+    \keyword{\Command (x,y) [options] {...specifications...}}
+  \end{quote}
 
-    \begin{Example}
-      % \usetikzlibrary{patterns}
-      \begin{tikzpicture}[
-          B/.style={pattern=north east lines, pattern color=blue,opacity=0.5},
-          G/.style={pattern=north west lines, pattern color=ForestGreen,opacity=0.5},
-        ]
-        \Diagram(0,0)[ribbons={(G)16ccccrrr, (B)16crrcccr}]{6,5^2,2}
-        \draw[->](1.5, 1)node[right]{  $\alpha=(1,2)$} to [out=180,in=90]  (B-1-2.base);
-        \draw[->](1.5,-2)node[right]{$f_\alpha=(4,2)$} to [out=180,in=270] (B-4-2.base);
-        \draw[red,<->]([xshift=-1mm]B-1-1.south west)
-           --node[rotate=90,above]{$l_\alpha=3$}([xshift=-1mm]B-4-1.south west);
-      \end{tikzpicture}
-    \end{Example}
+  The $(x,y)$-Cartesian coordinates are optional, being necessary if and
+  only if the diagram is part of a \keyword{tikzpicture} environment.
+  Similarly, the key-value \textit{options} are optional, being used to
+  control the style and flavour of the final diagram.
 
-    This example shows that partitions can either be typed out in full,
-    or using exponential notation, which is usually shorter and easier
-    to read.
+  The commands are intended to be easy to use. For example, partitions can be
+  entered either as a (weakly decreasing list of non-negative) integers,
+  or using exponential notation, or as a sequence of beta numbers (for
+  the \keyword{\Abacus} command), and tableaux are entered as comma
+  separated words. The commands support all of the common conventions.
+  For example, the following table shows how to draw a Young diagram of
+  shape $\lambda=(4,3^2,2)$ using the four tableaux conventions
+  supported by \aTableau:
+  \begin{center}
+      \aTabset{align=centre}
+      \begin{tabular}{lp{0.6\textwidth}l} \toprule
+          Convention & \aTableau command & Diagram \\ \midrule
+          English    & \keyword{\Tableau[english]{1234,567,89{10},{11}{12}}}\newline(the default)
+                     & \Tableau{1234,567,89{10},{11}{12}}\\[10mm]
+          French     & \keyword{\Tableau[french]{1234,567,89{10},{11}{12}}}
+                     & \Tableau[french]{1234,567,89{10},{11}{12}}\\[10mm]
+          Ukrainian\footnotemark
+                     & \keyword{\Tableau[ukrainian]{1234,567,89{10},{11}{12}}}
+                     & \Tableau[ukrainian]{1234,567,89{10},{11}{12}}\\[10mm]
+          Australian\footnotemark
+                     & \keyword{\Tableau[australian]{1234,567,89{10},{11}{12}}}
+                     & \Tableau[australian]{1234,567,89{10},{11}{12}} \\[10mm]
+          \bottomrule
+      \end{tabular}
+      \index{english@English}
+      \index{french@French}
+      \index{ukrainian@Ukrainian}
+      \index{australian@Australian}
+      \footnotetext[1]{Some authors call this the Russian convention}
+      \footnotetext[2]{I have not seen a name for convention in the literature, but calling this this
+      \textit{Australian convention} seems apt.}
+  \end{center}
+  The different conventions for diagrams, and tableaux, are listed in
+  order of (my perception of) their popularity in the literature.  By
+  default, the \textit{English} convention is used, so
+  \keyword{\Tableau{1234,567,89{10},{11}{12}}} produces the first
+  tableau above.  These four conventions are used in the same
+  way with the \keyword{\Diagram} command, which produces Young
+  diagrams. You can change the default convention using the
+  \keyword{\aTabset} command.
 
-    Most of the commands in this example are \TikZ commands, but most of
-    the picture is drawn by the \keyword{\Diagram} command. The top of
-    the example defines two \TikZ-styles, \textsf{B} and \textsf{G},
-    which are used in the ribbons. The Young diagram is placed at
-    position $(0,0)$ by the \keyword{\Diagram} command. The three
-    \keyword{\draw} commands in this example are used to add the three
-    arrows to the picture. You should consult the very readable \TikZ
-    manual for an explanation of how these commands work.
+  This table shows how the commands provided by \aTableau work: there
+  are basic commands for drawing diagrams, and these diagrams can be
+  embellished using optional arguments, which use a key-value interface. In
+  addition, as the following example shows, by supplying (optional)
+  Cartesian coordinates, these diagrams can be used inside a
+  \keyword{tikzpicture} environment to create more exotic pictures:
 
-    From the viewpoint of \aTableau, the most important point of this
-    example is that the \keyword{\Diagram} command can be used inside a
-    \keyword{tikzpicture} environment because it is equipped with the
-    Cartesian coordinate $(0,0)$. The example also uses the four named
-    coordinates, (\textsf{B-1-1}), (\textsf{B-1-2}), (\textsf{B-4-1}),
-    and (\textsf{B-4-2}). When \aTableau draws a tableau, or a diagram, it
-    creates \TikZ named coordinates for each of the boxes in the
-    diagram, so that (\textsf{B-r-c}) refers to the box in row \textsf{r} and
-    column \textsf{c}. Giving finer control, the following standard
-    \TikZ \textit{anchors} are available:
+  \begin{Example}
+    % \usetikzlibrary{patterns}
+    \begin{tikzpicture}[
+        B/.style={pattern=north east lines, pattern color=blue,opacity=0.5},
+        G/.style={pattern=north west lines, pattern color=ForestGreen,opacity=0.5},
+      ]
+      \Diagram(0,0)[ribbons={(G)16ccccrrr, (B)16crrcccr}]{6,5^2,2}
+      \draw[->](1.5, 1)node[right]{$\alpha=(1,2)$} to [out=180,in=90]  (B-1-2.base);
+      \draw[->](1.5,-2.5)node[right]{$f_\alpha=(4,2)$} to [out=180,in=270] (B-4-2.base);
+      \draw[red,<->]([xshift=-1mm]B-1-1.south west)
+         --node[rotate=90,above]{$l_\alpha=3$}([xshift=-1mm]B-4-1.south west);
+    \end{tikzpicture}
+  \end{Example}
+
+  This example shows that partitions can either be typed out in full,
+  or using exponential notation, which is usually shorter and easier
+  to read.
+
+  Most of the commands in the last example are \TikZ commands, but most of
+  the picture is drawn by the \keyword{\Diagram} command, with the
+  \option{ribbons} key specifying the shaped nodes, which are the
+  \emph{$(1,2)$-hook} and \emph{$(1,2)$-rim hook} in this diagram. The top of
+  the example defines two \TikZ-styles, \textsf{B} and \textsf{G},
+  that are used in these ribbons. The Young diagram is placed at
+  position $(0,0)$ by the \keyword{\Diagram} command. The three
+  \keyword{\draw} commands in this example are used to add the three
+  arrows to the picture. You should consult the very readable \TikZ
+  manual for an explanation of how these commands work.
+
+  From the viewpoint of \aTableau, the most important point of this
+  example is that the \keyword{\Diagram} command can be used inside a
+  \keyword{tikzpicture} environment because it is equipped with the
+  Cartesian coordinate $(0,0)$. The example also uses the four named
+  coordinates, (\textsf{B-1-1}), (\textsf{B-1-2}), (\textsf{B-4-1}),
+  and (\textsf{B-4-2}). When \aTableau draws a tableau, or a diagram, it
+  creates \TikZ named coordinates for each of the boxes in the
+  diagram, so that (\textsf{B-r-c}) refers to the box in row \textsf{r} and
+  column \textsf{c}. Giving finer control, the following standard
+  \TikZ \textit{anchors} are available:
 
     \begin{equation}\label{E:NodeNames}
       \aTabset{align=center}
@@ -569,13 +598,13 @@
     shape of the node then the available anchors may change; for more
     information see the \TikZ manual. You can change the \textsf{B} in
     the name of these anchors to anything you like using the
-    \option{name} option.
+    \option{name} option. Similar anchors are created for abacus beads.
 
     The previous example also shows that the \keyword{\Diagram} command
     accepts a \option{ribbons} option, which adds one or more
     \textit{ribbons} to the diagram. Both the ribbon and the individual
     boxes in the ribbon can be given \TikZ styling; see
-    \autoref{SS:RibbonTableau}. All of the options to these commands are
+    \autoref{SS:RibbonTableaux}. All of the options to these commands are
     described in the following sections.
 
     In the example above the Cartesian coordinate $(0,0)$ is necessary
@@ -612,34 +641,71 @@
     not required when the diagrams are inside nodes in these diagrams:
 
     \begin{Example}
-    % \usetikzlibrary{matrix}
-    \begin{tikzpicture}[arr/.style={->,SteelBlue, thick}]
-      \matrix (M)[matrix of nodes,row sep=4mm,column sep=4mm]{
-          &    &    & \ShiftedTableau{1234,567} \\
-          &    & \ShiftedTableau{1235,467}
-          &    & \ShiftedTableau{1243,567}\\
-          & \ShiftedTableau{1236,457}
-          &    & \ShiftedTableau{1245,367}
-          &    & \ShiftedTableau{1253,467}\\
-        \ShiftedTableau{1237,456}
-          &    & \ShiftedTableau{1246,357}
-          &    & \ShiftedTableau{1254,367}\\
-          & \ShiftedTableau{1247,356}\\
-       };
-       \draw[arr](M-1-4)--node[above]{$\sigma_4$}(M-2-3);
-       \draw[arr](M-1-4)--node[above]{$\sigma_3$}(M-2-5);
-       \draw[arr](M-2-3)--node[above]{$\sigma_5$}(M-3-2);
-       \draw[arr](M-2-3)--node[above]{$\sigma_3$}(M-3-4);
-       \draw[arr](M-2-5)--node[above]{$\sigma_4$}(M-3-6);
-       \draw[arr](M-3-2)--node[above]{$\sigma_6$}(M-4-1);
-       \draw[arr](M-3-2)--node[above]{$\sigma_3$}(M-4-3);
-       \draw[arr](M-3-4)--node[above]{$\sigma_5$}(M-4-3);
-       \draw[arr](M-3-4)--node[above]{$\sigma_4$}(M-4-5);
-       \draw[arr](M-3-6)--node[above]{$\sigma_3$}(M-4-5);
-       \draw[arr](M-4-1)--node[above]{$\sigma_3$}(M-5-2);
-       \draw[arr](M-4-3)--node[above]{$\sigma_6$}(M-5-2);
-    \end{tikzpicture}
+      % \usetikzlibrary{matrix}
+      \begin{tikzpicture}[arr/.style={->,SteelBlue, thick}]
+        \matrix (M)[matrix of nodes,row sep=4mm,column sep=4mm]{
+            &    &    & \ShiftedTableau{1234,567} \\
+            &    & \ShiftedTableau{1235,467}
+            &    & \ShiftedTableau{1243,567}\\
+            & \ShiftedTableau{1236,457}
+            &    & \ShiftedTableau{1245,367}
+            &    & \ShiftedTableau{1253,467}\\
+          \ShiftedTableau{1237,456}
+            &    & \ShiftedTableau{1246,357}
+            &    & \ShiftedTableau{1254,367}\\
+            & \ShiftedTableau{1247,356}\\
+         };
+         \draw[arr](M-1-4)--node[above]{$\sigma_4$}(M-2-3);
+         \draw[arr](M-1-4)--node[above]{$\sigma_3$}(M-2-5);
+         \draw[arr](M-2-3)--node[above]{$\sigma_5$}(M-3-2);
+         \draw[arr](M-2-3)--node[above]{$\sigma_3$}(M-3-4);
+         \draw[arr](M-2-5)--node[above]{$\sigma_4$}(M-3-6);
+         \draw[arr](M-3-2)--node[above]{$\sigma_6$}(M-4-1);
+         \draw[arr](M-3-2)--node[above]{$\sigma_3$}(M-4-3);
+         \draw[arr](M-3-4)--node[above]{$\sigma_5$}(M-4-3);
+         \draw[arr](M-3-4)--node[above]{$\sigma_4$}(M-4-5);
+         \draw[arr](M-3-6)--node[above]{$\sigma_3$}(M-4-5);
+         \draw[arr](M-4-1)--node[above]{$\sigma_3$}(M-5-2);
+         \draw[arr](M-4-3)--node[above]{$\sigma_6$}(M-5-2);
+      \end{tikzpicture}
     \end{Example}
+
+
+  \section{Young diagrams and tableaux}
+
+    \emph{Partitions}, which are weakly decreasing sequences of
+    non-negative integers, are fundamental objects in algebraic
+    combinatorics and representation theory.\index{partition}  Rather
+    than working with sequences of integers, it is often useful to
+    visualise partitions as Young \emph{diagrams}, which are arrays of
+    \emph{boxes}, or \emph{nodes}, in the plane. A \emph{tableau} is a (Young) diagram where the
+    boxes are labelled using some alphabet. Equivalently, a diagram is a
+    tableau with empty labels.
+    \index{young diagram@Young diagram|see{diagram}}
+    \index{diagram}
+    \index{tableau}
+    \index{box}
+    \index{node}
+    \index{node|see{box}}
+    \index{exponential notation}
+    \index{partition!exponential notation}
+
+    For example, $\lambda=(4,3,3,2,0,0,\dots)$ is a partition of $12$,
+    since the entries sum to~$12$. It is customary to omit the zeros
+    when writing partitions and to use exponents for repeated parts, so
+    we also write partitions in \emph{exponential notation} as
+    $\lambda=(4,3^2,2)$. Many authors identity a
+    partition~$\lambda=(\lambda_1,\lambda_2,\dots)$ with its
+    \emph{diagram}, which is the set
+    \[
+    [\lambda] = \set{(r,c)|1\le c\le\lambda_r\text{ for }r\ge1}.
+    \]
+    The diagram of~$\lambda$ is visualised as a justified array
+    of boxes in the plane, where the first row has~$4$ boxes, the nest
+    two rows have~$3$ boxes and the last row has~$2$ boxes. The
+    \emph{shape} of a diagram is the partition that gives the number of
+    boxes in each row.
+
 
     \subsection{Tableaux}
     \indexcmd{Tableau}
@@ -790,6 +856,8 @@
             & Sets the text colour in the box \\
        \keyword{fill}$=\langle\text{colour}\rangle$
             & Sets the fill, or background, colour of the box\\
+       \keyword{font}$=\langle\text{font commands}\rangle$
+            & Sets the font \\
        \keyword{draw}$=\langle\text{colour}\rangle$
             & Sets the boundary colour of the box\\
        \bottomrule
@@ -804,6 +872,8 @@
   \keyword{ultra thick},
   \keyword{dashed},
   \keyword{dotted}, $\dots$.
+  Section \autoref{SS:TableauOptions} below describes how to use these options to change thfor options to change these
+  styles for the boxes in
 
   If you want to apply ``complicated'' style settings, such as
   \keyword{draw=cyan,ultra thick} which consists of a comma separated
@@ -1587,7 +1657,7 @@
   \keyword{\ShiftedTableau} can include the usual optional style
   prefixes.
 
-  \Todo{Fix me!}
+  \Todo{Fix me! Both the skew shading and the boundary are wrong below.}
   \begin{example}
     \tikzset{R/.style={fill=red!20,circle}}
     \ShiftedTableau{12[R]3,45,*6}  \qquad
@@ -1622,13 +1692,24 @@
   \keyword{\Tabloid (x,y) [options] {partition }}\\
 
   The \keyword{\Tabloid} command functions in the same way as the
-  \keyword{\Tableau} command, except that it draws tabloids.
+  \keyword{\Tableau} command, except that it draws tabloids. In fact,
+  the \keyword{\Tabloid} is a special case of the \keyword{\Tableau}
+  command with the \option{tabloid} option set.
 
   \begin{example}
     \tikzset{R/.style={fill=red!20,circle,minimum size=5mm}}
-    \Tabloid[ukrainian]{12[R]3,45}
-    \Tabloid[english]  {12[R]3,45}
+    \Tabloid[ukrainian]{12[R]3,45}\quad
+    \Tabloid[english]  {12[R]3,45}\quad
     \Tabloid[french]   {12[R]3,45}
+  \end{example}
+
+  There is no dedicated command for drawing tabloid diagrams, however,
+  these are easily drawn using either the \keyword{\Tabloid} command or
+  the \keyword{\Diagram} command with the \option{tableau} option:
+
+  \begin{example}
+    \Tabloid{~~~,~~,~} \qquad
+    \Diagram[tabloid]{3^2,1}
   \end{example}
 
   Some authors work with \emph{column tabloids}. Such tableaux do not
@@ -1637,8 +1718,7 @@
 
   \begin{example}
     \Tabloid[conjugate]{123,4} \qquad
-    \Tabloid[conjugate]{~~~,~}
-    \Diagram[conjugate,tabloid]{3,1}
+    \Tabloid[conjugate]{~~~,~} \qquad
   \end{example}
 
   Similarly, skew tabloids can be drawn using the \option{skew}
@@ -1901,29 +1981,98 @@
   \keyword{\Multitableau (x,y) [options] {multitableau}   }
 
     \begin{example}
-      \Multidiagram[scale=0.5]{3,2^2||2,1^2||1}
+      \Multidiagram[scale=0.5]{3,2^2|2,1^2|1}
 
-      \Multidiagram[scale=0.5,rows=3,rows=3]{3,2^2||...||2,1^2}
+      \Multidiagram[scale=0.5,rows=3,rows=3]{3,2^2|...|2,1^2}
 
-      \Multidiagram[ukrainian,scale=0.5,rows=3, cols=3]{3,2^2||...||2,1^2}
+      \Multidiagram[ukrainian,scale=0.5,rows=3, cols=3]{3,2^2|...|2,1^2}
 
-      \Multidiagram[french,scale=0.7,rows=3]{3,2^2||...||2,1^2}
+      \Multidiagram[french,scale=0.7,rows=3]{3,2^2|...|2,1^2}
     \end{example}
 
     \begin{example}
       \Multitableau[rows=3,scale=0.8,font=\tiny]
-           {{1_1}{1_1}{1_1}{2_1},{2_1}{2_1}{2_1} ||
-            {1_2}{3_3},{{2_2}} ||
+           {{1_1}{1_1}{1_1}{2_1},{2_1}{2_1}{2_1} |
+            {1_2}{3_3},{{2_2}} |
             {1_3}{1_3},{{2_3}}}
     \end{example}
 
     \begin{example}
       \Multitableau[rows=3,scale=0.8,font=\scriptsize]
-                   {123,45,67||89,{10},{11}||...||{12}}
+                   {123,45,67|89,{10},{11}|...|{12}}
     \end{example}
 
-    \Multitableau{1||1||1||1}
+    \Multitableau{1|1|1|1}
 
+
+  \option[]{show}[contents,final,hooks,initial,residue]
+  \index{contents}
+  \index{show!multitableau}
+  \index{diagram!show}
+  \index{initial tableau}
+  \index{tableau!initial}
+  \index{tableau!final}
+  Use \option{show} option to draw particular types of tableau of the
+  specified shape. The possible choices are:
+  \begin{itemize}
+    \item\option{show=contents} print the diagram where each box is
+    labelled by its \emph{content}, which is the row index minus the
+    column index.
+
+    \begin{example}
+      \Multidiagram[show=contents, charge={0,2}]{3,2,1|2^2} \qquad
+      \Multidiagram[french,show=contents]{2^2,1|1^3}
+    \end{example}
+
+    \item\option{show=final} print the \emph{final tableau} of this
+    shape, which has the numbers $1,2\dots,n$ entered in order from top
+    to bottom down successive columns (with appropriate modifications for
+    the non-English conventions).
+
+    \index{final tableau}
+    \index{tableau!final}
+    \begin{example}
+      \Diagram[show=final]{3,2,2} \qquad
+      \Diagram[australian,show=contents]{2^2,1}
+    \end{example}
+
+    \item\option{show=hooks} print the diagram where each box is
+    labelled by the corresponding \emph{hook length}. If $\lambda$ is a
+    partition and $\lambda'$ is its conjugate partition then the hook
+    length of the box in row~$i$ and column~$j$ is
+    $\lambda_i-i+\lambda'_j-j+1$.
+
+    \index{tableau!hook lengths}
+    \index{hook lengths}
+    \begin{example}
+      \Diagram[show=hooks]{3,2,2} \qquad
+      \Diagram[ukrainian,show=hooks]{2^2,1}
+    \end{example}
+
+    \item\option{show=initial} print the \emph{initial tableau} of this
+    shape, which has the numbers $1,2\dots,n$ entered in order from top
+    left to right along down successive rows (with appropriate modifications for
+    the non-English conventions).
+
+    \index{initial tableau}
+    \index{tableau!initial}
+    \begin{example}
+      \Diagram[show=initial]{3,2,2} \qquad
+      \Diagram[ukrainian, show=initial]{3^2,2}
+    \end{example}
+
+    \item\option{show=residues} print the diagram where each box is
+    labelled by its \emph{residue}, which is the row index minus the
+    column index modulo some integer~$e$, which must also be supplied.
+
+    \index{residue}
+    \index{tableau!residues}
+    \begin{example}
+      \Diagram[show=residues, e=2]{3,2,1} \qquad
+      \Diagram[french,show=residues, e=3]{3,2,1}
+    \end{example}
+
+  \end{itemize}
 
   \section{Abacuses}
 

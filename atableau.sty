@@ -970,28 +970,26 @@
     \tl_set_eq:NN \l__atableau_multiprefix_tl \l__atableau_prefix_tl
 
     % separate the component partitions
-    \seq_set_split:Nnn \l__atableau_component_seq {||} {#1}
+    \seq_set_split:Nnn \l__atableau_component_seq {|} {#1}
     \seq_map_inline:Nn \l__atableau_component_seq
     {
     \typeout{Component:~\int_use:N\l__atableau_component_int}
-        \__atableau_insert_separator:n \l__atableau_separator_tl
-        \int_incr:N \l__atableau_component_int
-        \tl_if_eq:nnTF {##1} {...}
-           {
-               % insert dots
-               \typeout{ - adding~separator:~"##1"}
-               \__atableau_insert_separator:n {...}
-           }
-           {
-               \typeout{ - adding:~"##1"}
-               % convert ##1 to the partition \l__atableau_shape_seq
-               \__atableau_set_partition:nn {shape} {##1}
-               % generate the dot-sequence for the partition
-               \__atableau_diagram_for_shape:N \l__atableau_shape_seq
-               \tl_set:No \l__atableau_prefix_tl {prefix=\l__atableau_multiprefix_tl-\int_use:N\l__atableau_component_int}
-               \typeout{~-ready~to~add~"\l__atableau_entries_tl"}
-               \__atableau_tableau:V \l__atableau_entries_tl
-           }
+      \__atableau_insert_separator:n \l__atableau_separator_tl
+      \int_incr:N \l__atableau_component_int
+      \tl_if_eq:nnTF {##1} {...}
+      {
+         % insert dots
+         \typeout{ - adding~separator:~"##1"}
+         \__atableau_insert_separator:n {...}
+      }
+      {
+         \typeout{ - adding:~"##1"}
+         % change the node prefix
+         \tl_set:No \l__atableau_prefix_tl {prefix=\l__atableau_multiprefix_tl-\int_use:N\l__atableau_component_int}
+         \__atableau_diagram:n {##1}
+         \typeout{~-ready~to~add~"\l__atableau_entries_tl"}
+         \__atableau_tableau:V \l__atableau_entries_tl
+      }
     }
 }
 
