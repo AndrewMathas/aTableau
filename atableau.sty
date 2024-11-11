@@ -19,7 +19,7 @@
 
 % ---------------------------------------------------------------------------
 % package date and version
-\def\atableau@version{2.0-alpha}
+\def\atableau@version{2.0.alpha}
 \def\atableau@release{2024-10-14}
 
 \providecommand\DeclareRelease[3]{}
@@ -38,9 +38,13 @@
   { Unregcognised~style~'#1'. }
   { The~available~tableau~styles~are~australian,~english,~french~and~ukrainian~and~the~available~abacus~styles~are~north,~south,~east~and~west~}
 
+\msg_new:nnnn { aTableau } { invalid-ribbon-head }
+  { Invalid~ribbon~head:~the~row~and~column~indices~of~the~ribbon~head~must~be~given}
+  { Ribbon~specifications~must~be~for~the~form:~(optional~~ribbon~style)[style]<row><col> sequences of r's and c's~with~style}
+
 \msg_new:nnnn { aTableau } { invalid-ribbon-specification }
-  { Invalid~ribbon~specificiation~'#1':~expecting~r~or~c. }
-  { Ribbon~specifications~must~be~for~the~form:~optional~style|<row><col> sequences of r's and c's}
+  { Invalid~ribbon~specification~'#1':~expecting~r~or~c. }
+  { Ribbon~specifications~must~be~for~the~form:~[optional~style]<row><col>~sequences~of~r's and~c's~with~style}
 
 \msg_new:nnnn { aTableau } { unrecognised-abacus-label }
   { Unregcognised~abacus label~'#1'. }
@@ -50,6 +54,10 @@
   { Unregcognised~diagram~label~'#1'. }
   { The~possible~diagram~labels~are:~contents,~final,~hook,~initial,~and~residues}
 
+\msg_new:nnnn { aTableau } { empty-tableau-row }
+  { Row~#1~of~tableau~is~empty }
+  { Empty~rows~tableaux~are not supported}
+
 % ---------------------------------------------------------------------------
 % package variables
 
@@ -57,10 +65,11 @@
 \bool_new:N \l__atableau_finite_bool    % true if finite abacus runners
 \bool_new:N \l__atableau_frame_bool     % true if drawing framed abacus runners
 \bool_new:N \l__atableau_conjugate_bool % true if drawing conjugate tableau/diagram
-\bool_new:N \l__atableau_border_bool   % true if drawing tableau border
+\bool_new:N \l__atableau_border_bool    % true if drawing tableau border
 \bool_new:N \l__atableau_border_only_bool % true if only drawing tableau border
 \bool_new:N \l__atableau_shifted_bool   % true if a shifted tableau
-\bool_new:N \l__atableau_skewwall_bool  % true if drawing skew border
+\bool_new:N \l__atableau_skew_border_bool % true if drawing skew border
+\bool_new:N \l__atableau_skew_boxes_bool % true if drawing skew boxes
 \bool_new:N \l__atableau_tabloid_bool   % true if a tabloid
 
 \fp_new:N \l__atableau_col_dx_fp        % change in x-coordinate between columns
@@ -90,6 +99,7 @@
 \int_new:N \g__atableau_col_max_int     % maximum column index in diagram
 \int_new:N \g__atableau_row_max_int     % maximum row index in diagram
 \int_new:N \l__atableau_beads_int       % number of beads in abacus
+\int_new:N \l__atableau_charge_int      % charge for current component
 \int_new:N \l__atableau_col_int         % current column index
 \int_new:N \l__atableau_c_int           % scratch column counter
 \int_new:N \l__atableau_cols_int        % number of columns in a multitableau/abacus
@@ -99,7 +109,7 @@
 \int_new:N \l__atableau_r_int           % scratch row counter
 \int_new:N \l__atableau_rows_int        % number of rows in abacus/tableau
 
-\seq_new:N \l__atableau_charge_seq      % charge=residue offset
+\seq_new:N \l__atableau_charge_seq      % sequences of charges = residue/content offset
 \seq_new:N \l__atableau_component_seq   % multipartition
 \seq_new:N \l__atableau_conjugate_seq   % conjugate partition
 \seq_new:N \l__atableau_ribbons_seq     % ribbons to add to tableau/diagram
@@ -111,25 +121,26 @@
 \seq_new:N \l__atableau_styles_seq      % ribbon/bead styles
 \seq_new:N \l__atableau_texts_seq       % ribbon/bead texts
 
+ \tl_new:N \l__atableau_border_tl       % diagram border
 \tl_new:N \l__atableau_abacus_style_tl  % tableaux style: north, south, east, west
+\tl_new:N \l__atableau_bead_font_tl     % font for abacus beads
 \tl_new:N \l__atableau_bead_shape_tl    % shape of abacus beads
 \tl_new:N \l__atableau_bead_text_tl     % text colour of abacus beads
 \tl_new:N \l__atableau_bead_tl          % abacus head colour
+\tl_new:N \l__atableau_box_fill_tl      % fill colour for tableau boxes
+\tl_new:N \l__atableau_box_font_tl      % font for tableau boxes
 \tl_new:N \l__atableau_box_shape_tl     % shape of tableau boxes
+\tl_new:N \l__atableau_box_text_tl      % text colour for tableau boxes
 \tl_new:N \l__atableau_capture_exp_tl   % contains captured exponent
 \tl_new:N \l__atableau_capture_part_tl  % contains captured part
 \tl_new:N \l__atableau_capture_style_tl % contains captured style
 \tl_new:N \l__atableau_capture_txt_tl   % contains captured text
 \tl_new:N \l__atableau_entries_tl       % custom entries in tableau
-\tl_new:N \l__atableau_fill_tl          % fill colour for tableau nodes
-\tl_new:N \l__atableau_font_tl          % font for tableau nodes
 \tl_new:N \l__atableau_inner_tl         % colour of tableau inner walls
 \tl_new:N \l__atableau_multiprefix_tl   % prefix used when constructing multinode names
 \tl_new:N \l__atableau_name_tl          % name of a tableau node
 \tl_new:N \l__atableau_outer_tl         % colour of tableau outer walls
-\tl_new:N \l__atableau_border_tl       % diagram border
 \tl_new:N \l__atableau_prefix_tl        % prefix for node names
-\tl_new:N \l__atableau_ribbon_nodes_tl  % TikZ code for the nodes in a ribbon
 \tl_new:N \l__atableau_ribbon_style_tl  % a ribbon in the ribbon tableau
 \tl_new:N \l__atableau_ribbon_tl        % a ribbon in the ribbon tableau
 \tl_new:N \l__atableau_runner_tl        % abacus runner colour
@@ -138,7 +149,6 @@
 \tl_new:N \l__atableau_show_tl          % automatic tableau/bead labelling
 \tl_new:N \l__atableau_styled_nodes_tl  % token lists of nodes with non-default style
 \tl_new:N \l__atableau_tableau_style_tl % tableaux style: australian, english (default), french, ukrainian
-\tl_new:N \l__atableau_text_tl          % text colour for tableau nodes
 \tl_new:N \l__atableau_tick_tl          % abacus tick colour
 \tl_new:N \l__atableau_tikz_after_tl    % TikZ commands for after the diagram
 \tl_new:N \l__atableau_tikz_before_tl   % TikZ commands for before the diagram
@@ -155,10 +165,12 @@
         anchor         = center,
         inner~sep      = 0pt,
         draw           = \l__atableau_inner_tl,
-        fill           = \l__atableau_fill_tl,
+        fill           = \l__atableau_box_fill_tl,
+        font           = \l__atableau_box_font_tl,
         minimum~height = \fp_use:N \l__atableau_box_ht_fp cm,
         minimum~width  = \fp_use:N \l__atableau_box_wd_fp cm,
         shape          = \l__atableau_box_shape_tl,
+        text           = \l__atableau_box_text_tl,
         thin,
     },
     % inner tableau wall
@@ -178,8 +190,9 @@
     % default ribbon style
     ribbonstyle/.style = {
         thin,
-        draw=\l__atableau_inner_tl,
         line~cap=rect,
+        draw  =\l__atableau_inner_tl,
+        font = \l__atableau_box_font_tl,
     },
     % default ribbon box style
     ribbonbox/.style = {
@@ -188,6 +201,7 @@
         minimum~height = \fp_use:N \l__atableau_box_ht_fp cm,
         minimum~width  = \fp_use:N \l__atableau_box_wd_fp cm,
         shape          = \l__atableau_box_shape_tl,
+        text           = \l__atableau_box_text_tl,
     },
     % default separator text style
     separator/.style = {
@@ -210,7 +224,7 @@
         anchor         = center,
         inner~sep      = 0pt,
         shading        = ball,
-        font           = \l__atableau_font_tl,
+        font           = \l__atableau_bead_font_tl,
         ball~color     = \l__atableau_bead_tl,
         minimum~height = \fp_to_decimal:N \l__atableau_bead_size_fp cm,
         minimum~width  = \fp_to_decimal:N \l__atableau_bead_size_fp cm,
@@ -347,17 +361,18 @@
 % ---------------------------------------------------------------------------
 % command variants
 
+\cs_generate_variant:Nn \int_compare:nNnT  {oNVT}
 \cs_generate_variant:Nn \int_set:Nn        {No,Nx,Nf}
 \cs_generate_variant:Nn \int_while_do:nNnn {oNon}
-\cs_generate_variant:Nn \int_compare:nNnT  {oNVT}
-\cs_generate_variant:Nn \seq_set_item:Nnn  {Nno, NVV,Nox}
+\cs_generate_variant:Nn \msg_warning:nnn   {nno}
 \cs_generate_variant:Nn \seq_put_right:Nn  {Nx}
+\cs_generate_variant:Nn \seq_set_item:Nnn  {Nno, NVV,Nox}
 
 \cs_generate_variant:Nn \__atableau_entry:n {x}
 \cs_generate_variant:Nn \__atableau_set_bead_coordinates:nnn {nVV, nno, noo, non, noV}
 \cs_generate_variant:Nn \__atableau_set_box_coordinates:nnn {nVV, nVn, nVo, nnV, noo}
 \cs_generate_variant:Nn \__atableau_set_style:nn {nV}
-\cs_generate_variant:Nn \__atableau_tableau:n {V,x}
+\cs_generate_variant:Nn \__atableau_draw_tableau:n {V,x}
 
 % ---------------------------------------------------------------------------
 % utility functions
@@ -401,15 +416,15 @@
 % To parse the bead specifications used by \Abacus we need to accept the
 % a "bead specification" of the following form
 %    [style]m^k_txt
-% where the [style] could simply be a *, the m is a part of the partition
-% being constructed, the k its exponent and txt is the text for the node.
-% Except for m, all of of these components are optional, with the exponent
-% being 1 if it is omitted. As is customary, the order of the superscript and
-% subscript is interchangeable. To parse these expressions we first use
-% usage: \__atableau_peek_style:nw to strip off the style specification, via
-% usage: \__atableau_record_style:nn, and then pass between \__atableau_peek_beads:nw and
-% usage: \__atableau_record:nn to look ahead for the characters ^ and _ to
-% decide which of the following token lists the next character is added to:
+% where the [style] could simply be a *, the m is a part of the partition being
+% constructed, the k its exponent and txt is the text for the node.  Except for
+% m, all of of these components are optional, with the exponent being 1 if it
+% is omitted. As is customary, the order of the superscript and subscript is
+% interchangeable. To parse these expressions we first use
+% \__atableau_peek_style:nw to strip off the style specification, via
+% \__atableau_record_style:nn, and then pass between \__atableau_peek_beads:nw
+% and \__atableau_record:nn to look ahead for the characters ^ and _ to decide
+% which of the following token lists the next character is added to:
 \cs_new_protected_nopar:Npn \__atableau_record_style:nn [#1] #2
 {
     % clear the bead token lists
@@ -433,6 +448,7 @@
     }
 }
 
+% #1 is one of part, exp or txt
 \cs_new_protected_nopar:Npn \__atableau_record_bead:nn #1 #2
 {
     \quark_if_recursion_tail_stop_do:nn {#2}
@@ -447,7 +463,7 @@
             \seq_put_right:No \l__atableau_styles_seq {\l__atableau_capture_style_tl}
         }
     }
-    \tl_put_right:cn {l__atableau_bead_#1_tl} {#2}
+    \tl_put_right:cn {l__atableau_capture_#1_tl} {#2}
     \__atableau_peek_beads:nw {#1}
 }
 
@@ -505,40 +521,45 @@
 \cs_new_protected_nopar:Npn \__atableau_diagram_for_shape:N #1
 {
     \tl_clear:N \l__atableau_entries_tl
+    \tl_set:Nn \l_tmpb_tl {}
     \seq_map_inline:Nn #1
     {
-        \tl_put_right:Nx \l__atableau_entries_tl  {\prg_replicate:nn {##1} {{{~}}} ,}
+        \tl_put_right:No \l__atableau_entries_tl \l_tmpb_tl
+        \tl_put_right:Nx \l__atableau_entries_tl  { \prg_replicate:nn {##1} {{{~}}} }
+        \tl_set:Nn \l_tmpb_tl {,}
     }
 }
 
 % Contents diagrams are drawn using the \Tableau command, with
-% usage: \__atableau_shape_to_content:Nn {partition sequence} {charge} supplying the content sequence
-\cs_new_protected_nopar:Npn \__atableau_shape_to_content:Nn #1 #2
+% usage: \__atableau_shape_to_content:Nn {partition sequence}  supplying the content sequence
+\cs_new_protected_nopar:Npn \__atableau_shape_to_content:N #1
 {
     \tl_clear:N \l__atableau_entries_tl
     \int_zero:N \l__atableau_row_int
+    \tl_set:Nn \l_tmpb_tl {}
     \seq_map_inline:Nn #1
     {
+        \tl_put_right:No \l__atableau_entries_tl \l_tmpb_tl
         \int_incr:N \l__atableau_row_int
         \int_step_inline:nn {##1}
         {
-            \tl_set:Ne \l_tmpc_tl { \int_eval:n{\seq_item:Nn \l__atableau_charge_seq {#2} ####1 - \l__atableau_row_int} }
+            \tl_set:Ne \l_tmpc_tl { \int_eval:n{\l__atableau_charge_int + ####1 - \l__atableau_row_int} }
             \__atableau_tl_put_right_braced:NV \l__atableau_entries_tl \l_tmpc_tl
         }
-        \tl_put_right:Nn \l__atableau_entries_tl {,}
+        \tl_set:Nn \l_tmpb_tl {,}
     }
 }
 
 % Contents diagrams are drawn using the \Tableau command, with
-% usage: \__atableau_shape_to_final:Nn {partition sequence} {charge}
-\cs_new_protected_nopar:Npn \__atableau_shape_to_final:Nn #1 #2
+% usage: \__atableau_shape_to_final:Nn {partition sequence}
+\cs_new_protected_nopar:Npn \__atableau_shape_to_final:N #1
 {
     % compute conjugate of #1 as \l__atableau_conjugate_seq
     \__atableau_compute_conjugate_partition:N #1
     \seq_clear:N \l_tmpc_seq % construct the tableau in this sequence and then decant
-    \int_set:Nn \l__atableau_c_int {\seq_item:Nn \l__atableau_charge_seq {#2} }
+    \int_set:Nn  \l__atableau_c_int {\l__atableau_charge_int}
     % initialise \l_tmpc_seq -- should not be necessary but otherwise \seq_item:NV fails
-    \seq_map_inline:Nn  \l__atableau_conjugate_seq {\seq_put_right:Nn \l_tmpc_seq {}}
+    \seq_map_inline:Nn  #1 {\seq_put_right:Nn \l_tmpc_seq {}}
     \seq_map_inline:Nn  \l__atableau_conjugate_seq
     {
         \int_zero:N \l__atableau_r_int
@@ -546,30 +567,37 @@
         {
             \int_incr:N \l__atableau_r_int  % row index
             \int_incr:N \l__atableau_c_int  % tableau entry
-            \tl_set:Nx \l_tmpa_tl {\seq_item:NV \l_tmpc_seq \l__atableau_r_int }
+            \tl_set:Nx \l_tmpa_tl { \seq_item:NV \l_tmpc_seq \l__atableau_r_int }
             \__atableau_tl_put_right_braced:NV \l_tmpa_tl \l__atableau_c_int
             \seq_set_item:Nno \l_tmpc_seq \l__atableau_r_int \l_tmpa_tl
         }
     }
     % finally, unpack \l_tmpc_tl into l__atableau_entries_tl
     \tl_clear:N \l__atableau_entries_tl
-    \seq_map_inline:Nn \l_tmpc_seq {\tl_put_right:Nn \l__atableau_entries_tl {##1,}}
+    \tl_set:Nn \l_tmpb_tl {}
+    \seq_map_inline:Nn \l_tmpc_seq {
+        \tl_put_right:No \l__atableau_entries_tl \l_tmpb_tl
+        \tl_put_right:Nn \l__atableau_entries_tl {##1}
+        \tl_set:Nn \l_tmpb_tl {,}
+    }
 }
 
 % Contents diagrams are drawn using the \Tableau command, with
-% usage: \__atableau_shape_to_initial:Nn {partition sequence} {charge}
-\cs_new_protected_nopar:Npn \__atableau_shape_to_initial:Nn #1 #2
+% usage: \__atableau_shape_to_initial:Nn {partition sequence}
+\cs_new_protected_nopar:Npn \__atableau_shape_to_initial:N #1
 {
     \tl_clear:N \l__atableau_entries_tl
-    \int_set:Nn \l__atableau_r_int {\seq_item:Nn \l__atableau_charge_seq {#2} }
+    \int_set:Nn \l__atableau_r_int {\l__atableau_charge_int}
+    \tl_set:Nn \l_tmpb_tl {}
     \seq_map_inline:Nn #1
     {
+        \tl_put_right:No \l__atableau_entries_tl \l_tmpb_tl
         \int_step_inline:nn {##1}
         {
             \int_incr:N \l__atableau_r_int
             \__atableau_tl_put_right_braced:NV \l__atableau_entries_tl \l__atableau_r_int
         }
-        \tl_put_right:Nn \l__atableau_entries_tl {,}
+        \tl_set:Nn \l_tmpb_tl {,}
     }
 }
 
@@ -582,34 +610,38 @@
     % now construct the hook tableau
     \tl_clear:N \l__atableau_entries_tl
     \int_zero:N \l__atableau_row_int
+    \tl_set:Nn \l_tmpb_tl {}
     \seq_map_inline:Nn #1
     {
+        \tl_put_right:No \l__atableau_entries_tl \l_tmpb_tl
         \int_incr:N \l__atableau_row_int
         \int_step_inline:nn {##1}
         {
             \tl_set:Ne \l_tmpc_tl { \int_eval:n {##1+\seq_item:Nn \l__atableau_conjugate_seq {####1} -\l__atableau_row_int-####1+1} }
             \__atableau_tl_put_right_braced:NV \l__atableau_entries_tl \l_tmpc_tl
         }
-        \tl_put_right:Nn \l__atableau_entries_tl {,}
+        \tl_set:Nn \l_tmpb_tl {,}
     }
 }
 
 % Residue diagrams are drawn using the \Tableau command, with
-% usage: \__atableau_shape_to_content:Nn {partition sequence} {charge}
-\cs_new_protected_nopar:Npn \__atableau_shape_to_residue:Nn #1 #2
+% usage: \__atableau_shape_to_content:Nn {partition sequence}
+\cs_new_protected_nopar:Npn \__atableau_shape_to_residue:N #1
 {
     \tl_clear:N \l__atableau_entries_tl
     \int_zero:N \l__atableau_row_int
+    \tl_set:Nn \l_tmpb_tl {}
     \seq_map_inline:Nn #1
     {
+        \tl_put_right:No \l__atableau_entries_tl \l_tmpb_tl
         \int_incr:N \l__atableau_row_int
         \int_step_inline:nn {##1}
         {
-            \int_set:Nn \l_tmpa_int {####1 - \l__atableau_row_int + \seq_item:Nn \l__atableau_charge_seq {#2}}
+            \int_set:Nn \l_tmpa_int {\l__atableau_charge_int + ####1 - \l__atableau_row_int}
             \tl_set:Nx \l_tmpc_tl { \__atableau_residue:nn { \l_tmpa_int } {\l__atableau_e_int} }
             \__atableau_tl_put_right_braced:Nx \l__atableau_entries_tl \l_tmpc_tl
         }
-        \tl_put_right:Nn \l__atableau_entries_tl {,}
+        \tl_set:Nn \l_tmpb_tl {,}
     }
 }
 
@@ -625,9 +657,9 @@
 
     \seq_map_inline:cn {l__atableau_#1_seq}
     {
-        \int_set:Nn \l_tmpa_int {0##1}
-        \int_compare:nNnT \l_tmpa_int > {0} % only add borders for nonzero rows
-        {
+ %      \int_set:Nn \l_tmpa_int {0##1}
+ %      \int_compare:nNnTF \l_tmpa_int > {0} % only add borders for nonzero rows
+ %      {
             % compute the endpoints of this row
             \str_if_eq:nnF {skew} {#1}
             {
@@ -649,7 +681,13 @@
               \__atableau_add_row_ends:
             }
             \int_incr:N \l__atableau_r_int
-        }
+ %      }
+ %      {
+ %          \bool_if:NT \l__atableau_shifted_bool
+ %          {
+ %             \int_incr:N \l__atableau_r_int
+ %          }
+ %      }
     }
 
     % finally, draw the border
@@ -657,6 +695,7 @@
     {
       % fill in the last line
       \tl_put_right:Nx \l__atableau_border_tl {(\fp_use:N\l__atableau_xa_fp,\fp_use:N\l__atableau_ya_fp)--(\fp_use:N\l__atableau_xb_fp,\fp_use:N\l__atableau_yb_fp)}
+      \typeout{border:~\l__atableau_border_tl}
 
       \draw[atableau/#2] \l__atableau_border_tl;
     }
@@ -712,15 +751,18 @@
 % ---------------------------------------------------------------------------
 % Tableaux
 
-% usage: \__atableau_tableau:n {entries}
+% usage: \__atableau_draw_tableau:n {entries}
 % The entries are first primarily because the \Diagram commands need
 % to force the entries to expand
-\cs_new_protected_nopar:Npn \__atableau_tableau:n #1
+\cs_new_protected_nopar:Npn \__atableau_draw_tableau:n #1
 {
+\typeout{tableau:~#1}
     \seq_clear:N \l__atableau_shape_seq % record the shape as we go so that we can draw the border
     \int_zero:N \l__atableau_row_int
     \tl_clear:N \l__atableau_styled_nodes_tl
-    \bool_if:NT \l__atableau_shifted_bool { \seq_clear:N \l__atableau_skew_seq }
+    \bool_if:NT \l__atableau_shifted_bool {
+        \seq_clear:N \l__atableau_skew_seq
+    }
     \seq_set_split:Nnn \l__atableau_row_seq {,} {#1}
     \seq_map_inline:Nn \l__atableau_row_seq
     {
@@ -733,23 +775,31 @@
         % process the entries in this row
         \__atableau_peek_style:nw {draw_entry:nn} ##1 \q_recursion_tail \q_recursion_stop
 
-        % increment the row index, record this in the shape, and repeat
-        \int_incr:N \l__atableau_row_int
+        \bool_lazy_and:nnTF
+        { \int_compare_p:n {\l__atableau_col_int=0} }
+        { ! \l__atableau_shifted_bool && \int_compare_p:n {\l__atableau_row_int=0} }
+        {
+            \msg_warning:nno {aTableau} {empty-tableau-row} {\int_use:N \l__atableau_row_int}
+        }
+        {
+          % increment the row index, record this in the shape, and repeat
+          \int_incr:N \l__atableau_row_int
 
-        % record the shape for drawing out the border
-        \seq_put_right:NV \l__atableau_shape_seq \l__atableau_col_int
+          % record the shape for drawing the border
+          \seq_put_right:NV \l__atableau_shape_seq \l__atableau_col_int
+        }
     }
 
     % add the nodes with style
     \l__atableau_styled_nodes_tl
 
     % add any ribbons
-    \cs_set_eq:NN \__atableau_update_shape: \relax % don't update shape
+    \cs_set_eq:NN \__atableau_update_shape: \relax % prevent ribbons from updating shape
     \seq_map_inline:Nn \l__atableau_ribbons_seq {\__atableau_add_ribbon:n {##1}}
 
     % draw border
-    \bool_if:NT \l__atableau_skewwall_bool { \__atableau_draw_border:nn {skew}  {skewwall}  }
-    \bool_if:NT \l__atableau_border_bool  { \__atableau_draw_border:nn {shape} {outerwall} }
+    \bool_if:NT \l__atableau_skew_border_bool { \__atableau_draw_border:nn {skew}  {skewwall}  }
+    \bool_if:NT \l__atableau_border_bool   { \__atableau_draw_border:nn {shape} {outerwall} }
 
     % add any snobs
     \seq_map_inline:Nn \l__atableau_snobs_seq {\__atableau_add_ribbon:n {##1}}
@@ -858,13 +908,13 @@
 
     \tl_if_empty:nTF {#1}
     { % draw box if it has the default styling
-        \node[atableau/box](\l__atableau_name_tl) at (\fp_use:N\l__atableau_xl_fp, \fp_use:N\l__atableau_yl_fp)
+        \node[atableau/box,atableau/innerwall](\l__atableau_name_tl) at (\fp_use:N\l__atableau_xl_fp, \fp_use:N\l__atableau_yl_fp)
           {\__atableau_entry:n{#2}};
     }
     { % save the node to \l__atableau_styled_nodes_tl if it is styled
       \tl_put_right:Nx \l__atableau_styled_nodes_tl
       {
-          \exp_not:N \node [atableau/box,#1](\l__atableau_name_tl)
+          \exp_not:N \node [atableau/box,atableau/innerwall,#1](\l__atableau_name_tl)
               at (\fp_use:N\l__atableau_xl_fp, \fp_use:N\l__atableau_yl_fp)
               {\exp_not:N\__atableau_entry:n{#2}};
       }
@@ -878,8 +928,8 @@
 % ---------------------------------------------------------------------------
 % diagrams
 
-% usage: \__atableau_diagram:n {partition}
-\cs_new_protected_nopar:Npn \__atableau_diagram:n #1
+% usage: \__atableau_draw_diagram:n {partition}
+\cs_new_protected_nopar:Npn \__atableau_draw_diagram:n #1
 {
     % convert #1 to the partition \l__atableau_shape_seq
     \__atableau_set_partition:nn {shape} {#1}
@@ -890,19 +940,21 @@
     }
     {
         % depending on \l__atableau_show_tl, generate the tableau entries
+        \typeout{showing~\l__atableau_show_tl}
         \str_case:VnF \l__atableau_show_tl
         { % TODO: find a better syntax
-            {contents} { \__atableau_shape_to_content:Nn \l__atableau_shape_seq {1}}
-            {final}    { \__atableau_shape_to_final:Nn   \l__atableau_shape_seq {1}}
+            {contents} { \__atableau_shape_to_content:N  \l__atableau_shape_seq }
+            {final}    { \__atableau_shape_to_final:N    \l__atableau_shape_seq }
             {hooks}    { \__atableau_shape_to_hook:N     \l__atableau_shape_seq }
-            {initial}  { \__atableau_shape_to_initial:Nn \l__atableau_shape_seq {1}}
-            {residues} { \__atableau_shape_to_residue:Nn \l__atableau_shape_seq {1}}
+            {initial}  { \__atableau_shape_to_initial:N  \l__atableau_shape_seq }
+            {residues} { \__atableau_shape_to_residue:N  \l__atableau_shape_seq }
             {}         { \__atableau_diagram_for_shape:N \l__atableau_shape_seq }
         }
         {
-            \msg_error:nnx {aTableau} { unrecognised-label} {\l__atableau_show_tl}
+            \msg_error:nnx {aTableau} {unrecognised-label} {\l__atableau_show_tl}
         }
-        \__atableau_tableau:V \l__atableau_entries_tl
+        \typeout{entries=\l__atableau_entries_tl...}
+        \__atableau_draw_tableau:V \l__atableau_entries_tl
     }
 }
 
@@ -922,6 +974,7 @@
     \int_compare:nNnT {\l__atableau_component_int} > {0}
     {
     \typeout{Separating!~Comp=\int_use:N\l__atableau_component_int,~row~max=\int_use:N\g__atableau_row_max_int,~col~max=\int_use:N\g__atableau_col_max_int,row=\int_use:N\l__atableau_row_int,col=\int_use:N\l__atableau_col_int,~dx=\fp_use:N\l__atableau_col_dx_fp,~dy=\fp_use:N\l__atableau_row_dy_fp,~height=\fp_use:N\l__atableau_box_ht_fp}
+    \typeout{rows=\int_use:N\l__atableau_rows_int,~cols=\int_use:N\l__atableau_cols_int.}
         % the rows setting overrides row_max
         \int_compare:nNnT {\l__atableau_rows_int} > {0}
             { \int_gset_eq:NN \g__atableau_row_max_int \l__atableau_rows_int }
@@ -929,7 +982,6 @@
             { \int_gset_eq:NN \g__atableau_col_max_int \l__atableau_cols_int }
         \__atableau_set_box_coordinates:nVV {l} \g__atableau_row_max_int \g__atableau_col_max_int
         \fp_add:Nn \l__atableau_yl_fp {\l__atableau_row_dy_fp*\l__atableau_box_ht_fp/2}
-
         \__atableau_set_box_coordinates:nnV {a} {0} \g__atableau_col_max_int
         \fp_add:Nn \l__atableau_xa_fp {\l__atableau_col_dx_fp*\l__atableau_box_wd_fp/2+\l__atableau_separation_fp/2}
         \fp_sub:Nn \l__atableau_ya_fp {\l__atableau_row_dy_fp*\l__atableau_box_ht_fp/2}
@@ -941,7 +993,6 @@
             }
         }
         {   % any other separator is assumed to be text
-        \typeout{adding~node~text:~"#1"}
             \node[atableau/separator] at (\fp_use:N\l__atableau_xa_fp,\fp_use:N\l__atableau_ya_fp){#1};
             \hbox_set:Nn \l_tmpa_box {#1}
             \fp_add:Nn \l__atableau_x_fp {\box_wd:N \l_tmpa_box}
@@ -971,24 +1022,24 @@
 
     % separate the component partitions
     \seq_set_split:Nnn \l__atableau_component_seq {|} {#1}
+
     \seq_map_inline:Nn \l__atableau_component_seq
     {
     \typeout{Component:~\int_use:N\l__atableau_component_int}
       \__atableau_insert_separator:n \l__atableau_separator_tl
       \int_incr:N \l__atableau_component_int
+      % charge defaults to zero if not set
+      \int_set:Nx \l__atableau_charge_int {0\seq_item:NV \l__atableau_charge_seq \l__atableau_component_int}
       \tl_if_eq:nnTF {##1} {...}
       {
          % insert dots
-         \typeout{ - adding~separator:~"##1"}
          \__atableau_insert_separator:n {...}
       }
       {
-         \typeout{ - adding:~"##1"}
          % change the node prefix
          \tl_set:No \l__atableau_prefix_tl {prefix=\l__atableau_multiprefix_tl-\int_use:N\l__atableau_component_int}
-         \__atableau_diagram:n {##1}
-         \typeout{~-ready~to~add~"\l__atableau_entries_tl"}
-         \__atableau_tableau:V \l__atableau_entries_tl
+         \__atableau_draw_diagram:n {##1}
+         \__atableau_draw_tableau:V \l__atableau_entries_tl
       }
     }
 }
@@ -1010,6 +1061,7 @@
     {
     \typeout{Component~\int_use:N\l__atableau_component_int="##1"}
         \__atableau_insert_separator:n \l__atableau_separator_tl
+        \typeout{hello}
         \int_incr:N \l__atableau_component_int
         \tl_if_eq:nnTF {##1} {...}
            {
@@ -1019,8 +1071,10 @@
            {
                % insert tableau
                \tl_set:No \l__atableau_prefix_tl {prefix=\l__atableau_multiprefix_tl-\int_use:N\l__atableau_component_int}
-               \__atableau_tableau:n {##1}
+               \typeout{tableauing~with~##1}
+               \__atableau_draw_tableau:n {##1}
            }
+\typeout{finished~with~#1}
     }
 }
 
@@ -1043,7 +1097,7 @@
     \seq_map_inline:Nn \l__atableau_ribbons_seq {\__atableau_add_ribbon:n {##1}}
 
     % draw borders
-    \bool_if:NT \l__atableau_skewwall_bool { \__atableau_draw_border:nn {skew}  {skewwall}  }
+    \bool_if:NT \l__atableau_skew_border_bool { \__atableau_draw_border:nn {skew}  {skewwall}  }
     \bool_if:NT \l__atableau_border_bool  { \__atableau_draw_border:nn {shape} {outerwall} }
 
     % add any snobs
@@ -1053,7 +1107,6 @@
 % usage: \__atableau_add_ribbon:n {ribbon} add a ribbon to the tableau
 \cs_new_protected_nopar:Npn \__atableau_add_ribbon:n #1
 {
-\typeout{adding~ribbon~"\tl_to_str:n{#1}"}
     % reset the sequences that store the node data
     \seq_clear:N \l__atableau_texts_seq  % will contain node text
     \seq_clear:N \l__atableau_styles_seq % will contain node styles
@@ -1084,7 +1137,10 @@
 % head.
 \cs_new_protected_nopar:Npn \__atableau_save_ribbon_head:nnn [#1] #2 #3
 {
-\typeout{ribbon~head:~style="#1"~@~(#2,#3)}
+    % check for syntax errors to prevent an endless loop
+    \quark_if_recursion_tail_stop_do:nn {#2} { \msg_error:nn {aTableau} {invalid-ribbon-head} }
+    \quark_if_recursion_tail_stop_do:nn {#3} { \msg_error:nn {aTableau} {invalid-ribbon-head} }
+
     % save any style
     \seq_put_right:Nx \l__atableau_styles_seq {#1}
     % record the row and column indices of the head
@@ -1133,7 +1189,6 @@
 % save any text for a rode in the ribbon in \l__atableau_texts_seq
 \cs_new_protected_nopar:Npn \__atableau_save_ribbon_text:n #1
 {
-\typeout{ribbon~text:~\tl_to_str:n{#1}.}
     \seq_put_right:No \l__atableau_texts_seq {#1}
     \__atableau_peek_style:nw  {save_ribbon:nn}
 }
@@ -1143,7 +1198,6 @@
 % \l__atableau_styles_seq and then repeat
 \cs_new_protected_nopar:Npn \__atableau_save_ribbon:nn [#1] #2
 {
-\typeout{ribbon~save:~style="\tl_to_str:n{#1},~direction="~\tl_to_str:n{#2}.}
    % draw the ribbon when we run out of nodes
    \quark_if_recursion_tail_stop_do:nn {#2} { \__atableau_draw_ribbon: }
 
@@ -1212,7 +1266,6 @@
       {
         \seq_put_right:Nx \l__atableau_skew_seq {\int_eval:n{\l_tmpa_int+##1-1 }}
       }
-      \typeout{row=\int_use:N\l__atableau_row_int, skew=~(\seq_use:Nn \l__atableau_skew_seq{,})}
     }
     \int_compare:nNnT {0\seq_item:Nn \l__atableau_shape_seq {\l__atableau_row_int+1}} < {\l__atableau_col_int+1}
     {
@@ -1226,7 +1279,6 @@
 % finally, add the nodes with custom styling or text.
 \cs_new_protected_nopar:Npn \__atableau_draw_ribbon:
 {
-\typeout{drawing~ribbon....}
     % Add the last node to the ribbon
     \fp_add:Nn \l__atableau_xa_fp {\l__atableau_row_dx_fp*\l__atableau_box_wd_fp}
     \fp_add:Nn \l__atableau_ya_fp {\l__atableau_row_dy_fp*\l__atableau_box_ht_fp}
@@ -1284,7 +1336,7 @@
     \int_set:Nn \l__atableau_cols_int {#1}
 
     % Extract the bead positions and their styles into
-    % \l__atableau_shape_seq, \l__atableau_styles_seq and \l__atableau_text
+    % \l__atableau_shape_seq, \l__atableau_styles_seq and \l__atableau_text_tl
     % We allow all of the following expressions
     %   m, m^r, [style]m, [style]m^2, *m, *m^2,
     %   m_text, m_text^r, [style]m_text, [style]m_text^2, *m_text, *m_text^2,
@@ -1364,9 +1416,8 @@
         {
            {beta}    { \tl_set:No \l_tmpa_tl { \int_use:N\l_tmpa_int }                     }
            {residue} {
-                       \tl_set:No \l_tmpb_tl { \seq_item:Nn \l__atableau_charge_seq {1}}
                        \tl_set:No \l_tmpc_tl { \seq_item:Nn \l__atableau_shape_seq {##1}}
-                       \tl_set:No \l_tmpa_tl { \__atableau_residue:nn {\l_tmpb_tl - ##1 + \l_tmpc_tl} {\l__atableau_rows_int} }
+                       \tl_set:No \l_tmpa_tl { \__atableau_residue:nn {\l__atableau_charge_int - ##1 + \l_tmpc_tl} {\l__atableau_rows_int} }
                      }
            {rows }   { \tl_set:No \l_tmpa_tl { ##1 }                                       }
            {shape}   { \tl_set:No \l_tmpa_tl { \seq_item:Nn \l__atableau_shape_seq {##1} } }
@@ -1411,9 +1462,6 @@
 {
     % ---------------------------------------------------------------------------
     % general settings
-
-    charge         .code:n = \seq_set_from_clist:Nn \l__atableau_charge_seq {#1},
-    charge      .initial:n = 0,
 
     % tableau node name prefix
     name        .tl_set:N  = \l__atableau_prefix_tl,
@@ -1474,6 +1522,15 @@
     russian        .code:n = \__atableau_set_style:nn {tableau} {ukrainian},
     ukrainian .value_required:n = false,
 
+    charge         .code:n =
+    {
+      % To cater for multipartitions, the charge is a sequence.
+      % Set l__atableau_charge_int is the first item in the sequence
+      \seq_set_from_clist:Nn \l__atableau_charge_seq {#1}
+      \int_set:Nn \l__atableau_charge_int { \seq_item:Nn \l__atableau_charge_seq {1} }
+    },
+    charge      .initial:n = 0,
+
     conjugate      .code:n =
     {
         \tl_set:Nx \l_tmpa_tl {\str_lowercase:n {#1}}
@@ -1506,8 +1563,11 @@
     skew        .default:n = 0,
     skew        .initial:n = 0,
 
-    skewwall   .bool_set:N = \l__atableau_skewwall_bool,
-    skewwall   .initial:n  = false,
+    skew~border .bool_set:N = \l__atableau_skew_border_bool,
+    skew~border .initial:n  = false,
+
+    skew~boxes .bool_set:N = \l__atableau_skew_boxes_bool,
+    skew~boxes .initial:n  = false,
 
     tabloid    .bool_set:N = \l__atableau_tabloid_bool,
     tabloid    .initial:n  = false,
@@ -1518,42 +1578,44 @@
     align/center   .code:n = { \tikzset{baseline=(current~bounding~box.center)} },
     align/centre   .code:n = { \tikzset{baseline=(current~bounding~box.center)} },
     align/bottom   .code:n = { \tikzset{baseline=(current~bounding~box.south)} },
-    align/      .initial:n = centre,
+    align       .initial:n = centre,
 
     % tableau colours
-    inner~wall   .tl_set:N = \l__atableau_inner_tl,
-    inner~wall  .initial:n = blue!50!white,
 
-    inner~style    .code:n = { \exp_args:Nx \tikzset {atableau/innerwall/.append~style={#1}} },
-    inner~style .value_required:n = true,
+    border~wall  .tl_set:N = \l__atableau_outer_tl,
+    border~wall .initial:n = blue!50!black,
 
-    outer~wall   .tl_set:N = \l__atableau_outer_tl,
-    outer~wall  .initial:n = blue!50!black,
-
-    outer~style    .code:n = { \exp_args:Nx \tikzset {atableau/outerwall/.append~style={#1}} },
-    outer~style .value_required:n = true,
+    border~style   .code:n = { \exp_args:Nx \tikzset {atableau/outerwall/.append~style={#1}} },
+    border~style .value_required:n = true,
 
     % node height and width
-    box~height  .fp_set:N = \l__atableau_box_ht_fp,
-    box~height .initial:n = 0.5,
+    box~height   .fp_set:N = \l__atableau_box_ht_fp,
+    box~height  .initial:n = 0.5,
     box~height .value_required:n = true,
 
     box~width   .fp_set:N = \l__atableau_box_wd_fp,
     box~width  .initial:n = 0.5,
     box~width .value_required:n = true,
 
-    % node styling
-    fill         .tl_set:N = \l__atableau_fill_tl,
-    fill        .initial:n = white,
+    % box styling
+    box~fill         .tl_set:N = \l__atableau_box_fill_tl,
+    box~fill        .initial:n = white,
 
-    font         .tl_set:N = \l__atableau_font_tl,
-    font        .initial:n = \scriptsize,
+    box~font         .tl_set:N = \l__atableau_box_font_tl,
+    box~font        .initial:n =,
 
-    shape        .tl_set:N = \l__atableau_box_shape_tl,
-    shape       .initial:n = rectangle,
+    box~shape        .tl_set:N = \l__atableau_box_shape_tl,
+    box~shape       .initial:n = rectangle,
 
-    text         .tl_set:N = \l__atableau_text_tl,
-    text        .initial:n = NavyBlue,
+    box~text         .tl_set:N = \l__atableau_box_text_tl,
+    box~text        .initial:n = NavyBlue,
+    box~text .value_required:n = true,
+
+    inner~wall   .tl_set:N = \l__atableau_inner_tl,
+    inner~wall  .initial:n = blue!50!white,
+
+    inner~style    .code:n = { \exp_args:Nx \tikzset {atableau/innerwall/.append~style={#1}} },
+    inner~style .value_required:n = true,
 
     math~nodes     .code:n = { \cs_set_eq:NN \__atableau_entry:n \__atableau_entry_math:n },
     text~nodes     .code:n = { \cs_set_eq:NN \__atableau_entry:n \__atableau_entry_text:n },
@@ -1618,6 +1680,10 @@
     bead .value_required:n = true,
     bead        .initial:n = blue,
 
+    bead~font     .tl_set:N = \l__atableau_bead_font_tl, % bead font
+    bead~font    .initial:n = \scriptsize,
+    bead~font .value_required:n = true,
+
     bead~size .fp_set:N = \l__atableau_bead_size_fp,
     bead~size .initial:n = 0.3,
 
@@ -1626,7 +1692,7 @@
     bead~sep .value_required:n = true,
 
     bead~text        .tl_set:N = \l__atableau_bead_text_tl, % bead text colour
-    bead~text.value_required:n = true,
+    bead~text .value_required:n = true,
     bead~text       .initial:n = white,
 
     beta~numbers .bool_set:N = \l__atableau_beta_numbers_bool,
@@ -1648,11 +1714,10 @@
     tick~width    .code:n = { \fp_set:Nn \l__atableau_tick_width_fp {#1/2} }, % (half) tick width separation
     tick~width .initial:n = 0.1,
     tick~width .value_required:n = true,
-
 }
 
-% ---------------------------------------------------------------------------
 
+% ---------------------------------------------------------------------------
 % set the Cartesian coordinates for the corner of the (1,1) box
 % usage: \__atableau_set_origin:nn (x,y)
 \cs_new_protected_nopar:Npn \__atableau_set_origin:nn (#1,#2)
@@ -1710,7 +1775,7 @@
 % \Diagram (x,y) [style] {shape}
 \NewDocumentCommand\Diagram{ d() O{} m }
 {
-    \__atableau_tikzpicture:nnn {#2} {#1} { \__atableau_diagram:n {#3} }
+    \__atableau_tikzpicture:nnn {#2} {#1} { \__atableau_draw_diagram:n {#3} }
 }
 
 % \Multidiagram (x,y) [style] {entries}
@@ -1734,37 +1799,37 @@
 % \ShiftedDiagram (x,y) [style] {entries}
 \NewDocumentCommand\ShiftedDiagram{ d() O{} m }
 {
-    \__atableau_tikzpicture:nnn {shifted,#2} {#1} { \__atableau_diagram:n {#3} }
+    \__atableau_tikzpicture:nnn {shifted,#2} {#1} { \__atableau_draw_diagram:n {#3} }
 }
 
 % \ShiftedTableau (x,y) [style] {entries}
 \NewDocumentCommand\ShiftedTableau{ d() O{} m }
 {
-    \__atableau_tikzpicture:nnn {shifted,#2} {#1} { \__atableau_tableau:n {#3} }
+    \__atableau_tikzpicture:nnn {shifted,#2} {#1} { \__atableau_draw_tableau:n {#3} }
 }
 
 % \SkewDiagram (x,y) [style] {skew shape} {entries}
 \NewDocumentCommand\SkewDiagram{ d() O{} m m }
 {
-    \__atableau_tikzpicture:nnn {skew={#3},#2} {#1} { \__atableau_diagram:n {#4} }
+    \__atableau_tikzpicture:nnn {skew={#3},#2} {#1} { \__atableau_draw_diagram:n {#4} }
 }
 
 % \SkewTableau (x,y) [style] {skew shape} {entries}
 \NewDocumentCommand\SkewTableau{ d() O{} m m }
 {
-    \__atableau_tikzpicture:nnn {skew={#3},#2} {#1} { \__atableau_tableau:n {#4} }
+    \__atableau_tikzpicture:nnn {skew={#3},#2} {#1} { \__atableau_draw_tableau:n {#4} }
 }
 
 % \Tableau (x,y) [style] {entries}
 \NewDocumentCommand\Tableau{ d() O{} m }
 {
-    \__atableau_tikzpicture:nnn {#2} {#1} { \__atableau_tableau:n {#3} }
+    \__atableau_tikzpicture:nnn {#2} {#1} { \__atableau_draw_tableau:n {#3} }
 }
 
 % \Tabloid (x,y) [style] {entries}
 \NewDocumentCommand\Tabloid{ d() O{} m }
 {
-    \__atableau_tikzpicture:nnn {tabloid,#2} {#1} { \__atableau_tableau:n {#3} }
+    \__atableau_tikzpicture:nnn {tabloid,#2} {#1} { \__atableau_draw_tableau:n {#3} }
 }
 
 

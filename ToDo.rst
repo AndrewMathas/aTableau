@@ -25,6 +25,7 @@ A ToDo list for a aTableau
    * cartan=... for residues A1-e, A2-e, C1-2, D2-2, ...
    * conjugate = print conjugate tableau -- avoids need for \ColumnTabloid
    * residue=e : allow residues of type C, ...
+   * separate options for boxes and beads: draw, fill, font, text, shape?
 
 * add fill for tableaux
 * add fill for skew tableau
