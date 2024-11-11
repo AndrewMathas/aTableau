@@ -2,7 +2,7 @@
 % Title:    aTableau.
 % Author:   Andrew Mathas
 % Created:  October 2023
-% Modified: 15:39 Monday, 04 November 2024
+% Modified: 17:46 Monday, 11 November 2024
 % ----------------------------------------------------------------------
 \documentclass{amsart}
 \usepackage[svgnames]{xcolor}
@@ -40,23 +40,23 @@
 
 \newcommand\heading[1]{\bigskip\noindent\textsf{\large #1}}
 
-\ExplSyntaxOn
 % \option*[default value]{option name}[accepts]
-% the *-version does not do a \medskip before the option
-\NewDocumentCommand\option{ somO{} }
+% the *-version does not do a \bigskip before the option
+\NewDocumentCommand\option{ somo }
 {%
-  \IfNoValueTF{#2}{\textsf{#3}}%
-  {%
-    \IfBooleanT{#1}{\medskip}%
-    \noindent\textbf{\textcolor{DodgerBlue}{#3}}%
-    \str_if_empty:nF {#2}{~(default:~\textcolor{DarkRed}{#2})}%
-    \hfill%
-    \str_if_empty:nF {#4} {\textcolor{Grey}{[accepts:~#4]}}%
-    %\newline%
-  }%
   \index{#3}%
+  \IfNoValueTF{#2}
+    {\textsf{#3}}%
+    {%
+      \IfBooleanF{#1}{\bigskip}%
+      \noindent\textbf{\textcolor{DodgerBlue}{#3}}%
+      \IfNoValueF{#2}{~(default:~\textcolor{DarkRed}{#2})}%
+      \hfill%
+      \IfNoValueF{#4}{\textcolor{Grey}{[accepts:~#4]}}%
+    }%
 }
 
+\ExplSyntaxOn
 % index command ignoring the backslash and capitalisation
 \cs_new_protected:Npn \l_addto_index:nn #1#2 { \index{#2@\textbackslash #1} }
 \cs_generate_variant:Nn \l_addto_index:nn {Vo}
@@ -142,6 +142,7 @@
     align,
     australian,
     before,
+    border,
     box,
     cols,
     conjugate,
@@ -151,10 +152,14 @@
     finite,
     font,
     french,
+    height,
     infinite,
+    inner,
+    math,
+    no,
+    nodes,
     north,
     only,
-    border,
     ribbon,
     ribbons,
     rows,
@@ -164,11 +169,16 @@
     show,
     skew,
     south,
+    snobs,
+    star,
     style,
     tabloid,
     text,
+    text,
     ukrainian,
+    wall,
     west,
+    width,
     xscale,
     yscale,
     {star~style},
@@ -503,7 +513,7 @@
       \index{ukrainian@Ukrainian}
       \index{australian@Australian}
       \footnotetext[1]{Some authors call this the Russian convention}
-      \footnotetext[2]{I have not seen a name for convention in the literature, but calling this this
+      \footnotetext[2]{I have not seen a name for this convention in the literature, but calling this the
       \textit{Australian convention} seems apt.}
   \end{center}
   The different conventions for diagrams, and tableaux, are listed in
@@ -849,17 +859,17 @@
   in the last example appear to be blank.  If you are already familiar
   with \TikZ then you probably already know what to do. If not, then
   here is a short list of useful style specifications for \TikZ nodes:
-  \begin{center}\index{fill}\index{text}\index{draw}
+  \begin{center}\index{fill}\index{text}\index{draw}\index{font}
      \begin{tabular}{ll}\toprule
        Style & Meaning \\\midrule
-       \keyword{text}$=\langle\text{colour}\rangle$
-            & Sets the text colour in the box \\
+       \keyword{draw}$=\langle\text{colour}\rangle$
+            & Sets the boundary colour of the box\\
        \keyword{fill}$=\langle\text{colour}\rangle$
             & Sets the fill, or background, colour of the box\\
        \keyword{font}$=\langle\text{font commands}\rangle$
             & Sets the font \\
-       \keyword{draw}$=\langle\text{colour}\rangle$
-            & Sets the boundary colour of the box\\
+       \keyword{text}$=\langle\text{colour}\rangle$
+            & Sets the text colour in the box \\
        \bottomrule
      \end{tabular}
   \end{center}
@@ -872,8 +882,8 @@
   \keyword{ultra thick},
   \keyword{dashed},
   \keyword{dotted}, $\dots$.
-  Section \autoref{SS:TableauOptions} below describes how to use these options to change thfor options to change these
-  styles for the boxes in
+  \autoref{SS:TableauOptions} below describes how to use these options
+  to customise the tableau style.
 
   If you want to apply ``complicated'' style settings, such as
   \keyword{draw=cyan,ultra thick} which consists of a comma separated
@@ -988,13 +998,13 @@
   then, by default, latter tableaux and Young diagrams will be drawn
   using the Ukrainian convention.
 
-  \option[english]{english}\\
-  \option*[]{french}\\
-  \option*[]{ukrainian}\\
-  \option*[]{australian}
+  \option[]{english}\qquad
+  \option*[]{french}\qquad
+  \option*[]{ukrainian}\qquad
+  \option*[english]{australian}
 
   These four options change the convention, or orientation that is used
-  to draw the tableaux. Rather than define this precisely, we use the
+  when drawing the tableaux. Rather than define this precisely, we use the
   tired and true method in combinatorics of defining by example.
 
   \begin{example}[lefthand width=0.3\textwidth]
@@ -1009,21 +1019,21 @@
 
   \begin{example}[lefthand width=0.3\textwidth]
     \tikzset{B/.style={fill=blue!20, dashed, thick}}
-    \Tableau[english]{12[{B, thick}]3,45}
+    \Tableau[english]{12[B]3,45}
   \end{example}
 
   \begin{example}[lefthand width=0.3\textwidth]
     \tikzset{B/.style={fill=blue!20, thick, text=white}}
-    \Tableau[australian]{12[{B, thick}]3,45}
+    \Tableau[australian]{12[B]3,45}
   \end{example}
 
   By default, the \option{english} convention is used to draw tableaux
-  and Young diagrams. This can be changed using \keyword{\aTabset}. The
-  capitalised names, \keyword{Australian}, \keyword{English},
-  \keyword{French} and \keyword{Ukrainian}, are also recognised. If, for
-  example, your document is only going to \option{french} tableaux and
-  diagrams, then you can specify this when you load the package using
-  \keyword{\usepackage[french]{atableau}}.
+  and Young diagrams. The default convention can be changed using
+  \keyword{\aTabset}. The capitalised names, \keyword{Australian},
+  \keyword{English}, \keyword{French} and \keyword{Ukrainian}, are also
+  recognised. If, for example, your document is only going to
+  \option{french} tableaux and diagrams, then you can specify this when
+  you load the package using \keyword{\usepackage[french]{atableau}}.
 
   The \keyword{\Tableau} settings used as options to the
   \keyword{\usepackage} statement change the default settings throughout
@@ -1041,7 +1051,7 @@
 
   \begin{example}
     \Tableau[align=top]{123,455,674} \qquad
-    \Tableau[align=top]{123,455}
+    \Tableau{123,455}
   \end{example}
 
   \begin{example}
@@ -1051,24 +1061,45 @@
   \end{example}
 
   \begin{example}
-    \aTabset{align=centre}
+    \aTabset{align=top}
     \Tableau{123,455,674} \qquad
     \Tableau{123,455}
-  \end{example}
+  \end{example}A,
 
   It is not necessary to have the same \option{align} keys on each
   tableau. Here, and elsewhere, American spelling variations are
   tolerated.
 
-  \option[0.5]{box height}[A decimal giving the height in \unit{cm}]\\
-  \option*[0.5]{box width}[A decimal giving the width in \unit{cm}]
+  \option[blue~50~black]{border wall}[any colour] \newline
+  \option*[thick,line~cap=rect]{border style}[\TikZ-styling]
+
+  The \option{border wall} option sets the colour of the border wall,
+  whereas \option{border style} sets the \TikZ-styling of the border wall.
+  (So, \option{border style} can override \option{border wall}.)
+
+  \begin{example}
+    \Tableau[ukrainian, border wall=red]{123,455,674} \qquad
+    \Tableau[french, border style=dashed]{123,455}
+  \end{example}
+
+  \option[0.5]{box height}[a decimal giving the height in \unit{cm}]\newline
+  \option*[0.5]{box width}[a decimal giving the width in \unit{cm}]
 
   Sets the width and height of the boxes in the tableau. The default
   height and width of the boxes is \qty{0.5}{cm} when using the
   \option{english} and \option{french} conventions and
-  \qty{0.7012}{cm}, which is approximately $1\sqrt{2}$\unit{cm}, when
+  \qty{0.7012}{cm}, which is approximately $1/\sqrt{2}$\unit{cm}, when
   using the \option{ukrainian} and \option{australian} conventions. (In
   all cases, the side length of the squares is \qty{0.5}{cm}.)
+
+  \begin{example}
+    \aTabset{align=top}
+    \Tableau[box height=0.7]{123,455,674} \qquad
+    \Tableau[box width=0.3]{123,455}
+  \end{example}
+
+  See also the \option{scale}, \option{xscale} and \option{yscale}
+  options.
 
   \option[false]{conjugate}[false/true]
 
@@ -1078,6 +1109,72 @@
   \begin{example}
     \Tableau{123,45,67}    \qquad
     \Tableau[conjugate]{123,45,67}
+  \end{example}
+
+  \option[blue!50!white]{inner wall}[any colour]\newline
+  \option*[thin,line cap=rect]{inner style}[any \TikZ-styling]
+
+  The \option{inner wall} option sets the colour of the inner wall,
+  whereas \option{inner style} sets the \TikZ-styling of the inner wall.
+  (So, \option{inner style} can override \option{inner wall}.)
+
+  \begin{example}
+    \Tableau[australian, inner wall=red]{123,455,674} \qquad
+    \Tableau[inner style=dashed]{123,455}
+  \end{example}{}
+
+  % nodes
+  \option*[--]{box fill}[any colour]
+
+  The \option{box fill} option sets the background colour of a box in a
+  tableau, just like the \textsf{fill} key for a \TikZ-node. If you use
+  a dark fill colour, then you will almost certainly want to change the
+  text colour using the \option{text} option -- and you may also want to
+  change the colours of the border walls and inner walls using
+  \option{border wall} and \option{inner wall}, respectively.
+
+  \begin{example}
+    \Tableau[box fill=blue,box text=yellow]{123,455,674} \qquad
+    \Tableau[box fill=red!10]{123,455}
+  \end{example}{}
+
+  \option*[]{box font}[]
+
+  The \option{box font} key sets the font used to type the entries of a
+  tableau.  By default, tableau entries are typeset as mathematics, so
+  this is mainly useful for changing the font size (because, for example
+  \keyword{\bfseries $1$} does not make the $1$ bold). It is only when
+  you are using \option{text nodes} that font commands like
+  \keyword{\itshape} and \keyword{\bfseries} will have any effect.
+
+  \begin{example}
+    \Tableau[box font=\tiny]{123,455,674} \qquad
+    \Tableau[text nodes, box font=\itshape]{123,455}
+  \end{example}{}
+
+  \option[]{box shape}[]
+
+  \option[NavyBlue]{box text}[any colour]
+
+  Exactly as for a \TikZ-node, use \option{text} to set the default text
+  colour for the tableau entries.
+
+  \begin{example}
+    \Tableau[box text=red]{123,45} \qquad
+    \Tableau[box text=blue, french]{123,45}
+  \end{example}
+
+  \option[true]{math nodes}[true/false]
+  \newline
+  \option*[false]{text nodes}[true/false]
+
+  Use the \option{math nodes} and \option{text nodes} to have the
+  tableau entries typeset as either mathematics of text, respectively.
+  By default, the entries of a tableau are typeset as mathematics.
+
+  \begin{example}
+    \Tableau[math nodes]{ABCD, efg, HI}\qquad% the default
+    \Tableau[text nodes]{ABCD, efg, HI}
   \end{example}
 
   \option[B]{name}[string/character]
@@ -1094,128 +1191,23 @@
   See the introduction to this section for examples and for more
   information about using node names and anchors.
 
-  \option[]{skew}{a partition}
-
-  Specify the skew shape for a skew tableau or skew diagram. See
-  \autoref{S:Skew} for more details.
-
   \option[false]{shifted}[true/false]
 
-  Set to \textsf{true} for a shifted tableau or shifted diagram. See
-  \autoref{S:Shifted} for more details.
+  Set to \textsf{true} for a shifted tableau or shifted diagram. This is
+  discussed in more detail in \autoref{S:Shifted}, which describes the
+  \keyword{\ShiftedDiagram} and \keyword{\ShiftedTableau} commands.
+
+  \option[]{skew}{a partition}
+
+  Specify the skew shape for a skew tableau or skew diagram. This is
+  discussed in more detail in \autoref{S:Skew}, which describes the
+  \keyword{\SkewDiagram} and \keyword{\SkewTableau} commands.
 
   \option[false]{tabloid}[true/false]
 
-  Set to \textsf{true} for a tabloid. See \autoref{S:Tabloid} for more
-  details.
-
-  \option[]{tikz before}[\TikZ commands]\\
-  \option*[]{tikz after}[\TikZ commands]
-
-  These commands inject \TikZ code  into the underlying
-  \keyword{tikzpicture} environment,  where the tableau is constructed,
-  before and after the \keyword{\Tableau} command, respectively.
-
-  \begin{example}[lefthand width=0.24\textwidth]
-   \Tableau[
-     tikz before={\draw[help lines,step=0.5](-0.5,-2)grid(2,0.5);},
-     tikz after={\draw[ultra thick,red]
-                   (B-1-3.north east)--(B-1-3.south east)
-                   --(B-2-1.north east)--(B-3-1.south east)
-                   --(B-3-1.south west);
-     }]{134,567,89}
-  \end{example}
-
-  Both before and after hooks are provided because the order in which
-  you place \TikZ commands can affect the drawing, primarily because
-  later commands are drawn over the top of earlier ones. Note that the
-  \textit{before} code cannot use the named nodes \textsf{B-r-c} because
-  this code is executed before the tableau is drawn. For examples, see
-  \autoref{SS:order}.
-
-  \option[]{tikzpicture}[\TikZ-style commands]
-
-  Use this command to add an optional argument to the underlying
-  \keyword{tikzpicture} environment that contains the tableau. The
-  \option{tikzpicture} option is ignored  when the \keyword{\Tableau}
-  command is equipped with $(x,y)$-coordinates.
-
-  \begin{example}[lefthand width=0.3\textwidth]
-    \Tableau[ukrainian, name=A,
-      tikzpicture={remember picture}]
-      { 1[fill=blue!20]23[text=red]45,
-        6*78[{draw=cyan,ultra thick}]9,
-        [{circle,fill=orange}]{10}*{11}{12},
-        [{dashed,draw=red,ultra thick}]{13}
-      }
-  \end{example}\label{Ex:pointing}
-
-  Since \option{name}=A, the nodes in this tableau are referenced as
-  \textsf{(A-1-1)}, \textsf{(A-1-2)}, \textsf{(A-1-3)}, \dots. As the
-  example also uses \option{tikzpicture}=\textit{remember picture}, we
-  can reference the node names in last tableau from other
-  \keyword{tikzpicture} environments. For example, we can do things like
-  this:
-
-  \vspace*{3mm}
-
-  \begin{example}[lefthand width=0.3\textwidth]
-     \tikz[remember picture, overlay]
-       \draw[very thick, ->,red]
-         (0,0) node[right,align=left]
-            {This circle is too big!\\Use minimum size=5mm}
-         to [out=135, in=225](A-3-1);
-  \end{example}
-
-  As a second example, we can use \keyword{tikzpicture=rotate=30} to try
-  to rotate a tableau by 90 degrees with:
-
-  \begin{example}
-   \Tableau[tikzpicture={rotate=90}]{123,45} \qquad
-   \begin{tikzpicture}[rotate=90]
-     \Tableau(0,0){123,45}
-   \end{tikzpicture}
-  \end{example}
-
-  The two tableaux constructions in this example are equivalent. An
-  oddity with both of these examples is that the numbers have not been
-  rotated, which is because \emph{rotate} does not affect component
-  objects, such as nodes, inside a \TikZ picture. You can rotate
-  everything in the picture by using \textit{transform canvas}:
-
-  \vspace*{15mm}
-
-  \begin{example}[valign=top, lefthand width=0.3\textwidth]
-    \Tableau[tikzpicture={transform canvas={rotate=90}}]{123,45}
-  \end{example}
-
-  \option[]{inner wall}[]
-  \option*[]{outer wall}[]
-
-  \option[]{inner style}[]
-  \option*[]{outer style}[]
-
-  % nodes
-  \option*[]{fill}[]
-
-  \option*[]{text}[]
-
-  \option*[]{font}[]
-
-  \option[]{shape}[]
-
-  \option[true]{math nodes}[true/false]
-  \newline
-  \option*[false]{text nodes}[true/false]
-
-  Use the \option{math nodes} and \option{text nodes} to have the
-  tableau entries typeset as either mathematics of text, respectively.
-  By default, the entries of a tableau are typeset as mathematics.
-
-  \begin{example}
-    \Tableau[math nodes]{ABCD, efg, HI} % the default \quad
-    \Tableau[text nodes]{ABCD, efg, HI}
-  \end{example}
+  Set to \textsf{true} for a tabloid. This is discussed in more detail
+  in \autoref{S:Tabloid}, which describes the \keyword{\Tabloid}
+  command.
 
   \option[]{ribbons}{list of ribbon specifiers]
   \newline
@@ -1259,17 +1251,15 @@
   picture the nodes in the \option{snobs} are drawn over the tableau
   boundary, causing the boundary to disappear for these nodes.  For this
   reason, in most cases you should use \option{ribbons}, and avoid
-  \option{snobs}. I do not know of a real example where I would use
+  \option{snobs}. I do not know of an actual example where I would use
   \option{snobs}, so I would be pleased to hear of any example where it
   is necessary.
 
   \option[]{star style}[]
 
 
-  \option[0.5]{box height}{a decimal number (in centimetres)}
-  \option*[0.5]{box width}{a decimal number (in centimetres)}
-  \option*[1]{scale}[a decimal number]
-  \option*[1]{xscale}[a decimal number]
+  \option[1]{scale}[a decimal number]\newline
+  \option*[1]{xscale}[a decimal number]\newline
   \option*[1]{yscale}[a decimal number]
 
   By design, boxes in tableaux do not automatically resize to fit
@@ -1299,7 +1289,7 @@
     The options, \option{scale}, \option{xscale}, and \option{yscale},
     affect all \aTableau diagrams, including tableaux, Young diagrams
     and abacuses. If you want to use \keyword{\aTabset} to change the
-    sizes of all diagrams and tableaux in your document it may be better
+    sizes of all diagrams and tableaux in your document it is better
     to use the \option{box height} and \option{box width} options.
   \end{danger}
 
@@ -1309,8 +1299,88 @@
 
   \begin{example}
     \tikzset{R/.style={fill=blue!20,draw=red,thick}}
-    \Tableau{12[R]3,4[R]5}
-    \Tableau[star style={fill=blue!50,text=white}]{1*23,4*5}
+    \Tableau{12[R]3,4[R]5} \qquad
+    \Tableau[star style={fill=orange!50,text=white}]{1*23,4*5}
+  \end{example}
+
+  \option[]{tikz before}[\TikZ commands]\newline
+  \option*[]{tikz after}[\TikZ commands]
+
+  These commands inject \TikZ code  into the underlying
+  \keyword{tikzpicture} environment,  where the tableau is constructed,
+  before and after the \keyword{\Tableau} command, respectively.
+
+  \begin{example}[lefthand width=0.24\textwidth]
+   \Tableau[
+     tikz before={\draw[help lines,step=0.5](-0.5,-2)grid(2,0.5);},
+     tikz after={\draw[ultra thick,red]
+                   (B-1-3.north east)--(B-1-3.south east)
+                   --(B-2-1.north east)--(B-3-1.south east)
+                   --(B-3-1.south west);
+     }]{134,567,89}
+  \end{example}
+
+  Both before and after hooks are provided because the order in which
+  you place \TikZ commands can affect the drawing, primarily because
+  later commands are drawn over the top of earlier ones. Note that the
+  \textit{before} code cannot use the named nodes \textsf{B-r-c} because
+  this code is executed before the tableau is drawn. For examples, see
+  \autoref{SS:order}.
+
+  \option[]{tikzpicture}[\TikZ-style commands]
+
+  This command adds an optional argument to the underlying
+  \keyword{tikzpicture} environment, which contains the tableau. The
+  \option{tikzpicture} option is ignored  when the \keyword{\Tableau}
+  command is equipped with $(x,y)$-coordinates.
+
+  \begin{example}[lefthand width=0.3\textwidth]
+    \Tableau[ukrainian, name=A,
+      tikzpicture={remember picture}]
+      { 1[fill=blue!20]23[text=red]45,
+        6*78[{draw=cyan,ultra thick}]9,
+        [{circle,fill=orange}]{10}*{11}{12},
+        [{dashed,draw=red,ultra thick}]{13}
+      }
+  \end{example}\label{Ex:pointing}
+
+  Since \option{name}=A, the nodes in this tableau are referenced as
+  \textsf{(A-1-1)}, \textsf{(A-1-2)}, \textsf{(A-1-3)}, \dots. As the
+  example also uses \option{tikzpicture}=\textit{remember picture}, we
+  can reference the node names in last tableau from other
+  \keyword{tikzpicture} environments. For example, we can do things like
+  this:
+
+  \vspace*{3mm}
+
+  \begin{example}[lefthand width=0.3\textwidth]
+     \tikz[remember picture, overlay]
+       \draw[very thick, ->,red]
+         (0,0) node[right,align=left]
+            {This circle is too big!\\Use minimum size=5mm}
+         to [out=135, in=225](A-3-1);
+  \end{example}
+
+  As a second example, we can use \keyword{tikzpicture=rotate=30} to try
+  to rotate a tableau by 90 degrees with:
+
+  \begin{example}
+   \Tableau[tikzpicture={rotate=90}]{123,45} \qquad
+   \begin{tikzpicture}[rotate=90]
+     \Tableau(0,0){123,45}
+   \end{tikzpicture}
+  \end{example}
+
+  The two tableaux constructions in this example are equivalent. An
+  oddity with both of these examples is that the numbers in the tableaux
+  have not been rotated, which is because \emph{rotate} does not affect
+  component objects, such as nodes, inside a \TikZ picture. You can
+  rotate everything in the picture by using \textit{transform canvas}:
+
+  \vspace*{15mm}
+
+  \begin{example}[valign=top, lefthand width=0.3\textwidth]
+    \Tableau[tikzpicture={transform canvas={rotate=90}}]{123,45}
   \end{example}
 
   \subsubsection{Compositions}
@@ -1327,7 +1397,7 @@
     \SkewTableau{1,2}{ 45,27,31 }
   \end{example}
 
-  Empty rows in tableaux and Young diagrams are not supported!
+  Tableaux and diagrams should not contain empty rows.
 
   \subsubsection{Drawing order}
   \label{SS:order}
@@ -1415,14 +1485,14 @@
   options that apply specifically to diagrams.
 
   \begin{samepage}
-  We start by advertising that \keyword{\Diagram} supports the four
-  different conventions for diagrams, with \option{english} being the
-  default:
+  Just like the \keyword{\Tableau} command, \keyword{\Diagram} supports the
+  four different conventions for diagrams, with \option{english} being
+  the default:
 
-  \option[english]{english}
+  \option[]{english}
   \option*[]{french}
   \option*[]{ukrainian}
-  \option*[]{australian}
+  \option*[english]{australian}
   \end{samepage}
 
   \begin{example}
@@ -1445,15 +1515,16 @@
     \Diagram{3,1^3}
   \end{example}
 
-  \option[true]{border}[true/false]\\
-  \option[false]{no border}[true/false]\\
+  \option[true]{border}[true/false]\newline
+  \option[false]{no border}[true/false]
+
   If \option{border} is true, then the border of the tableau is drawn.
   If \option{border} is false, then the border of the tableau is not
   drawn. By default, the border is drawn. The \option{no border} option,
   which is is provided only for completeness, is the inverse of
   \option{border}. That is, \option{no border} is equivalent to
-  \option{border=false}, and \option{no border=false} is equivalent to
-  \option{border=true}.
+  \option{border}\textsf{=false}, and \option{no border}\textsf{=false} is equivalent to
+  \option{border}\textsf{=true}.
 
   \begin{example}
     \Diagram[border=false]{3,2,1} \qquad
@@ -1461,6 +1532,7 @@
   \end{example}
 
   \option[false]{border only}[false/true]
+
   If \option{border only} is true, then only the border of the tableau
   is drawn, and not the internal walls around the boxes.
 
@@ -1469,6 +1541,7 @@
   \end{example}
 
   \option[false]{conjugate}[false/true]
+
   Draws the conjugate diagram, which has the rows and columns
   interchanged.
 
@@ -1477,7 +1550,7 @@
     \Diagram[ukrainian, conjugate]{2,1^3}
   \end{example}
 
-  \option[]{ribbons}[ribbon specification]\\
+  \option[]{ribbons}[ribbon specification]\newline
   \option[]{snobs}[ribbon specification]
 
   \Todo{Add a example...}
@@ -1509,7 +1582,7 @@
     \index{tableau!final}
     \begin{example}
       \Diagram[show=final]{3,2,2} \qquad
-      \Diagram[australian,show=contents]{2^2,1}
+      \Diagram[australian,show=final]{2^2,1}
     \end{example}
 
     \item\option{show=hooks} print the diagram where each box is
@@ -1550,7 +1623,7 @@
 
   \end{itemize}
 
-  \subsection{Skew tableau and skew diagrams}
+  \subsection{Skew tableaux and skew diagrams}
   \label{S:Skew}
   \indexcmd{SkewTableau}
   \indexcmd{SkewDiagram}
@@ -1568,7 +1641,7 @@
   partition. Skew partitions and skew tableau can be drawn using the
   commands:
 
-  \keyword{\SkewDiagram (x,y) [options] {inner shape} {outer shape}}\\
+  \keyword{\SkewDiagram (x,y) [options] {inner shape} {outer shape}}\newline
   \keyword{\SkewTableau (x,y) [options] {inner shape} {skew tableau}}
 
   \index{exponential notation}
@@ -1581,11 +1654,11 @@
   \keyword{\Tableau}, using the \option{skew} key to set the inner
   shape. For this reason, all of the options for the \keyword{\Tableau}
   command can be used with \keyword{\SkewTableau}. In particular, the
-  entries in a \keyword{\SkewTableau} are specified exactly as in the
-  \keyword{\Tableau} command. In particular, the entries of skew
-  tableaux can, optionally, be given style prefixes, both using a $*$ to
-  add the current \option{star style}, or arbitrary \TikZ-styling using
-  \keywords{[...]}.
+  entries in a \keyword{\SkewTableau} are specified in exactly the same
+  way as in the \keyword{\Tableau} command. In particular, the entries
+  of skew tableaux can, optionally, be given style prefixes, both using
+  a $*$ to add the current \option{star style}, or arbitrary
+  \TikZ-styling using \keyword{[...]}.
 
   \begin{example}
     \tikzset{R/.style={fill=red!20,text=red}}
@@ -1613,21 +1686,18 @@
   \begin{example}
     \tikzset{R/.style={fill=red!20,circle}}
     \SkewTableau{2,1^2}{12[R]3,45,67}
-    \SkewTableau[french,skewwall]{2,1^2}{12[R]3,45,67}
+    \SkewTableau[french,skew border]{2,1^2}{12[R]3,45,67}
   \end{example}
 
-  \option[thin,gray]{skew wall style}[\TikZ styling commands]
+  \option[thin,gray]{skew border style}[\TikZ styling commands]
 
   \Todo{Implement the following options}
 
-  \option[false]{skew inner wall}[true/false]
+  \option[false]{skew boxes}[true/false]
 
   Draw the inner walls in the inside the inner partition of a skew
 
-
-  \option[false]{skew inner wall}[true/false]
-
-  \option[thin,gray]{skew inner wall style}[\TikZ styling commands]
+  \option[thin,gray]{skew boxes style}[\TikZ styling commands]
 
   \subsection{Shifted tableau and shifted diagrams}
   \label{S:Shifted}
@@ -1640,14 +1710,14 @@
   \index{tableau!shifted }
 
   \emph{Strict partitions}, which have strictly increasing parts, and
-  \emph{shifted tableaux}, which are of strict partition shape, appear in
-  several places in representation, such as the projective
+  \emph{shifted tableaux}, which are of strict partition shape, appear
+  in several places in representation theory, such as the projective
   representations of the symmetric groups. These tableau and diagrams
-  are drawn with row~$r$ shifted $r$-units so that the first box in each
-  row has content~$0$. These diagrams and tableaux can be drawn using
-  the following commands:
+  are drawn with row~$r$ shifted by $r$-units along the row, so that the
+  first box in each row has content~$0$. These diagrams and tableaux can
+  be drawn using the following commands:
 
-  \keyword{\ShiftedDiagram (x,y) [options] {partition }}\\
+  \keyword{\ShiftedDiagram (x,y) [options] {partition }}\newline
   \keyword{\ShiftedTableau (x,y) [options] {tableau specification}}
 
   As usual, the $(x,y)$-coordinates are necessary if and only if these
@@ -1657,26 +1727,27 @@
   \keyword{\ShiftedTableau} can include the usual optional style
   prefixes.
 
-  \Todo{Fix me! Both the skew shading and the boundary are wrong below.}
   \begin{example}
     \tikzset{R/.style={fill=red!20,circle}}
     \ShiftedTableau{12[R]3,45,*6}  \qquad
     \ShiftedDiagram[french]{3,2,1}
   \end{example}
 
-  In the literature,  shifted tableaux and shifted diagrams almost always
-  have strict partition shape, however, this is not enforced by these
-  commands. Under the hood, the \keyword{\ShiftedTableau} us the same as
-  the \keyword{\Tabloids} command with the \option{shifted} set to true.
-  Similarly, \keyword{\ShiftedDiagram} is the \keyword{\Diagram} with
-  \option{shifted}. Consequently, all of the options for these commands,
-  can be used with the shifted variants. In particular, options like
+  In the literature,  shifted tableaux and shifted diagrams almost
+  always have strict partition shape, however, this is not enforced by
+  these commands. Under the hood, the \keyword{\ShiftedTableau} is the
+  same as the \keyword{\Tabloid} command with the \option{shifted} set
+  to true.  Similarly, \keyword{\ShiftedDiagram} is the same as using
+  the \keyword{\Diagram} with the \option{shifted} option. Consequently,
+  all of the options for the \keyword{\Tableau} and \keyword{\Diagram}
+  commands can be used with \keyword{\ShiftedTableau} and
+  \keyword{\ShiftedDiagram}, respectively.  In particular, options like
   \option{skew wall} can be used to highlight the shifted part of the
   diagram
 
   \begin{example}
-    \ShiftedTableau[skewwall]{1*23,4*5} \quad
-    \ShiftedDiagram[skewwall]{3,2}
+    \ShiftedTableau[skew border]{1*23,4*5} \quad
+    \ShiftedDiagram[skew border]{3,2}
   \end{example}
 
   \subsection{Tabloids}
@@ -1689,7 +1760,7 @@
   above and below each row, and no side boundary walls. Tabloids can be
   drawn with the \keyword{\Tabloid} command.
 
-  \keyword{\Tabloid (x,y) [options] {partition }}\\
+  \keyword{\Tabloid (x,y) [options] {partition }}
 
   The \keyword{\Tabloid} command functions in the same way as the
   \keyword{\Tableau} command, except that it draws tabloids. In fact,
@@ -1727,8 +1798,8 @@
 
   \begin{example}
     \aTabset{align=center}
-    \Tabloid[skew={2,1}]{19{11},29{10},6,} \qquad
-    \Tabloid[conjugate,skew={1^2}]{19{11},29{10},6,}
+    \Tabloid[skew={2,1}]{19{11},29{10},6} \qquad
+    \Tabloid[conjugate,skew={1^2}]{19{11},29{10},6}
   \end{example}
 
 
@@ -1746,7 +1817,7 @@
   The \emph{head} of a ribbon~$R$ is the unique node $(a,b)\in R$ such
   that $a'>a$ and $b'<b$ whenever $(a',b')\in R$ and $(a',b')\ne(a,b)$.
 
-  \keyword{\RibbonTableau (x,y) [options] {ribbon specifications}}\\
+  \keyword{\RibbonTableau (x,y) [options] {ribbon specifications}}
 
   Like the other commands, the $(x,y)$-coordinates are optional and are
   required if and only if the diagram is being used as part of a
@@ -1869,7 +1940,7 @@
   We have now seen the full ribbon specifications. To summarise:
   \begin{itemize}
     \item The ribbon specification starts with optional \TikZ styling
-    for the entire ribbon, which is enclosed in $(...)$.
+    for the ribbon, enclosed in $(...)$.
     \item The first entry in the ribbon is given as
     \textsf{a}\textsf{b}, if the head of the ribbon is in row
     \textsf{a} and column \textsf{b}. The remaining entries in the
@@ -1902,7 +1973,7 @@
 
   \option[]{ribbon box}{\TikZ styling specificatons}
 
-  \option[]{ribbons}[ribbon specification]\\
+  \option[]{ribbons}[ribbon specification]\newline
   \option[]{snobs}[ribbon specification]
 
   You can add \option{ribbons} and \option{snobs} to a
@@ -1924,7 +1995,7 @@
   in the literature.
 
   \begin{example}
-    \RibbonTableau[skew={2^2,1^2},skewwall]{
+    \RibbonTableau[skew={2^2,1^2},skew border]{
        14c_0r,15r_1c, 18c_7c,26r_9r,
        34c_2c,35r_8r,42r_3c, 44c_4r,
        54r_6c,62c_5r
@@ -1977,7 +2048,7 @@
     the \keyword{\Multidiagram} and \keyword{\Multitableau} commands for
     drawing these diagrams.
 
-  \keyword{\Multidiagram (x,y) [options] {multipartition} }\\
+  \keyword{\Multidiagram (x,y) [options] {multipartition} }\newline
   \keyword{\Multitableau (x,y) [options] {multitableau}   }
 
     \begin{example}
@@ -1991,14 +2062,14 @@
     \end{example}
 
     \begin{example}
-      \Multitableau[rows=3,scale=0.8,font=\tiny]
+      \Multitableau[rows=3,scale=0.8,box font=\tiny]
            {{1_1}{1_1}{1_1}{2_1},{2_1}{2_1}{2_1} |
             {1_2}{3_3},{{2_2}} |
             {1_3}{1_3},{{2_3}}}
     \end{example}
 
     \begin{example}
-      \Multitableau[rows=3,scale=0.8,font=\scriptsize]
+      \Multitableau[rows=3,scale=0.8,box font=\scriptsize]
                    {123,45,67|89,{10},{11}|...|{12}}
     \end{example}
 
@@ -2090,8 +2161,8 @@
 
   \begin{example}
      \Abacus{3}{5,4,1,1}
-     \Abacus[show=shape,text=yellow]{3}{5,4,1,1}
-     \Abacus[show=beta,text=red]{3}{5,4,1,1}
+     \Abacus[show=shape,bead text=yellow]{3}{5,4,1,1}
+     \Abacus[show=beta,bead text=red]{3}{5,4,1,1}
      \Abacus[show=rows]{3}{5,4,1,1}
      \Abacus[show=residue]{3}{5,4,1,1}
   \end{example}
@@ -2112,7 +2183,7 @@
 
 
   \begin{example}
-     \Abacus[text=white,font=\tiny]{3}{5_a,4_b,1_c,1_d}
+     \Abacus[bead text=white, bead font=\tiny]{3}{5_a,4_b,1_c,1_d}
   \end{example}
 
   \begin{example}
