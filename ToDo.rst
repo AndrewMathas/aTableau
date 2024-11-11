@@ -6,9 +6,6 @@ A ToDo list for a aTableau
 * fix colours (themes?)
 * can we get rid of the need for double bracing by writing a custom csv
   interpreter?
-* improve error handling of \q_recursion_tail routines. Currently these
-  hang when used with incorrect syntax, whereas it would be better to
-  give an error 
 * add options:
    * separation = distance between components
    * separator  = actual separator, \|=line, ...?
