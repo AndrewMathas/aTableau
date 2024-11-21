@@ -6,9 +6,9 @@
 aTableau
 ========
 
-*This version of the code is already quite powerful, but it is still in
-the proof-of-concept phase. There are bugs and there is
-very little documentation.  Several planned features have not been
+*This version of the package is already quite powerful, but it is still
+in the proof-of-concept phase. There are still bugs and some commands
+are not yet documented.  Several planned features have not been
 implemented. Everything is subject to change. Comments and suggestions
 are welcome.*
 
