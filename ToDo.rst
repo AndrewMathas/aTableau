@@ -20,12 +20,9 @@ A ToDo list for a aTableau
    * xoffsets, yoffsets: for multitableau
    * an alignment option for the tableau entries
    * cartan=... for residues A1-e, A2-e, C1-2, D2-2, ...
-   * conjugate = print conjugate tableau -- avoids need for \ColumnTabloid
    * residue=e : allow residues of type C, ...
-   * separate options for boxes and beads: draw, fill, font, text, shape?
 
-* add fill for tableaux
-* add fill for skew tableau
+* add boxes for skew tableau
 * add separators and proper spacing for multidiagrams and tableaux.
 * ?allow a mixture of skew and shifted tableaux in the \Multidiagram and \Multitableau. Can just use skew=...
 * add features for the abacuses and make customisable
