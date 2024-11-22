@@ -28,5 +28,6 @@ A ToDo list for a aTableau
 * add features for the abacuses and make customisable
 * multidiagram version of show=residue|content|hooks|initial|final|...
 * decide whether to add quivers and KLRW diagrams
+* add 'row dots' and 'col dots' options to put dots on the boundary
 
 AM October 2024

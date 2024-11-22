@@ -170,11 +170,12 @@
 \definecolor{aTableauStarStyle} {HTML} {E6F7FF}
 
 % ---------------------------------------------------------------------------
-% TikZ styles
+% TikZ styling of aTableau components
 
 \tikzset{
   % all tikz settings are in the atableau family
-  atableau/.is~family, atableau/.cd,
+  atableau/.is~family,
+  atableau/.cd,
     % style for tableau boxes
     node/.style = {
         anchor         = center,
@@ -200,6 +201,7 @@
     },
     % outer tableau wall
     border/.style = {
+        % shifting allows us to use \__atableau_set_box_coordinates:nnn when drawing the border
         shift={(\fp_eval:n{-(\l__atableau_row_dx_fp+\l__atableau_col_dx_fp)*\l__atableau_box_wd_fp/2},
                 \fp_eval:n{-(\l__atableau_row_dy_fp+\l__atableau_col_dy_fp)*\l__atableau_box_ht_fp/2})},
         line~cap=rect,
@@ -225,6 +227,7 @@
     delimiters/.style = {
         outer~sep      = -1pt,
         align          = center,
+        xshift         = \fp_eval:n {-(\l__atableau_row_dy_fp+\l__atableau_col_dy_fp)*\l__atableau_box_ht_fp/2},
         minimum~height = \fp_use:N \l__atableau_y_max_fp cm,
     },
     leftdelimiter/.style = {
@@ -1058,49 +1061,49 @@
     \int_zero:N \l__atableau_component_int
     \seq_map_inline:Nn \l__atableau_component_seq
     {
-        \int_incr:N \l__atableau_component_int
-        \typeout{component=\int_use:N\l__atableau_component_int}
-        \str_if_eq:nnF {##1} {...}
+      \int_incr:N \l__atableau_component_int
+      \typeout{component=\int_use:N\l__atableau_component_int,,~y-max=\fp_to_decimal:N\l__atableau_y_max_fp}
+      \str_if_eq:nnF {##1} {...}
+      {
+        \__atableau_set_partition:nn {shape} {##1}
+        \seq_if_empty:NF \l__atableau_shape_seq
         {
-          \__atableau_set_partition:nn {shape} {##1}
-          \seq_if_empty:NF \l__atableau_shape_seq
+        \typeout{shape=(\seq_use:Nn \l__atableau_shape_seq {,~})}
+          % find y-coord of (1,c)
+          \int_set:No \l__atableau_c_int {-1+\seq_item:Nn \l__atableau_shape_seq {1}}
+          \int_compare:nNnT {\l__atableau_c_int} > {-1}
           {
-          \typeout{shape=(\seq_use:Nn \l__atableau_shape_seq {,~})}
-            % find y-coord of (1,c)
-            \int_set:No \l__atableau_c_int {-1+\seq_item:Nn \l__atableau_shape_seq {1}}
-            \int_compare:nNnT {\l__atableau_c_int} > {-1}
+          \typeout{c=\int_use:N\l__atableau_c_int}
+            \__atableau_set_box_coordinates:nnV {a} {1} \l__atableau_c_int
+
+            % find y-coord of (r,1)
+            \int_set:No \l__atableau_r_int { \seq_count:N \l__atableau_shape_seq }
+            \int_set:No \l__atableau_c_int { \seq_item:NV \l__atableau_shape_seq \l__atableau_r_int }
+            \bool_while_do:nn { ! \int_if_zero_p:n {\l__atableau_r_int} && \int_if_zero_p:n {\l__atableau_c_int} }
             {
-            \typeout{c=\int_use:N\l__atableau_c_int}
-              \__atableau_set_box_coordinates:nnV {a} {1} \l__atableau_c_int
-
-              % find y-coord of (r,1)
-              \int_zero:N \l__atableau_r_int
-              \bool_while_do:nn { !\seq_if_empty_p:N \l__atableau_shape_seq && \int_if_zero_p:n {\l__atableau_r_int} }
-              {
-                \seq_pop_right:NN \l__atableau_shape_seq \l_tmpa_tl
-                \typeout{tmpa=\l_tmpa_tl.}
-                \int_set:No \l__atableau_r_int {\l_tmpa_tl}
-              }
-            \typeout{r=\int_use:N\l__atableau_r_int}
-              \__atableau_set_box_coordinates:nVn {b} \l__atableau_r_int {0}
-
-              \typeout{ya=\fp_to_decimal:N\l__atableau_ya_fp,~yb=\fp_to_decimal:N\l__atableau_yb_fp,~yoffsets=(\seq_use:Nn \l__atableau_yoffsets_seq {,~]})}
-              % compute the maximum, adjusting by the y-offset
-              \fp_set:Nx \l_tmpa_fp { 0\seq_item:NV \l__atableau_yoffsets_seq \l__atableau_component_int }
-              \fp_compare:nNnTF {\l__atableau_ya_fp} > {0}
-                { \fp_set:Nn \l__atableau_y_max_fp { max(\l__atableau_y_max_fp, \l__atableau_ya_fp+\l_tmpa_fp, \l__atableau_yb_fp+\l_tmpa_fp) } }
-                { \fp_set:Nn \l__atableau_y_max_fp { min(\l__atableau_y_max_fp, \l__atableau_ya_fp+\l_tmpa_fp, \l__atableau_yb_fp+\l_tmpa_fp) } }
-              \typeout{ymax=\fp_to_decimal:N\l__atableau_y_max_fp}
+              \int_decr:N \l__atableau_r_int
+              \int_set:No \l__atableau_c_int {0\seq_item:NV \l__atableau_shape_seq \l__atableau_r_int}
             }
+          \typeout{r=\int_use:N\l__atableau_r_int}
+            \__atableau_set_box_coordinates:nVn {b} \l__atableau_r_int {0}
+
+            \typeout{ya=\fp_to_decimal:N\l__atableau_ya_fp,~yb=\fp_to_decimal:N\l__atableau_yb_fp,~yoffsets=(\seq_use:Nn \l__atableau_yoffsets_seq {,~})}
+            % compute the maximum, adjusting by the y-offset
+            \fp_set:Nx \l_tmpa_fp { 0\seq_item:NV \l__atableau_yoffsets_seq \l__atableau_component_int }
+            \fp_compare:nNnTF {\l__atableau_ya_fp} > {0}
+              { \fp_set:Nn \l__atableau_y_max_fp { max(\l__atableau_y_max_fp, \l__atableau_ya_fp+\l_tmpa_fp, \l__atableau_yb_fp+\l_tmpa_fp) } }
+              { \fp_set:Nn \l__atableau_y_max_fp { min(\l__atableau_y_max_fp, \l__atableau_ya_fp+\l_tmpa_fp, \l__atableau_yb_fp+\l_tmpa_fp) } }
+            \typeout{ya=\fp_use:N\l__atableau_ya_fp,~yb=\fp_use:N\l__atableau_yb_fp,~ymax=\fp_to_decimal:N\l__atableau_y_max_fp}
           }
         }
+      }
     }
     \typeout{y-max=\fp_to_decimal:N\l__atableau_y_max_fp}
 
     % add left delimiter
     \tl_if_blank:VF \l__atableau_left_delimiter_tl
     {
-      \node[atableau/leftdelimiter] at (\fp_use:N\l__atableau_x_fp, \fp_eval:n {\l__atableau_y_fp/2}){};
+      \node[atableau/leftdelimiter,red] at (\fp_use:N\l__atableau_x_fp, \fp_eval:n {\l__atableau_y_fp/2}){};
     }
 
     % work out the number of rows and columns
