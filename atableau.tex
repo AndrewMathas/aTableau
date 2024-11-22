@@ -2,7 +2,7 @@
 % Title:    aTableau.
 % Author:   Andrew Mathas
 % Created:  October 2023
-% Modified: 10:32 Friday, 22 November 2024
+% Modified: 16:43 Friday, 22 November 2024
 % ----------------------------------------------------------------------
 \documentclass{amsart}
 \usepackage[svgnames]{xcolor}
@@ -158,6 +158,7 @@
     before,
     border,
     box,
+    colour,
     cols,
     conjugate,
     e,
@@ -1240,6 +1241,13 @@
   \begin{example}
     \Tableau[australian, inner colour=red]{123,455,674} \qquad
     \Tableau[inner style=dashed]{123,455}
+  \end{example}{}
+
+  To remove the inner tableau walls use
+  \option{inner colour}\textsf{=none}.
+
+  \begin{example}
+    \Tableau[ukrainian, inner colour=none]{123,45,67}
   \end{example}{}
 
   % nodes
