@@ -4,12 +4,10 @@ A ToDo list for a aTableau
 
 * documentation
 * fix colours (themes?)
-* can we get rid of the need for double bracing by writing a custom csv
-  interpreter?
+* can we get rid of the need for double bracing by writing a custom csv interpreter?
 * add options:
    * separation = distance between components
    * separator  = actual separator, \|=line, ...?
-   * braces     = ()/[] for multitableau/multidiagrams
    * beta? = allow abacus/partition to be specified by beta numbers
    * separator colour = colour of separators
    * skew fill   = fill colour for skew shape
@@ -24,10 +22,10 @@ A ToDo list for a aTableau
 
 * add boxes for skew tableau
 * add separators and proper spacing for multidiagrams and tableaux.
-* ?allow a mixture of skew and shifted tableaux in the \Multidiagram and \Multitableau. Can just use skew=...
-* add features for the abacuses and make customisable
 * multidiagram version of show=residue|content|hooks|initial|final|...
+* allow multiskew tableaux and diagrams?
+* add features for customising abacuses
 * decide whether to add quivers and KLRW diagrams
-* add 'row dots' and 'col dots' options to put dots on the boundary
+* ?allow dots on the diagram boundary: row dots={...}, column dots={...}
 
 AM October 2024
