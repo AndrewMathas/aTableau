@@ -2,7 +2,7 @@
 % Title:    aTableau.
 % Author:   Andrew Mathas
 % Created:  October 2023
-% Modified: 17:18 Monday, 25 November 2024
+% Modified: 10:31 Tuesday, 26 November 2024
 % ----------------------------------------------------------------------
 \documentclass{amsart}
 \usepackage[svgnames]{xcolor}
@@ -1316,7 +1316,7 @@
   information about using node names and anchors.
 
   \option[]{ribbons}[list of ribbon specifiers]
-  \option[]{snobs}[list of ribbon specifiers]
+  \option*[]{snobs}[list of ribbon specifiers]
 
   Use the \option{ribbons} key to add a comma-separated list of ribbons
   to a tableau.  Use \option{snobs} to add ribbons to the tableau that
@@ -1438,9 +1438,10 @@
   \begin{danger}
     The options, \option{scale}, \option{xscale}, and \option{yscale},
     affect all \aTableau diagrams, including tableaux, Young diagrams
-    and abacuses. If you want to use \keyword{\aTabset} to change the
-    sizes of all diagrams and tableaux in your document it is better
-    to use the \option{box height} and \option{box width} options.
+    and abacuses. If you want to change the default sizes of the
+    diagrams and tableaux in your document, using \keyword{\aTabset},
+    then it is probably better to use the \option{box height} and
+    \option{box width} options.
   \end{danger}
 
   \option[false]{tabloid}[true/false]
@@ -1477,8 +1478,9 @@
   you place \TikZ commands can affect the drawing, primarily because
   later commands are drawn over the top of earlier ones. Note that the
   \textit{before} code cannot use the named nodes \textsf{B-r-c} because
-  this code is executed before the tableau is drawn, which is when these
-  nodes are constructed. For examples, see \autoref{SS:order}.
+  this code is executed before these nodes are constructed, which
+  happens when the tableau is drawn. For more examples, see
+  \autoref{SS:order}.
 
   \option[]{tikzpicture}[\TikZ-styling]
 
@@ -1551,7 +1553,7 @@
   \end{example}
 
   Tableaux and diagrams should not contain empty rows, and the diagrams
-  should be connected. (For disconnected diagrams, see
+  should be connected. (For disconnected tableaux and diagrams, see
   \autoref{S:Multitableau}.)
 
   \subsubsection{Drawing order}
@@ -1559,8 +1561,10 @@
   \index{tableau!drawing order}
 
   When \TikZ constructs a picture, later objects are drawn over the top
-  of earlier ones, sometimes obscuring earlier features. For this reason
-  it is useful to know the drawing order used by
+  of earlier ones, sometimes obscuring earlier features. Consequently,
+  for more complicated diagrams and tableaux it helps to know the order
+  in which the different parts of these diagrams are drawn, which is as
+  follows:
   \keywords{\Tableau}:
   \begin{itemize}
     \item First, the tableau entries that use the default styling are

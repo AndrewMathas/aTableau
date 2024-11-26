@@ -37,11 +37,11 @@
 
 \msg_new:nnnn { aTableau } { empty-tableau-row }
   { Row~#1~of~tableau~is~empty }
-  { Empty~rows~tableaux~are not supported}
+  { Empty~tableau~rows~are~not~supported}
 
 \msg_new:nnnn { aTableau } { invalid-ribbon-head }
   { Invalid~ribbon~head:~the~row~and~column~indices~of~the~ribbon~head~must~be~given}
-  { Ribbon~specifications~must~be~for~the~form:~(optional~~ribbon~style)[style]<row><col> sequences of r's and c's~with~style}
+  { Ribbon~specifications~must~be~for~the~form:~(optional~~ribbon~style)[style]<row><col>+sequences~of~r's~and~c's~with~style}
 
 \msg_new:nnnn { aTableau } { invalid-ribbon-specification }
   { Invalid~ribbon~specification~'#1':~expecting~r~or~c. }
@@ -51,13 +51,9 @@
   { Unrecognised~abacus~label~'#1'. }
   { The~possible~abacus~labels~are...}
 
-\msg_new:nnnn { aTableau } { unrecognised-delimiter }
-  { Unrecognised~multitableau/multidiagram~delimiter~'#1'. }
-  { The~available~tableau~delimiters~are~round,~square,~or~one}
-
-\msg_new:nnnn { aTableau } { unrecognised-label }
+\msg_new:nnnn { aTableau } { unrecognised-show }
   { Unrecognised~value~for~show:~'#1' }
-  { The~possible~diagram~labels~are:~contents,~final,~hooks,~initial,~and~residues}
+  { The~possible~diagram~values~for~show~are:~contents,~first,~hooks,~last,~and~residues}
 
 \msg_new:nnnn { aTableau } { unrecognised-style }
   { Unrecognised~style~'#1'. }
@@ -125,6 +121,7 @@
 \seq_new:N \l__atableau_row_seq         % a tableau row
 \seq_new:N \l__atableau_shape_seq       % a partition
 \seq_new:N \l__atableau_skew_seq        % the inner partition for a skew shape
+\seq_new:N \l__atableau_multiskew_seq   % the inner partitions for multiskew shapes
 \seq_new:N \l__atableau_rcs_seq         % ribbon row, column indices
 \seq_new:N \l__atableau_styles_seq      % ribbon/bead styles
 \seq_new:N \l__atableau_texts_seq       % ribbon/bead texts
@@ -610,8 +607,8 @@
 }
 
 % Diagrams with show=final are drawn using the \Tableau command, with
-% usage: \__atableau_shape_to_final:Nn {partition sequence}
-\cs_new_protected_nopar:Npn \__atableau_shape_to_final:N #1
+% usage: \__atableau_shape_to_last:N {partition sequence}
+\cs_new_protected_nopar:Npn \__atableau_shape_to_last:N #1
 {
     % compute conjugate of #1 as \l__atableau_conjugate_seq
     \__atableau_compute_conjugate_partition:N #1
@@ -642,8 +639,8 @@
 }
 
 % Diagrams with show=initial are drawn using the \Tableau command, with
-% usage: \__atableau_shape_to_initial:Nn {partition sequence}
-\cs_new_protected_nopar:Npn \__atableau_shape_to_initial:N #1
+% usage: \__atableau_shape_to_first:N {partition sequence}
+\cs_new_protected_nopar:Npn \__atableau_shape_to_first:N #1
 {
     \tl_clear:N \l__atableau_entries_tl
     \int_set:Nn \l__atableau_r_int {\l__atableau_charge_int}
@@ -974,7 +971,7 @@
     % exit when we reach the end of the row
     \quark_if_recursion_tail_stop:n {#2}
 
-    \int_incr:N \l__atableau_c_int
+    \int_incr:N \l__atableau_col_int
     \__atableau_peek_style:nw {count_entries:nn}
 }
 
@@ -997,14 +994,14 @@
         \str_case:VnF \l__atableau_show_tl
         { % TODO: find a better syntax
             {contents} { \__atableau_shape_to_content:N  \l__atableau_shape_seq }
-            {final}    { \__atableau_shape_to_final:N    \l__atableau_shape_seq }
+            {last}     { \__atableau_shape_to_last:N     \l__atableau_shape_seq }
             {hooks}    { \__atableau_shape_to_hook:N     \l__atableau_shape_seq }
-            {initial}  { \__atableau_shape_to_initial:N  \l__atableau_shape_seq }
+            {first}    { \__atableau_shape_to_first:N    \l__atableau_shape_seq }
             {residues} { \__atableau_shape_to_residue:N  \l__atableau_shape_seq }
             {}         { \__atableau_diagram_for_shape:N \l__atableau_shape_seq }
         }
         {
-            \msg_error:nnx {aTableau} {unrecognised-label} {\l__atableau_show_tl}
+            \msg_error:nnx {aTableau} {unrecognised-show} {\l__atableau_show_tl}
         }
         \typeout{entries="\l__atableau_entries_tl"}
         \__atableau_draw_tableau:V \l__atableau_entries_tl
@@ -1060,10 +1057,10 @@
     \typeout{initial~x-origin=\fp_use:N\l__atableau_x_fp.}
     \seq_map_inline:Nn \l__atableau_component_seq
     {
-      \int_incr:N \l__atableau_component_int
-      \typeout{component=\int_use:N\l__atableau_component_int,,~y-max=\fp_to_decimal:N\l__atableau_y_max_fp}
-      \str_if_eq:nnTF {##1} {...}
-      {
+        \int_incr:N \l__atableau_component_int
+        \typeout{component=\int_use:N\l__atableau_component_int,,~y-max=\fp_to_decimal:N\l__atableau_y_max_fp}
+        \bool_if:nTF { \str_if_empty_p:n {##1} || \str_if_eq_p:NN {##1} {...} }
+        {
             % add the distance to origin of this diagram, which is given by one box
             \fp_add:Nn \l__atableau_xl_fp
             {
@@ -1075,35 +1072,30 @@
             \seq_put_right:Nx \l__atableau_xorigin_seq { \fp_to_decimal:N \l__atableau_xl_fp }
 
             % xa_fp is the distance from the diagram origin to next separator
-            \fp_add:Nn \l__atableau_xl_fp {
+            \fp_add:Nn \l__atableau_xl_fp
+            {
                 abs(\l__atableau_col_dx_fp*\fp_use:N\l__atableau_box_wd_fp) % one row row
                 + \l__atableau_separation_fp                                % separation
             }
             \seq_put_right:Nx \l__atableau_xsep_seq { \fp_to_decimal:N \l__atableau_xl_fp }
-      }
-      {
-        \__atableau_set_partition:nn {shape} {##1}
-        \seq_if_empty:NF \l__atableau_shape_seq
-        {
-        \typeout{shape=(\seq_use:Nn \l__atableau_shape_seq {,~})}
-          % set c_int equal to the length of the first row
-          % TODO: fix handling of multiskew shapes?
+        }
+        { % the component is nonempty
+
+          % if multi-skew_seq is nonempty then set skew_seq
+          \seq_if_empty:NF \l__atableau_multiskew_seq
+          {
+              \tl_set:Nx \l_tmpb_tl {\seq_item:NV \l__atableau_multiskew_seq \l__atableau_component_int}
+              \__atableau_set_partition:nn {skew} {\l_tmpb_tl}
+          }
+
+          % determine the coordinates for the diagram/tableau
+          %  - \l__atableau_c_int: number of columns in first row
+          %  - \l__atableau_r_int: number of rows in components
+          %  - \l__atableau_cols_int: number of columns in last row
           \tl_if_eq:nnTF {#1} {diagram}
           {
+            \__atableau_set_partition:nn {shape} {##1}
             \int_set:No \l__atableau_c_int {\seq_item:Nn \l__atableau_shape_seq {1}+0\seq_item:Nn \l__atableau_skew_seq {1}}
-          }
-          {
-            \tl_set:Nx \l_tmpc_tl {\seq_item:Nn \l__atableau_shape_seq {1}}
-            \int_set:Nx \l__atableau_c_int {0\seq_item:Nn \l__atableau_skew_seq {1}}
-            \__atableau_peek_style:nw {count_entries:nn} \l_tmpc_tl \q_recursion_tail \q_recursion_stop
-          }
-          \int_compare:nNnT {\l__atableau_c_int} > {0}
-          {
-            % xa_fp is the distance from the diagram origin to next separator
-            \fp_set:Nx \l__atableau_xa_fp {
-                \l__atableau_c_int*\l__atableau_col_dx_fp*\l__atableau_box_wd_fp % length of row
-                + \l__atableau_separation_fp                                     % separation
-            }
 
             % set r_int equal to the number of nonzero rows in shape_seq
             \int_set:No \l__atableau_r_int { \seq_count:N \l__atableau_shape_seq }
@@ -1113,38 +1105,67 @@
               \int_decr:N \l__atableau_r_int
               \int_set:No \l__atableau_c_int {0\seq_item:NV \l__atableau_shape_seq \l__atableau_r_int}
             }
-
-            % add the distance to origin of this diagram, which is given by the number of columns = r_int
-            \int_compare:nNnT {\l__atableau_component_int} > {1}
-            {
-                \fp_add:NV \l__atableau_xl_fp \l__atableau_separation_fp % separation
-            }
-            \fp_add:Nn \l__atableau_xl_fp
-            {
-                abs(\l__atableau_r_int*\l__atableau_row_dx_fp*\l__atableau_box_wd_fp) % number of columns
-                + 0\seq_item:NV \l__atableau_xoffsets_seq \l__atableau_component_int  % x-offset
-            }
-            % record the origin of the next diagram
-\typeout{adding~to~xorigin:~\fp_to_decimal:N\l__atableau_xl_fp}
-            \seq_put_right:Nx \l__atableau_xorigin_seq { \fp_to_decimal:N \l__atableau_xl_fp }
-
-            % record the next separator
-            \fp_add:NV \l__atableau_xl_fp \l__atableau_xa_fp
-\typeout{adding~to~xsep~\fp_to_decimal:N\l__atableau_xl_fp}
-            \seq_put_right:Nx \l__atableau_xsep_seq { \fp_to_decimal:N \l__atableau_xl_fp }
-
-            % the maximum y-coordinate occurs for (r,c)
-            \__atableau_set_box_coordinates:nVV {b} \l__atableau_r_int \l__atableau_c_int
-            \fp_add:No \l__atableau_yb_fp { 0\seq_item:NV \l__atableau_yoffsets_seq \l__atableau_component_int } % y-pffset
-
-            % compute the maximum y-coordinate so far, adjusting by the y-offset
-            \fp_compare:nNnTF {\l__atableau_row_dy_fp} > {0}
-              { \fp_set:Nn \l__atableau_y_max_fp { max(\l__atableau_y_max_fp, \l__atableau_yb_fp) } }
-              { \fp_set:Nn \l__atableau_y_max_fp { min(\l__atableau_y_max_fp, \l__atableau_yb_fp) } }
-            \typeout{ya=\fp_use:N\l__atableau_ya_fp,~yb=\fp_use:N\l__atableau_yb_fp,~ymax=\fp_to_decimal:N\l__atableau_y_max_fp}
           }
+          { % coordinates for tableaux
+            \seq_set_from_clist:Nn \l_tmpa_seq {##1}
+            \tl_set:Nx \l_tmpc_tl {\seq_item:Nn \l_tmpa_seq {1}}
+            \int_set:Nx \l__atableau_col_int {0\seq_item:Nn \l__atableau_skew_seq {1}}
+            \__atableau_peek_style:nw {count_entries:nn} \l_tmpc_tl \q_recursion_tail \q_recursion_stop
+            \int_set_eq:NN  \l__atableau_c_int \l__atableau_col_int
+
+            % set r_int equal to the number of nonzero rows in shape_seq
+            \int_set:No \l__atableau_r_int { \seq_count:N \l_tmpa_seq }
+            \int_set:Nx \l__atableau_col_int {0\seq_item:NV \l__atableau_skew_seq \l__atableau_r_int}
+            \seq_pop_right:NN \l_tmpa_seq \l_tmpc_tl
+            \__atableau_peek_style:nw {count_entries:nn} \l_tmpc_tl \q_recursion_tail \q_recursion_stop
+            \bool_while_do:nn { ! \int_if_zero_p:n {\l__atableau_r_int} && \int_if_zero_p:n {\l__atableau_col_int} }
+            {
+              \int_decr:N \l__atableau_r_int
+              \int_set:Nx \l__atableau_col_int {0\seq_item:NV \l__atableau_skew_seq \l__atableau_r_int}
+              \seq_pop_right:NN \l_tmpa_seq \l_tmpc_tl
+              \__atableau_peek_style:nw {count_entries:nn} \l_tmpc_tl \q_recursion_tail \q_recursion_stop
+            }
+          }
+
+          % now that we have the coordinates we need, we compute the
+          % x-coordinates of the diagram origin and the separators
+
+          % xa_fp is the distance from the diagram origin to next separator
+          \fp_set:Nx \l__atableau_xa_fp
+          {
+              \l__atableau_c_int*\l__atableau_col_dx_fp*\l__atableau_box_wd_fp % length of row
+              + \l__atableau_separation_fp                                     % separation
+          }
+
+          % add the distance to origin of this diagram, which is given by the number of columns = r_int
+          \int_compare:nNnT {\l__atableau_component_int} > {1}
+          {
+              \fp_add:NV \l__atableau_xl_fp \l__atableau_separation_fp % separation
+          }
+          \fp_add:Nn \l__atableau_xl_fp
+          {
+              abs(\l__atableau_r_int*\l__atableau_row_dx_fp*\l__atableau_box_wd_fp) % number of columns
+              + 0\seq_item:NV \l__atableau_xoffsets_seq \l__atableau_component_int  % x-offset
+          }
+          % record the origin of the next diagram
+\typeout{adding~to~xorigin:~\fp_to_decimal:N\l__atableau_xl_fp}
+          \seq_put_right:Nx \l__atableau_xorigin_seq { \fp_to_decimal:N \l__atableau_xl_fp }
+
+          % record the next separator
+          \fp_add:NV \l__atableau_xl_fp \l__atableau_xa_fp
+\typeout{adding~to~xsep~\fp_to_decimal:N\l__atableau_xl_fp}
+          \seq_put_right:Nx \l__atableau_xsep_seq { \fp_to_decimal:N \l__atableau_xl_fp }
+
+          % the maximum y-coordinate occurs for (r,c)
+          \__atableau_set_box_coordinates:nVV {b} \l__atableau_r_int \l__atableau_c_int
+          \fp_add:No \l__atableau_yb_fp { 0\seq_item:NV \l__atableau_yoffsets_seq \l__atableau_component_int } % y-pffset
+
+          % compute the maximum y-coordinate so far, adjusting by the y-offset
+          \fp_compare:nNnTF {\l__atableau_row_dy_fp} > {0}
+            { \fp_set:Nn \l__atableau_y_max_fp { max(\l__atableau_y_max_fp, \l__atableau_yb_fp) } }
+            { \fp_set:Nn \l__atableau_y_max_fp { min(\l__atableau_y_max_fp, \l__atableau_yb_fp) } }
+          \typeout{ya=\fp_use:N\l__atableau_ya_fp,~yb=\fp_use:N\l__atableau_yb_fp,~ymax=\fp_to_decimal:N\l__atableau_y_max_fp}
         }
-      }
     }
     \typeout{y-max=\fp_to_decimal:N\l__atableau_y_max_fp,~origin=(\seq_use:Nn\l__atableau_xorigin_seq{,}),~sep=(\seq_use:Nn \l__atableau_xsep_seq {,})}
     % having determined the positions of the diagram origins and separators, we are ready to draw the diagram
@@ -1190,6 +1211,7 @@
       \fp_set:Nn \l__atableau_x_fp {\l_tmpa_tl}
       \fp_add:Nn \l__atableau_y_fp {0\seq_item:NV \l__atableau_yoffsets_seq \l__atableau_component_int}
       \typeout{\int_use:N\l__atableau_component_int-origin~=~(\fp_use:N\l__atableau_x_fp,\fp_use:N\l__atableau_y_fp)}
+      \str_case:enF {}
       \tl_if_eq:nnTF {##1} {...}
       {
          % insert dots
@@ -1234,8 +1256,9 @@
     {
     \typeout{Component~\int_use:N\l__atableau_component_int="##1"}
         \__atableau_insert_separator:n \l__atableau_separator_tl
-        \typeout{hello}
         \int_incr:N \l__atableau_component_int
+
+        \typeout{hello}
         \tl_if_eq:nnTF {##1} {...}
            {
                % insert dots
@@ -1817,7 +1840,15 @@
     shifted    .bool_set:N = \l__atableau_shifted_bool,
     shifted    .initial:n  = false,
 
-    skew           .code:n = { \__atableau_set_partition:nn {skew} {#1} },
+    skew           .code:n = {
+        \tl_if_in:nnTF {#1} {|}
+        {
+            % unpack the skew tableau into \l__atableau_multiskew_seq
+            \seq_clear:N \l__atableau_multiskew_seq
+            \seq_set_split:Nnn \l__atableau_multiskew_seq {|} {#1}
+        }
+        { \__atableau_set_partition:nn {skew} {#1} }
+    },
     skew        .initial:n = 0,
     skew .value_required:n = true,
 
