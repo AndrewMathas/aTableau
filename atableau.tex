@@ -1,16 +1,10 @@
 % ----------------------------------------------------------------------
-% Title:    aTableau.
-% Author:   Andrew Mathas
-% Created:  October 2023
-% Modified: 10:31 Tuesday, 26 November 2024
+% Title:    aTableau.  Author:   Andrew Mathas Created:  October 2023
+% Modified: 09:06 Friday, 29 November 2024
 % ----------------------------------------------------------------------
-\documentclass{amsart}
-\usepackage[svgnames]{xcolor}
-\usepackage{atableau}
-\usepackage{xspace}
-\usepackage{manfnt}
-\usepackage{booktabs}
-\usepackage{siunitx}
+\documentclass{amsart} \usepackage[svgnames]{xcolor}
+\usepackage{atableau} \usepackage{xspace} \usepackage{manfnt}
+\usepackage{booktabs} \usepackage{siunitx}
 
 \usepackage{array}
 \newcolumntype{L}{>{\sffamily\color{MidnightBlue}\textbackslash}l}
@@ -158,9 +152,12 @@
     before,
     border,
     box,
+    color,
     colour,
     cols,
     conjugate,
+    delimiter,
+    delimiters,
     e,
     east,
     english,
@@ -170,6 +167,7 @@
     height,
     infinite,
     inner,
+    left,
     math,
     no,
     nodes,
@@ -177,14 +175,16 @@
     only,
     ribbon,
     ribbons,
+    right,
     rows,
     scale,
+    separator,
     shape,
     shifted,
     show,
     skew,
-    south,
     snobs,
+    south,
     star,
     style,
     tabloid,
@@ -207,9 +207,9 @@
     centre,
     contents,
     false,
-    final,
+    first,
     hooks,
-    initial,
+    last,
     residues,
     row,
     top,
@@ -241,14 +241,19 @@
   classoffset=5,   % commands that we want to hide :)
   keywordstyle=\color{LightSkyBlue!20},
   morekeywords={
+    bigskip,
+    medskip,
     newline,
-    quad,
+    par,
     qquad,
+    quad,
+    smallskip,
   },
 }
 
 \newcounter{examples}
 \numberwithin{examples}{subsection}
+\newcommand\examplesautorefname{Example}
 
 \NewTCBListing[use counter=examples, number within=subsection,%crefname={Example}{Examples}
 ]{example}{ !O{} }{%
@@ -725,7 +730,7 @@
   coordinates for the first diagram take the form (\textsf{A-r-c}),
   instead of the default of (\textsf{B-r-c}).
 
-  \begin{example}[lefthand width=0.14\textwidth, sidebyside gap=0mm,]
+  \begin{example}[lefthand width=0.14\textwidth, sidebyside gap=0mm,label={Ex:ABnames}]
     % \usetikzlibrary{decorations.pathmorphing}
     \begin{tikzpicture}[wave/.style={thick,red,->,decorate,decoration=snake}]
       \aTabset{ribbon style={fill=blue!20, opacity=0.4}}
@@ -734,7 +739,7 @@
       \draw[wave]([shift={(0,-0.05)}]A-2-1.south east)
                   --([shift={(0,0.05)}]B-1-1.north east);
     \end{tikzpicture}
-  \end{example}\label{Ex:ABnames}
+  \end{example}
 
   The final example in the introduction uses \keyword{\ShiftedTableau}
   inside a \emph{matrix of nodes}:
@@ -1236,7 +1241,8 @@
 
   The \option{inner colour} option sets the colour of the inner wall,
   whereas \option{inner style} sets the \TikZ-styling of the inner wall.
-  (So, \option{inner style} can override \option{inner colour}.)
+  (In particular, \option{inner style} can be used to override
+  \option{inner colour}.)
 
   \begin{example}
     \Tableau[australian, inner colour=red]{123,455,674} \qquad
@@ -1301,22 +1307,23 @@
     \Tableau[text nodes]{ABCD, efg, HI}
   \end{example}
 
-  \option[B]{name}[string/character]
+  \option[B]{name}[string]
 
   By default, the boxes can be referenced using the node names
   \textsf{(B-1-1)}, \textsf{(B-1-2)}, \textsf{(B-1-3)}, \dots, with
-  \textsf{(B-$r$-$c$)} referring to the node in row~$r$ and column~$c$.
+  \textsf{(B-$r$-$c$)} referring to the box in row~$r$ and column~$c$.
   This feature is most useful when you have several tableaux inside a
   \keyword{tikzpicture} environment because if you only have one
   tableau, then it is unlikely that you need to change the default
-  prefix for the node names. Examples are given in \autoref{Ex:ABnames}
-  and \autoref{Ex:pointing}.
+  prefix for the node names. See \autoref{E:NodeNames} for a description
+  of the anchor names. Examples are given in \autoref{Ex:ABnames} and
+  \autoref{Ex:pointing}.
 
   See the introduction to this section for examples and for more
   information about using node names and anchors.
 
-  \option[]{ribbons}[list of ribbon specifiers]
-  \option*[]{snobs}[list of ribbon specifiers]
+  \option[]{ribbons}[list of ribbon specifications]
+  \option*[]{snobs}[list of ribbon specifications]
 
   Use the \option{ribbons} key to add a comma-separated list of ribbons
   to a tableau.  Use \option{snobs} to add ribbons to the tableau that
@@ -1367,9 +1374,10 @@
 
   \option[false]{shifted}[true/false]
 
-  Set to \textsf{true} for a shifted tableau or shifted diagram. This is
-  discussed in more detail in \autoref{S:Shifted}, which describes the
-  \keyword{\ShiftedDiagram} and \keyword{\ShiftedTableau} commands.
+  Set to \textsf{true} for a shifted tableau or shifted diagram. Shifted
+  tableaux, and shifted diagrams, are discussed in more detail in
+  \autoref{S:Shifted}, which describes the \keyword{\ShiftedDiagram} and
+  \keyword{\ShiftedTableau} commands.
 
   \begin{example}
     \Tableau[shifted]{123,45} \qquad
@@ -1381,9 +1389,10 @@
 
   \option[(0)]{skew}[a partition]
 
-  Specify the skew shape for a skew tableau or skew diagram. This is
-  discussed in more detail in \autoref{S:Skew}, which describes the
-  \keyword{\SkewDiagram} and \keyword{\SkewTableau} commands.
+  Specify the skew shape for a skew tableau or skew diagram. Skew
+  tableaux, and skew diagrams, are discussed in more detail in
+  \autoref{S:Skew}, which describes the \keyword{\SkewDiagram} and
+  \keyword{\SkewTableau} commands.
 
   \begin{example}
     \Tableau[skew={2}]{123,45} \qquad
@@ -1428,34 +1437,45 @@
   \begin{example}
     \Tableau[scale=2]{ 13{10}{11}{1+x}, 2{1+x} }
   \end{example}
+
   \begin{example}
     \Tableau[xscale=2]{ 13{10}{11}{1+x}, 2{1+x} }
   \end{example}
+
+  When using the \textsf{australian} and \textsf{ukrainian} conventions,
+  \option{xscale} and \option{yscale} scale in both the \textsf{x}
+  direction and the \textsf{y}-direction, reflecting how these tableaux
+  grow with increasing column and row index, respectively.
+
   \begin{example}
     \Tableau[ukrainian, xscale=2]{ 13{10}{11}{1+x}, 2{1+x} }
+  \end{example}
+
+  \begin{example}
+    \Tableau[australian, yscale=2]{ 13{10}{11}{1+x}, 2{1+x} }
   \end{example}
 
   \begin{danger}
     The options, \option{scale}, \option{xscale}, and \option{yscale},
     affect all \aTableau diagrams, including tableaux, Young diagrams
-    and abacuses. If you want to change the default sizes of the
-    diagrams and tableaux in your document, using \keyword{\aTabset},
-    then it is probably better to use the \option{box height} and
-    \option{box width} options.
+    and abacuses. If you want to use \keyword{\aTabset} to change the
+    default sizes of the diagrams and tableaux in your document, then it
+    is probably better to use the \option{box height} and \option{box
+    width} options.
   \end{danger}
 
   \option[false]{tabloid}[true/false]
 
-  Set to \textsf{true} for a tabloid. This is discussed in more detail
-  in \autoref{S:Tabloid}, which describes the \keyword{\Tabloid}
-  command.
+  Use the \option{tabloid} for tabloids. This option is discussed in
+  more detail in \autoref{S:Tabloid}, which describes the
+  \keyword{\Tabloid} command.
 
   \begin{example}
     \Tableau[tabloid]{123,45} \qquad
     \Diagram[tabloid]{3,2^2}
   \end{example}
 
-  See \autoref{S:Tabloid} for the options specific to skew tabloids.
+  See \autoref{S:Tabloid} for the options specific to tabloids.
 
   \option[]{tikz before}[\TikZ commands]
   \option*[]{tikz after}[\TikZ commands]
@@ -1482,14 +1502,14 @@
   happens when the tableau is drawn. For more examples, see
   \autoref{SS:order}.
 
-  \option[]{tikzpicture}[\TikZ-styling]
+  \option[]{tikzpicture}[\TikZ-keys]
 
   This command adds an optional argument to the underlying
   \keyword{tikzpicture} environment, which contains the tableau. The
   \option{tikzpicture} option is ignored  when the \keyword{\Tableau}
   command is equipped with $(x,y)$-coordinates.
 
-  \begin{example}[lefthand width=0.3\textwidth]
+  \begin{example}[lefthand width=0.3\textwidth, label=Ex:pointing]
     \Tableau[ukrainian, name=A,
       tikzpicture={remember picture}]
       { 1[fill=blue!20]23[text=red]45,
@@ -1497,7 +1517,7 @@
         [{circle,fill=orange}]{10}*{11}{12},
         [{dashed,draw=red,ultra thick}]{13}
       }
-  \end{example}\label{Ex:pointing}
+  \end{example}
 
   Since \option{name}=A, the nodes in this tableau are referenced as
   \textsf{(A-1-1)}, \textsf{(A-1-2)}, \textsf{(A-1-3)}, \dots. As the
@@ -1719,12 +1739,23 @@
     \Diagram[french, ribbons={*22*c*r*r}]{3,2^2,1}
   \end{example}
 
-  \option[]{show}[contents,final,hooks,initial,residue]
+  For more details about the ribbon specifications, with examples, see
+  \autoref{SS:RibbonTableaux}, which describes the
+  \keyword{\RibbonTableau} command.
+
+  \option[]{show}[contents,first,hooks,last,residue]
   \index{contents}
-  \index{diagram!show}
-  \index{initial tableau}
-  \index{tableau!initial}
-  \index{tableau!final}
+  \index{first tableau}
+  \index{hooks}
+  \index{last tableau}
+  \index{residues}
+  \index{first tableau}
+  \index{tableau!contents}
+  \index{tableau!first}
+  \index{tableau!hooks}
+  \index{tableau!last}
+  \index{tableau!residue}
+
   Use \option{show} option to draw particular types of tableau of the
   specified shape. The possible choices are:
   \begin{itemize}
@@ -1737,16 +1768,17 @@
       \Diagram[french,show=contents]{2^2,1}
     \end{example}
 
-    \item\option{show=final} print the \emph{final tableau} of this
-    shape, which has the numbers $1,2\dots,n$ entered in order from top
-    to bottom down successive columns (with appropriate modifications for
-    the non-English conventions).
+    \item\option{show=last} print the \emph{last} \textbf{standard}
+    tableau of this shape, with respect to the Bruhat order. This is the
+    tableau that has the numbers $1,2\dots,n$ entered in order from top
+    to bottom down successive columns (with appropriate modifications
+    for the non-English conventions).
 
-    \index{final tableau}
-    \index{tableau!final}
+    \index{last tableau}
+    \index{tableau!last}
     \begin{example}
-      \Diagram[show=final]{3,2,2} \qquad
-      \Diagram[australian,show=final]{2^2,1}
+      \Diagram[show=last]{3,2,2} \qquad
+      \Diagram[australian,show=last]{2^2,1}
     \end{example}
 
     \item\option{show=hooks} print the diagram where each box is
@@ -1762,16 +1794,17 @@
       \Diagram[ukrainian,show=hooks]{2^2,1}
     \end{example}
 
-    \item\option{show=initial} print the \emph{initial tableau} of this
-    shape, which has the numbers $1,2\dots,n$ entered in order from top
-    left to right along down successive rows (with appropriate modifications for
-    the non-English conventions).
+    \item\option{show=first} print the \emph{first}
+    \textbf{standard} tableau of this shape, with respect to the Bruhat
+    order. This is the tableau that has the numbers $1,2\dots,n$ entered
+    in order from top left to right along down successive rows (with
+    appropriate modifications for the non-English conventions).
 
-    \index{initial tableau}
-    \index{tableau!initial}
+    \index{first tableau}
+    \index{tableau!first}
     \begin{example}
-      \Diagram[show=initial]{3,2,2} \qquad
-      \Diagram[ukrainian, show=initial]{3^2,2}
+      \Diagram[show=first]{3,2,2} \qquad
+      \Diagram[ukrainian, show=first]{3^2,2}
     \end{example}
 
     \item\option{show=residues} print the diagram where each box is
@@ -1806,7 +1839,7 @@
   the commands:
 
   \keyword{\SkewDiagram (x,y) [options] {inner shape} {outer shape}}\newline
-  \keyword{\SkewTableau (x,y) [options] {inner shape} {skew tableau}}
+  \keyword{\SkewTableau (x,y) [options] {inner shape} {skew tableau specifications}}
 
   \index{exponential notation}
   As with the previous commands, the $(x,y)$--coordinates should be given
@@ -1814,15 +1847,19 @@
   environment.  The inner and outer shapes can either be given as a
   comma-separated list of integers or in exponential notation.
 
+  Skew tableau and skew diagrams should always be connected. Use
+  \keyword{\Multidiagrams} and \keyword{\Multitableau} to draw
+  disconnected diagrams.
+
   In fact, the \keyword{\SkewTableau} is just an alias for the
   \keyword{\Tableau}, using the \option{skew} key to set the inner
   shape. For this reason, all of the options for the \keyword{\Tableau}
-  command can be used with \keyword{\SkewTableau}. In particular, the
-  entries in a \keyword{\SkewTableau} are specified in exactly the same
-  way as in the \keyword{\Tableau} command. In particular, the entries
-  of skew tableaux can, optionally, be given style prefixes, both using
-  a $*$ to add the current \option{star style}, or arbitrary
-  \TikZ-styling using \keyword{[...]}.
+  command can be used with \keyword{\SkewTableau}. The entries in a
+  \keyword{\SkewTableau} are specified in exactly the same way as in the
+  \keyword{\Tableau} command. In particular, the entries of skew
+  tableaux can, optionally, be given style prefixes, both using a~$*$ to
+  add the current \option{star style}, or arbitrary \TikZ-styling using
+  \keyword{[...]}.
 
   \begin{example}
     \tikzset{R/.style={fill=red!20,text=red}}
@@ -1838,20 +1875,18 @@
     \Diagram[french,skew={1^2}]{2^3}
   \end{example}
 
-  Since they are just aliases, all of the options for the
-  \keyword{\Tableau} and \keyword{\diagrams} commands can be used with
-  the \keyword{\SkewTableau} and \keyword{\SkewDiagram} commands. In
-  addition, the following options are supported:
-
-  Skew tableau and skew diagrams should always be connected. Use
-  \keyword{\Multidiagrams} and \keyword{\Multitableau} to draw
-  disconnected diagrams.
+  Since the \keyword{\SkewTableau} and \keyword{\SkewTableaua} commands
+  are shortcuts, all of the options for the \keyword{\Tableau} and
+  \keyword{\Diagram} commands can be used with the
+  \keyword{\SkewTableau} and \keyword{\SkewDiagram} commands,
+  respectively. In addition, the following options are supported:
 
   \option[false]{skew border}[true/false]
   \option*[true]{no skew border}[false/true]
 
-  When \option{skew border} is \textsf{true}, the border of the (inner)
-  skew shape is drawn.
+  These two options are inverses of each other.  When \option{skew
+  border} is \textsf{true}, the border of the (inner) skew shape is
+  drawn.
 
   \begin{example}
     \tikzset{R/.style={fill=red!20,circle}}
@@ -1866,7 +1901,7 @@
   \option[draw=\aTableauColour{Skew}, fill=\aTableauColour{SkewFill}, very thick]{skew border style}[\TikZ-styling]
 
   Use \option{skew border style} to change the style of the skew border.
-  Since the skew border is only drawn then \option{skew border} is set,
+  Since the skew border is only drawn when \option{skew border} is set,
   the \option{skew border style} does not have any effect unless
   \option{skew border} has been set to \textsf{true}.
 
@@ -1944,7 +1979,7 @@
   \begin{example}
     \ShiftedDiagram[show=contents]{3,2,1} \qquad
     \ShiftedDiagram[show=residues,e=2]{4,2,1} \qquad
-    \ShiftedDiagram[show=final]{4,2,1} \qquad
+    \ShiftedDiagram[show=last]{4,2,1} \qquad
   \end{example}
 
   \subsection{Tabloids}
@@ -2167,10 +2202,6 @@
   \option{ribbons} or \option{snobs} as these do not contribute to the
   border of a ribbon tableaux.
 
-  \option[]{ribbon box}{\TikZ-styling}
-
-  \option[]{ribbon style}{\TikZ-styling}
-
   \option[]{ribbons}[ribbon specification]\newline
   \option[]{snobs}[ribbon specification]
 
@@ -2187,6 +2218,21 @@
     \RibbonTableau[ribbons={[A]15_A,[A]24_A,[A]41_A, [R]14_R,[R]33_R}]
       {11, (fill=blue!10)12rc, 14crrcc}
   \end{example}
+
+  \option[draw=\aTableauColour{Inner}, thin]{ribbon style}{\TikZ-styling}
+  \option*[]{ribbon box}{\TikZ-styling}
+
+  Use the \option{ribbon style} and \option{ribbon box} options to
+  append to the default styling of the ribbons and the boxes in the
+  ribbons, respectively. By default, ribbons have a inner wall and the
+  boxes in ribbons have no styling.
+
+  \begin{example}
+    \RibbonTableau[ribbon style={draw=red, thick},
+        ribbon box={fill=orange!20, draw=red}]{16rccccrc}
+  \end{example}
+
+  \subsubsection{Some ribbed examples}
 
   We close this section showing how to draw some tableaux that appear
   in the literature.
@@ -2247,30 +2293,157 @@
   such tableaux and diagrams using the \keyword{\Tableau} and
   \keyword{\Diagram} commands.
 
-  \keyword{\Multidiagram (x,y) [options] {multipartition} }\newline
-  \keyword{\Multitableau (x,y) [options] {multitableau}   }
+  \keyword{\Multidiagram (x,y) [options] {multipartition specifications} }\newline
+  \keyword{\Multitableau (x,y) [options] {multitableau specifications}   }
 
-  The authors preferred notation for a multipartition $\blam$ is to
-  write
+  Our preferred notation for a multipartition $\blam$ is to write
   $\blam=(\lambda^{(1)}|\lambda^{(2)}|\dots|\lambda^{(\ell)})$, where
-  the partitions $\lambda^{(1)},\dots,\lambda^{(\ell)}$ are the
-  \emph{components} of~$\blam$. Similarly, a multitableau is written
-  as $\T=(\T^{(1)}|\dots|\T^{(\ell)})$, and
-  $\T^{(1)},\dots,\T^{(\ell)}$ are the components of~$\T$.
+  $\ell\ge1$ is the \emph{level} and the partitions
+  $\lambda^{(1)},\dots,\lambda^{(\ell)}$ are the \emph{components}
+  of~$\blam$. Similarly, a multitableau is written as
+  $\T=(\T^{(1)}|\dots|\T^{(\ell)})$, where the tableaux
+  $\T^{(1)},\dots,\T^{(\ell)}$ are the \emph{components} of~$\T$.
   Accordingly, in the \keyword{\Multidiagram} and
-  \keyword{\Multitableau} commands, the pipe symbol \keyword{|} is
-  used to separate components:
+  \keyword{\Multitableau} commands, the pipe symbol \keyword{|} is used
+  to separate components:
 
   \begin{example}
-    \Multidiagram[scale=0.7]{3,2^2|2,1^2|1}
-    \Multitableau[scale=0.7,box font=\tiny]{123,45,67|89,{{10}},{{11}}|{12}{13}{14}}
+    \aTabset{scale=0.7}
+    \Multidiagram{3,2^2|2,1,1|1}
+    \Multitableau[box font=\tiny]
+        { 123,45,67|89,{{10}},{{11}}|{12}{13}{14} }
   \end{example}
 
-    \Multidiagram[scale=0.5,rows=3,rows=3]{3,2^2|...|2,1^2}
+  As shown, the \keyword{\Multidiagram} command accepts exponential
+  notation for partitions. The entries in a \keyword{\Multitableau} can
+  be given optional styling specifications, exactly as inside the
+  \keyword{\Tableau} command.
 
-    \Multidiagram[ukrainian,scale=0.5,rows=3, cols=3]{3,2^2|...|2,1^2}
+  \begin{example}
+      \tikzset{R/.style={fill=red!10,text=magenta}}
+      \Multitableau{1*24,*68|[R]9{10},{{11}}}
+  \end{example}
 
-    \Multidiagram[french,scale=0.7,rows=3]{3,2^2|...|2,1^2}
+  Multitableaux and multidiagrams can, in principle, have arbitrary
+  level. In practice, the level is constrained by the page width.
+
+  \begin{example}
+    \Multitableau[french]{1,2|3,4|5,6|7,8|9,{{10}}}
+  \end{example}
+
+  Both the \keyword{\Multitableau} and \keyword{\Multidiagram} commands
+  accept a special component, \keyword{...}, that is used to add dots between the
+  separators:
+
+  \begin{example}
+    \aTabset{scale=0.7}
+    \Multidiagram{3,2^2|...|1}
+    \Multitableau[box font=\tiny]
+        {123,45,67|...|{12}{13}{14}}
+  \end{example}
+
+  The \keyword{\Multitableau} and \keyword{\Multidiagram} commands
+  accept most of the options of the \keyword{\Tableau} and
+  \keyword{\Diagram} commands, together with a few options that are
+  specific to multitableaux and multidiagrams. This section describes
+  the new options, and highlights how some of the other options are used.
+  Currently, \option{ribbons} and \option{snobs} are \textit{not}
+  supported for multitableaux and multidiagrams.
+
+  \option[]{english}
+  \option*[]{french}
+  \option*[]{ukrainian}
+  \option*[english]{australian}
+
+  All four tableaux conventions are supported for multitableaux and
+  multidiagrams.
+
+  \begin{example}
+    \aTabset{scale=0.7}
+    \Multidiagram[french]{3,2^2|...|1}
+    \Multitableau[ukrainian, box font=\tiny]
+        {123,45,67|...|{12}{13}{14}}
+  \end{example}
+
+  \option[]{conjugate}
+  \index{conjugate!multidiagram}
+  \index{conjugate!multitableau}
+  \index{multidiagram!conjugate}
+  \index{multitableau!conjugate}
+
+  The \option{conjugate} option prints the conjugate mutlitableaux and
+  multidiagrams. Conjugation for multitableaux and multidiagrams reverses
+  the order of the components and then conjugates all of the component
+  diagrams.
+
+  \begin{example}
+    \Multitableau[conjugate]{ 123,45 | 67,89} \par\bigskip
+    \Multidiagram[conjugate]{ 3,2 | 1^2 }
+  \end{example}
+
+  \option[()]{delimiters}[pair of \LaTeX{} delimiters]
+  \option*[(]{left delimiter}[a \LaTeX{} delimiter]
+  \option*[)]{right delimiter}[a \LaTeX{} delimiter]
+
+  The delimiter options control the delimiters that put on the left and
+  right of multitableaux and multidiagrams. These options accept any
+  \LaTeX{} delimiter. Setting the \option{left delimiter} or
+  \option{right delimiter} to nothing removes the
+  delimiter.
+
+  \begin{example}
+    \aTabset{scale=0.7}
+    \Multidiagram[left delimiter=\langle,
+       right delimiter={]}]{2,1|1} \qquad
+   \Multidiagram[delimiters={]}{[}]{1^2|2} \par\bigskip
+   \Multitableau[left delimiter=,
+    right delimiter=] {123,45,67|{12}{14}}
+  \end{example}
+
+  \option[\textbackslash emptyset]{empty}[\LaTeX{}]
+
+  The \option{empty} option determines what is printed when a component
+  diagram in a multitableau or multidiagram is empty. By default the
+  empty set symbol $\emptyset$ is printed.
+
+  \begin{example}
+    \Multitableau{ 123,45 | | 67,89} \par\bigskip
+    \Multidiagram[empty=\textendash]{ 3,2 | | 2^2 }
+  \end{example}
+
+  \option[]{ribbons}[a $|$-separated list of ribbon specifications]
+  \option*[]{snobs}[a $|$-separated list of ribbon specifications]
+
+  \begin{example}
+    \tikzset{Y/.style={fill=yellow!20,opacity=0.2}}
+    \Multitableau[ribbons={|(Y)12rc}]{ 123,45 | 67,89} \par\bigskip
+  \end{example}
+
+  \option[B]{name}[character]
+
+  The \option{name} option is used to change the default prefix for the
+  box node names. Unlike in a tableau or diagram, the box names in
+  multitableaux and muiltidiagrams take the form
+  \textsf{B-k-r-c}, where
+     \textsf{k} is the component index,
+     \textsf{r} is the row index, and
+     \textsf{c} is the column index
+  of the box.
+
+  \option[]{rows}[decimal number]
+
+  The \option{rows} option sets the number of rows covered by the
+  delimiters in multitableaux and multidiagram.  By default, the
+  \keyword{\Multitableau} and \keyword{\Multidiagram} commands choose
+  the size of the delimiters to match the component diagrams, which may
+  not be what you want especially when using the \option{australia} and
+  \option{ukrainian} conventions. The value of \option{rows} can be a
+  decimal number.
+
+  \begin{example}
+    \Multidiagram[ukrainian,scale=0.5]{3,2^2|...|2,1^2} \par\bigskip
+    \Multidiagram[ukrainian,scale=0.5, rows=4.3]{3,2^2|...|2,1^2}
+  \end{example}
 
   \begin{example}
     \Multitableau[rows=3,scale=0.8,box font=\tiny]
@@ -2279,34 +2452,55 @@
           {1_3}{1_3},{{2_3}}}
   \end{example}
 
-  \begin{example}
-    \Multitableau[rows=3,scale=0.8,box font=\scriptsize]
-                 {123,45,67|89,{10},{11}|...|{12}}
-  \end{example}
-
-  \Multitableau{1|1|1|1}
-
-  \option[]{cols}{integer}
-  \option*[]{rows}{integer}
-
-  \option[()]{delimiters}[pair of \LaTeX{} delimiters]
-  \option*[(]{left delimiter}[\LaTeX{} delimiter]
-  \option*[(]{left delimiter}[\LaTeX{} delimiter]
-
   \option[|]{separator}[character]
 
-  \option[0.5]{separation}[distance in \unit{cm}]
+  The \option{separator} determines what is printed between the
+  component diagrams in multitableaux and multipartition. By default,
+  \option{separator}\textsf{=|} draws a straight line between the
+  components, but any character can also be used.
 
-  \option[\aTableauColour{Main}]{separation colour}[\LaTeX{} colour]
+  \begin{example}
+    \Multitableau[separator={,}]{ 123,45 | 67,89} \par\bigskip
+    \Multidiagram[separator=:]{ 3,2 | 2^2 }
+  \end{example}
 
-  \option[]{show}[contents,final,hooks,initial,residue]
+  \option[\aTableauColour{Main}]{separator colour}[\LaTeX{} colour]
+
+  The \option{separator colour} sets the colour of the delimiters and
+  the separator between component diagrams. By default, the separators
+  are the same colour as the diagram border.
+
+  \begin{example}
+    \Multitableau[separator colour=red]{ 123,45 | 67,89} \par\bigskip
+    \Multidiagram[separator color=brown, separator=:]{ 3,2 | 2^2 }
+  \end{example}
+
+  \option[0.3]{separation}[decimal (distance in \unit{cm})]
+
+  Use \option{separation} to change the distance between the separators
+  and the tableaux.
+
+  \begin{example}
+    \Multitableau[separation=0.1]{ 123,45 | 67,89} \par\bigskip
+    \Multidiagram[separation=0.5]{ 3,2 | 2^2 }
+  \end{example}
+
+
+  \option[]{show}[contents,first,hooks,last,residues]
   \index{contents}
+  \index{residues}
   \index{contents!multitableau}
+  \index{first tableau!multitableau}
+  \index{hooks!multitableau}
+  \index{last tableau!multitableau}
+  \index{residues!multitableau}
   \index{show!multitableau}
   \index{multidiagram!show}
-  \index{multitableau!initial}
-  \index{multitableau!initial}
-  \index{multitableau!final}
+  \index{multitableau!contents}
+  \index{multitableau!first}
+  \index{multitableau!hooks}
+  \index{multitableau!last}
+  \index{multitableau!residue}
 
   Use \option{show} option to draw particular types of tableau of the
   specified shape. The possible choices are:
@@ -2319,15 +2513,15 @@
       \Multidiagram[show=contents, charge={0,2}]{3,2,1|2^2}
     \end{example}
 
-    \item\option{show=final} print the \emph{final tableau} of this
+    \item\option{show=last} print the \emph{last} \textbf{standard} tableau of this
     shape, which has the numbers $1,2\dots,n$ entered in order from top
-    to bottom down successive columns (with appropriate modifications for
+    to bottom down successive columns, and left to right along components (with appropriate modifications for
     the non-English conventions).
 
-    \index{final tableau}
-    \index{tableau!final}
+    \index{last tableau}
+    \index{tableau!last}
     \begin{example}
-      \Multidiagram[show=final]{3,2,2|2^2}
+      \Multidiagram[show=last]{3,2,2|2^2}
     \end{example}
 
     \item\option{show=hooks} print the diagram where each box is
@@ -2342,15 +2536,15 @@
       \Multidiagram[show=hooks]{3,1^2|3^3}
     \end{example}
 
-    \item\option{show=initial} print the \emph{initial tableau} of this
+    \item\option{show=first} print the \emph{first} \textbf{standard} tableau of this
     shape, which has the numbers $1,2\dots,n$ entered in order from top
     left to right along down successive rows (with appropriate modifications for
     the non-English conventions).
 
-    \index{initial tableau}
-    \index{tableau!initial}
+    \index{first tableau}
+    \index{tableau!first}
     \begin{example}
-      \Multidiagram[show=initial]{3,1^2|2^2,1}
+      \Multidiagram[show=first]{3,1^2|2^2,1}
     \end{example}
 
     \item\option{show=residues} print the diagram where each box is
@@ -2368,6 +2562,26 @@
     \end{example}
 
   \end{itemize}
+
+  \option[]{skew}{a $|$-separated list of partitions}
+
+
+  \begin{example}
+    \Multitableau[skew={2,1|1}]{ 123,45 | 67,89} \par\bigskip
+    \Multidiagram[skew={1|2,1}]{ 3,2 | 2^2 }
+  \end{example}
+
+  \option[]{tabloid}
+
+  Use \option{tabloid} for multitabloid diagrams and tableaux.
+
+  \begin{example}
+    \Multitableau[tabloid]{ 123,45 | 67,89} \par\bigskip
+    \Multidiagram[tabloid]{ 3,2 | 2^2 }
+  \end{example}
+
+  \option[0]{xoffsets}[command separated list of $x$-offsets]
+  \option*[0]{yoffsets}[command separated list of $x$-offsets]
 
   \section{Abacuses}
 
