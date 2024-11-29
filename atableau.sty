@@ -47,6 +47,10 @@
   { Invalid~ribbon~specification~'#1':~expecting~r~or~c. }
   { Ribbon~specifications~must~be~for~the~form:~[optional~style]<row><col>~sequences~of~r's and~c's~with~style}
 
+\msg_new:nnnn { aTableau } { unknown-type }
+  { Unrecognised~Cartan~type~'#1'. }
+  { Currently,~only~only~supported~Cartan~types~are~(affine)~type~A~and~c}
+
 \msg_new:nnnn { aTableau } { unrecognised-abacus-label }
   { Unrecognised~abacus~label~'#1'. }
   { The~possible~abacus~labels~are...}
@@ -56,7 +60,7 @@
   { The~possible~diagram~values~for~show~are:~contents,~first,~hooks,~last,~and~residues}
 
 \msg_new:nnnn { aTableau } { unrecognised-style }
-  { Unrecognised~style~'#1'. }
+  { Unrecognised~style:~'#1' }
   { The~available~tableau~styles~are~australian,~english,~french~and~ukrainian~and~the~available~abacus~styles~are~north,~south,~east~and~west~}
 
 % ---------------------------------------------------------------------------
@@ -398,7 +402,7 @@
 % usage: \__atableau_set_xscale:n {x-scale} : rescale the x-dimension
 \cs_new_protected_nopar:Npn \__atableau_set_xscale:n #1
 {
-    \fp_set:Nn \l__atableau_xscale_fp     {#1}
+    \fp_set:Nn \l__atableau_xscale_fp     {#1} % makes scale persistent
     \fp_set:Nn \l__atableau_abacus_wd_fp  {#1*\l__atableau_abacus_wd_fp}
     \fp_set:Nn \l__atableau_box_wd_fp     {#1*\l__atableau_box_wd_fp}
     \fp_set:Nn \l__atableau_separation_fp {#1*\l__atableau_separation_fp }
@@ -406,9 +410,9 @@
 % usage: \__atableau_set_yscale:n {y-scale} : rescale the y-dimension
 \cs_new_protected_nopar:Npn \__atableau_set_yscale:n #1
 {
-    \fp_set:Nn \l__atableau_yscale_fp     {#1}
-    \fp_set:Nn \l__atableau_abacus_ht_fp   {#1*\l__atableau_abacus_ht_fp}
-    \fp_set:Nn \l__atableau_box_ht_fp      {#1*\l__atableau_box_ht_fp}
+    \fp_set:Nn \l__atableau_yscale_fp    {#1} % makes scale persistent
+    \fp_set:Nn \l__atableau_abacus_ht_fp {#1*\l__atableau_abacus_ht_fp}
+    \fp_set:Nn \l__atableau_box_ht_fp    {#1*\l__atableau_box_ht_fp}
 }
 
 
@@ -452,15 +456,39 @@
 \cs_generate_variant:Nn \__atableau_tl_put_right_braced:Nn { NV, cV, cv, Nx, cx }
 
 
-% usage: \__atableau_residue:nn computes the residue of #1 mod #2. This is
-% positive integer remainder when dividing by #2. As with \int_mod:n,
-% the result is left in the input stream.
-\cs_new_nopar:Npn \__atableau_residue:nn #1 #2
+% usage: \__atableau_residue_A:nn
+% Computes the residue of #1 mod #2. This is positive integer remainder when
+% dividing by #2. As with \int_mod:n, the result is left in the input stream.
+\cs_new_nopar:Npn \__atableau_residue_A:nn #1 #2
 {
     \int_compare:nTF {#1 > 0}
         { \int_mod:nn {#1} {#2} }
         { \int_eval:n {\int_mod:nn {#2 + \int_mod:nn {#1} {#2}} {#2}} }% \int_mod:nn is negative
 }
+
+% usage: \__atableau_residue_C:nn
+% Computes the residue of #1  in affine type C. When e=3 this residue pattern is
+%    0 1 2 3 2 1 0 1 2 3 2 1 0 1 ...
+% As with \int_mod:n, the result is left in the input stream.
+\cs_new_nopar:Npn \__atableau_residue_C:nn #1 #2
+{
+    \int_set:Nn \l_tmpa_tl { \int_mod:nn {#1} {2*#2-2}}
+    \int_compare:nTF {\l_tmpa_tl < 0}
+    {
+        \int_compare:nTF {\l_tmpa_tl > -#2 }
+        { \int_eval:n { -\l_tmpa_tl } }
+        { \int_eval:n {2*#2 + \l_tmpa_tl} }
+    }
+    {
+        \int_compare:nTF {\l_tmpa_tl < #2 }
+        { \l_tmpa_tl }
+        { \int_eval:n {2*#2 - 2 - \l_tmpa_tl} }
+    }
+}
+
+% use residues of type A by default
+\cs_set_eq:NN \__atableau_residue:nn \__atableau_residue_A:nn
+
 % ---------------------------------------------------------------------------
 % Parsing input
 
@@ -1800,6 +1828,15 @@
     tikz~before .initial:n = ,
     tikz~before .value_required:n = true,
 
+    % set the Cartan type
+    type .choices:nn = { A, C }
+    {
+        % define all of the type dependent functions here...
+        \cs_set_eq:Nc \__atableau_residue:nn {__atableau_residue_#1:nn}
+    },
+    type/unknown .code:n = { \msg_error:nne { aTableau } { unknown-type } {#1} },
+    type .initial:n = A,
+
     % ---------------------------------------------------------------------------
     % tableau settings
 
@@ -1974,7 +2011,7 @@
 
     % options for multitableaux and multidiagrams
     empty .tl_set:N = \l__atableau_empty_tl,
-    empty .initial:n = \emptyset,
+    empty .initial:n = \textendash,
 
     delimiters .code:n = {\__atableau_set_delimiters:nn #1 },
     delimiters .initial:n = (),

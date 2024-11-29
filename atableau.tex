@@ -1,6 +1,6 @@
 % ----------------------------------------------------------------------
 % Title:    aTableau.  Author:   Andrew Mathas Created:  October 2023
-% Modified: 09:06 Friday, 29 November 2024
+% Modified: 16:05 Friday, 29 November 2024
 % ----------------------------------------------------------------------
 \documentclass{amsart} \usepackage[svgnames]{xcolor}
 \usepackage{atableau} \usepackage{xspace} \usepackage{manfnt}
@@ -48,14 +48,24 @@
 {%
   \index{#3}%
   \IfNoValueTF{#2}
-    {\textsf{#3}}%
-    {%
-      \IfBooleanTF{#1}{\newline}{\bigskip}%
-      \noindent\textbf{\textcolor{aTableauInner}{#3}}%
-      \tl_if_blank:nF {#2}{~(default:~\textcolor{DarkRed}{#2})}%
-      \hfill%
-      \IfNoValueF{#4}{\textcolor{Grey}{[accepts:~#4]}}%
+  {%
+    \seq_set_split:Nnn \l_tmpa_seq {=} {#3}%
+    \seq_pop_left:NN \l_tmpa_seq \l_tmpa_tl%
+    \textsf{\color{aTableauInner}\l_tmpa_tl}%
+    \seq_if_empty:NF \l_tmpa_seq%
+    {
+      \textsf{=}%
+      \seq_pop_left:NN \l_tmpa_seq \l_tmpa_tl%
+      \textsf{\color{orange}\l_tmpa_tl}%
     }%
+  }
+  {%
+    \IfBooleanTF{#1}{\newline}{\bigskip}%
+    \noindent\textsf{\textcolor{aTableauInner}{#3}}%
+    \tl_if_blank:nF {#2}{~(default:~\textcolor{DarkRed}{#2})}%
+    \hfill%
+    \IfNoValueF{#4}{\textcolor{Grey}{[accepts:~#4]}}%
+  }%
 }
 
 % index command ignoring the backslash and capitalisation
@@ -140,7 +150,7 @@
     Tabloid,
   },%
   classoffset=1, % aTableau package options
-  keywordstyle=\color{Crimson},%
+  keywordstyle=\color{aTableauInner},%
   morekeywords={
     Australian,
     English,
@@ -228,7 +238,7 @@
     tikzset,
   },
   classoffset=4,% TikZ keys
-  keywordstyle=\color{purple},
+  keywordstyle=\color{red},
   morekeywords={
     circle,
     fill,
@@ -239,7 +249,7 @@
     style,
   },
   classoffset=5,   % commands that we want to hide :)
-  keywordstyle=\color{LightSkyBlue!20},
+  keywordstyle=\color{LightSkyBlue!10},
   morekeywords={
     bigskip,
     medskip,
@@ -261,7 +271,7 @@
   skin=bicolor,
   colframe=RoyalBlue!70,
   colbacklower=OldLace,
-  colback=LightSkyBlue!20,
+  colback=LightSkyBlue!10,
   colbacktitle=RoyalBlue!70,
   attach boxed title to top right={xshift=0mm,yshift=-3.1mm},
   boxed title style={
@@ -446,6 +456,7 @@
   \end{center}
 
   \begin{center}
+    \aTabset{scale=0.7}
     \tikzset{
        B/.style={fill=blue!20},
        G/.style={fill=ForestGreen!20},
@@ -453,10 +464,16 @@
        Y/.style={fill=yellow!20}
     }
 %   \Diagram{2,1^2}\qquad
-    \Tableau{[R]1[B]2,[G]3,[Y]4} \qquad
-    \Tableau[french]{[R]1[B]2,[G]3,[Y]4} \qquad
-    \Tableau[ukrainian]{[R]1[B]2,[G]3,[Y]4} \qquad
-    \Tableau[australian]{[R]1[B]2,[G]3,[Y]4}
+    \begin{tikzpicture}
+      \Tableau(0,0){[R]1[B]2,[G]3,[Y]4} \quad
+      \Tableau(2.25,1)[australian]{[R]1[B]2,[G]3,[Y]4} \quad
+      \Tableau(3.5,1.75)[skew={0,2}]{[Y]4[G]3[R]1,[B]2} \quad
+      \Tableau(6,0)[ukrainian,skew={0,1^2}]{[B]2[R]1,[G]3,[Y]4} \quad
+      \Tableau(7.5,-1)[french,skew={0,1^2}]{[B]2[R]1,[G]3,[Y]4} \quad
+      \Tableau(6.0,-2.25)[ukrainian]{[R]1[G]3[Y]4,[B]2} \quad
+      \Tableau(3.5,-3.0)[french]{[R]1[G]3[Y]4,[B]2} \quad
+      \Tableau(2,-1)[australian]{[B]2,[R]1[G]3[Y]4} \quad
+    \end{tikzpicture}
   \end{center}
 
   \section{Introduction}
@@ -613,7 +630,7 @@
     style} to change the default $*$-styling.
     \item[tikzpicture]
     All \aTableau commands are drawn inside a \keyword{tikzpicture}
-    environment.  Use \option{tikzpicture}\textsf{=keys} to set the optional
+    environment.  Use \option{tikzpicture=keys} to set the optional
     argument of this environment:
     \begin{center}
       \keyword{\begin{tikzpicture}[ keys ]...\end{tikzpicture}}.
@@ -726,7 +743,7 @@
   important in the sense that changing the coordinate will not change
   the picture. Cartesian coordinates become more meaningful when the
   \keyword{tikzpicture} environment has more components.  In the next
-  example, notice the use of \option{name}\textsf{=A} to make the named
+  example, notice the use of \option{name=A} to make the named
   coordinates for the first diagram take the form (\textsf{A-r-c}),
   instead of the default of (\textsf{B-r-c}).
 
@@ -1182,10 +1199,10 @@
   The \option{border} and \option{no border} options enable and disable
   the drawing of the border wall around a tableau. As with other
   boolean keys, \option{border} is equivalent to
-  \option{border}\textsf{=true}, and \option{no border} is equivalent to
-  \option{no border}\textsf{=true}. Further, using \option{no border} is
-  equivalent to \option{border}\textsf{=false} and, similarly,
-  \option{border} is equivalent to \option{no border}\textsf{=false}.
+  \option{border=true}, and \option{no border} is equivalent to
+  \option{no border=true}. Further, using \option{no border} is
+  equivalent to \option{border=false} and, similarly,
+  \option{border} is equivalent to \option{no border=false}.
 
   \begin{example}
     \Tableau[ukrainian, border=false]{123,455,674} \qquad
@@ -1250,7 +1267,7 @@
   \end{example}{}
 
   To remove the inner tableau walls use
-  \option{inner colour}\textsf{=none}.
+  \option{inner colour=none}.
 
   \begin{example}
     \Tableau[ukrainian, inner colour=none]{123,45,67}
@@ -1452,7 +1469,7 @@
   \end{example}
 
   \begin{example}
-    \Tableau[australian, yscale=2]{ 13{10}{11}{1+x}, 2{1+x} }
+    \Tableau[australian,yscale=2]{ 13{10}{11}{1+x},2{1+x} }
   \end{example}
 
   \begin{danger}
@@ -1573,7 +1590,7 @@
   \end{example}
 
   Tableaux and diagrams should not contain empty rows, and the diagrams
-  should be connected. (For disconnected tableaux and diagrams, see
+  should be \textit{connected}. (For disconnected tableaux and diagrams, see
   \autoref{S:Multitableau}.)
 
   \subsubsection{Drawing order}
@@ -1609,17 +1626,17 @@
   \index{tableau!*}
   \index{tableau![}
 
-  The characters  \keyword{[]}, \keyword{,}, and \keyword{*} have special
-  meanings in the \textit{tableau specifications}. If you want these
-  characters to be entries in a tableau, then you need to enclose them
-  in braces:
+  The characters  \keyword{[]}, \keyword{,}, and \keyword{*} have
+  special meanings in the \textit{tableau specifications}. Enclose these characters in
+  braces when you want them to be entries in a tableau:
 
   \begin{example}
     \Tableau{ 13{,}5], 8{[}, {{*}} }
   \end{example}
 
   There is no need to enclose \keyword{]} in braces because it only
-  becomes special when it is preceded by a \keyword{[} character.
+  becomes special when it is preceded by a matching \keyword{[}
+  character.
 
   \subsection{Young diagrams}
   \label{S:diagram}
@@ -1645,10 +1662,12 @@
 
   As with the \keyword{\Tableau} command, the $(x,y)$-coordinates are
   needed if and only if the diagram is inside a \keyword{tikzpicture}
-  environment.  The \keyword{\Diagram} command allows partitions to be
-  specified either as a comma-separated list of weakly decreasing
-  nonnegative integers, or in \emph{exponential notation}:
+  environment.  The \keyword{\Diagram} command allows the
+  \emph{partition} to be specified as either a comma-separated list of
+  weakly decreasing nonnegative integers, or by using \emph{exponential
+  notation}:
   \index{exponential notation}
+  \index{partition!exponential notation}
   \index{diagram!exponential notation}
 
   \begin{example}
@@ -1703,8 +1722,8 @@
   drawn. By default, the border is drawn. The \option{no border} option,
   which is is provided only for completeness, is the inverse of
   \option{border}. That is, \option{no border} is equivalent to
-  \option{border}\textsf{=false}, and \option{no border}\textsf{=false} is equivalent to
-  \option{border}\textsf{=true}.
+  \option{border=false}, and \option{no border=false} is equivalent to
+  \option{border=true}.
 
   \begin{example}
     \Diagram[border=false]{3,2,1} \qquad
@@ -1756,8 +1775,8 @@
   \index{tableau!last}
   \index{tableau!residue}
 
-  Use \option{show} option to draw particular types of tableau of the
-  specified shape. The possible choices are:
+  The \option{show} option provides a shortcut for drawing some common
+  tableaux of a specified shape. The possible choices are:
   \begin{itemize}
     \item\option{show=contents} print the diagram where each box is
     labelled by its \emph{content}, which is the row index minus the
@@ -2285,7 +2304,7 @@
   \index{tableau!multitableau}
 
   Multitableaux and multidiagrams are $\ell$-tuples of tableaux and
-  diagrams, respectively, that appear in many places in representation
+  diagrams, respectively. These diagrams appear in many places in representation
   theory, such as when considered representations of wreath products
   and cyclotomic Hecke algebras. For convenience, \aTableau provides
   the \keyword{\Multidiagram} and \keyword{\Multitableau} commands for
@@ -2387,36 +2406,32 @@
 
   The delimiter options control the delimiters that put on the left and
   right of multitableaux and multidiagrams. These options accept any
-  \LaTeX{} delimiter. Setting the \option{left delimiter} or
-  \option{right delimiter} to nothing removes the
-  delimiter.
+  \LaTeX{} delimiter.
 
   \begin{example}
     \aTabset{scale=0.7}
     \Multidiagram[left delimiter=\langle,
-       right delimiter={]}]{2,1|1} \qquad
-   \Multidiagram[delimiters={]}{[}]{1^2|2} \par\bigskip
-   \Multitableau[left delimiter=,
-    right delimiter=] {123,45,67|{12}{14}}
+        right delimiter={]}]{2,1|1} \qquad
+    \Multidiagram[delimiters={\|}{\}} ]{1^2|2}
   \end{example}
 
-  \option[\textbackslash emptyset]{empty}[\LaTeX{}]
+  Setting the \option{left delimiter} or \option{right delimiter} to
+  nothing removes the delimiter.
+
+  \begin{example}
+    \Multitableau[left delimiter=,
+        right delimiter=] {123,45,67|{12}{14}}
+  \end{example}
+
+  \option[\textbackslash textendash]{empty}[any \LaTeX{}]
 
   The \option{empty} option determines what is printed when a component
-  diagram in a multitableau or multidiagram is empty. By default the
-  empty set symbol $\emptyset$ is printed.
+  diagram is empty. By default, the en-dash symbol \textendash{} is
+  printed.
 
   \begin{example}
     \Multitableau{ 123,45 | | 67,89} \par\bigskip
-    \Multidiagram[empty=\textendash]{ 3,2 | | 2^2 }
-  \end{example}
-
-  \option[]{ribbons}[a $|$-separated list of ribbon specifications]
-  \option*[]{snobs}[a $|$-separated list of ribbon specifications]
-
-  \begin{example}
-    \tikzset{Y/.style={fill=yellow!20,opacity=0.2}}
-    \Multitableau[ribbons={|(Y)12rc}]{ 123,45 | 67,89} \par\bigskip
+    \Multidiagram[empty=\emptyset]{ 3,2 | | 2^2 }
   \end{example}
 
   \option[B]{name}[character]
@@ -2430,7 +2445,17 @@
      \textsf{c} is the column index
   of the box.
 
-  \option[]{rows}[decimal number]
+  \option[]{ribbons}[a $|$-separated list of ribbon specifications]
+  \option*[]{snobs}[a $|$-separated list of ribbon specifications]
+
+  \begin{example}
+    \tikzset{R/.style={draw=red, thick},
+             Y/.style={fill=yellow!20,opacity=0.5}}
+    \Multitableau[ribbons={(R)11*r|(Y)12rc}]
+        { 123,45 | 67,89}
+  \end{example}
+
+  \option[]{rows}[a decimal number]
 
   The \option{rows} option sets the number of rows covered by the
   delimiters in multitableaux and multidiagram.  By default, the
@@ -2452,12 +2477,12 @@
           {1_3}{1_3},{{2_3}}}
   \end{example}
 
-  \option[|]{separator}[character]
+  \option[$|$]{separator}[character]
 
   The \option{separator} determines what is printed between the
   component diagrams in multitableaux and multipartition. By default,
-  \option{separator}\textsf{=|} draws a straight line between the
-  components, but any character can also be used.
+  \option{separator=e} draws a straight line between the
+  components, but any character can be used.
 
   \begin{example}
     \Multitableau[separator={,}]{ 123,45 | 67,89} \par\bigskip
@@ -2475,10 +2500,10 @@
     \Multidiagram[separator color=brown, separator=:]{ 3,2 | 2^2 }
   \end{example}
 
-  \option[0.3]{separation}[decimal (distance in \unit{cm})]
+  \option[0.3]{separation}[a decimal number (the distance in \unit{cm})]
 
-  Use \option{separation} to change the distance between the separators
-  and the tableaux.
+  The \option{separation} key sets the distance between the separators
+  and the component tableaux and diagrams.
 
   \begin{example}
     \Multitableau[separation=0.1]{ 123,45 | 67,89} \par\bigskip
@@ -2633,7 +2658,6 @@
   \end{example}
 
 
-  \section{Dynkin quivers?}
   \section{Braid diagrams and KLRW diagrams?}
 
   \section{Colours}\label{S:Colours}
