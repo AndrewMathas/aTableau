@@ -443,12 +443,14 @@
 \cs_generate_variant:Nn \fp_set:Nn             {Nx,Ne}
 \cs_generate_variant:Nn \fp_add:Nn             {NV,No}
 \cs_generate_variant:Nn \int_compare:nNnT      {oNVT}
-\cs_generate_variant:Nn \int_set:Nn            {No,Nx,Nf}
+\cs_generate_variant:Nn \int_compare:nTF       {oTF}
+\cs_generate_variant:Nn \int_set:Nn            {Ne,No,Nx,Nf}
 \cs_generate_variant:Nn \int_while_do:nNnn     {oNon}
 \cs_generate_variant:Nn \msg_warning:nnn       {nno}
 \cs_generate_variant:Nn \seq_put_right:Nn      {Nx}
 \cs_generate_variant:Nn \seq_set_item:Nnn      {Nno, NVV,Nox}
 \cs_generate_variant:Nn \seq_set_from_clist:Nn {No}
+\cs_generate_variant:Nn \__atableau_tl_put_right_braced:Nn { NV, cV, cv, Nx, cx }
 
 \cs_generate_variant:Nn \__atableau_add_ribbon:n {V}
 \cs_generate_variant:Nn \__atableau_count_row:n {x}
@@ -468,7 +470,6 @@
 {
   \tl_put_right:Nn #1 { {{#2}} }
 }
-\cs_generate_variant:Nn \__atableau_tl_put_right_braced:Nn { NV, cV, cv, Nx, cx }
 
 
 % usage: \__atableau_residue_A:nn
@@ -487,17 +488,20 @@
 % As with \int_mod:n, the result is left in the input stream.
 \cs_new_nopar:Npn \__atableau_residue_C:nn #1 #2
 {
-    \int_set:Nn \l_tmpa_tl { \int_mod:nn {#1} {2*#2-2}}
-    \int_compare:nTF {\l_tmpa_tl < 0}
+%   \message{residuing~C:~\int_eval:n{#1},~\int_eval:n{#2}}
+    \int_set:Nn \l_tmpb_int { \int_mod:nn {#1} {2*#2} }
+    \int_compare:oTF {\l_tmpb_int < 0}
     {
-        \int_compare:nTF {\l_tmpa_tl > -#2 }
-        { \int_eval:n { -\l_tmpa_tl } }
-        { \int_eval:n {2*#2 + \l_tmpa_tl} }
+    \message{negative}
+    \int_compare:nNnT {\l_tmpb_int} >  {-#2}
+        { \int_eval:n { -\l_tmpb_int } }
+        { \int_eval:n {2*#2 + \l_tmpb_int} }
     }
     {
-        \int_compare:nTF {\l_tmpa_tl < #2 }
-        { \l_tmpa_tl }
-        { \int_eval:n {2*#2 - 2 - \l_tmpa_tl} }
+    \message{positive}
+    \int_compare:nNnT {\l_tmpb_int} < {#2}
+        { \int_eval:n {\l_tmpb_int} }
+        { \int_eval:n {2*#2 - 2 - \l_tmpb_int} }
     }
 }
 
@@ -771,8 +775,9 @@
             { \int_set:Nn \l_tmpa_int { \l__atableau_charge_int + ####1 - 1} }
             { \int_set:Nn \l_tmpa_int { \l__atableau_charge_int + ####1 - \l__atableau_row_int } }
             \int_add:Nn \l_tmpa_int { + 0\seq_item:NV \l__atableau_skew_seq \l__atableau_row_int }
-            \tl_set:Nx \l_tmpc_tl { \__atableau_residue:nn { \l_tmpa_int } {\l__atableau_e_int} }
-            \__atableau_tl_put_right_braced:Nx \l__atableau_entries_tl \l_tmpc_tl
+            \int_set:Nf \l_tmpa_int { \__atableau_residue:nn { \l_tmpa_int } {\l__atableau_e_int} }
+            \typeout{RES=\int_eval:n\l_tmpa_int}
+            \__atableau_tl_put_right_braced:Nx \l__atableau_entries_tl { \int_use:N \l_tmpa_int }
         }
         \tl_set:Nn \l_tmpb_tl {,}
     }
@@ -938,9 +943,11 @@
     \l__atableau_styled_nodes_tl
 
     % add any ribbons
-    \cs_set_eq:NN \__atableau_update_extrema:n \use_none:n
     \cs_set_eq:NN \__atableau_update_shape: \relax % prevent ribbons from updating shape
     \seq_map_inline:Nn \l__atableau_ribbons_seq {\__atableau_add_ribbon:n {##1}}
+
+    % ribbons are inside the delimiters, but snobs are not
+    \cs_set_eq:NN \__atableau_update_extrema:n \use_none:n
 
     % draw border
     \bool_if:NT \l__atableau_skew_boxes_bool  { \__atableau_draw_skew_boxes: }
@@ -958,10 +965,16 @@
 % Update xmax, ymax and ymin using the x#1_fp and y#1_fp
 \cs_new_protected_nopar:Npn \__atableau_update_multi_extrema:n #1
 {
-    % adjust min and max for multishapes
+    % adjust xmax, ymin and ymax for multishapes
     \fp_set:Nx \l__atableau_xmax_fp { max(\l__atableau_xmax_fp, \use:c{l__atableau_x#1_fp}) }
     \fp_set:Nx \l__atableau_ymax_fp { max(\l__atableau_ymax_fp, \use:c{l__atableau_y#1_fp}) }
     \fp_set:Nx \l__atableau_ymin_fp { min(\l__atableau_ymin_fp, \use:c{l__atableau_y#1_fp}) }
+}
+
+\cs_new_protected_nopar:Npn \__atableau_update_multi_xtrema:n #1
+{
+    % adjust xmax for multishapes
+    \fp_set:Nx \l__atableau_xmax_fp { max(\l__atableau_xmax_fp, \use:c{l__atableau_x#1_fp}) }
 }
 
 % By default, we do not update ymin, ymax and xmax. This only happens for multishapes
@@ -1147,16 +1160,18 @@
 
     % keep track of min/max y-coordinates used and max x-coordinate
     \fp_set_eq:NN \l__atableau_xmax_fp \l__atableau_x_fp
-    \fp_set:Ne \l__atableau_ymax_fp {\l__atableau_y_fp + \l__atableau_row_dy_fp*\l__atableau_box_ht_fp/2}
+    \fp_set:Ne \l__atableau_ymax_fp {\l__atableau_y_fp + \l__atableau_row_dy_fp*\l__atableau_box_ht_fp/2} % middle of box
     \fp_set_eq:NN \l__atableau_ymin_fp \l__atableau_ymax_fp
-    \typeout{ymin=\fp_use:N\l__atableau_ymin_fp,~ymax=\fp_use:N\l__atableau_ymax_fp,~xmax=\fp_use:N\l__atableau_xmax_fp}
+
     \seq_map_inline:Nn \l__atableau_component_seq
     {
         % increment component and set prefix, charge, skew, ribbons and snobs
         \int_incr:N \l__atableau_component_int
 
         % update ymin, ymax and xmax (re-enable each time as this is disabled when placing ribbons)
-        \cs_set_eq:NN \__atableau_update_extrema:n \__atableau_update_multi_extrema:n
+        \fp_compare:nNnTF {\l__atableau_rows_fp} = {0}
+        { \cs_set_eq:NN \__atableau_update_extrema:n \__atableau_update_multi_extrema:n } % update xmax, ymin, ymax
+        { \cs_set_eq:NN \__atableau_update_extrema:n \__atableau_update_multi_xtrema:n }  % update only xmax
 
         % change the node prefix
         \tl_set:No \l__atableau_prefix_tl {\l__atableau_multiprefix_tl-\int_use:N\l__atableau_component_int}
@@ -1311,8 +1326,14 @@
       \fp_compare:nNnTF {\l__atableau_rows_fp} > {0}
       {
         \fp_compare:nNnTF {\l__atableau_row_dy_fp} > {0}
-        {\fp_set:Nn \l__atableau_ymax_fp {  \l__atableau_rows_fp*\l__atableau_box_ht_fp} }
-        {\fp_set:Nn \l__atableau_ymin_fp { -\l__atableau_rows_fp*\l__atableau_box_ht_fp} }
+        {
+          \fp_add:Nn \l__atableau_ymax_fp {  (\l__atableau_rows_fp-0.5)*\l__atableau_box_ht_fp }
+          \fp_add:Nn \l__atableau_ymin_fp {  -0.5*\l__atableau_box_ht_fp }
+        }
+        {
+          \fp_add:Nn \l__atableau_ymin_fp {  (0.5-\l__atableau_rows_fp)*\l__atableau_box_ht_fp }
+          \fp_add:Nn \l__atableau_ymax_fp {  0.5*\l__atableau_box_ht_fp }
+        }
       }
       {
         % adjust ymin and ymax count as they count from the centre of the box
@@ -1852,7 +1873,7 @@
     {
       % To cater for multipartitions, the charge is a sequence .
       % Set l__atableau_charge_int is the first item in the sequence
-      \seq_set_from_clist:Nn \l__atableau_charge_seq {#1}
+      \regex_split:nnN {[,\|]} {#1} \l__atableau_charge_seq
       \int_set:Nn \l__atableau_charge_int { \seq_item:Nn \l__atableau_charge_seq {1} }
     },
     charge .initial:n = 0,
@@ -2041,11 +2062,11 @@
     rows .initial:n = 0,
     rows .value_required:n = true,
 
-    xoffsets .code:n = { \seq_set_from_clist:Nn \l__atableau_xoffsets_seq {#1} },
+    xoffsets .code:n = { \regex_split:nnN {[\|,]} {#1} \l__atableau_xoffsets_seq },
     xoffsets .initial:n = 0,
     xoffsets .value_required:n = true,
 
-    yoffsets .code:n = { \seq_set_from_clist:Nn \l__atableau_yoffsets_seq {#1} },
+    yoffsets .code:n = { \regex_split:nnN {[\|,]} {#1} \l__atableau_yoffsets_seq },
     yoffsets .initial:n = 0,
     yoffsets .value_required:n = true,
 
