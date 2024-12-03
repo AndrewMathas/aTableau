@@ -1,6 +1,6 @@
 % ----------------------------------------------------------------------
 % Title:    aTableau.  Author:   Andrew Mathas Created:  October 2023
-% Modified: 09:05 Tuesday, 03 December 2024
+% Modified: 11:59 Tuesday, 03 December 2024
 % ----------------------------------------------------------------------
 \documentclass{amsart} \usepackage[svgnames]{xcolor}
 \usepackage{atableau} \usepackage{xspace} \usepackage{manfnt}
@@ -1847,6 +1847,15 @@
     \Diagram[french,show=residues, e=3]{3,2,1}
     \end{example}
 
+
+    By default, residue sequences for affine type A, or the symmetric group and
+    friends, are given. In addition, residues in affine type C are also
+    supported using \option{type=C}.
+
+    \begin{example}
+    \Diagram[ukrainian,show=residues, e=2, type=C]{6,4,2}
+    \end{example}
+
   \end{itemize}
 
   \subsection{Skew tableaux and skew diagrams}
@@ -2434,8 +2443,8 @@
   \option*[(]{left delimiter}[a \LaTeX{} delimiter]
   \option*[)]{right delimiter}[a \LaTeX{} delimiter]
 
-  The delimiter options control the delimiters that put on the left and
-  right of multitableaux and multidiagrams. These options accept any
+  The delimiter options control the delimiters that are put on the left
+  and right of multitableaux and multidiagrams. These options accept any
   \LaTeX{} delimiter.
 
   \begin{example}
@@ -2478,8 +2487,8 @@
 
   \begin{example}
   \Multitableau[name=A, tikz after = {
-    \draw[red, thick, ->](A-1-2-2.south east) to
-        [out=315,in=225] (A-2-2-1.south west);
+    \draw[red, thick,<->](A-1-2-2.south east) to
+         [out=315,in=225] (A-2-2-1.south west);
     }] { 123,4*5 | 67,*89}
   \end{example}
 
@@ -2510,11 +2519,17 @@
 
   \begin{example}
   \Multidiagram[ukrainian,scale=0.5]{3,2^2|...|2,1^2} \par\bigskip
-  \Multidiagram[ukrainian,scale=0.5, rows=4.3]{3,2^2|...|2,1^2}
   \end{example}
 
   \begin{example}
   \Multitableau[rows=3,scale=0.8,box font=\tiny]
+       {{1_1}{1_1}{1_1}{2_1},{2_1}{2_1}{2_1} |
+        {1_2}{3_3},{{2_2}} |
+        {1_3}{1_3},{{2_3}}}
+  \end{example}
+
+  \begin{example}
+  \Multitableau[ukrainian,rows=2.5,scale=0.8,box font=\tiny]
        {{1_1}{1_1}{1_1}{2_1},{2_1}{2_1}{2_1} |
         {1_2}{3_3},{{2_2}} |
         {1_3}{1_3},{{2_3}}}
