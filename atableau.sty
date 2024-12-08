@@ -157,7 +157,7 @@
 \tl_new:N \l__atableau_name_tl          % name of a tableau node
 \tl_new:N \l__atableau_outer_tl         % colour of tableau outer walls
 \tl_new:N \l__atableau_prefix_tl        % prefix for node names
-\tl_new:N \l__atableau_ribbon_style_tl  % ribbon style in a ribbon tableau
+\tl_new:N \l__atableau_ribbon_style_tl  % style used for ribbons
 \tl_new:N \l__atableau_ribbon_tl        % a ribbon in the ribbon tableau
 \tl_new:N \l__atableau_runner_tl        % abacus runner colour
 \tl_new:N \l__atableau_separator_fg_tl  % foreground colour of the separator
@@ -237,6 +237,8 @@
     skewbox/.style = {
         aTableau/node,
         aTableau/innerwall,
+        minimum~height = 4mm,
+        minimum~width = 4mm,
         draw  = aTableauSkew,
         fill  = aTableauSkewFill,
     },
@@ -868,6 +870,7 @@
 {
    \group_begin:
      % override the style of the skew boxes inside this group
+     \tikzset{aTableau/ribbonbox/.style={draw=none,fill=none}}
      \tikzset{aTableau/ribbonbox/.style={aTableau/skewbox}}
      \tikzset{aTableau/ribbonstyle/.style={draw=none,fill=none}}
      \int_zero:N \l__atableau_r_int
@@ -880,6 +883,7 @@
           \tl_put_right:Ne \l_tmpa_tl { {\int_use:N \l__atableau_r_int} }
           \tl_put_right:Ne \l_tmpa_tl { {##1} }
           \tl_put_right:Ne \l_tmpa_tl { \prg_replicate:nn {##1-1} {c} }
+          \typeout{adding~ribbon~"\l_tmpa_tl"}
           \__atableau_add_ribbon:V \l_tmpa_tl
         }
      }
@@ -1453,13 +1457,13 @@
     \cs_set_eq:NN \__atableau_update_shape: \relax % don't update shape
     \seq_map_inline:Nn \l__atableau_ribbons_seq {\__atableau_add_ribbon:n {##1}}
 
-    % draw borders
+    % draw borders and skew boxes
     \bool_if:NT \l__atableau_skew_boxes_bool  { \__atableau_draw_skew_boxes: }
     \bool_if:NT \l__atableau_skew_border_bool { \__atableau_draw_border:nn {skew}  {skewborder}  }
     \bool_if:NT \l__atableau_border_bool      { \__atableau_draw_border:nn {shape} {border} }
 
     % add any snobs
-    \seq_map_inline:Nn \l__atableau_snobs_seq {\__atableau_add_ribbon:n {##1}}
+    \seq_map_inline:Nn \l__atableau_snobs_seq { \__atableau_add_ribbon:n {##1} }
 }
 
 % usage: \__atableau_add_ribbon:n {ribbon} add a ribbon to the tableau
@@ -1562,39 +1566,40 @@
    %\message{style="#1",~spec="#2"}
    % draw the ribbon when we run out of nodes
    \quark_if_recursion_tail_stop_do:nn {#2} { \__atableau_draw_ribbon: }
-    % move row and col according to the ribbon specification and update
-    % the nodes (xa,ya) and (xb,yb) in the ribbon
-    \str_case:enF {#2}
-    {
-        {c} { % move back one column
-              \int_decr:N \l__atableau_col_int
 
-              % Move (xa,ya) back one column add it to the ribbon on the left
-              \fp_sub:Nn \l__atableau_xa_fp {\l__atableau_col_dx_fp*\l__atableau_box_wd_fp}
-              \fp_sub:Nn \l__atableau_ya_fp {\l__atableau_col_dy_fp*\l__atableau_box_ht_fp}
-              \tl_put_left:Nx \l__atableau_ribbon_tl { (\fp_use:N\l__atableau_xa_fp,\fp_use:N\l__atableau_ya_fp)-- }
+   % the ribbon hasn't finished, so move row and col according to the ribbon
+   % specification and update the nodes (xa,ya) and (xb,yb) in the ribbon
+   \str_case:enF {#2}
+   {
+     {c} { % move back one column
+           \int_decr:N \l__atableau_col_int
 
-              % Move (xb,xb) back one column add it to the ribbon on the right
-              \fp_sub:Nn \l__atableau_xb_fp {\l__atableau_col_dx_fp*\l__atableau_box_wd_fp}
-              \fp_sub:Nn \l__atableau_yb_fp {\l__atableau_col_dy_fp*\l__atableau_box_ht_fp}
-              \tl_put_right:Nx \l__atableau_ribbon_tl { --(\fp_use:N\l__atableau_xb_fp,\fp_use:N\l__atableau_yb_fp) }
-            }
-        {r} { % move forward one row
-              \int_incr:N \l__atableau_row_int
+           % Move (xa,ya) back one column add it to the ribbon on the left
+           \fp_sub:Nn \l__atableau_xa_fp {\l__atableau_col_dx_fp*\l__atableau_box_wd_fp}
+           \fp_sub:Nn \l__atableau_ya_fp {\l__atableau_col_dy_fp*\l__atableau_box_ht_fp}
+           \tl_put_left:Nx \l__atableau_ribbon_tl { (\fp_use:N\l__atableau_xa_fp,\fp_use:N\l__atableau_ya_fp)-- }
 
-              % Move (xa,ya) forward one row add it to the ribbon on the left
-              \fp_add:Nn \l__atableau_xa_fp {\l__atableau_row_dx_fp*\l__atableau_box_wd_fp}
-              \fp_add:Nn \l__atableau_ya_fp {\l__atableau_row_dy_fp*\l__atableau_box_ht_fp}
-              \tl_put_left:Nx \l__atableau_ribbon_tl { (\fp_use:N\l__atableau_xa_fp,\fp_use:N\l__atableau_ya_fp)-- }
+           % Move (xb,xb) back one column add it to the ribbon on the right
+           \fp_sub:Nn \l__atableau_xb_fp {\l__atableau_col_dx_fp*\l__atableau_box_wd_fp}
+           \fp_sub:Nn \l__atableau_yb_fp {\l__atableau_col_dy_fp*\l__atableau_box_ht_fp}
+           \tl_put_right:Nx \l__atableau_ribbon_tl { --(\fp_use:N\l__atableau_xb_fp,\fp_use:N\l__atableau_yb_fp) }
+         }
+     {r} { % move forward one row
+           \int_incr:N \l__atableau_row_int
 
-              % Move (xb,xb) forward one row add it to the ribbon on the right
-              \fp_add:Nn \l__atableau_xb_fp {\l__atableau_row_dx_fp*\l__atableau_box_wd_fp}
-              \fp_add:Nn \l__atableau_yb_fp {\l__atableau_row_dy_fp*\l__atableau_box_ht_fp}
-              \tl_put_right:Nx \l__atableau_ribbon_tl { --(\fp_use:N\l__atableau_xb_fp,\fp_use:N\l__atableau_yb_fp) }
-            }
+           % Move (xa,ya) forward one row add it to the ribbon on the left
+           \fp_add:Nn \l__atableau_xa_fp {\l__atableau_row_dx_fp*\l__atableau_box_wd_fp}
+           \fp_add:Nn \l__atableau_ya_fp {\l__atableau_row_dy_fp*\l__atableau_box_ht_fp}
+           \tl_put_left:Nx \l__atableau_ribbon_tl { (\fp_use:N\l__atableau_xa_fp,\fp_use:N\l__atableau_ya_fp)-- }
+
+           % Move (xb,xb) forward one row add it to the ribbon on the right
+           \fp_add:Nn \l__atableau_xb_fp {\l__atableau_row_dx_fp*\l__atableau_box_wd_fp}
+           \fp_add:Nn \l__atableau_yb_fp {\l__atableau_row_dy_fp*\l__atableau_box_ht_fp}
+           \tl_put_right:Nx \l__atableau_ribbon_tl { --(\fp_use:N\l__atableau_xb_fp,\fp_use:N\l__atableau_yb_fp) }
+         }
     }
     {
-        \msg_error:nnx {aTableau} {invalid-ribbon-specification} {#2}
+       \msg_error:nnx {aTableau} {invalid-ribbon-specification} {#2}
     }
 
     % update the shape to include the new node
@@ -1638,7 +1643,7 @@
 % to draw the ribbon. We first place the nodes with default styling and
 % no text, then draw the ribbon with its supplied style and then,
 % finally, add the nodes with custom styling or text.
-\cs_new_protected_nopar:Npn \__atableau_draw_ribbon:
+\cs_new_protected_nopar:Nn \__atableau_draw_ribbon:
 {
     % Add the last node to the ribbon
     \fp_add:Nn \l__atableau_xa_fp {\l__atableau_row_dx_fp*\l__atableau_box_wd_fp}
@@ -1664,10 +1669,12 @@
         \__atableau_set_box_coordinates:nVV {l} \l__atableau_row_int \l__atableau_col_int
         \tl_if_empty:eTF {##1\l_tmpa_tl}
         { % nodes with default style and no text
+    \typeout{node[]aTableau/ribbonbox](\l__atableau_name_tl)~at~(\fp_use:N\l__atableau_xl_fp,\fp_use:N\l__atableau_yl_fp);}
           \exp_last_unbraced:Ne \node{[aTableau/ribbonbox](\l__atableau_name_tl)}
              at (\fp_use:N\l__atableau_xl_fp,\fp_use:N\l__atableau_yl_fp) {};
         }
         {   % nodes with styling go into \l__atableau_styled_nodes_tl
+        \typeout{saving~node}
           \tl_put_right:Nx \l__atableau_styled_nodes_tl
           {
             \exp_not:N \node [aTableau/ribbonbox,##1](\l__atableau_name_tl)
@@ -1677,6 +1684,7 @@
         }
     }
     % draw the ribbon, applying any style
+    \typeout{adding~ribbon:~draw{[aTableau/ribbonstyle, \l__atableau_ribbon_style_tl]} \l__atableau_ribbon_tl;}
     \exp_last_unbraced:Ne\draw{[aTableau/ribbonstyle, \l__atableau_ribbon_style_tl]} \l__atableau_ribbon_tl;
 
     % finally, add the styled nodes
