@@ -27,5 +27,8 @@ A ToDo list for a aTableau
 * add features for customising abacuses
 * decide whether to add KLRW diagrams
 * ?allow dots on the diagram boundary: row dots={...}, column dots={...}
+* ?use shortminus for negative entries:
+  \usepackage{amsfonts} %% <- also included by amssymb
+  \DeclareMathSymbol{\shortminus}{\mathbin}{AMSa}{"39}
 
 AM October 2024

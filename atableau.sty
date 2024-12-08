@@ -248,6 +248,7 @@
     % default ribbon style
     ribbonstyle/.style = {
         aTableau/innerwall,
+        draw = \l__atableau_inner_tl,
     },
 
     % -----------------------------------------------------------------------
@@ -442,15 +443,14 @@
 
 \cs_generate_variant:Nn \fp_set:Nn             {Nx,Ne}
 \cs_generate_variant:Nn \fp_add:Nn             {NV,No}
-\cs_generate_variant:Nn \int_compare:nNnT      {oNVT}
-\cs_generate_variant:Nn \int_compare:nTF       {oTF}
+\cs_generate_variant:Nn \int_compare:nNnTF     {oNVT, oNnT, oNoT}
 \cs_generate_variant:Nn \int_set:Nn            {Ne,No,Nx,Nf}
 \cs_generate_variant:Nn \int_while_do:nNnn     {oNon}
 \cs_generate_variant:Nn \msg_warning:nnn       {nno}
 \cs_generate_variant:Nn \seq_put_right:Nn      {Nx}
 \cs_generate_variant:Nn \seq_set_item:Nnn      {Nno, NVV,Nox}
 \cs_generate_variant:Nn \seq_set_from_clist:Nn {No}
-\cs_generate_variant:Nn \__atableau_tl_put_right_braced:Nn { NV, cV, cv, Nx, cx }
+\cs_generate_variant:Nn \__atableau_tl_put_right_braced:Nn { NV, cV, cv, Nx, cx, No }
 
 \cs_generate_variant:Nn \__atableau_add_ribbon:n {V}
 \cs_generate_variant:Nn \__atableau_count_row:n {x}
@@ -477,33 +477,68 @@
 % dividing by #2. As with \int_mod:n, the result is left in the input stream.
 \cs_new_nopar:Npn \__atableau_residue_A:nn #1 #2
 {
-    \int_compare:nTF {#1 > 0}
+    \int_compare:nNnTF {#1} > {0}
         { \int_mod:nn {#1} {#2} }
         { \int_eval:n {\int_mod:nn {#2 + \int_mod:nn {#1} {#2}} {#2}} }% \int_mod:nn is negative
 }
 
 % usage: \__atableau_residue_C:nn
-% Computes the residue of #1  in affine type C. When e=3 this residue pattern is
+% Computes the residue of #1 in affine type C. When e=3 this residue pattern is
 %    0 1 2 3 2 1 0 1 2 3 2 1 0 1 ...
 % As with \int_mod:n, the result is left in the input stream.
 \cs_new_nopar:Npn \__atableau_residue_C:nn #1 #2
 {
-%   \message{residuing~C:~\int_eval:n{#1},~\int_eval:n{#2}}
-    \int_set:Nn \l_tmpb_int { \int_mod:nn {#1} {2*#2} }
-    \int_compare:oTF {\l_tmpb_int < 0}
-    {
-    \message{negative}
-    \int_compare:nNnT {\l_tmpb_int} >  {-#2}
-        { \int_eval:n { -\l_tmpb_int } }
-        { \int_eval:n {2*#2 + \l_tmpb_int} }
+    \int_compare:nNnTF {#1} < {0}
+    { % #1 is negative
+        \int_compare:nNnTF {\int_mod:nn {#1} {2*#2}} < {-#2}
+        { \int_eval:n { 2*#2 + \int_mod:nn {#1} {2*#2} } }
+        { \int_eval:n { \int_mod:nn {-#1} {2*#2}       } }
     }
-    {
-    \message{positive}
-    \int_compare:nNnT {\l_tmpb_int} < {#2}
-        { \int_eval:n {\l_tmpb_int} }
-        { \int_eval:n {2*#2 - 2 - \l_tmpb_int} }
+    { % #1 is non-negative
+        \int_compare:nNnTF {\int_mod:nn {#1} {2*#2}} > {#2}
+          { \int_eval:n { 2*#2 - \int_mod:nn {#1} {2*#2} } }
+          { \int_eval:n { \int_mod:nn {#1} {2*#2}        } }
     }
 }
+
+% usage: \__atableau_residue_AA:nn
+% Computes the residue of #1 in twisted type A. When e=3 this residue pattern is
+%    0 1 2 3 3 2 1 0 1 2 3 3 2 1 0 1 ...
+% As with \int_mod:n, the result is left in the input stream.
+\cs_new_nopar:Npn \__atableau_residue_AA:nn #1 #2
+{
+    \int_compare:nNnTF {#1} < {0}
+    { % #1 is negative
+        \int_compare:nNnTF {\int_mod:nn {#1} {2*#2+1}} < {-#2}
+        { \int_eval:n { 2*#2+1 + \int_mod:nn {#1} {2*#2+1}} }
+        { \int_eval:n { \int_mod:nn {-#1} {2*#2+1} } }
+    }
+    { % #1 is non-negative
+        \int_compare:nNnTF {\int_mod:nn {#1} {2*#2+1}} > {#2}
+          { \int_eval:n { 2*#2+1 - \int_mod:nn {#1} {2*#2+1} } }
+          { \int_eval:n { \int_mod:nn {#1} {2*#2+1}      } }
+    }
+}
+
+% usage: \__atableau_residue_D:nn
+% Computes the residue of #1  in affine type C. When e=3 this residue pattern is
+%    0 1 2 3 2 1 0 1 2 3 2 1 0 1 ...
+% As with \int_mod:n, the result is left in the input stream.
+\cs_new_nopar:Npn \__atableau_residue_DD:nn #1 #2
+{
+    \int_compare:nNnTF {#1} < {0}
+    { % #1 is negative
+        \int_compare:nNnTF {\int_mod:nn {#1} {2*#2+2}} < {-#2}
+        { \int_eval:n {2*#2+1 + \int_mod:nn {#1} {2*#2+2}} }
+        { \int_eval:n { -\int_mod:nn {#1} {2*#2+2} } }
+    }
+    { % #1 is non-negative
+        \int_compare:nNnTF {\int_mod:nn {#1} {2*#2+2}} > {#2}
+          { \int_eval:n {2*#2+1- \int_mod:nn {#1} {2*#2+2} } }
+          { \int_eval:n { \int_mod:nn {#1} {2*#2+2} } }
+    }
+}
+
 
 % use type A residues by default
 \cs_set_eq:NN \__atableau_residue:nn \__atableau_residue_A:nn
@@ -775,9 +810,8 @@
             { \int_set:Nn \l_tmpa_int { \l__atableau_charge_int + ####1 - 1} }
             { \int_set:Nn \l_tmpa_int { \l__atableau_charge_int + ####1 - \l__atableau_row_int } }
             \int_add:Nn \l_tmpa_int { + 0\seq_item:NV \l__atableau_skew_seq \l__atableau_row_int }
-            \int_set:Nf \l_tmpa_int { \__atableau_residue:nn { \l_tmpa_int } {\l__atableau_e_int} }
-            \typeout{RES=\int_eval:n\l_tmpa_int}
-            \__atableau_tl_put_right_braced:Nx \l__atableau_entries_tl { \int_use:N \l_tmpa_int }
+            \tl_set:Nx \l_tmpa_tl { \__atableau_residue:nn { \l_tmpa_int } {\l__atableau_e_int} }
+            \__atableau_tl_put_right_braced:Nx \l__atableau_entries_tl { \l_tmpa_tl }
         }
         \tl_set:Nn \l_tmpb_tl {,}
     }
@@ -835,6 +869,7 @@
    \group_begin:
      % override the style of the skew boxes inside this group
      \tikzset{aTableau/ribbonbox/.style={aTableau/skewbox}}
+     \tikzset{aTableau/ribbonstyle/.style={draw=none,fill=none}}
      \int_zero:N \l__atableau_r_int
      \seq_map_inline:Nn \l__atableau_skew_seq
      {
@@ -1308,7 +1343,6 @@
         % increment the origin by the separation distance and record the
         % x-coordinate of the separator
         \fp_set:Nn \l__atableau_x_fp { \l__atableau_xmax_fp+\l__atableau_box_wd_fp/2+\l__atableau_separation_fp }
-        \typeout{xsep=\fp_use:N\l__atableau_x_fp}
         \seq_put_right:Nx \l__atableau_xsep_seq {\fp_to_decimal:N\l__atableau_x_fp}
 
         % add the separation distance to x_fp for the next component
@@ -1837,7 +1871,7 @@
     tikz~before .value_required:n = true,
 
     % set the Cartan type
-    type .choices:nn = { A, C }
+    type .choices:nn = { A, C, AA, DD }
     {
         % define all of the type dependent functions here...
         \cs_set_eq:Nc \__atableau_residue:nn {__atableau_residue_#1:nn}
@@ -1902,8 +1936,12 @@
     no~border .bool_set_inverse:N = \l__atableau_border_bool,
     no~border .default:n = true,
 
-    border~only .bool_set:N = \l__atableau_border_only_bool,
+    border~only .code:n = {
+      \bool_set_eq:Nc \l__atableau_border_only_bool { c_#1_bool } % cute trick from cfr
+      \exp_args:Nx \tikzset {aTableau/box/.append~style={draw=none}}
+    },
     border~only .initial:n = false,
+    border~only .default:n = true,
 
     % border colours
 
@@ -1952,8 +1990,8 @@
     inner~style .code:n = { \exp_args:Nx \tikzset {aTableau/innerwall/.append~style={#1}} },
     inner~style .value_required:n = true,
 
-    math~nodes .code:n = { \cs_set_eq:NN \__atableau_entry:n \__atableau_entry_math:n },
-    text~nodes .code:n = { \cs_set_eq:NN \__atableau_entry:n \__atableau_entry_text:n },
+    math~boxes .code:n = { \cs_set_eq:NN \__atableau_entry:n \__atableau_entry_math:n },
+    text~boxes .code:n = { \cs_set_eq:NN \__atableau_entry:n \__atableau_entry_text:n },
 
     ribbons .code:n = {
         \tl_if_in:nnTF {#1} {|}
@@ -2010,6 +2048,7 @@
     skew~border~style .value_required:n = true,
 
     skew~boxes .bool_set:N = \l__atableau_skew_boxes_bool,
+    skew~boxes .default:n  = true,
     skew~boxes .initial:n  = false,
 
     skew~box~style .code:n = { \exp_args:Nx \tikzset {aTableau/skewbox/.append~style={#1}} },
