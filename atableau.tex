@@ -1,6 +1,6 @@
 % ----------------------------------------------------------------------
 % Title:    aTableau.  Author:   Andrew Mathas Created:  October 2023
-% Modified: 16:59 Sunday, 08 December 2024
+% Modified: 00:33 Tuesday, 10 December 2024
 % ----------------------------------------------------------------------
 \documentclass{amsart} \usepackage[svgnames]{xcolor}
 \usepackage{atableau} \usepackage{xspace} \usepackage{manfnt}
@@ -1268,13 +1268,27 @@
   (In particular, \option{inner style} can be used to override
   \option{inner colour}.)
 
-  \begin{example}
+  \begin{example}[label=Ex:dashed]
   \Tableau[australian, inner colour=red]{123,455,674} \qquad
   \Tableau[inner style=dashed]{123,455}
   \end{example}{}
 
-  To remove the inner tableau walls use
-  \option{inner colour=none}.
+
+  \index{dashed}
+  \index{style!dashed}
+  If you closely at the second tableau in \autoref{Ex:dashed}, you will
+  notice that the dashes are not very clean. This is because, for
+  example, the dashes on bottom of one box do not properly match up with
+  the dashes on the top of the adjacent box below it. Rather than
+  using \option{inner style=dashes} it is better to use something like
+  \option{inner style={dash pattern=on 1pt off 2pt}}.
+
+  \begin{example}
+  \Tableau[
+    inner style={dash pattern=on 1pt off 2pt}]{123,455}
+  \end{example}{}
+
+  Use \option{inner colour=none}, to remove the inner tableau walls.
 
   \begin{example}
   \Tableau[ukrainian, inner colour=none]{123,45,67}
@@ -1434,8 +1448,8 @@
 
   \begin{example}
   \Tableau[star style={text=magenta,
-     draw=red, thick, dashed}]{1*2*3,4*5} \quad
-  \Tableau[star style={fill=orange}]{1*2*3,4*5}
+     draw=cyan, thick}]{1*2*3,4*5} \quad
+  \Tableau[star style={fill=orange!50}]{1*2*3,4*5}
   \end{example}
 
   Note that the tableau border is drawn \textit{after} the
@@ -1980,7 +1994,9 @@
 
   \begin{example}
   \SkewTableau[skew boxes] {2,1^2}{123,45,67}
-  \SkewTableau[skew boxes, skew box style=dashed] {2,1^2}{123,45,67}
+  \SkewTableau[skew boxes,
+    skew box style={dash pattern=on 1pt off 2pt}
+  ] {2,1^2}{123,45,67,89}
   \end{example}
 
   Using the options \option{skew border} and the \option{skew boxes}
@@ -2729,17 +2745,17 @@
   \option{no separators} to disable the separators between component
   shapes.
 
-  \section{Abacuses}
-  \label{S:Abacus}
-  \index{abacus}
-  \indexcmd{Abacus}
+\section{Abacuses} \label{S:Abacus} \index{abacus} \indexcmd{Abacus}
 
-  A ``traditional Chinese abacus'', with beads and runners, gives another
-  representation of a partition, which is particularly useful in modular
-  representation theory. The partition corresponding to an abacus is
-  given by counting the number of empty bead positions before each bead
-  on the abacus. Use the \keyword{\Abacus} command to draw an abacus,
-  using a similar syntax to the tableau and diagram commands.
+  Gordon James introduced the abacus, with beads and runners, as another
+  way to represent partition. The abacus used particularly in modular
+  representation theory, where the runner of runners is (quantum)
+  characteristic.
+
+  The partition corresponding to an abacus is given by counting the
+  number of empty bead positions before each bead on the abacus. The
+  \keyword{\Abacus} command, which draws an abacus representation of a
+  partition, has a similar syntax to the tableau and diagram commands.
 
   \keyword{\Abacus (x,y) [options] {number of runners} {bead specifications}}
 
@@ -2752,14 +2768,18 @@
   optional styling and bead labels being supported.
 
   \begin{example}
-     \Abacus{2}{5,4,1,1} \qquad
-     \Abacus[rows=4]{3}{5,*4,1^2} \qquad
-     \Abacus{4}{5,4,1^2,[ball color=teal]0^5}
+     \Abacus{2}{4,1,1} \qquad
+     \Abacus{3}{4,1,1} \qquad
+     \Abacus{4}{4,1,1}
   \end{example}
 
   \subsection{Bead specifications}
 
   \subsection{Abacus options}
+
+  \begin{example}
+    \Abacus[top=frame]{3}{3,2^3,1}
+  \end{example}
 
   \begin{example}
      \Abacus{3}{5,4,1,1}
