@@ -164,8 +164,8 @@
 \tl_new:N \l__atableau_capture_part_tl   % contains captured part
 \tl_new:N \l__atableau_capture_style_tl  % contains captured style
 \tl_new:N \l__atableau_capture_txt_tl    % contains captured text
-\tl_new:N \l__atableau_corner_end_tl     % anchor name of the top corner of a tableau box
-\tl_new:N \l__atableau_corner_start_tl   % anchor name of the bottom corner of a tableau box
+\tl_new:N \l__atableau_corner_bottom_tl  % anchor name of the top corner of a tableau box
+\tl_new:N \l__atableau_corner_top_tl     % anchor name of the bottom corner of a tableau box
 \tl_new:N \l__atableau_empty_tl          % symbol for empty tableau/diagram in a multi tableau/diagram
 \tl_new:N \l__atableau_entries_tl        % custom entries in tableau
 \tl_new:N \l__atableau_inner_tl          % colour of tableau inner walls
@@ -275,7 +275,7 @@
     },
     % dots used for dotted rows and columns
     dotted/.style = {
-        dotted,
+        densely~dotted,
         thick,
         draw = \l__atableau_outer_tl,
     },
@@ -360,8 +360,8 @@
           \fp_set:Nn \l__atableau_box_ht_fp {\l__atableau_yscale_fp*0.5}
           \fp_set:Nn \l__atableau_box_wd_fp {\l__atableau_xscale_fp*0.5}
           \tl_set:Nn \l__atableau_box_shape_tl {rectangle}
-          \tl_set:Nn \l__atableau_corner_start_tl {north~west}
-          \tl_set:Nn \l__atableau_corner_end_tl {north~east}
+          \tl_set:Nn \l__atableau_corner_top_tl {north~east}
+          \tl_set:Nn \l__atableau_corner_bottom_tl {north~west}
         }
       {tableau/french}
         {
@@ -372,8 +372,8 @@
           \fp_set:Nn \l__atableau_box_ht_fp {\l__atableau_yscale_fp*0.5}
           \fp_set:Nn \l__atableau_box_wd_fp {\l__atableau_xscale_fp*0.5}
           \tl_set:Nn \l__atableau_box_shape_tl {rectangle}
-          \tl_set:Nn \l__atableau_corner_start_tl {south~west}
-          \tl_set:Nn \l__atableau_corner_end_tl {south~east}
+          \tl_set:Nn \l__atableau_corner_top_tl {south~east}
+          \tl_set:Nn \l__atableau_corner_bottom_tl {south~west}
         }
       {tableau/australian}
         {
@@ -384,8 +384,8 @@
           \fp_set:Nn \l__atableau_box_ht_fp {\l__atableau_yscale_fp*0.7012} % 1/sqrt(2)
           \fp_set:Nn \l__atableau_box_wd_fp {\l__atableau_xscale_fp*0.7012}
           \tl_set:Nn \l__atableau_box_shape_tl {diamond}
-          \tl_set:Nn \l__atableau_corner_start_tl {north}
-          \tl_set:Nn \l__atableau_corner_end_tl {east}
+          \tl_set:Nn \l__atableau_corner_top_tl {east}
+          \tl_set:Nn \l__atableau_corner_bottom_tl {west}
         }
       {tableau/ukrainian}
         {
@@ -396,8 +396,8 @@
           \fp_set:Nn \l__atableau_box_ht_fp {\l__atableau_yscale_fp*0.7012}
           \fp_set:Nn \l__atableau_box_wd_fp {\l__atableau_xscale_fp*0.7012}
           \tl_set:Nn \l__atableau_box_shape_tl {diamond}
-          \tl_set:Nn \l__atableau_corner_start_tl {east}
-          \tl_set:Nn \l__atableau_corner_end_tl {south}
+          \tl_set:Nn \l__atableau_corner_top_tl {west}
+          \tl_set:Nn \l__atableau_corner_bottom_tl {west}
         }
       {tableau/russian}
         {
@@ -477,6 +477,7 @@
 
 % ---------------------------------------------------------------------------
 % command variants
+% TODO: prune the variants that are not used
 
 \cs_generate_variant:Nn \fp_set:Nn             {Nx,Ne}
 \cs_generate_variant:Nn \fp_add:Nn             {NV,No}
@@ -494,7 +495,7 @@
 \cs_generate_variant:Nn \__atableau_draw_tableau:n {V,x}
 \cs_generate_variant:Nn \__atableau_entry:n {x}
 \cs_generate_variant:Nn \__atableau_set_bead_coordinates:nnn {nVV, nno, noo, non, noV}
-\cs_generate_variant:Nn \__atableau_set_box_coordinates:nnn {nVV, nVn, nVo, nnV, noo}
+\cs_generate_variant:Nn \__atableau_set_box_coordinates:nnn {nVV, nVn, nVo, nnV, noo, nVe}
 \cs_generate_variant:Nn \__atableau_set_partition:nn {no}
 \cs_generate_variant:Nn \__atableau_set_style:nn {nV}
 
@@ -903,62 +904,73 @@
     %\seq_map_inline:Nn \l__atableau_dotted_rows_seq
     \bool_do_until:nn { \seq_if_empty_p:N \l__atableau_dotted_rows_seq }
     {
+    \typeout{looking~at~dots...}
       % row = row being skipped, r = next row NOT being skipped (usually row+1)
-      \seq_pop_left:NN \l__atableau_dotted_rows_seq \l__atableau_row_int
+      \seq_pop_left:NN \l__atableau_dotted_rows_seq  \l_tmpa_tl
+      \int_set:Nn \l__atableau_row_int {\l_tmpa_tl}
       \int_set:Nn \l__atableau_r_int {\l__atableau_row_int+1}
-      \bool_do_while:nn { \seq_if_in_p:NN \l__atableau_dotted_rows_seq \l__atableau_r_int }
+      % LaTeX3 does not provide \seq_if_in_p:NNTF, so ...
+      \bool_set_true:N \l_tmpa_bool
+      \bool_do_while:nn { \l_tmpa_bool }
       {
-        \seq_pop_left:NN \l__atableau_dotted_rows_seq \l_tmp_tl
-        \int_incr:N \l__atableau_r_int
+        \seq_if_in:NoTF \l__atableau_dotted_rows_seq { \int_use:N \l__atableau_r_int }
+        {
+          \seq_pop_left:NN \l__atableau_dotted_rows_seq \l_tmpa_tl
+          \int_incr:N \l__atableau_r_int
+        }
+        { \bool_set_false:N \l_tmpa_bool }
       }
       \typeout{about~to~dot~rs~with~row=~\int_use:N\l__atableau_row_int,~r=\int_use:N\l__atableau_r_int}
 
-      \int_set:Nx \l__atableau_col_int { 0\seq_item:cn {l__atableau_#1_seq} {\l__atableau_row_int}} % mu_row
-      \int_set:Nx \l__atableau_c_int   { 0\seq_item:cn {l__atableau_#1_seq} {\l__atableau_r_int}}   % mu_r
-      \int_set:Nn \l__atableau_r_int { ##1-1 } % row, row+1, ..., r are in dotted rows
+      \int_set:Nx \l__atableau_col_int { 0\seq_item:cV {l__atableau_#1_seq} \l__atableau_row_int } % mu_row
+      \int_set:Nx \l__atableau_c_int   { 0\seq_item:cV {l__atableau_#1_seq} \l__atableau_r_int   } % mu_r
       \int_compare:nNnT {\l__atableau_c_int*\l__atableau_col_int} = {0}
       { \msg_error:nnn {aTableau} {invalid-dots} }
 
+      \typeout{col=\int_use:N\l__atableau_col_int,~c=\int_use:N\l__atableau_c_int}
       % We want to blank out the rows between the four coordinates
-      %      a .... b
+      %      (row,tmpa) .... (row,col)
       %      |      |
-      %      c .... d
-      % blank out any existing boxes etc
-      \__atableau_set_box_coordinates:nVo {b} \l__atableau_row_int { 0\seq_item:cn {l__atableau_#1_seq {\l__atableau_row_int}} }
-      \__atableau_set_box_coordinates:nVo {d} \l__atableau_r_int   { 0\seq_item:cn {l__atableau_#1_seq {\l__atableau_r_int  }} }
+      %      (r,tmpb) .... (r,c)
 
+      % set tmpa and tmpb to the column index for rows row and r, % respectyively
       \tl_if_eq:nnTF {#1} {skew}
       {
-        \__atableau_set_box_coordinates:nVn {a} \l__atableau_row_int {0}
-        \__atableau_set_box_coordinates:nVV {c} \l__atableau_r_int {0}
+        \tl_set:No \l_tmpa_tl {1}
+        \tl_set:No \l_tmpb_tl {1}
       }
       {
-        \__atableau_set_box_coordinates:nVn {a} \l__atableau_row_int {0\seq_item:Nn \l__atableau_skew_seq \l__atableau_row_int}
-        \__atableau_set_box_coordinates:nVn {c} \l__atableau_row_int {0\seq_item:Nn \l__atableau_skew_seq \l__atableau_r_int}
+        \tl_set:No \l_tmpa_tl {0\seq_item:NV \l__atableau_skew_seq \l__atableau_row_int}
+        \tl_set:No \l_tmpb_tl {0\seq_item:NV \l__atableau_skew_seq \l__atableau_r_int}
       }
 
+      % shift in col-direction
+      \fp_set:Nx \l__atableau_xa_fp {\l__atableau_col_dx_fp*\l__atableau_box_wd_fp}
+      \fp_set:Nx \l__atableau_ya_fp {\l__atableau_col_dy_fp*\l__atableau_box_ht_fp}
+
+      % shift in row-direction
+      \fp_set:Nx \l__atableau_xb_fp {\l__atableau_row_dx_fp*\l__atableau_box_wd_fp}
+      \fp_set:Nx \l__atableau_yb_fp {\l__atableau_row_dy_fp*\l__atableau_box_ht_fp}
+      \typeout{Row~shift:~(\fp_use:N\l__atableau_xb_fp,\fp_use:N\l__atableau_yb_fp).~Col~shift:~(\fp_use:N\l__atableau_xa_fp,\fp_use:N\l__atableau_ya_fp)}
       % a draw between the coordinates a, b, c, d
       \draw[aTableau/clearboxes]
-        (\fp_eval:n {\l__atableau_xa_fp+0.6*\l__atableau_col_dx_fp*\l__atableau_box_wd_fp},    % a
-         \fp_eval:n {\l__atableau_ya_fp+0.4*\l__atableau_row_dy_fp*\l__atableau_box_ht_fp})
-        -- (\fp_eval:n {\l__atableau_xb_fp-0.6*\l__atableau_col_dx_fp*\l__atableau_box_wd_fp}, % b
-             \fp_eval:n {\l__atableau_yb_fp-0.4*\l__atableau_row_dy_fp*\l__atableau_box_ht_fp})
-        -- (\fp_eval:n {\l__atableau_xd_fp-0.6*\l__atableau_col_dx_fp*\l__atableau_box_wd_fp},
-             \fp_eval:n {\l__atableau_yd_fp-0.4*\l__atableau_row_dy_fp*\l__atableau_box_ht_fp}) % d
-        -- (\fp_eval:n {\l__atableau_xc_fp-0.6*\l__atableau_col_dx_fp*\l__atableau_box_wd_fp},
-             \fp_eval:n {\l__atableau_yc_fp-0.4*\l__atableau_row_dy_fp*\l__atableau_box_ht_fp}) % c
-      ;
+      ([shift={(\fp_eval:n{0.05*\l__atableau_xa_fp},\fp_eval:n{0.05*\l__atableau_yb_fp})}]
+        \l__atableau_prefix_tl-\int_use:N\l__atableau_row_int-\int_use:N\l__atableau_col_int.\l__atableau_corner_top_tl)
+        --++(\fp_eval:n{(\l__atableau_r_int-\l__atableau_row_int)*\l__atableau_xb_fp},\fp_eval:n{(\l__atableau_r_int-\l__atableau_row_int)*\l__atableau_yb_fp})
+        --([shift={(\fp_eval:n{0.05*\l__atableau_xa_fp},\fp_eval:n{0.05*\l__atableau_yb_fp})}]
+           \l__atableau_prefix_tl-\int_use:N\l__atableau_r_int-\int_use:N\l__atableau_c_int.\l__atableau_corner_top_tl)
+        --++(\fp_eval:n{0.1*\l__atableau_xb_fp},\fp_eval:n{-0.1*\l__atableau_yb_fp})
+        --([shift={(\fp_eval:n{-0.05*\l__atableau_xa_fp},\fp_eval:n{-0.05*\l__atableau_yb_fp})}]
+           \l__atableau_prefix_tl-\int_use:N\l__atableau_r_int-1.\l__atableau_corner_bottom_tl)
+        --++(\fp_eval:n{(\l__atableau_row_int-\l__atableau_r_int)*\l__atableau_xb_fp},\fp_eval:n{(\l__atableau_row_int-\l__atableau_r_int+0.1)*\l__atableau_yb_fp})
+        --cycle;
 
       % finally, we need to add dots between a and c, and b and d
       \draw[aTableau/dotted]
-        (\fp_eval:n {\l__atableau_xa_fp+0.6*\l__atableau_col_dx_fp*\l__atableau_box_wd_fp},    % a
-         \fp_eval:n {\l__atableau_ya_fp+0.4*\l__atableau_row_dy_fp*\l__atableau_box_ht_fp})
-        -- (\fp_eval:n {\l__atableau_xc_fp-0.6*\l__atableau_col_dx_fp*\l__atableau_box_wd_fp},
-             \fp_eval:n {\l__atableau_yc_fp-0.4*\l__atableau_row_dy_fp*\l__atableau_box_ht_fp}) % c
-        (\fp_eval:n {\l__atableau_xb_fp-0.6*\l__atableau_col_dx_fp*\l__atableau_box_wd_fp}, % b
-             \fp_eval:n {\l__atableau_yb_fp-0.4*\l__atableau_row_dy_fp*\l__atableau_box_ht_fp})
-        -- (\fp_eval:n {\l__atableau_xd_fp-0.6*\l__atableau_col_dx_fp*\l__atableau_box_wd_fp},
-             \fp_eval:n {\l__atableau_yd_fp-0.4*\l__atableau_row_dy_fp*\l__atableau_box_ht_fp}) % d
+        (\l__atableau_prefix_tl-\int_use:N\l__atableau_row_int-\int_use:N\l__atableau_col_int.\l__atableau_corner_top_tl)
+        --(\l__atableau_prefix_tl-\int_use:N\l__atableau_r_int-\int_use:N\l__atableau_c_int.\l__atableau_corner_top_tl)
+        (\l__atableau_prefix_tl-\int_use:N\l__atableau_row_int-1.\l__atableau_corner_bottom_tl)
+        --(\l__atableau_prefix_tl-\int_use:N\l__atableau_r_int-1.\l__atableau_corner_bottom_tl)
       ;
 
     }
@@ -1314,7 +1326,7 @@
         \tl_set:No \l__atableau_prefix_tl {\l__atableau_multiprefix_tl-\int_use:N\l__atableau_component_int}
 
         % charge defaults to zero if not set
-        \int_set:Nx \l__atableau_charge_int {0\seq_item:NV \l__atableau_charge_seq \l__atableau_component_int}
+        \int_set:Nn \l__atableau_charge_int {0\seq_item:NV \l__atableau_charge_seq \l__atableau_component_int}
 
         % if multidotted_rows is nonempty then set dotted_rows_seq
         \seq_if_empty:NTF \l__atableau_multidotted_rows_seq
