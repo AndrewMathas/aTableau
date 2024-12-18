@@ -1,6 +1,6 @@
 % ----------------------------------------------------------------------
 % Title:    aTableau.  Author:   Andrew Mathas Created:  October 2023
-% Modified: 00:33 Tuesday, 10 December 2024
+% Modified: 00:21 Thursday, 19 December 2024
 % ----------------------------------------------------------------------
 \documentclass{amsart} \usepackage[svgnames]{xcolor}
 \usepackage{atableau} \usepackage{xspace} \usepackage{manfnt}
@@ -171,6 +171,7 @@
     conjugate,
     delimiter,
     delimiters,
+    dotted,
     e,
     east,
     english,
@@ -180,6 +181,7 @@
     height,
     infinite,
     inner,
+    label,
     left,
     math,
     no,
@@ -469,7 +471,10 @@
        B/.style={fill=blue!20},
        G/.style={fill=ForestGreen!20},
        R/.style={fill=red!40,text=white},
-       Y/.style={fill=yellow!20}
+       Y/.style={fill=yellow!20},
+       b/.style={ball color=blue},
+       r/.style={ball color=red},
+       w/.style={ball color=white},
     }
 %   \Diagram{2,1^2}\qquad
     \begin{tikzpicture}
@@ -481,6 +486,7 @@
       \Tableau(6.0,-2.25)[ukrainian]{[R]1[G]3[Y]4,[B]2} \quad
       \Tableau(3.5,-3.0)[french]{[R]1[G]3[Y]4,[B]2} \quad
       \Tableau(2,-1)[australian]{[B]2,[R]1[G]3[Y]4} \quad
+      \Abacus(4,0.5)[scale=1.4]{3}{[b]9,[w]8,[r]8,[b]6,[b]6,[r]2,[b]1}
     \end{tikzpicture}
   \end{center}
 
@@ -501,7 +507,7 @@
   Here, the \textit{options} is an optional comma-separated list of
   \aTableau package options --- we describe the possible options below.
   For example, to make the tableaux and Young diagrams commands use the
-  \option{French} convention, by default, you might use:
+  \option{French} convention, by default, you could use:
 
   \begin{quote}
     \keyword{\usepackage[french]{atableau}}
@@ -1604,15 +1610,20 @@
   shape, in the sense that the lengths of the rows is a weakly
   decreasing sequence. In fact, the \keyword{\Tableau} command also
   accepts tableaux of \emph{composition} shape, where the lengths of the
-  rows are not necessarily in decreasing order
+  rows are not necessarily in decreasing order:
 
   \begin{example}
   \Tableau{ 45,2751,31 } \qquad
   \SkewTableau{1,2}{ 45,27,31 }
   \end{example}
 
-  Tableaux and diagrams should not contain empty rows, and the diagrams
-  should be \textit{connected}. (For disconnected tableaux and diagrams, see
+  Even though it is possible to draw compositions, and tableaux of
+  composition shape, compositions are not supported in the sense that
+  many of the options/keys assume that the diagrams are of partition
+  shape.  In addition, many options assume that tableaux and diagrams do
+  not contain empty rows, and that the diagrams are \textit{connected}.
+  (For disconnected tableaux and diagrams, see the
+  \keyword{\Multidiagram} and \keyword{\Multitableau} commands in
   \autoref{S:Multitableau}.)
 
   \subsubsection{Drawing order}
@@ -1777,6 +1788,39 @@
   \Diagram[ukrainian, conjugate]{2,1^3}
   \end{example}
 
+  \option[]{dotted rows}[comma separated list of rows]
+  \option*[]{dotted columns}[comma separated list of columns]
+
+  The \option{dotted rows} and \option{dotted columns} keys can be used
+  to draw  diagrams that where the specified rows and columns are
+  replaced with dots. This makes it possible to draw \emph{generic}
+  diagrams, where the number of rows and columns are not fully specified. If
+  two, or more, of the row and columns are in increasing consecutive order, then the
+  corresponding rows or columns are replaced as a block.
+
+  \begin{example}
+  \Diagram[dotted rows={2,4,5}]{4^2,2^2,1^3} \qquad
+  \Diagram[scale=0.8, dotted rows={3,4,5},
+    inner colour=none] {6,5,4,3,2,1}
+  \end{example}
+
+  \begin{example}
+  \Diagram[scale=0.8, dotted rows={4,5,3},
+    inner colour=none] {6,5,4,3,2,1}
+  \Diagram[scale=0.8, dotted cols={3,4,5},
+    inner colour=none] {6,5,4,3,2,1}
+  \end{example}
+
+  \index{tableau~dotted rows}
+  \index{tableau~dotted columns}
+  These keys work by overwriting all of the content on the specified rows and
+  columns, so anything that was drawn in these will rows will disappear.
+  The \option{dotted rows} and \option{dotted columns} keys can also be
+  used with the \keyword{\Tableau} command, with the result that all of
+  the boxes on the specified rows and columns will be removed.  Instead
+  of \option{dotted columns}, you can use the short-hand \option{dotted
+  cols}.
+
   \option[]{ribbons}[ribbon specification]\newline
   \option[]{snobs}[ribbon specification]
 
@@ -1806,13 +1850,18 @@
   The \option{show} option provides a shortcut for drawing some common
   tableaux of a specified shape. The possible choices are:
   \begin{itemize}
-    \item\option{show=contents} print the diagram where each box is
-    labelled by its \emph{content}, which is the row index minus the
-    column index.
 
+    \item\option{show=first} print the \emph{first}
+    \textbf{standard} tableau of this shape, with respect to the Bruhat
+    order. This is the tableau that has the numbers $1,2\dots,n$ entered
+    in order from top left to right along down successive rows (with
+    appropriate modifications for the non-English conventions).
+
+    \index{first tableau}
+    \index{tableau!first}
     \begin{example}
-    \Diagram[show=contents]{3,2,1} \qquad
-    \Diagram[french,show=contents]{2^2,1}
+    \Diagram[show=first]{3,2,2} \qquad
+    \Diagram[ukrainian, show=first]{3^2,2}
     \end{example}
 
     \item\option{show=last} print the \emph{last} \textbf{standard}
@@ -1841,17 +1890,13 @@
     \Diagram[ukrainian,show=hooks]{2^2,1}
     \end{example}
 
-    \item\option{show=first} print the \emph{first}
-    \textbf{standard} tableau of this shape, with respect to the Bruhat
-    order. This is the tableau that has the numbers $1,2\dots,n$ entered
-    in order from top left to right along down successive rows (with
-    appropriate modifications for the non-English conventions).
+    \item\option{show=contents} print the diagram where each box is
+    labelled by its \emph{content}, which is the row index minus the
+    column index.
 
-    \index{first tableau}
-    \index{tableau!first}
     \begin{example}
-    \Diagram[show=first]{3,2,2} \qquad
-    \Diagram[ukrainian, show=first]{3^2,2}
+    \Diagram[show=contents]{3,2,1} \qquad
+    \Diagram[french,show=contents]{2^2,1}
     \end{example}
 
     \item\option{show=residues} print the diagram where each box is
@@ -1921,7 +1966,7 @@
   comma-separated list of integers or in exponential notation.
 
   Skew tableau and skew diagrams should always be connected. Use
-  \keyword{\Multidiagrams} and \keyword{\Multitableau} to draw
+  \keyword{\Multidiagram} and \keyword{\Multitableau} to draw
   disconnected diagrams.
 
   In fact, the \keyword{\SkewTableau} is just an alias for the
@@ -2006,7 +2051,7 @@
   \SkewTableau[skew border, skew boxes] {2^2,1}{123,45,67}
   \end{example}
 
-  \subsection{Shifted tableau and shifted diagrams}
+  \subsection{Shifted tableaux and shifted diagrams}
   \label{S:Shifted}
   \indexcmd{ShiftedTableau}
   \indexcmd{ShiftedDiagram}
@@ -2505,7 +2550,7 @@
 
   \begin{example}
   \Multitableau{ 123,45 | | 67,89} \par\bigskip
-  \Multidiagram[empty=\emptyset]{ 3,2 | | 2^2 }
+  \Multidiagram[empty=$\emptyset$]{ 3,2 | | 2^2 }
   \end{example}
 
   \option[B]{name}[character]
