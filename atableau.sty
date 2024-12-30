@@ -917,29 +917,30 @@
 % Poke some holes in the border for the rows in dotted_rows_seq
 \cs_new_protected_nopar:Nn \__atableau_remove_dotted_rows:
 {
-\typeout{Dotted~rows=[\seq_use:Nn\l__atableau_dotted_rows_seq{,}]:~shape=(\seq_use:Nn \l__atableau_shape_seq{,}),~skew=(\seq_use:Nn\l__atableau_skew_seq{,})}
     % To collect repeated rows in dotted_rows_seq
     % we use \seq_map_inline:Nn and then compare ##1 with \l__atableau_r_int to
-    % determine if this is a new row. We start with the dotted rows
-    \int_zero:N \l__atableau_r_int
-    \seq_map_inline:Nn \l__atableau_dotted_rows_seq
+    % determine if this is a new row.
+
+    % take a copy of \l__atableau_dotted_rows_seq so that the pop_left's below
+    % do not destroy it
+    \seq_set_eq:NN \l_tmpb_seq \l__atableau_dotted_rows_seq
+    \bool_do_until:nn { \seq_if_empty_p:N \l_tmpb_seq }
     {
-      \int_compare:nNnT {##1} > {\l__atableau_r_int}
-      {
-        \int_set:Nn \l__atableau_row_int {##1}
+        \seq_pop_left:NN \l_tmpb_seq \l_tmpa_tl
+        \int_set:Nn \l__atableau_row_int {\l_tmpa_tl}
         \int_set:Nn \l__atableau_r_int {\l__atableau_row_int+1}
 
         % LaTeX3 does not provide \seq_if_in_p:NNTF, so ...
         \bool_set_true:N \l_tmpa_bool
         \bool_do_while:nn { \l_tmpa_bool }
         {
-          \seq_if_in:NoTF \l__atableau_dotted_rows_seq { \int_use:N \l__atableau_r_int }
-          {
-            % TODO: make less destructive by not using pop
-            \seq_pop_left:NN \l__atableau_dotted_rows_seq \l_tmpa_tl
-            \int_incr:N \l__atableau_r_int
-          }
-          { \bool_set_false:N \l_tmpa_bool }
+            \int_set:Nn \l_tmpa_int {0\seq_item:Nn \l_tmpb_seq 1}
+            \int_compare:nNnTF {\l__atableau_r_int} = {\l_tmpa_int}
+            {
+              \seq_pop_left:NN \l_tmpb_seq \l_tmpa_tl
+              \int_incr:N \l__atableau_r_int
+            }
+            { \bool_set_false:N \l_tmpa_bool }
         }
 
         % We want to blank out the rows between the four coordinates
@@ -951,12 +952,108 @@
         \int_set:No \l__atableau_col_int { 0\seq_item:NV \l__atableau_shape_seq \l__atableau_row_int } % mu_row
         \int_set:No \l__atableau_c_int   { 0\seq_item:NV \l__atableau_shape_seq \l__atableau_r_int }   % mu_r
 
-\typeout{~-~(row,col)=(\int_use:N\l__atableau_row_int,\int_use:N\l__atableau_col_int),~(r,c)=(\int_use:N\l__atableau_r_int,\int_use:N\l__atableau_c_int)}
-\typeout{~-~partitions: ~shape=(\seq_use:Nn\l__atableau_shape_seq{,}),~skew=(\seq_use:Nn\l__atableau_skew_seq{,})}
+        % shift in col-direction
+        \fp_set:Nn \l__atableau_xa_fp {\l__atableau_col_dx_fp*\l__atableau_box_wd_fp}
+        \fp_set:Nn \l__atableau_ya_fp {\l__atableau_col_dy_fp*\l__atableau_box_ht_fp}
 
-        % mild sanity check...
-     %  \int_compare:nNnT {\l__atableau_c_int*\l__atableau_col_int} = {0}
-     %  { \msg_error:nnn {aTableau} {invalid-dots} }
+        % shift in row-direction
+        \fp_set:Nn \l__atableau_xb_fp {\l__atableau_row_dx_fp*\l__atableau_box_wd_fp}
+        \fp_set:Nn \l__atableau_yb_fp {\l__atableau_row_dy_fp*\l__atableau_box_ht_fp}
+
+        % a draw between the coordinates a, b, c, d
+        \__atableau_set_box_coordinates:noo {l} {\l__atableau_row_int-1} {\l__atableau_col_int-1} % point b
+
+        \draw[aTableau/clearboxes]
+          (\fp_eval:n{0.55*\l__atableau_xa_fp-0.45*\l__atableau_xb_fp+\l__atableau_xl_fp},
+           \fp_eval:n{0.55*\l__atableau_ya_fp-0.45*\l__atableau_yb_fp+\l__atableau_yl_fp})
+          --++(\fp_eval:n{(\l__atableau_r_int-\l__atableau_row_int)*\l__atableau_xb_fp},
+               \fp_eval:n{(\l__atableau_r_int-\l__atableau_row_int)*\l__atableau_yb_fp})
+          --++(\fp_eval:n{(\l__atableau_c_int-\l__atableau_col_int)*\l__atableau_xa_fp},
+               \fp_eval:n{(\l__atableau_c_int-\l__atableau_col_int)*\l__atableau_ya_fp})
+          --++(\fp_eval:n{-0.1*\l__atableau_xb_fp}, \fp_eval:n{-0.1*\l__atableau_yb_fp})
+          --++(\fp_eval:n{-(0.15+\l__atableau_c_int)*\l__atableau_xa_fp}, \fp_eval:n{-(0.15+\l__atableau_c_int)*\l__atableau_ya_fp})
+          --++(\fp_eval:n{(\l__atableau_row_int-\l__atableau_r_int+0.1)*\l__atableau_xb_fp},
+               \fp_eval:n{(\l__atableau_row_int-\l__atableau_r_int+0.1)*\l__atableau_yb_fp})
+          --cycle
+        ;
+
+        % finally, we need to add dots between b and d
+        \draw[aTableau/dotted]
+          (\fp_eval:n{0.5*\l__atableau_xa_fp-0.5*\l__atableau_xb_fp+\l__atableau_xl_fp},
+           \fp_eval:n{0.5*\l__atableau_ya_fp-0.5*\l__atableau_yb_fp+\l__atableau_yl_fp})
+          --++(\fp_eval:n{(\l__atableau_c_int-\l__atableau_col_int)*\l__atableau_xa_fp+(\l__atableau_r_int-\l__atableau_row_int)*\l__atableau_xb_fp},
+               \fp_eval:n{(\l__atableau_c_int-\l__atableau_col_int)*\l__atableau_ya_fp+(\l__atableau_r_int-\l__atableau_row_int)*\l__atableau_yb_fp})
+        ;
+
+        % and between a and c, which is trickier as the skew shape plays a role
+        \int_set:No \l_tmpa_int { \int_eval:n {0\seq_item:Nn \l__atableau_skew_seq \l__atableau_row_int} }
+        \int_set:No \l_tmpb_int { \int_eval:n {\int_max:nn{\l_tmpa_int}{0\seq_item:Nn \l__atableau_skew_seq \l__atableau_r_int} }}
+        \int_decr:N \l__atableau_row_int
+        \int_decr:N \l__atableau_r_int
+        \draw[aTableau/dotted]
+          (\fp_eval:n{\l__atableau_x_fp+\l_tmpa_int*\l__atableau_xa_fp+\l__atableau_row_int*\l__atableau_xb_fp},
+           \fp_eval:n{\l__atableau_y_fp+\l_tmpa_int*\l__atableau_ya_fp+\l__atableau_row_int*\l__atableau_yb_fp})
+           --(\fp_eval:n{\l__atableau_x_fp+\l_tmpb_int*\l__atableau_xa_fp+\l__atableau_r_int*\l__atableau_xb_fp},
+              \fp_eval:n{\l__atableau_y_fp+\l_tmpb_int*\l__atableau_ya_fp+\l__atableau_r_int*\l__atableau_yb_fp})
+        ;
+
+        \bool_if:nT { \int_compare_p:nNn {\l_tmpa_int}>{0} && \l__atableau_skew_border_bool }
+        {
+          \draw[aTableau/dotted,draw=\l__atableau_skew_border_tl]
+            (\fp_eval:n{\l__atableau_x_fp+\l__atableau_row_int*\l__atableau_xb_fp},
+             \fp_eval:n{\l__atableau_y_fp+\l__atableau_row_int*\l__atableau_yb_fp})
+            --(\fp_eval:n{\l__atableau_x_fp+\l__atableau_r_int*\l__atableau_xb_fp},
+               \fp_eval:n{\l__atableau_y_fp+\l__atableau_r_int*\l__atableau_yb_fp})
+          ;
+        }
+    }
+}
+
+% usage: \__atableau_remove_dotted_cols:
+% Poke some holes in the border for the cols in dotted_rows_seq
+\cs_new_protected_nopar:Nn \__atableau_remove_dotted_cols:
+{
+    % To collect repeated columns in dotted_cols_seq
+    % we use \seq_map_inline:Nn and then compare ##1 with \l__atableau_c_int to
+    % determine if this is a new column.
+
+
+    % conjugate partition and skew shape
+    \__atableau_compute_conjugate_partition:N \l__atableau_skew_seq
+    \seq_set_eq:NN \l_tmpa_seq \l__atableau_conjugate_seq % \l_tmpa_seq is the conjugate skew
+    \__atableau_compute_conjugate_partition:N \l__atableau_shape_seq % conjugate shape
+
+    % take a copy of \l__atableau_dotted_cols_seq so that the pop_left's below
+    % do not destroy it
+    \seq_set_eq:NN \l_tmpb_seq \l__atableau_dotted_cols_seq
+    \bool_do_until:nn { \seq_if_empty_p:N \l_tmpb_seq }
+    {
+        \seq_pop_left:NN \l_tmpb_seq \l_tmpa_tl
+        \int_set:Nn \l__atableau_col_int {\l_tmpa_tl}
+        \int_set:Nn \l__atableau_c_int {\l__atableau_col_int+1}
+
+        % LaTeX3 does not provide \seq_if_in_p:NNTF, so ...
+        \bool_set_true:N \l_tmpa_bool
+        \bool_do_while:nn { \l_tmpa_bool }
+        {
+            \int_set:Nn \l_tmpa_int {0\seq_item:Nn \l_tmpb_seq 1}
+            \int_compare:nNnTF {\l__atableau_c_int} = {\l_tmpa_int}
+            {
+              \seq_pop_left:NN \l_tmpb_seq \l_tmpa_tl
+              \int_incr:N \l__atableau_c_int
+            }
+            { \bool_set_false:N \l_tmpa_bool }
+        }
+
+        % We want to blank out the rows between the four coordinates
+        %      a=(row,tmpa) .... b=(r,tmpb)
+        %      |                 |
+        %      c=(row,col) ....  d=(r,c)
+
+        % set row and r to the row indices for col and c, respectively
+        \int_set:No \l__atableau_row_int { 0\seq_item:NV \l__atableau_conjugate_seq \l__atableau_col_int } % mu_row
+        \int_set:No \l__atableau_r_int   { 0\seq_item:NV \l__atableau_conjugate_seq \l__atableau_c_int }   % mu_r
+
 
         % shift in col-direction
         \fp_set:Nn \l__atableau_xa_fp {\l__atableau_col_dx_fp*\l__atableau_box_wd_fp}
@@ -966,58 +1063,53 @@
         \fp_set:Nn \l__atableau_xb_fp {\l__atableau_row_dx_fp*\l__atableau_box_wd_fp}
         \fp_set:Nn \l__atableau_yb_fp {\l__atableau_row_dy_fp*\l__atableau_box_ht_fp}
 
-        \typeout{~-~row~shift:~(\fp_use:N\l__atableau_xb_fp,\fp_use:N\l__atableau_yb_fp).~Col~shift:~(\fp_use:N\l__atableau_xa_fp,\fp_use:N\l__atableau_ya_fp)}
-
         % a draw between the coordinates a, b, c, d
         \__atableau_set_box_coordinates:noo {l} {\l__atableau_row_int-1} {\l__atableau_col_int-1} % point b
 
         \draw[aTableau/clearboxes]
-          (\fp_eval:n{0.55*(\l__atableau_xa_fp)+\l__atableau_xl_fp},
-           \fp_eval:n{0.55*(\l__atableau_ya_fp)+\l__atableau_yl_fp})
-            --++(\fp_eval:n{(\l__atableau_r_int-\l__atableau_row_int)*\l__atableau_xb_fp},
-            \fp_eval:n{(\l__atableau_r_int-\l__atableau_row_int)*\l__atableau_yb_fp})node[orange]{$\bullet$}
-            --++(\fp_eval:n{(\l__atableau_c_int-\l__atableau_col_int)*\l__atableau_xa_fp},
-            \fp_eval:n{(\l__atableau_c_int-\l__atableau_col_int)*\l__atableau_ya_fp})
-            --++(\fp_eval:n{-0.1*\l__atableau_xb_fp}, \fp_eval:n{-0.1*\l__atableau_yb_fp})
-            --++(\fp_eval:n{-(0.15+\l__atableau_c_int)*\l__atableau_xa_fp}, \fp_eval:n{-(0.15+\l__atableau_c_int)*\l__atableau_ya_fp})
-            --++(\fp_eval:n{(\l__atableau_row_int-\l__atableau_r_int+0.1)*\l__atableau_xb_fp},
-                 \fp_eval:n{(\l__atableau_row_int-\l__atableau_r_int+0.1)*\l__atableau_yb_fp})
-            --cycle
-          ;
-
-        \node[red] at
-          (\fp_eval:n{0.55*(\l__atableau_xa_fp-\l__atableau_xb_fp)+\l__atableau_xl_fp},
-          \fp_eval:n{0.45*(\l__atableau_ya_fp-\l__atableau_yb_fp)+\l__atableau_yl_fp}) {$\bullet$};
+          (\fp_eval:n{\l__atableau_xl_fp-0.45*\l__atableau_xa_fp+0.55*\l__atableau_xb_fp},
+           \fp_eval:n{\l__atableau_yl_fp-0.45*\l__atableau_ya_fp+0.55*\l__atableau_yb_fp})
+          --++(\fp_eval:n{(\l__atableau_c_int-\l__atableau_col_int)*\l__atableau_xa_fp},
+               \fp_eval:n{(\l__atableau_c_int-\l__atableau_col_int)*\l__atableau_ya_fp})
+          --++(\fp_eval:n{(\l__atableau_r_int-\l__atableau_row_int)*\l__atableau_xb_fp},
+               \fp_eval:n{(\l__atableau_r_int-\l__atableau_row_int)*\l__atableau_yb_fp})
+          --++(\fp_eval:n{-0.1*\l__atableau_xa_fp}, \fp_eval:n{-0.1*\l__atableau_ya_fp})
+          --++(\fp_eval:n{-(0.15+\l__atableau_r_int)*\l__atableau_xb_fp}, \fp_eval:n{-(0.15+\l__atableau_r_int)*\l__atableau_yb_fp})
+          --++(\fp_eval:n{(\l__atableau_col_int-\l__atableau_c_int+0.1)*\l__atableau_xa_fp},
+               \fp_eval:n{(\l__atableau_col_int-\l__atableau_c_int+0.1)*\l__atableau_ya_fp})
+          --cycle
+        ;
 
         % finally, we need to add dots between b and d
         \draw[aTableau/dotted]
-          (\l__atableau_prefix_tl-\int_use:N\l__atableau_row_int-\int_use:N\l__atableau_col_int.\l__atableau_corner_top_tl)
-          --(\l__atableau_prefix_tl-\int_use:N\l__atableau_r_int-\int_use:N\l__atableau_c_int.\l__atableau_corner_top_tl);
+          (\fp_eval:n{\l__atableau_xl_fp-0.5*\l__atableau_xa_fp+0.5*\l__atableau_xb_fp},
+           \fp_eval:n{\l__atableau_yl_fp-0.5*\l__atableau_ya_fp+0.5*\l__atableau_yb_fp})
+          --++(\fp_eval:n{(\l__atableau_r_int-\l__atableau_row_int)*\l__atableau_xb_fp+(\l__atableau_c_int-\l__atableau_col_int)*\l__atableau_xa_fp},
+               \fp_eval:n{(\l__atableau_r_int-\l__atableau_row_int)*\l__atableau_yb_fp+(\l__atableau_c_int-\l__atableau_col_int)*\l__atableau_ya_fp})
+        ;
 
         % and between a and c, which is trickier as the skew shape plays a role
-        \tl_set:Nx \l_tmpa_tl { \int_eval:n {1+0\seq_item:Nn \l__atableau_skew_seq \l__atableau_row_int} }
-        \tl_set:Nx \l_tmpb_tl { \int_eval:n {\int_max:nn{\l_tmpa_tl}{1+0\seq_item:Nn \l__atableau_skew_seq \l__atableau_r_int} }}
+        \int_set:No \l_tmpa_int { \int_eval:n {0\seq_item:Nn \l_tmpa_seq \l__atableau_col_int} }
+        \int_set:No \l_tmpb_int { \int_eval:n {\int_max:nn{\l_tmpa_int}{0\seq_item:Nn \l_tmpa_seq \l__atableau_c_int} }}
+        \int_decr:N \l__atableau_col_int
+        \int_decr:N \l__atableau_c_int
         \draw[aTableau/dotted]
-          (\l__atableau_prefix_tl-\int_use:N\l__atableau_row_int-\l_tmpa_tl.\l__atableau_corner_bottom_tl)
-          --(\l__atableau_prefix_tl-\int_use:N\l__atableau_r_int-\l_tmpb_tl.\l__atableau_corner_bottom_tl);
+          (\fp_eval:n{\l__atableau_x_fp+\l_tmpa_int*\l__atableau_xb_fp+\l__atableau_col_int*\l__atableau_xa_fp},
+           \fp_eval:n{\l__atableau_y_fp+\l_tmpa_int*\l__atableau_yb_fp+\l__atableau_col_int*\l__atableau_ya_fp})
+           --(\fp_eval:n{\l__atableau_x_fp+\l_tmpb_int*\l__atableau_xb_fp+\l__atableau_c_int*\l__atableau_xa_fp},
+              \fp_eval:n{\l__atableau_y_fp+\l_tmpb_int*\l__atableau_yb_fp+\l__atableau_c_int*\l__atableau_ya_fp})
+        ;
 
-        % only need to add "skew dots" if tmpa ≠ 1 and we're drawing the skew border
-        \tl_set:Nn \l_tmpc_tl {1}
-    \typeout{~-~skew:~tmpa=\l_tmpa_tl,~tmpb=\l_tmpb_tl,~tmpc=\l_tmpc_tl,~border=\bool_to_str:N \l__atableau_skew_border_bool,~row=\int_use:N\l__atableau_row_int,~r=\int_use:N\l__atableau_r_int,~drawing=\bool_to_str:n{ !\tl_if_eq_p:NN \l_tmpa_tl \l_tmpc_tl && \l__atableau_skew_border_bool }}
-        \bool_if:nT { !\tl_if_eq_p:NN \l_tmpa_tl \l_tmpc_tl && \l__atableau_skew_border_bool }
+        \bool_if:nT { \int_compare_p:nNn {\l_tmpa_int}>{0} && \l__atableau_skew_border_bool }
         {
           \draw[aTableau/dotted,draw=\l__atableau_skew_border_tl]
-            (\l__atableau_prefix_tl-\int_use:N\l__atableau_row_int-1.\l__atableau_corner_bottom_tl)
-            --(\l__atableau_prefix_tl-\int_use:N\l__atableau_r_int-1.\l__atableau_corner_bottom_tl);
+            (\fp_eval:n{\l__atableau_x_fp+\l__atableau_col_int*\l__atableau_xa_fp},
+             \fp_eval:n{\l__atableau_y_fp+\l__atableau_col_int*\l__atableau_ya_fp})
+            --(\fp_eval:n{\l__atableau_x_fp+\l__atableau_c_int*\l__atableau_xa_fp},
+               \fp_eval:n{\l__atableau_y_fp+\l__atableau_c_int*\l__atableau_ya_fp})
+          ;
         }
-      }
     }
-}
-
-% usage: \__atableau_remove_dotted_cols:
-% Poke some holes in the border for the cols in dotted_rows_seq
-\cs_new_protected_nopar:Nn \__atableau_remove_dotted_cols:
-{
 }
 
 % usage: \__atableau_draw_skew_boxes:
@@ -1147,7 +1239,7 @@
     \bool_if:NT \l__atableau_skew_border_bool { \__atableau_draw_border:nn {skew}  {skewborder}  }
     \bool_if:NT \l__atableau_border_bool      { \__atableau_draw_border:nn {shape} {border} }
 
-    % remove dots
+    % remove dotted rows and columns
     \seq_if_empty:NF \l__atableau_dotted_rows_seq \__atableau_remove_dotted_rows:
     \seq_if_empty:NF \l__atableau_dotted_cols_seq \__atableau_remove_dotted_cols:
 
@@ -1230,23 +1322,25 @@
 %  - allow use of \hbox_overlap_left:n, \hbox_overlap_center:n, or \hbox_overlap_right:n ???
 %  - hook to allow vertical alignment
 
-% We use \hbox_overlap_center:n to ensure that an entry does not change
-% the size of the node when it is too large.
+% We use \vbox_to_zero:n and \hbox_overlap_center:n to ensure that an entry
+% does not change the height or width of the node when it is too large.
 \cs_new_protected_nopar:Npn \__atableau_entry_math:n #1
 {
-  \hbox_overlap_center:n
-  {
-    \tl_if_blank:VF \tikz@textcolor {\color{\tikz@textcolor}}
-    \tikz@textfont $#1$
-  }
+    \hbox_overlap_center:n
+    {
+        \tl_if_blank:VF \tikz@textcolor {\color{\tikz@textcolor}}
+        \tikz@textfont $#1$
+    }
 }
+
+% and a text version
 \cs_new_protected_nopar:Npn \__atableau_entry_text:n #1
 {
-  \hbox_overlap_center:n
-  {
-    \tl_if_blank:VF \tikz@textcolor {\color{\tikz@textcolor}}
-    \tikz@textfont #1
-  }
+    \hbox_overlap_center:n
+    {
+      \tl_if_blank:VF \tikz@textcolor {\color{\tikz@textcolor}}
+      \tikz@textfont #1
+    }
 }
 
 % By default tableau nodes are typeset in math-mode.
@@ -1319,6 +1413,9 @@
     {
         \bool_if:NT \l__atableau_skew_border_bool { \__atableau_draw_border:nn {skew}  {skewborder}  }
         \__atableau_draw_border:nn {shape} {border}
+        % remove dotted rows and columns
+        \seq_if_empty:NF \l__atableau_dotted_rows_seq \__atableau_remove_dotted_rows:
+        \seq_if_empty:NF \l__atableau_dotted_cols_seq \__atableau_remove_dotted_cols:
     }
     {
         % depending on \l__atableau_show_tl, generate the tableau entries
@@ -1390,17 +1487,14 @@
         \clist_map_inline:nn {dotted_rows, dotted_cols, label, ribbons, snobs}
         {
           % if multi####1 is empty then clear the ####1 sequence, otherwise set it equal to component value
-          \typeout{multi~####1}
           \seq_if_empty:cTF {l__atableau_multi####1_seq}
           { \seq_clear:c {l__atableau_####1_seq} }
           {
               \tl_set:Nx \l_tmpb_tl {\seq_item:cV {l__atableau_multi####1_seq} \l__atableau_component_int}
               \seq_set_from_clist:co {l__atableau_####1_seq} {\l_tmpb_tl}
-        \typeout{####1="\seq_use:cn {l__atableau_####1_seq}{,}"}
           }
         }
 
-        \typeout{Finished}
         % skew is handled separately because it uses set_partition
         \seq_if_empty:NTF \l__atableau_multiskew_seq
         { \seq_clear:N \l__atableau_skew_seq }
@@ -1408,7 +1502,6 @@
             \tl_set:Nx \l_tmpb_tl {\seq_item:NV \l__atableau_multiskew_seq \l__atableau_component_int}
             \__atableau_set_partition:no {skew} {\l_tmpb_tl}
         }
-        \typeout{Finished~II}
 
         % determine the coordinates for the diagram/tableau
         %  - \l__atableau_c_int: number of columns in first row
@@ -1837,12 +1930,10 @@
         \__atableau_set_box_coordinates:nVV {l} \l__atableau_row_int \l__atableau_col_int
         \tl_if_empty:eTF {##1\l_tmpa_tl}
         { % nodes with default style and no text
-    \typeout{node[]aTableau/ribbonbox](\l__atableau_name_tl)~at~(\fp_use:N\l__atableau_xl_fp,\fp_use:N\l__atableau_yl_fp);}
           \exp_last_unbraced:Ne \node{[aTableau/ribbonbox](\l__atableau_name_tl)}
              at (\fp_use:N\l__atableau_xl_fp,\fp_use:N\l__atableau_yl_fp) {};
         }
         {   % nodes with styling go into \l__atableau_styled_nodes_tl
-        \typeout{saving~node}
           \tl_put_right:Nx \l__atableau_styled_nodes_tl
           {
             \exp_not:N \node [aTableau/ribbonbox,##1](\l__atableau_name_tl)
@@ -1852,7 +1943,6 @@
         }
     }
     % draw the ribbon, applying any style
-    \typeout{adding~ribbon:~draw{[aTableau/ribbonstyle, \l__atableau_ribbon_style_tl]} \l__atableau_ribbon_tl;}
     \exp_last_unbraced:Ne\draw{[aTableau/ribbonstyle, \l__atableau_ribbon_style_tl]} \l__atableau_ribbon_tl;
 
     % finally, add the styled nodes
