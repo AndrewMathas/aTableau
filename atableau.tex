@@ -1,6 +1,6 @@
 % ----------------------------------------------------------------------
 % Title:    aTableau.  Author:   Andrew Mathas Created:  October 2023
-% Modified: 00:21 Thursday, 19 December 2024
+% Modified: 15:51 Monday, 30 December 2024
 % ----------------------------------------------------------------------
 \documentclass{amsart} \usepackage[svgnames]{xcolor}
 \usepackage{atableau} \usepackage{xspace} \usepackage{manfnt}
@@ -1648,6 +1648,8 @@
     are added.
     \item When enabled by \option{skew border}, the skew border is
     drawn, after which the border of the tableau is drawn.
+    \item The \option{dotted rows} and \option{dotted columns} keys are
+    applied to replace the specified rows and columns with dots.
     \item Finally, any ribbons specified using \option{snobs} are
     drawn, in the order that they are listed.
   \end{itemize}
@@ -1778,6 +1780,9 @@
   \Tableau[french, border only, no border]{123,45}
   \end{example}
 
+  The \option{border only} key is ignored by the \keyword{\Tableau}
+  command.
+
   \option[false]{conjugate}[false/true]
 
   Draws the conjugate diagram, which has the rows and columns
@@ -1788,38 +1793,69 @@
   \Diagram[ukrainian, conjugate]{2,1^3}
   \end{example}
 
-  \option[]{dotted rows}[comma separated list of rows]
-  \option*[]{dotted columns}[comma separated list of columns]
+  \option[]{dotted columns}[comma separated list of columns]
+  \option*[]{dotted rows}[comma separated list of rows]
 
   The \option{dotted rows} and \option{dotted columns} keys can be used
   to draw  diagrams that where the specified rows and columns are
   replaced with dots. This makes it possible to draw \emph{generic}
-  diagrams, where the number of rows and columns are not fully specified. If
-  two, or more, of the row and columns are in increasing consecutive order, then the
-  corresponding rows or columns are replaced as a block.
+  diagrams, where the number of rows and columns are not fully
+  specified.  Instead of \option{dotted columns}, you can use the
+  short-hand key \option{dotted cols}.
 
   \begin{example}
+  \aTabset{scale=0.8}
   \Diagram[dotted rows={2,4,5}]{4^2,2^2,1^3} \qquad
-  \Diagram[scale=0.8, dotted rows={3,4,5},
-    inner colour=none] {6,5,4,3,2,1}
+  \Diagram[dotted columns={5,3,4},
+    border only] {6,5,4,3,2,1}
   \end{example}
 
+  As shown above, when row and columns indices are in increasing
+  \textit{consecutive} order, then the corresponding rows or columns are
+  replaced as a block. Non-consecutive indices are treated separately.
+
   \begin{example}
-  \Diagram[scale=0.8, dotted rows={4,5,3},
-    inner colour=none] {6,5,4,3,2,1}
-  \Diagram[scale=0.8, dotted cols={3,4,5},
-    inner colour=none] {6,5,4,3,2,1}
+  \aTabset{scale=0.8, border only}
+  \Diagram[dotted rows={4,5,3}] {6,5,5,5,2,1}
+  \Diagram[dotted cols={5,3,4}] {6,5,5,5,2,1}
   \end{example}
 
   \index{tableau~dotted rows}
   \index{tableau~dotted columns}
-  These keys work by overwriting all of the content on the specified rows and
-  columns, so anything that was drawn in these will rows will disappear.
-  The \option{dotted rows} and \option{dotted columns} keys can also be
-  used with the \keyword{\Tableau} command, with the result that all of
-  the boxes on the specified rows and columns will be removed.  Instead
-  of \option{dotted columns}, you can use the short-hand \option{dotted
-  cols}.
+  The \option{dotted rows} and \option{dotted columns} keys work by
+  overwriting all of the content on the specified rows and columns, so
+  anything that was drawn in these rows and columns will disappear.  The
+  \option{dotted rows} and \option{dotted columns} keys can be used with
+  the \keyword{\Tableau} command, with the caveat that this will remove
+  all boxes, with their contents, in the specified rows and columns.
+
+  When the \option{dotted rows} and \option{dotted columns} keys are
+  used together, the \option{dotted rows} are applied first.
+
+  \begin{example}
+  \Diagram[scale=0.8, border only,
+    dotted rows={4,5},
+    dotted cols={4,5},
+  ] {6,5,5,5,2,1}
+  \end{example}
+
+  When using these two keys together, you need to be careful when
+  choosing which rows and columns are removed because, otherwise,
+  artifacts can remain. Ideally, the endpoints of the rows and columns
+  being removed should not overlap. For example, the circled horizontal
+  dots below are a ``user error'', not a bug, because these dots come
+  from trying to use \option{dotted rows} to remove row three:
+
+  \begin{example}
+  \Diagram[scale=0.8, border only,
+    dotted rows={4,5,3}, dotted cols={4,5,3},
+    tikz after = {\draw[red] (1,-1.6) circle(0.3);}
+  ] {6,5,5,5,2,1}
+  \end{example}
+
+
+  The \option{dotted rows} and \option{dotted columns} keys are not
+  designed to be used with the \option{conjugate key}.
 
   \option[]{ribbons}[ribbon specification]\newline
   \option[]{snobs}[ribbon specification]
