@@ -50,14 +50,6 @@
   { Invalid~ribbon~specification~'#1':~expecting~r~or~c. }
   { Ribbon~specifications~must~be~for~the~form:~[optional~style]<row><col>~sequences~of~r's and~c's~with~style}
 
-\msg_new:nnnn { aTableau } { unknown-type }
-  { Unrecognised~Cartan~type~'#1'. }
-  { Currently,~only~only~supported~Cartan~types~are~(affine)~types~A,~AA,~C~and~DD}
-
-\msg_new:nnnn { aTableau } { unknown-top }
-  { Unrecognised~format~for~abacus~top;~'#1'. }
-  { The~supported~formats~are:~blank,~dots,~and~frame}
-
 \msg_new:nnnn { aTableau } { unrecognised-abacus-label }
   { Unrecognised~abacus~label~'#1'. }
   { The~possible~abacus~labels~are...}
@@ -70,20 +62,40 @@
   { Unrecognised~style:~'#1' }
   { The~available~tableau~styles~are~australian,~english,~french~and~ukrainian~and~the~available~abacus~styles~are~north,~south,~east~and~west~}
 
+\msg_new:nnnn { aTableau } { unknown-baseline }
+  { Unrecognised~baseline~option:~'#1' }
+  { The~supported~halign~options~are~~bottom,~centre,~left,~and~top }
+
+\msg_new:nnnn { aTableau } { unknown-halign }
+  { Unrecognised~halign~option:~'#1' }
+  { The~supported~halign~options~are~~centre,~left,~and~right }
+
+\msg_new:nnnn { aTableau } { unknown-type }
+  { Unrecognised~Cartan~type~'#1' }
+  { The~supported~Cartan~types~are~(affine)~types~A,~AA,~C~and~DD}
+
+\msg_new:nnnn { aTableau } { unknown-top }
+  { Unrecognised~format~for~abacus~top;~'#1' }
+  { The~supported~formats~are:~blank,~dots,~and~frame}
+
+\msg_new:nnnn { aTableau } { unknown-valign }
+  { Unrecognised~valign~option:~'#1' }
+  { The~supported~valign~options~are~bottom,~centre~and~top }
+
 % ---------------------------------------------------------------------------
 % package variables
 
-\bool_new:N \l__atableau_beta_numbers_bool % true if specifying beta numbers
-\bool_new:N \l__atableau_finite_bool       % true if finite abacus runners
-\bool_new:N \l__atableau_frame_bool        % true if drawing framed abacus runners
-\bool_new:N \l__atableau_conjugate_bool    % true if drawing conjugate tableau/diagram
-\bool_new:N \l__atableau_border_bool       % true if drawing tableau border
-\bool_new:N \l__atableau_border_only_bool  % true if only drawing tableau border
-\bool_new:N \l__atableau_shifted_bool      % true if a shifted tableau
-\bool_new:N \l__atableau_skew_border_bool  % true if drawing skew border
-\bool_new:N \l__atableau_skew_boxes_bool   % true if drawing skew boxes
-\bool_new:N \l__atableau_tabloid_bool      % true if a tabloid
-\bool_new:N \l__atableau_separators_bool   % true if drawing separators for multishapes
+\bool_new:N \l__atableau_beta_numbers_bool% true if specifying beta numbers
+\bool_new:N \l__atableau_finite_bool      % true if finite abacus runners
+\bool_new:N \l__atableau_frame_bool       % true if drawing framed abacus runners
+\bool_new:N \l__atableau_conjugate_bool   % true if drawing conjugate tableau/diagram
+\bool_new:N \l__atableau_border_bool      % true if drawing tableau border
+\bool_new:N \l__atableau_border_only_bool % true if only drawing tableau border
+\bool_new:N \l__atableau_shifted_bool     % true if a shifted tableau
+\bool_new:N \l__atableau_skew_border_bool % true if drawing skew border
+\bool_new:N \l__atableau_skew_boxes_bool  % true if drawing skew boxes
+\bool_new:N \l__atableau_tabloid_bool     % true if a tabloid
+\bool_new:N \l__atableau_separators_bool  % true if drawing separators for multishapes
 
 \fp_new:N \l__atableau_abacus_ht_fp       % height of the tableaux nodes/separation between abacus beads
 \fp_new:N \l__atableau_abacus_wd_fp       % width of the tableaux nodes/separation between abacus runners
@@ -155,37 +167,35 @@
 \tl_new:N \l__atableau_border_tl          % diagram border
 \tl_new:N \l__atableau_box_fill_tl        % fill colour for tableau boxes
 \tl_new:N \l__atableau_box_font_tl        % font for tableau boxes
-\tl_new:N \l__atableau_box_shape_tl      % shape of tableau boxes
-\tl_new:N \l__atableau_box_text_tl       % text colour for tableau boxes
-\tl_new:N \l__atableau_capture_exp_tl    % contains captured exponent
-\tl_new:N \l__atableau_capture_part_tl   % contains captured part
-\tl_new:N \l__atableau_capture_style_tl  % contains captured style
-\tl_new:N \l__atableau_capture_txt_tl    % contains captured text
-\tl_new:N \l__atableau_corner_bottom_tl  % anchor name of the top corner of a tableau box
-\tl_new:N \l__atableau_corner_top_tl     % anchor name of the bottom corner of a tableau box
-\tl_new:N \l__atableau_empty_tl          % symbol for empty tableau/diagram in a multi tableau/diagram
-\tl_new:N \l__atableau_entries_tl        % custom entries in tableau
-\tl_new:N \l__atableau_inner_tl          % colour of tableau inner walls
-\tl_new:N \l__atableau_label_tl          % a label to print on an tableau/diagram
-\tl_new:N \l__atableau_left_delimiter_tl % the left delimiter for multitableau and multidiagrams
-\tl_new:N \l__atableau_multiprefix_tl    % prefix used when constructing multinode names
-\tl_new:N \l__atableau_name_tl           % name of a tableau node
-\tl_new:N \l__atableau_outer_tl          % colour of tableau outer walls
-\tl_new:N \l__atableau_prefix_tl         % prefix for node names
-\tl_new:N \l__atableau_ribbon_style_tl   % style used for ribbons
-\tl_new:N \l__atableau_ribbon_tl         % a ribbon in the ribbon tableau
-\tl_new:N \l__atableau_right_delimiter_tl% the right delimiter for multitableau and multidiagrams
-\tl_new:N \l__atableau_runner_tl         % abacus runner colour
-\tl_new:N \l__atableau_separator_fg_tl   % foreground colour of the separator
-\tl_new:N \l__atableau_separator_tl      % the separator between multitableau: | or , or ...
-\tl_new:N \l__atableau_show_tl           % automatic tableau/bead labelling
-\tl_new:N \l__atableau_skew_border_tl    % skew border colour
-\tl_new:N \l__atableau_styled_nodes_tl   % token lists of nodes with non-default style
-\tl_new:N \l__atableau_tableau_style_tl  % tableaux style: australian, english (default), french, ukrainian
-\tl_new:N \l__atableau_tick_tl           % abacus tick colour
-\tl_new:N \l__atableau_tikz_after_tl     % TikZ commands for after the diagram
-\tl_new:N \l__atableau_tikz_before_tl    % TikZ commands for before the diagram
-\tl_new:N \l__atableau_tikzpicture_tl    % TikZ environment settings
+\tl_new:N \l__atableau_box_shape_tl       % shape of tableau boxes
+\tl_new:N \l__atableau_box_text_tl        % text colour for tableau boxes
+\tl_new:N \l__atableau_capture_exp_tl     % contains captured exponent
+\tl_new:N \l__atableau_capture_part_tl    % contains captured part
+\tl_new:N \l__atableau_capture_style_tl   % contains captured style
+\tl_new:N \l__atableau_capture_txt_tl     % contains captured text
+\tl_new:N \l__atableau_empty_tl           % symbol for empty tableau/diagram in a multi tableau/diagram
+\tl_new:N \l__atableau_entries_tl         % custom entries in tableau
+\tl_new:N \l__atableau_inner_tl           % colour of tableau inner walls
+\tl_new:N \l__atableau_label_tl           % a label to print on an tableau/diagram
+\tl_new:N \l__atableau_left_delimiter_tl  % the left delimiter for multitableau and multidiagrams
+\tl_new:N \l__atableau_multiprefix_tl     % prefix used when constructing multinode names
+\tl_new:N \l__atableau_name_tl            % name of a tableau node
+\tl_new:N \l__atableau_outer_tl           % colour of tableau outer walls
+\tl_new:N \l__atableau_prefix_tl          % prefix for node names
+\tl_new:N \l__atableau_ribbon_style_tl    % style used for ribbons
+\tl_new:N \l__atableau_ribbon_tl          % a ribbon in the ribbon tableau
+\tl_new:N \l__atableau_right_delimiter_tl % the right delimiter for multitableau and multidiagrams
+\tl_new:N \l__atableau_runner_tl          % abacus runner colour
+\tl_new:N \l__atableau_separator_fg_tl    % foreground colour of the separator
+\tl_new:N \l__atableau_separator_tl       % the separator between multitableau: | or , or ...
+\tl_new:N \l__atableau_show_tl            % automatic tableau/bead labelling
+\tl_new:N \l__atableau_skew_border_tl     % skew border colour
+\tl_new:N \l__atableau_styled_nodes_tl    % token lists of nodes with non-default style
+\tl_new:N \l__atableau_tableau_style_tl   % tableaux style: australian, english (default), french, ukrainian
+\tl_new:N \l__atableau_tick_tl            % abacus tick colour
+\tl_new:N \l__atableau_tikz_after_tl      % TikZ commands for after the diagram
+\tl_new:N \l__atableau_tikz_before_tl     % TikZ commands for before the diagram
+\tl_new:N \l__atableau_tikzpicture_tl     % TikZ environment settings
 
 % ---------------------------------------------------------------------------
 % default colours
@@ -256,6 +266,13 @@
         aTableau/innerwall,
         draw  = \l__atableau_skew_border_tl,
         fill  = aTableauSkewFill,
+    },
+    % label styles
+    labelstyle/.style = {
+        shift = {(\fp_eval:n{-0.2*(\l__atableau_row_dx_fp+\l__atableau_col_dx_fp)*\l__atableau_box_wd_fp},
+                  \fp_eval:n{-0.2*(\l__atableau_row_dy_fp+\l__atableau_col_dy_fp)*\l__atableau_box_ht_fp})},
+        font=\scriptsize,
+        text = \l__atableau_inner_tl,
     },
     % star style
     starstyle/.style = {
@@ -359,8 +376,6 @@
           \fp_set:Nn \l__atableau_box_ht_fp {\l__atableau_yscale_fp*0.5}
           \fp_set:Nn \l__atableau_box_wd_fp {\l__atableau_xscale_fp*0.5}
           \tl_set:Nn \l__atableau_box_shape_tl {rectangle}
-          \tl_set:Nn \l__atableau_corner_top_tl {north~east}
-          \tl_set:Nn \l__atableau_corner_bottom_tl {north~west}
         }
       {tableau/french}
         {
@@ -371,8 +386,6 @@
           \fp_set:Nn \l__atableau_box_ht_fp {\l__atableau_yscale_fp*0.5}
           \fp_set:Nn \l__atableau_box_wd_fp {\l__atableau_xscale_fp*0.5}
           \tl_set:Nn \l__atableau_box_shape_tl {rectangle}
-          \tl_set:Nn \l__atableau_corner_top_tl {south~east}
-          \tl_set:Nn \l__atableau_corner_bottom_tl {south~west}
         }
       {tableau/australian}
         {
@@ -383,8 +396,6 @@
           \fp_set:Nn \l__atableau_box_ht_fp {\l__atableau_yscale_fp*0.7012} % 1/sqrt(2)
           \fp_set:Nn \l__atableau_box_wd_fp {\l__atableau_xscale_fp*0.7012}
           \tl_set:Nn \l__atableau_box_shape_tl {diamond}
-          \tl_set:Nn \l__atableau_corner_top_tl {east}
-          \tl_set:Nn \l__atableau_corner_bottom_tl {north}
         }
       {tableau/ukrainian}
         {
@@ -395,8 +406,6 @@
           \fp_set:Nn \l__atableau_box_ht_fp {\l__atableau_yscale_fp*0.7012}
           \fp_set:Nn \l__atableau_box_wd_fp {\l__atableau_xscale_fp*0.7012}
           \tl_set:Nn \l__atableau_box_shape_tl {diamond}
-          \tl_set:Nn \l__atableau_corner_top_tl {east}
-          \tl_set:Nn \l__atableau_corner_bottom_tl {south}
         }
       {tableau/russian}
         {
@@ -474,9 +483,9 @@
   \tl_set:Nn \l__atableau_right_delimiter_tl #2
 }
 
-% usage: \__atableau_set_multi_key:nn {name} {value}
-% Set up a token list, or sequence, for keys used with multishapes
-\cs_new_protected_nopar:Npn \__atableau_set_multi_key:nn #1 #2
+% usage: \__atableau_set_multiseq_key:nn {name} {value}
+% Set up a sequence, for keys used with multishapes
+\cs_new_protected_nopar:Npn \__atableau_set_multiseq_key:nn #1 #2
 {
   \tl_if_in:nnTF {#2} {|}
   {
@@ -1112,6 +1121,24 @@
     }
 }
 
+% usage: \__atableau_draw_label:
+% Add the label to a diagram
+\cs_new_protected_nopar:Nn \__atableau_draw_label:
+{
+\typeout{Drawing~label~\l__atableau_label_tl}
+   % determine where the label should be attached, which is the (1,1)-box by default
+   \fp_set_eq:NN \l__atableau_xa_fp \l__atableau_x_fp
+   \fp_set_eq:NN \l__atableau_ya_fp \l__atableau_y_fp
+   \bool_if:nF { \seq_if_empty_p:N \l__atableau_skew_seq || \l__atableau_skew_border_bool }
+   {   % attach label to the (1,skew_1)-box
+       \tl_set:Nn \l_tmpa_tl { 0\seq_item:Nn \l__atableau_skew_seq {1} }
+       \fp_add:Nn \l__atableau_xa_fp {\l_tmpa_tl*\l__atableau_col_dx_fp*\l__atableau_box_wd_fp}
+       \fp_add:Nn \l__atableau_ya_fp {\l_tmpa_tl*\l__atableau_col_dy_fp*\l__atableau_box_wd_fp}
+   }
+   % add the label
+   \node[aTableau/labelstyle] at (\fp_use:N\l__atableau_xa_fp,\fp_use:N\l__atableau_ya_fp) {\l__atableau_label_tl};
+}
+
 % usage: \__atableau_draw_skew_boxes:
 % Draw the skew boxes using ribbons
 \cs_new_protected_nopar:Nn \__atableau_draw_skew_boxes:
@@ -1235,6 +1262,7 @@
     \cs_set_eq:NN \__atableau_update_extrema:n \use_none:n
 
     % draw border
+    \tl_if_blank:VF \l__atableau_label_tl     { \__atableau_draw_label: }
     \bool_if:NT \l__atableau_skew_boxes_bool  { \__atableau_draw_skew_boxes: }
     \bool_if:NT \l__atableau_skew_border_bool { \__atableau_draw_border:nn {skew}  {skewborder}  }
     \bool_if:NT \l__atableau_border_bool      { \__atableau_draw_border:nn {shape} {border} }
@@ -1318,28 +1346,35 @@
 % ---------------------------------------------------------------------------
 % tableaux boxes/nodes
 
-% TODO:
-%  - allow use of \hbox_overlap_left:n, \hbox_overlap_center:n, or \hbox_overlap_right:n ???
-%  - hook to allow vertical alignment
+\cs_new_protected:Npn \__atableau_valign_bottom:n #1 { \vbox_to_zero:n { #1 \vss } }
+\cs_new_protected:Npn \__atableau_valign_centre:n #1 { \vbox_to_zero:n { \vss #1 \vss } }
+\cs_new_protected:Npn \__atableau_valign_top:n #1    { \vbox_to_zero:n { \vss #1 } }
+\cs_set_eq:NN  \__atableau_valign_center:n \__atableau_valign_centre:n
 
 % We use \vbox_to_zero:n and \hbox_overlap_center:n to ensure that an entry
 % does not change the height or width of the node when it is too large.
 \cs_new_protected_nopar:Npn \__atableau_entry_math:n #1
 {
-    \hbox_overlap_center:n
+    \__atableau_valign:n
     {
-        \tl_if_blank:VF \tikz@textcolor {\color{\tikz@textcolor}}
-        \tikz@textfont $#1$
+        \__atableau_halign:n
+        {
+            \tl_if_blank:VF \tikz@textcolor {\color{\tikz@textcolor}}
+            \tikz@textfont $~#1 $
+        }
     }
 }
 
 % and a text version
 \cs_new_protected_nopar:Npn \__atableau_entry_text:n #1
 {
-    \hbox_overlap_center:n
+    \__atableau_valign:n
     {
-      \tl_if_blank:VF \tikz@textcolor {\color{\tikz@textcolor}}
-      \tikz@textfont #1
+        \__atableau_halign:n
+        {
+          \tl_if_blank:VF \tikz@textcolor {\color{\tikz@textcolor}}
+          \tikz@textfont #1
+        }
     }
 }
 
@@ -1411,6 +1446,7 @@
 
     \bool_if:NTF \l__atableau_border_only_bool
     {
+        \tl_if_blank:VF \l__atableau_label_tl     { \__atableau_draw_label: }
         \bool_if:NT \l__atableau_skew_border_bool { \__atableau_draw_border:nn {skew}  {skewborder}  }
         \__atableau_draw_border:nn {shape} {border}
         % remove dotted rows and columns
@@ -1484,7 +1520,7 @@
         \int_set:Nn \l__atableau_charge_int {0\seq_item:NV \l__atableau_charge_seq \l__atableau_component_int}
 
         % set the multi-component keys from the corresponding multi sequence
-        \clist_map_inline:nn {dotted_rows, dotted_cols, label, ribbons, snobs}
+        \clist_map_inline:nn {dotted_rows, dotted_cols, ribbons, snobs}
         {
           % if multi####1 is empty then clear the ####1 sequence, otherwise set it equal to component value
           \seq_if_empty:cTF {l__atableau_multi####1_seq}
@@ -1493,6 +1529,14 @@
               \tl_set:Nx \l_tmpb_tl {\seq_item:cV {l__atableau_multi####1_seq} \l__atableau_component_int}
               \seq_set_from_clist:co {l__atableau_####1_seq} {\l_tmpb_tl}
           }
+        }
+
+        % labels are handled separately because they are not sequences
+        \seq_if_empty:NTF \l__atableau_multilabel_seq
+        { \seq_clear:N \l__atableau_label_seq }
+        {
+            \tl_set:Nx \l_tmpb_tl {\seq_item:NV \l__atableau_multilabel_seq \l__atableau_component_int}
+            \tl_set:No \l__atableau_label_tl {\l_tmpb_tl}
         }
 
         % skew is handled separately because it uses set_partition
@@ -1719,9 +1763,14 @@
     \seq_map_inline:Nn \l__atableau_ribbons_seq {\__atableau_add_ribbon:n {##1}}
 
     % draw borders and skew boxes
+    \tl_if_blank:VF \l__atableau_label_tl     { \__atableau_draw_label: }
     \bool_if:NT \l__atableau_skew_boxes_bool  { \__atableau_draw_skew_boxes: }
     \bool_if:NT \l__atableau_skew_border_bool { \__atableau_draw_border:nn {skew}  {skewborder}  }
     \bool_if:NT \l__atableau_border_bool      { \__atableau_draw_border:nn {shape} {border} }
+
+    % remove dotted rows and columns
+    \seq_if_empty:NF \l__atableau_dotted_rows_seq \__atableau_remove_dotted_rows:
+    \seq_if_empty:NF \l__atableau_dotted_cols_seq \__atableau_remove_dotted_cols:
 
     % add any snobs
     \seq_map_inline:Nn \l__atableau_snobs_seq { \__atableau_add_ribbon:n {##1} }
@@ -2098,24 +2147,42 @@
     % general settings
 
     % tableaux alignment
-    align .choice:,
-    align/top .code:n = { \tikzset{baseline=(current~bounding~box.north)} },
-    align/center .code:n = { \tikzset{baseline=(current~bounding~box.center)} },
-    align/centre .code:n = { \tikzset{baseline=(current~bounding~box.center)} },
-    align/bottom .code:n = { \tikzset{baseline=(current~bounding~box.south)} },
-    align .initial:n = centre,
+    baseline .choice:,
+    baseline/top .code:n    = { \tikzset{baseline=(current~bounding~box.north)} },
+    baseline/center .code:n = { \tikzset{baseline=(current~bounding~box.center)} },
+    baseline/centre .code:n = { \tikzset{baseline=(current~bounding~box.center)} },
+    baseline/bottom .code:n = { \tikzset{baseline=(current~bounding~box.south)} },
+    baseline .initial:n = centre,
+    baseline .unknown .code:n = { \msg_error:nne { aTableau } { unknown-baseline } {#1} },
 
     % dotted rows and columns for tableaux and abacuses
-    dotted~rows .code:n = { \__atableau_set_multi_key:nn {dotted_rows} {#1} },
+    dotted~rows .code:n = { \__atableau_set_multiseq_key:nn {dotted_rows} {#1} },
     dotted~rows .value_required:n = true,
 
-    dotted~cols .code:n = { \__atableau_set_multi_key:nn {dotted_cols} {#1} },
+    dotted~cols .code:n = { \__atableau_set_multiseq_key:nn {dotted_cols} {#1} },
     dotted~cols .value_required:n = true,
     dotted~columns .meta:n = { dotted~cols = {#1} },
 
+    halign .choice:,
+    halign/center .code = {\cs_set_eq:NN \__atableau_halign:n \hbox_overlap_center:n},
+    halign/centre .code = {\cs_set_eq:NN \__atableau_halign:n \hbox_overlap_center:n},
+    halign/left .code   = {\cs_set_eq:NN \__atableau_halign:n \hbox_overlap_left:n},
+    halign/right .code  = {\cs_set_eq:NN \__atableau_halign:n \hbox_overlap_right:n},
+    halign .initial:n = centre,
+    halign .unknown .code:n = { \msg_error:nne { aTableau } { unknown-halign } {#1} },
+
     % label
-    label .code:n = { \__atableau_set_multi_key:nn {label} {#1} },
-    label .initial:n =,
+    label .code:n = {
+        \tl_if_in:nnTF {#1} {|}
+        {
+            % unpack the ribbons into \l__atableau_multiribbons_seq
+            \seq_set_split:cnn {l__atableau_multilabel_seq} {|} {#1}
+        }
+        { \tl_set:No \l__atableau_label_tl {#1} }
+    },
+
+    label~style .code:n = { \exp_args:No \tikzset {aTableau/labelstyle/.append~style={#1}} },
+    label~style .value_required:n = true,
 
     % tableau node name prefix
     name .tl_set:N  = \l__atableau_prefix_tl,
@@ -2125,6 +2192,13 @@
     % scaling
     scale .code:n = { \__atableau_set_xscale:n {#1} \__atableau_set_yscale:n {#1} },
     scale .value_required:n = true,
+
+    valign .choices:nn = { bottom,, center, centre, top }
+    {
+        \cs_set_eq:Nc \__atableau_valign:n { __atableau_valign_#1:n }
+    },
+    valign .initial:n = centre,
+    valign .unknown .code:n = { \msg_error:nne { aTableau } { unknown-valign } {#1} },
 
     xscale .code:n = { \__atableau_set_xscale:n {#1} },
     xscale .initial:n =1,
@@ -2138,8 +2212,7 @@
     show .initial:n = ,
     show .value_required:n = false,
 
-    star~style .code:n = { \exp_args:Nx \tikzset {aTableau/starstyle/.append~style={#1}} },
-    star~style .initial:n = {fill=aTableauStarStyle},
+    star~style .code:n = { \exp_args:No \tikzset {aTableau/starstyle/.append~style={#1}} },
     star~style .value_required:n = true,
 
     % tikzpicture environment
@@ -2227,7 +2300,7 @@
       \bool_set_eq:Nc \l__atableau_border_only_bool { c_#1_bool } % cute trick from cfr
       \bool_if:NT \l__atableau_border_only_bool
       {
-        \exp_args:Nx \tikzset {aTableau/box/.append~style={draw=none}}
+        \exp_args:No \tikzset {aTableau/box/.append~style={draw=none}}
       }
     },
     border~only .initial:n = false,
@@ -2241,7 +2314,7 @@
     border~colour .initial:n = aTableauMain,
     border~colour .value_required:n = true,
 
-    border~style .code:n = { \exp_args:Nx \tikzset {aTableau/border/.append~style={#1}} },
+    border~style .code:n = { \exp_args:No \tikzset {aTableau/border/.append~style={#1}} },
     border~style .value_required:n = true,
 
     % node height and width
@@ -2277,23 +2350,23 @@
     inner~color .tl_set:N = \l__atableau_inner_tl,
     inner~color .value_required:n = true,
 
-    inner~style .code:n = { \exp_args:Nx \tikzset {aTableau/innerwall/.append~style={#1}} },
+    inner~style .code:n = { \exp_args:No \tikzset {aTableau/innerwall/.append~style={#1}} },
     inner~style .value_required:n = true,
 
     math~boxes .code:n = { \cs_set_eq:NN \__atableau_entry:n \__atableau_entry_math:n },
     text~boxes .code:n = { \cs_set_eq:NN \__atableau_entry:n \__atableau_entry_text:n },
 
-    ribbons .code:n = { \__atableau_set_multi_key:nn {ribbons} {#1} },
+    ribbons .code:n = { \__atableau_set_multiseq_key:nn {ribbons} {#1} },
     ribbons .initial:n = ,
 
-    snobs .code:n = { \__atableau_set_multi_key:nn {snobs} {#1} },
+    snobs .code:n = { \__atableau_set_multiseq_key:nn {snobs} {#1} },
     snobs .initial:n = ,
 
-    ribbon~box .code:n = { \exp_args:Nx \tikzset {aTableau/ribbonbox/.append~style={#1}} },
+    ribbon~box .code:n = { \exp_args:No \tikzset {aTableau/ribbonbox/.append~style={#1}} },
     ribbon~box .initial:n =,
     ribbon~box .value_required:n = true,
 
-    ribbon~style .code:n = { \exp_args:Nx \tikzset {aTableau/ribbonstyle/.append~style={#1}} },
+    ribbon~style .code:n = { \exp_args:No \tikzset {aTableau/ribbonstyle/.append~style={#1}} },
     ribbon~style .initial:n =,
     ribbon~style .value_required:n = true,
 
@@ -2322,14 +2395,14 @@
     skew colour .initial:n = aTableauSkew,
     skew color .tl_set:N = \l__atableau_skew_border_tl,
 
-    skew~border~style .code:n = { \exp_args:Nx \tikzset {aTableau/skewborder/.append~style={#1}} },
+    skew~border~style .code:n = { \exp_args:No \tikzset {aTableau/skewborder/.append~style={#1}} },
     skew~border~style .value_required:n = true,
 
     skew~boxes .bool_set:N = \l__atableau_skew_boxes_bool,
     skew~boxes .default:n  = true,
     skew~boxes .initial:n  = false,
 
-    skew~box~style .code:n = { \exp_args:Nx \tikzset {aTableau/skewbox/.append~style={#1}} },
+    skew~box~style .code:n = { \exp_args:No \tikzset {aTableau/skewbox/.append~style={#1}} },
     skew~box~style .value_required:n = true,
 
     tabloid .bool_set:N = \l__atableau_tabloid_bool,
