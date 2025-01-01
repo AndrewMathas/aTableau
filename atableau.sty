@@ -235,7 +235,6 @@
         shift = {(\fp_eval:n{-(\l__atableau_row_dx_fp+\l__atableau_col_dx_fp)*\l__atableau_box_wd_fp/2},
                   \fp_eval:n{-(\l__atableau_row_dy_fp+\l__atableau_col_dy_fp)*\l__atableau_box_ht_fp/2})},
         draw  = \l__atableau_skew_border_tl,
-        very~thick,
     },
     % -----------------------------------------------------------------------
     % styles for tableau boxes
@@ -501,11 +500,12 @@
 
 \cs_generate_variant:Nn \fp_add:Nn {NV}
 \cs_generate_variant:Nn \int_compare:nNnTF {oNVT, oNnT, oNoT}
+\cs_generate_variant:Nn \int_compare:nNnT {oNnT}
 \cs_generate_variant:Nn \int_set:Nn {No}
 \cs_generate_variant:Nn \int_while_do:nNnn {oNon}
 \cs_generate_variant:Nn \msg_warning:nnn {nno}
 \cs_generate_variant:Nn \seq_put_right:Nn {Nx}
-\cs_generate_variant:Nn \seq_set_item:Nnn {Nno, NVV,Nox}
+\cs_generate_variant:Nn \seq_set_item:Nnn {Nno, NVV,Nox, NVx, Nnx}
 \cs_generate_variant:Nn \seq_set_from_clist:Nn {No, co}
 \cs_generate_variant:Nn \seq_set_split:Nnn {cnn}
 
@@ -749,12 +749,10 @@
     \seq_map_inline:Nn #1
     {
         \tl_put_right:No \l__atableau_entries_tl \l_tmpb_tl
-        \bool_if:NF \l__atableau_shifted_bool  { \int_incr:N \l__atableau_row_int }
+        \int_incr:N \l__atableau_row_int
         \int_step_inline:nn {##1}
         {
-            \bool_if:NTF \l__atableau_shifted_bool
-              { \tl_set:Ne \l_tmpc_tl { \int_eval:n{\l__atableau_charge_int + ####1 - \l__atableau_row_int - 1} } }
-              { \tl_set:Ne \l_tmpc_tl { \int_eval:n{\l__atableau_charge_int + ####1 - \l__atableau_row_int + 0\seq_item:NV \l__atableau_skew_seq \l__atableau_row_int} } }
+            \tl_set:Ne \l_tmpc_tl { \int_eval:n{\l__atableau_charge_int + ####1 - \l__atableau_row_int + 0\seq_item:NV \l__atableau_skew_seq \l__atableau_row_int} }
             \__atableau_tl_put_right_braced:NV \l__atableau_entries_tl \l_tmpc_tl
         }
         \tl_set:Nn \l_tmpb_tl {,}
@@ -766,23 +764,35 @@
 \cs_new_protected_nopar:Npn \__atableau_shape_to_last:N #1
 {
     % compute conjugate of #1 as \l__atableau_conjugate_seq
-    \__atableau_compute_conjugate_partition:N #1
-    \seq_clear:N \l_tmpc_seq % construct the tableau in this sequence and then decant
-    \int_set:Nn  \l__atableau_c_int {\l__atableau_charge_int}
+    %\__atableau_compute_conjugate_partition:N #1
+
     % initialise \l_tmpc_seq -- should not be necessary but otherwise \seq_item:NV fails
-    \seq_map_inline:Nn  #1 {\seq_put_right:Nn \l_tmpc_seq {}}
-    \seq_map_inline:Nn  \l__atableau_conjugate_seq
+    \seq_clear:N \l_tmpc_seq % construct the tableau in this sequence and then decant
+    \seq_map_inline:Nn #1 {\seq_put_right:Nn \l_tmpc_seq {}}
+
+    % value of last entry added to the tableau
+    \int_set:Nn  \l__atableau_c_int {\l__atableau_charge_int}
+
+    % length of the first row of the partition/seq #1
+    \int_set:Nn \l__atableau_row_int {0\seq_item:Nn #1 {1}}
+
+    \int_step_inline:nn {\l__atableau_row_int}  % ##1 is the column index
     {
-        \int_zero:N \l__atableau_r_int
-        \int_step_inline:nn {##1}
+        \int_zero:N \l__atableau_r_int          % r_int is the row index
+        \seq_map_inline:Nn #1                   % ####1 is the rth entry of the partition #1
         {
-            \int_incr:N \l__atableau_r_int  % row index
-            \int_incr:N \l__atableau_c_int  % tableau entry
-            \tl_set:Nx \l_tmpa_tl { \seq_item:NV \l_tmpc_seq \l__atableau_r_int }
-            \__atableau_tl_put_right_braced:NV \l_tmpa_tl \l__atableau_c_int
-            \seq_set_item:Nno \l_tmpc_seq \l__atableau_r_int \l_tmpa_tl
+            \int_incr:N \l__atableau_r_int
+            \tl_set:Nn \l_tmpa_tl { 0\seq_item:NV \l__atableau_skew_seq \l__atableau_r_int}
+            \bool_if:nT { \int_compare_p:nNn {##1} > {\l_tmpa_tl} && \int_compare_p:nNn {\l_tmpa_tl+####1+1} > {##1}}
+            {
+                \int_incr:N \l__atableau_c_int
+                \tl_set:No \l_tmpa_tl { \seq_item:Nn \l_tmpc_seq {\l__atableau_r_int} }
+                \__atableau_tl_put_right_braced:No \l_tmpa_tl {\int_use:N \l__atableau_c_int}
+                \seq_set_item:NVx \l_tmpc_seq \l__atableau_r_int {\l_tmpa_tl}
+            }
         }
     }
+
     % finally, unpack \l_tmpc_tl into l__atableau_entries_tl
     \tl_clear:N \l__atableau_entries_tl
     \tl_set:Nn \l_tmpb_tl {}
@@ -810,6 +820,7 @@
         }
         \tl_set:Nn \l_tmpb_tl {,}
     }
+    \seq_put_right:No \l__atableau_charge_seq {\int_use:N\l__atableau_r_int}
 }
 
 % usage: \__atableau_shape_to_hook:N {partition_seq}
@@ -819,24 +830,40 @@
 {
     % now construct the hook tableau
     \tl_clear:N \l__atableau_entries_tl
-    \int_zero:N \l__atableau_row_int
-    \tl_set:Nn \l_tmpb_tl {}
     \bool_if:NTF \l__atableau_shifted_bool
-    { % shifted tableau
-      \seq_map_inline:Nn #1
-      {
-        \tl_put_right:No \l__atableau_entries_tl \l_tmpb_tl
-        \int_incr:N \l__atableau_row_int
-        \int_step_inline:nn {##1}
-        {
-          \int_set_Nn \l_tmpa_int { \l__atableau_row_int\int_eval:n {##1+\seq_item:Nn \l__atableau_conjugate_seq {####1} -\l__atableau_row_int-####1+1} }
-          \int_set:n \l_tmpa_int {##1}
-        }
-      }
+    {   % shifted tableau
+        % initialise l_tmpc_seq because we will construct the entries in it and unpack at the end
+        \seq_clear:N \l_tmpc_seq
+        \seq_map_inline:Nn #1 {\seq_put_right:Nn \l_tmpc_seq {}}
+        \int_set:Nn \l__atableau_col_int { 0\seq_item:Nn #1 {1} } % length of first row
+        \int_step_inline:nn { \l__atableau_col_int }
+        {   % add hooks column by column, starting by determining the rows in columns ##1
+            \int_zero:N \l__atableau_row_int
+            \seq_map_inline:Nn #1
+            {
+                \bool_if:nT { \int_compare_p:nNn {##1} > {\l__atableau_row_int} && \int_compare_p:nNn {####1+\l__atableau_row_int+1} > {##1} }
+                {
+                    \int_incr:N \l__atableau_row_int
+                }
+            }
+            % record length of row col+1
+            \int_set:Nn \l_tmpa_int {0\seq_item:Nn #1 {##1+1}}
+            % loop through rows 1,...,row and add the hook lengths
+            \int_step_inline:nn {\l__atableau_row_int}
+            {
+                \tl_set:Nx \l_tmpa_tl { \seq_item:Nn \l_tmpc_seq {####1} }
+                \tl_set:Nx \l_tmpb_tl { \int_eval:n {\seq_item:Nn #1 {####1}  + \l__atableau_row_int - ##1 + \l_tmpa_int  } }
+                \__atableau_tl_put_right_braced:NV \l_tmpa_tl \l_tmpb_tl
+                \seq_set_item:Nnx \l_tmpc_seq {####1} {\l_tmpa_tl}
 
+            }
+        }
+        \tl_set:Nx \l__atableau_entries_tl { \seq_use:Nn \l_tmpc_seq {,} }
     }
-    { % unshifted (although could be skew...)
+    { % unshifted (although could be skew, when all bets are off...)
       % compute conjugate of #1 as \l__atableau_conjugate_seq
+      \int_zero:N \l__atableau_row_int
+      \tl_set:Nn \l_tmpb_tl {}
       \__atableau_compute_conjugate_partition:N #1
       \seq_map_inline:Nn #1
       {
@@ -865,9 +892,7 @@
         \int_incr:N \l__atableau_row_int
         \int_step_inline:nn {##1}
         {
-            \bool_if:NTF \l__atableau_shifted_bool
-            { \int_set:Nn \l_tmpa_int { \l__atableau_charge_int + ####1 - 1} }
-            { \int_set:Nn \l_tmpa_int { \l__atableau_charge_int + ####1 - \l__atableau_row_int } }
+            \int_set:Nn \l_tmpa_int { \l__atableau_charge_int + ####1 - \l__atableau_row_int }
             \int_add:Nn \l_tmpa_int { + 0\seq_item:NV \l__atableau_skew_seq \l__atableau_row_int }
             \tl_set:Nx \l_tmpa_tl { \__atableau_residue:nn { \l_tmpa_int } {\l__atableau_e_int} }
             \__atableau_tl_put_right_braced:Nx \l__atableau_entries_tl { \l_tmpa_tl }
@@ -958,8 +983,7 @@
         %      c=(r,tmpb) ....   d=(r,c)
 
         % set tmpa and tmpb to the column index for rows row and r, respectively
-        \int_set:No \l__atableau_col_int { 0\seq_item:NV \l__atableau_shape_seq \l__atableau_row_int } % mu_row
-        \int_set:No \l__atableau_c_int   { 0\seq_item:NV \l__atableau_shape_seq \l__atableau_r_int }   % mu_r
+        \int_set:No \l__atableau_col_int { 0\seq_item:NV \l__atableau_shape_seq \l__atableau_row_int } % mu_row \int_set:No \l__atableau_c_int   { 0\seq_item:NV \l__atableau_shape_seq \l__atableau_r_int }   % mu_r
 
         % shift in col-direction
         \fp_set:Nn \l__atableau_xa_fp {\l__atableau_col_dx_fp*\l__atableau_box_wd_fp}
@@ -1145,14 +1169,14 @@
 {
    \group_begin:
      % override the style of the skew boxes inside this group
-     \tikzset{aTableau/ribbonbox/.style={aTableau/skewbox}}
+     \tikzset{aTableau/ribbonbox/.style=aTableau/skewbox}
      \tikzset{aTableau/ribbonstyle/.style={draw=none,fill=none}}
      \int_zero:N \l__atableau_r_int
      \seq_map_inline:Nn \l__atableau_skew_seq
      {
+        \int_incr:N \l__atableau_r_int
         \int_compare:nNnT {##1} > {0}
         {
-          \int_incr:N \l__atableau_r_int
           \tl_clear:N \l_tmpa_tl
           \tl_put_right:Ne \l_tmpa_tl { {\int_use:N \l__atableau_r_int} }
           \tl_put_right:Ne \l_tmpa_tl { {##1} }
@@ -1218,18 +1242,26 @@
 % to force the entries to expand
 \cs_new_protected_nopar:Npn \__atableau_draw_tableau:n #1
 {
+    % extract the rows from #1
+    \seq_set_split:Nnn \l__atableau_row_seq {,} {#1}
     \seq_clear:N \l__atableau_shape_seq % record the shape as we go so that we can draw the border
     \int_zero:N \l__atableau_row_int
     \tl_clear:N \l__atableau_styled_nodes_tl
-    \bool_if:NT \l__atableau_shifted_bool {
+
+    % set the skew shape for shifted tableaux
+    \bool_if:NT \l__atableau_shifted_bool
+    {
         \seq_clear:N \l__atableau_skew_seq
+        \seq_map_inline:Nn \l__atableau_row_seq
+        {
+            \seq_put_right:No \l__atableau_skew_seq {\int_use:N \l__atableau_row_int}
+            \int_incr:N \l__atableau_row_int
+        }
+        \int_zero:N \l__atableau_row_int
     }
-    \seq_set_split:Nnn \l__atableau_row_seq {,} {#1}
+
     \seq_map_inline:Nn \l__atableau_row_seq
     {
-        % if shifted is true then add row to the skew shape
-        \bool_if:NT \l__atableau_shifted_bool { \seq_put_right:NV \l__atableau_skew_seq \l__atableau_row_int }
-
         % the leading 0 catches the case when the skew shape has fewer rows than \l__atableau_row_int
         \int_set:Nn \l__atableau_col_int { 0\seq_item:Nn \l__atableau_skew_seq {\l__atableau_row_int+1}}
 
@@ -1443,6 +1475,19 @@
 {
     % convert #1 to the partition \l__atableau_shape_seq
     \__atableau_set_partition:nn {shape} {#1}
+
+    % set the skew shape for shifted tableaux
+    \bool_if:NT \l__atableau_shifted_bool
+    {
+        \seq_clear:N \l__atableau_skew_seq
+        \seq_map_inline:Nn \l__atableau_shape_seq
+        {
+            \seq_put_right:No \l__atableau_skew_seq {\int_use:N \l__atableau_row_int}
+            \int_incr:N \l__atableau_row_int
+        }
+        \int_zero:N \l__atableau_row_int
+        \typeout{skew=(\seq_use:Nn\l__atableau_skew_seq{,})}
+    }
 
     \bool_if:NTF \l__atableau_border_only_bool
     {
@@ -1727,6 +1772,21 @@
 {
     % separate the component partitions
     \seq_set_split:Nnn \l__atableau_component_seq {|} {#1}
+
+    % when entries=last, we need to set the charge
+    \tl_if_eq:NnT \l__atableau_show_tl {last}
+    {
+        \seq_clear:N \l__atableau_charge_seq
+        \int_zero:N \l__atableau_c_int % cumulative total of component sizes
+        \seq_set_eq:NN \l_tmpc_seq \l__atableau_component_seq
+        \seq_reverse:N \l_tmpc_seq
+        \seq_map_inline:Nn \l_tmpc_seq
+        {
+            \seq_put_left:No \l__atableau_charge_seq {\int_use:N \l__atableau_c_int}
+            \__atableau_set_partition:nn {shape} {##1}
+            \seq_map_inline:Nn \l__atableau_shape_seq { \int_add:Nn \l__atableau_c_int {####1} }
+        }
+    }
 
     % determine the coordinates of the components of the diagram
     \__atableau_draw_multishape:n {diagram}
@@ -2147,13 +2207,15 @@
     % general settings
 
     % tableaux alignment
-    baseline .choice:,
-    baseline/top .code:n    = { \tikzset{baseline=(current~bounding~box.north)} },
-    baseline/center .code:n = { \tikzset{baseline=(current~bounding~box.center)} },
-    baseline/centre .code:n = { \tikzset{baseline=(current~bounding~box.center)} },
-    baseline/bottom .code:n = { \tikzset{baseline=(current~bounding~box.south)} },
-    baseline .initial:n = centre,
-    baseline .unknown .code:n = { \msg_error:nne { aTableau } { unknown-baseline } {#1} },
+    align .choice:,
+    align/top    .code:n = { \tikzset{baseline=(current~bounding~box.north)} },
+    align/north  .code:n = { \tikzset{baseline=(current~bounding~box.north)} },
+    align/center .code:n = { \tikzset{baseline=(current~bounding~box.center)}},
+    align/centre .code:n = { \tikzset{baseline=(current~bounding~box.center)}},
+    align/bottom .code:n = { \tikzset{baseline=(current~bounding~box.south)} },
+    align/south  .code:n = { \tikzset{baseline=(current~bounding~box.south)} },
+    align .initial:n     = centre,
+    align .unknown .code:n = { \msg_error:nne { aTableau } { unknown-baseline } {#1} },
 
     % dotted rows and columns for tableaux and abacuses
     dotted~rows .code:n = { \__atableau_set_multiseq_key:nn {dotted_rows} {#1} },
@@ -2208,9 +2270,9 @@
     yscale .initial:n =1,
     yscale .value_required:n = true,
 
-    show .tl_set:N = \l__atableau_show_tl,  % automatic bead labelling
-    show .initial:n = ,
-    show .value_required:n = false,
+    entries .tl_set:N = \l__atableau_show_tl,  % automatic bead labelling
+    entries .initial:n = ,
+    entries .value_required:n = false,
 
     star~style .code:n = { \exp_args:No \tikzset {aTableau/starstyle/.append~style={#1}} },
     star~style .value_required:n = true,
