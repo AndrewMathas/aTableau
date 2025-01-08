@@ -1,30 +1,18 @@
 \documentclass{amsart}
 \usepackage{savetrees}
 \usepackage{atableau}
+\usetikzlibrary{decorations.pathmorphing}
 
 \begin{document}
 
-    \tikzset{
-       B/.style={fill=blue!20},
-       G/.style={fill=ForestGreen!20},
-       R/.style={fill=red!40,text=white},
-       Y/.style={fill=yellow!20},
-       b/.style={ball color=blue},
-       r/.style={ball color=red},
-       w/.style={ball color=white},
-    }
-      \Tableau(0,0){[R]1[B]2,[G]3,[Y]4} \quad
-      \Tableau(2.25,1)[australian]{[R]1[B]2,[G]3,[Y]4} \quad
-      \Tableau(3.5,1.75)[skew={0,2}]{[Y]4[G]3[R]1,[B]2} \quad
-      \Tableau(6,0)[ukrainian,skew={0,1^2}]{[B]2[R]1,[G]3,[Y]4} \quad
-      \Tableau(7.5,-1)[french,skew={0,1^2}]{[B]2[R]1,[G]3,[Y]4} \quad
-      \Tableau(6.0,-2.25)[ukrainian]{[R]1[G]3[Y]4,[B]2} \quad
-      \Tableau(3.5,-3.0)[french]{[R]1[G]3[Y]4,[B]2} \quad
-      \Tableau(2,-1)[australian]{[B]2,[R]1[G]3[Y]4} \quad
-      \Abacus(4,0.5)[scale=1.4]{3}{[b]9,[w]8,[r]8,[b]6,[b]6,[r]2,[b]1}
 
+  \Tableau[french, styles={
+     B={fill=blue!40, text=yellow},
+     G={fill=green!80!blue,circle,minimum size=5mm},
+     R={fill=red,text=white, font=\tiny},
+     Y={fill=yellow!20, text=blue},
+  }]{[R]1[B]2,[G]3,[Y]4}
 
-  \Multidiagram[entries=last]{3,2,2|2^2}
 
 \end{document}
 % Rows
