@@ -1,6 +1,6 @@
 % ----------------------------------------------------------------------
 % Title:    aTableau.  Author:   Andrew Mathas Created:  October 2023
-% Modified: 11:05 Wednesday, 08 January 2025
+% Modified: 09:42 Monday, 13 January 2025
 % ----------------------------------------------------------------------
 \documentclass{amsart}
 \usepackage[svgnames,table]{xcolor}
@@ -632,17 +632,17 @@
   \footnote{Currently, only Cartesian coordinates are supported. For
   example, it is not possible to use a named or polar coordinates.}
   are optional, being necessary if (and only if), the diagram is part of
-  a~\keyword{tikzpicture} environment.  Similarly, the key-value
-  \textit{options}, which control the style and appearance of the final
-  diagram, are also optional.
+  a~\keyword{tikzpicture} environment. See \autoref{SS:coordinates} for
+  more detail about how these coordinates work.
 
-  The possible options, or keys, for the \aTableau commands are
-  described in detail below, with examples. This section emphasises only
-  some of these options together with the fact that every key
-  can be set ``globally'' (inside the current \LaTeX\ group), by using
-  \keyword{\aTabset{...options...}}. As discussed already, the default
-  options for the document can also be set via
-  \keyword{\usepackage[options]{atableau}}.\indexcmd{aTabset}
+  The key-value \textit{options}, which control the style and appearance
+  of the final diagram, are optional.  The possible options, or keys,
+  for the \aTableau commands are described in detail below, with
+  examples. This section emphasises only some of these options together
+  with the fact that every key can be set ``globally'' (inside the
+  current \LaTeX\ group), by using \keyword{\aTabset{...options...}}. As
+  discussed already, the default options for the document can also be
+  set via \keyword{\usepackage[options]{atableau}}.\indexcmd{aTabset}
 
   Many of the \aTableau options are specific to the particular diagrams
   being drawn. The full list of options is given in the following
@@ -650,34 +650,38 @@
   are common to all \aTableau commands.
 
   \begin{options}
-    \item[align]
+    \item[align]\index{align}
     Sets the baseline for vertically aligning diagrams. The possible options
     are \keyword{align=top}, \keyword{align=center}, and
     \keyword{align=bottom}, which aligns the baseline of the diagram
     with the top, centre or bottom of the surrounding objects,
     respectively. By default, \aTableau are centered.
 
-    \item[name] Set the prefix for the \TikZ \emph{named anchors} for
-    the boxes and beads in \aTableau diagrams.
+    \item[name]\index{name}
+    Set the prefix for the \TikZ \emph{named anchors} for the boxes and
+    beads in \aTableau diagrams.
 
-    \item[scale, xscale, yscale]
+    \item[scale, xscale,
+    yscale]\index{scale}\index{xscale}\index{yscale}
     Use \option{scale} to rescale all \aTableau diagrams. Use
     \option{xscale} to rescale in the $x$-direction and \option{yscale}
     to rescale in the $y$-direction.
 
-    \item[styles]
-    A short-hand for defining new \TikZ-styles for use in a diagram.
+    \item[styles]\index{styles}
+    A short-hand for defining single-use \TikZ-styles for the current
+    current.
 
-    \item[tikzpicture]
+    \item[tikzpicture]\index{tikzpicture}
     When used without Cartesian coordinates, all \aTableau commands are
     implicitly drawn inside a \keyword{tikzpicture} environment.  Use
     \option{tikzpicture=keys} to set the optional argument of this
     environment: \keyword{\begin{tikzpicture}[ keys ]...\end{tikzpicture}}.
 
-    \item[tikz before, tikz after]
-    Use the \option{tikz before} and \option{tikz after} keys to inject \TikZ
-    code into the \keyword{tikzpicture} environment, before and after
-    the diagram drawn by \aTableau.
+    \item[tikz before, tikz after]\index{tikz before}\index{tikz after}
+    Use the \option{tikz before} and \option{tikz after} keys to inject
+    \TikZ code into the \keyword{tikzpicture} environment, before and
+    after the diagram drawn by \aTableau.
+
   \end{options}
 
   With boolean options, which are set to \textsf{true} or
@@ -952,31 +956,31 @@
   \Tableau{ 13{10}{11}{2x}, 2{x^2} }
   \end{example}
 
-  There is one additional caveat for braced-entries: any
-  \textit{singleton} braced entry \keyword{{...}} in a row needs to be
-  \textit{double-braced}. Double-bracing is only necessary when you have
-  a row that has only one column, and you have a multi-letter column
-  entry. The need for double-bracing is a consequence of how \LaTeX3
-  detects braced commas in comma-separated lists.
-  \index{tableau entries!double-braced}
-  \index{double-braced}
+  % There is one additional caveat for braced-entries: any
+  % \textit{singleton} braced entry \keyword{{...}} in a row needs to be
+  % \textit{double-braced}. Double-bracing is only necessary when you have
+  % a row that has only one column, and you have a multi-letter column
+  % entry. The need for double-bracing is a consequence of how \LaTeX3
+  % detects braced commas in comma-separated lists.
+  % \index{tableau entries!double-braced}
+  % \index{double-braced}
 
-  The following example shows the difference between single and
-  double-bracing for tableau entries.
-  \index{tableau entries!double-braced}
+  % The following example shows the difference between single and
+  % double-bracing for tableau entries.
+  % \index{tableau entries!double-braced}
 
-  \begin{example}
-  \Tableau{ 1345, 8{10}, {11}, {12} } \qquad
-  \Tableau{ 1345, 8{10}, {{11}}, {{12}} }
-  \end{example}
+  % \begin{example}
+  % \Tableau{ 1345, 8{10}, {11}, {12} } \qquad
+  % \Tableau{ 1345, 8{10}, {{11}}, {{12}} }
+  % \end{example}
 
-  The $10$'s in these tableaux do not need to be doubled-braced because
-  they appear in a row of length~$2$, whichi s greater than~$1$!. In
-  contrast,  because they are not doubled-braced, the~$11$ and~$12$ in
-  the first tableau are both treated as being two characters in
-  different columns in the first tableau. In the second tableau,
-  the~$11$ and~$12$ each appear in a separate column because they are
-  double-braced.
+  % The $10$'s in these tableaux do not need to be doubled-braced because
+  % they appear in a row of length~$2$, whichi s greater than~$1$!. In
+  % contrast,  because they are not doubled-braced, the~$11$ and~$12$ in
+  % the first tableau are both treated as being two characters in
+  % different columns in the first tableau. In the second tableau,
+  % the~$11$ and~$12$ each appear in a separate column because they are
+  % double-braced.
 
   % --------------------------------------------------------------
   \subsubsection{Adding style}
@@ -986,18 +990,18 @@
   \index{tableau entries!star}
 
   The \aTableau package provides several different ways to add \TikZ
-  style specifications to the entries in tableaux, and to boxes in
-  diagrams.  This is made possible by adding style prefixes to the
-  tableau entries.  To take advantage of these styles you need to have
-  at least rudimentary knowledge of \TikZ-styling. The examples in this
-  manual give a good indication of what is possible.  For anything more
-  exotic, please consult the \TikZ manual.
+  style specifications to the boxes in diagrams and tableaux.  This is
+  done by adding style prefixes to the tableau entries.  To
+  take advantage of these styles you need to have at least rudimentary
+  knowledge of \TikZ-styling. The examples in this manual give a good
+  indication of what is possible.  For anything more exotic, please
+  consult the \TikZ manual.
 
   The simplest way to change the style of an entry in a tableau is to
   add a $*$-prefix to the entry:
 
   \begin{example}
-  \Tableau{ 1*2*3*4*5, 6*789, {10}*{11}{12}, {{13}} }
+  \Tableau{ 1*2*3*4*5, 6*789, {10}*{11}{12}, {13} }
   \end{example}
 
   By default, the $*$-entries are given the \TikZ-styling
@@ -1006,16 +1010,16 @@
 
   \begin{example}
   \Tableau[star style={fill=red!20,draw=red,thick}]
-          { 1*2*3*4*5, 6*789, {10}*{11}{12}, {{13}} }
+          { 1*2*3*4*5, 6*789, {10}*{11}{12}, {13} }
   \end{example}
 
-  Note that the $*$-styling overrides the default styling
-  of the surrounding boxes. This is because the boxes with the default
-  styling are placed first, in the order that they are entered,
-  followed by boxes with custom styles are placed.
+  Note that the $*$-styling overrides the default styling of the
+  surrounding boxes. This is because the boxes with the default styling
+  are placed first, in the order that they are entered, after which the
+  boxes with custom styles are placed.
 
   The $*$-syntax is a quick shorthand for adding emphasis to some boxes
-  in a tableau, but each of these entries will be given the same style.
+  in a tableau, but all of the $*$-entries are given the same style.
   It is possible to give every box in the tableau different styles by
   putting \TikZ-styling specifications inside square brackets,
   \keyword{[...]}, before the corresponding letter in the tableau
@@ -1036,13 +1040,14 @@
   style specifications are applied to the different entries in the tableau.
 
   Omitting some technicalities, each box in a tableau is constructed as
-  a \TikZ node, so any \TikZ-styling specifications for a node can be used.
-  This example shows that some care is needed when changing the style
-  because simply giving a colour changes both the colour used to
-  fill the box and the text colour, which is why some of tableau entries
-  in the last example appear to be blank.  If you are already familiar
-  with \TikZ then you probably already know what to do. If not, then
-  here is a short list of useful style specifications for \TikZ nodes:
+  a \TikZ node, so any \TikZ-styling specifications for a node can be
+  used.  This example shows that some care is needed when changing the
+  style because simply giving a colour changes both the colour used to
+  \textit{fill} the box and the \textit{text colour}, which is why some
+  of tableau entries in the last example appear to be blank.  If you are
+  already familiar with \TikZ then you probably already know what to do.
+  If not, then here is a short list of useful style specifications for
+  \TikZ nodes:
   \begin{center}\index{fill}\index{text}\index{draw}\index{font}
      \begin{tabular}{ll}\toprule
        Style & Meaning \\\midrule
@@ -1087,18 +1092,19 @@
       [{dashed,draw=red,ultra thick}]{13} }
   \end{example}
 
-  The last example shows that it is not necessary to double-brace
-  singleton entries when they have a style specification.
+  % The last example shows that it is not necessary to double-brace
+  % singleton entries when they have a style specification.
 
   This example shows that modifying the borders of a box is problematic
-  because boxes placed later are likely to overwrite the border (see
-  \autoref{SS:order}). As a result, modifying the borders of the boxes
-  is not a good way to add emphasis to a tableau,  so use this
-  sparingly. In addition, the orange circle in this example looks too
-  big, but it is what we asked for because the diameter of the circle is
-  the horizontal width of the box. The next example shows that we get a
-  better result for \textit{Australian} and \textit{Ukrainian} tableaux
-  if we add a \textit{minimum size} specification.
+  because boxes placed later are likely to overwrite the new border
+  style (see \autoref{SS:order}). As a result, modifying the borders of
+  the boxes is often not a good way to add emphasis to a tableau,  so
+  use this sparingly. In addition, the orange circle in this example
+  looks too big, but it is what we asked for because the diameter of the
+  circle is the horizontal width of the box. The next example shows that
+  we get a better result with \textit{minimum size} specification when
+  using the \textit{Australian} and \textit{Ukrainian} conventions  for
+  tableaux.
 
   For complex or frequently used styles, we recommend using the
   \keyword{\tikzset} command to define the style outside of the
@@ -1127,7 +1133,7 @@
   such garish choices in any self-respecting document!
 
   % --------------------------------------------------------------
-  \subsubsection{Tableau coordinates}
+  \subsubsection{Tableau coordinates}\label{SS:coordinates}
   \index{xy@$(x,y)$}
   \index{Cartesian coordinates}
 
@@ -1467,13 +1473,11 @@
   \autoref{Ex:pointing} and \autoref{Ex:waves}.
 
   \option[]{paths}[list of path ribbon specifications]
-  \option*[-]{path box}[A node entry]
-  \option*[-]{path box style}[\TikZ-styling commands]
   \option*[-]{path style}[\TikZ-styling commands]
 
   Use the \option{paths} key to add a comma-separated list of
-  \emph{ribbon paths} to the tableau. The \option{paths} key allows you
-  to draw paths inside your tableau and diagrams.
+  \emph{ribbon paths} to the tableau. This allows you to draw certain
+  types of paths inside your tableaux and diagrams.
 
   Ribbon paths are specified using the \keyword{\RibbonTableau} syntax,
   where you first specify the row and column indices of the \emph{head}
@@ -1491,59 +1495,45 @@
      paths={(R)14ccrc,(C)23rcc}]{1234,567,89{10}}
   \end{example}
 
-  The \option{ribbon box} changes the default style of every box in the
-  ribbon:
+  The \option{path style} key changes the default style of the path:
 
   \begin{example}
-  \tikzset{R/.style={red,thick},C/.style={cyan,thick}}
-  \Tableau[paths={(R)14ccrc,(C)23rcc},
-    ribbon style=rounded corners,
-  ]{1234,567,89{10}} \qquad
-  \Tableau[paths={(R)14ccrc,(C)23rcc},
-    ribbon box={draw,circle}
+  \Tableau[styles={R={red,thick}, C={cyan,thick}},
+     paths={(R)14ccrc,(C)23rcc},
+     path style={rounded corners}]{1234,567,89{10}}
+  \end{example}
+
+  \option[-]{path box}[A node entry]
+  \option*[-]{path box style}[\TikZ-styling commands]
+
+  \begin{example}
+  \Tableau[styles={R={red,thick}, C={cyan,thick}},
+    paths={(R)14ccrc,(C)23rcc},
+    path box style={draw,circle, minimum size=4mm}
   ]{1234,567,89{10}}
   \end{example}
 
   \begin{example}
   \tikzset{R/.style={red,thick},C/.style={cyan,thick}}
   \Tableau[paths={(R)14ccrc,(C)23rcc},
-    ribbon box=\bullet
+    path box=\bullet
   ]{1234,567,89{10}}
-  \end{example}
-
-
-  \begin{example}
-  \Diagram[ukrainian, inner style=dotted,
-    styles={b={fill=blue!20,opacity=0.4},
-            R={draw=red,text=red,thick},
-            B={draw=blue,text=blue,thick},
-    }, ribbon style={solid,thick},
-    path box=\bullet,
-    paths={(R)16rcrcr[b]crcrc,(blue)45r[b]crc}
-  ]{7^2,5^4}
   \end{example}
 
   \option[]{ribbons}[list of ribbon specifications]
-  \option*[]{snobs}[list of ribbon specifications]
+  \option*[draw=\aTableauColour{Inner},thin]{ribbon style}[\TikZ-styling commands]
   \option*[-]{ribbon box}[A node entry]
   \option*[-]{ribbon box style}[\TikZ-styling commands]
-  \option*[draw=\aTableauColour{Inner},thin]{ribbon style}[\TikZ-styling commands]
 
   Use the \option{ribbons} key to add a comma-separated list of
-  \emph{ribbons} to a tableau. Use \option{snobs} to add ribbons to the tableau, which are
-  placed \textit{after} the border of the diagram is drawn. (Writing
-  \textit{ribbons} backwards gives \textit{snob}bir.) The \option{ribbon
-  style} key controls the default style of the ribbons, paths and snobs.
+  \emph{ribbons} to a tableau.  The \option{ribbon style} key controls
+  the default ribbon style. The \option{ribbon box} and \option{snob
+  ribbon style} keys work in the same way as \option{path box} and
+  \option{path box style}.
 
-  When adding ribbons, or snobs, you first specify the row and column
-  indices of the \emph{head} of the ribbon, which is the unique node of
-  maximal content in the ribbon, and then give a sequence of
-  \textsf{r}'s and \textsf{c}'s depending on whether the row index
-  increases, or the column index decreases, respectively.  As always,
-  you have the option of adding style --- and you can also specify the
-  contents of each box in the ribbon.  For more details about the ribbon
-  specifications, with examples, see \autoref{S:RibbonTableaux}, which
-  describes the \keyword{\RibbonTableau} command.
+  The ribbon specifications are identical to those used for
+  \option{paths}.  For more details see \autoref{S:RibbonTableaux},
+  which describes the \keyword{\RibbonTableau} command.
 
   Finally, \TikZ-styling can be added to ribbons using \option{ribbon
   style} and \option{ribbon box}. The \option{ribbon style} changes the
@@ -1561,7 +1551,7 @@
 
   \begin{example}
   \Tableau[star style={fill=green!80!blue,text=white},
-    ribbon box={fill=yellow,text=red},
+    ribbon style={fill=yellow,text=red},
     ribbons={15_A,24_B,42_C,51_D},
   ]{123*4,567,89*{10},*{11}}
   \end{example}
@@ -1571,18 +1561,30 @@
   tableau. Alternatively, if we draw this using \option{snobs} then we
   get:
 
+  \option[]{snobs}[list of ribbon specifications]
+  \option*[draw=\aTableauColour{Inner},thin]{snob style}[\TikZ-styling commands]
+  \option*[-]{snob box}[A node entry]
+  \option*[-]{snob box style}[\TikZ-styling commands]
+
+  Use \option{snobs} to add ribbons to the tableau, which are
+  placed \textit{after} the border of the diagram is drawn. (Writing
+  \textit{ribbons} backwards gives \textit{snob}bir.) The
+  \option{snob style} key controls the default style of snobs. The
+  \option{snob box} and \option{snob box style} keys work in the same way as
+  \option{path box} and \option{path box style}.
+
   \begin{example}
   \Tableau[star style={fill=green!80!blue,text=white},
-    ribbon box={fill=yellow, text=red},
+    snob style={fill=yellow, text=red},
     snobs={15_A,24_B,42_C,51_D},
   ]{123*4,567,89*{10},*{11}}
   \end{example}
 
-  The difference between these two pictures is that in the second
-  picture the nodes in the \option{snobs} are drawn over the tableau
-  border, causing the border to disappear for these nodes.  For this
-  reason, in most cases you should normally avoid \option{snobs} and use
-  \option{ribbons}.
+  The difference between this pictures and the one given for
+  \option{ribbons} is that in the \option{snobs} are drawn over the top
+  of the tableau border, causing the border to disappear for these
+  nodes.  For this reason, in most cases you should normally avoid
+  \option{snobs} and use \option{ribbons}.
 
 
   \option[1]{scale}[a decimal number]
@@ -1954,8 +1956,8 @@
   \Diagram[ukrainian]{3,1^3}
   \end{example}
 
-  \option[true]{border}[true/false]\newline
-  \option[false]{no border}[false/true]
+  \option[true]{border}[true/false]
+  \option*[false]{no border}[false/true]
 
   If \option{border} is true, which it is by default, then the border of
   the tableau is drawn.  If \option{border} is false, then the border of
@@ -2062,7 +2064,7 @@
   The \option{dotted rows} and \option{dotted columns} keys are not
   designed to be used with the \option{conjugate} key.
 
-  \option[]{ribbons}[ribbon specification]\newline
+  \option[]{ribbons}[ribbon specification]
   \option*[]{paths}[ribbon specification]
   \option*[]{snobs}[ribbon specification]
 
@@ -2071,7 +2073,24 @@
   \option{snobs} are drawn after the border of the diagram.
 
   \begin{example}
-  \Diagram[french, ribbons={*22*c*r*r}]{3,2^2,1}
+  \Diagram[french, ribbons={*22*c_4*r*r}]{3,2^2,1} \qquad
+  \end{example}
+
+  As described in \autoref{S:Tabloid}, each of these keys has associated
+  keys to change the style of the ribbon, set a content of each box on
+  the ribbon or path and a key to set the style of these boxes. More
+  explicitly, the keys \option{path style}, \option{path box} and
+  \option{math box style} are associated to \option{paths}.
+
+  \begin{example}
+  \Diagram[ukrainian, inner style=dotted,
+    styles={b={fill=blue!20,opacity=0.4},
+            R={red,text=red,thick},
+            B={blue,text=blue,thick},
+    }, path style={thick},
+    path box=\bullet,
+    paths={(R)15rccrc[b]rc,(blue)43[b]rcc}
+  ]{5^2,3^3}
   \end{example}
 
   A description of the ribbon specifications, with examples, can be
@@ -2890,8 +2909,11 @@
   and \emph{column} indices. Explicitly, by default, in multitableaux
   and multidiagrams the names of the take the form \textsf{A-k-r-c},
   where~\textsf{k} is the component index,~\textsf{r} is the row index,
-  and~\textsf{c} is the column index of the box. The \textsf{B} can be
-  changed like using the \option{name} key.
+  and~\textsf{c} is the column index of the box.
+  \footnote{This follows the convention for nodes in multidiagrams
+  of~\cite{EvseevMathas:DeformedKLR}, rather than the somewhat misguided
+  convention that the author introduced in~\cite{DJM:cyc}.}
+  The \textsf{B} can be changed like using the \option{name} key.
 
   \begin{example}
   \Multitableau[name=A, tikz after = {
@@ -2900,8 +2922,8 @@
     }] { 123,4*5 | 67,*89}
   \end{example}
 
-  \option[]{ribbons}[a $|$-separated list of ribbon specifications]
-  \option*[]{paths}[a $|$-separated list of ribbon path specifications]
+  \option[]{paths}[a $|$-separated list of ribbon path specifications]
+  \option*[]{ribbons}[a $|$-separated list of ribbon specifications]
   \option*[]{snobs}[a $|$-separated list of ribbon specifications]
 
   The \option{ribbons}, \option{path}, and \option{snobs} keys work in exactly the
@@ -2925,8 +2947,8 @@
 
   The \option{rows} option sets the number of rows covered by the
   delimiters in multitableaux and multidiagram.  By default, the
-  \keyword{\Multitableau} and \keyword{\Multidiagram} commands choose
-  the size of the delimiters to match the component diagrams, which may
+  \keyword{\Multitableau} and \keyword{\Multidiagram} set
+  the size of the delimiters so that they match the component diagrams, which may
   not be what you want especially when using the \option{australia} and
   \option{ukrainian} conventions. The value of \option{rows} can be a
   decimal number.
@@ -3046,8 +3068,9 @@
 
   When using \option{xoffsets} or \option{yoffsets}, you may want to use
   \option{no separators} to disable the separators between component
-  shapes. For example, here is a homogeneous Garnir tableau~
-  \cite{KMR:UniversalSpecht}.
+  shapes. For example, here is a homogeneous Garnir tableau using the
+  style of~\cite{KMR:UniversalSpecht}, where no separators are used and
+  the component tableaux are put on top of each other.
 
   \begin{example}
     \Multidiagram[entries=first, no separators,
@@ -3055,8 +3078,14 @@
       styles={O={fill=orange!50}, P={fill=purple!50}},
       ribbon style={draw=red,double,thick,fill=white},
       snobs={|(O)24_{15}c_{14}, (P)26_{17}c_{16}, 27_{18},
-        31_{11},  (P)33_{13}c_{12}}]{1|7^2,4,1}
+        31_{11},  (P)33_{13}c_{12}}
+    ]{1|7^2,4,1}
   \end{example}
+
+  This is a slightly lazy way of drawing this multitableau because
+  \option{entries=first} is used to automatically populate most of the
+  entries and then \option{snobs=...} is used to rewrite the entries in
+  the Garnir belt.
 
   % --------------------------------------------------------------
   \section{Abacuses} \label{S:Abacus} \index{abacus} \indexcmd{Abacus}
@@ -3276,9 +3305,8 @@
   to add the $\alpha$ in row~$6$ and column~$8$.
 
   \begin{example}
-  \Diagram[french, no boxes,
-    ribbons={*68_\alpha},
-  ] {15,13,12,9,8^2,5,3}
+  \Diagram[french, no boxes, ribbons={*68_\alpha}]
+    {15,13,12,9,8^2,5,3}
   \end{example}
 
   I do not remember where I found the first example:
@@ -3339,15 +3367,16 @@
 
   \begin{example}[lefthand width=0.3\textwidth]
   \newcommand\Sym[2]{\begin{array}{l}#1\\#2\end{array}}
-   \Tableau[ukrainian, box font=\scriptsize,
-      tikz after = {\draw[ultra thick,teal](A-2-3.east)--(A-2-2.south)
-                          --(A-3-2.west)--(A-3-3.north)--cycle;
-   }]{
-      {\Sym11}{\Sym11}{\Sym11}{\Sym0s},
-      {\Sym11}{\Sym11}{\Sym11}{\Sym0s},
-      {\Sym11}{\Sym11}{\Sym{s^*}s}{\Sym0f},
-      {\Sym11}{\Sym11}{\Sym11},
-      {\Sym11}{\Sym11}
+  \Tableau[ukrainian, box font=\scriptsize,
+     tikz after = {\draw[ultra thick,teal]
+        (A-2-3.east)--(A-2-2.south)--(A-3-2.west)
+                    --(A-3-3.north)--cycle;
+  }]{
+     {\Sym11}{\Sym11}{\Sym11}{\Sym0s},
+     {\Sym11}{\Sym11}{\Sym11}{\Sym0s},
+     {\Sym11}{\Sym11}{\Sym{s^*}s}{\Sym0f},
+     {\Sym11}{\Sym11}{\Sym11},
+     {\Sym11}{\Sym11}
   }
   \end{example}
 
