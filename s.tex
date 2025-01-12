@@ -1,20 +1,32 @@
 \documentclass{amsart}
+\usepackage[svgnames]{xcolor}
 \usepackage{savetrees}
 \usepackage{atableau}
-\usetikzlibrary{decorations.pathmorphing}
+\usetikzlibrary{decorations.pathmorphing, patterns}
 
 \begin{document}
 
+  \Tableau[star style={fill=green!80!blue,text=white},
+    snob style={fill=yellow, text=red},
+    snobs={15_A,24_B,42_C,51_D},
+  ]{123*4,567,89*{10},*{11}}
 
-  \Tableau[french, styles={
-     B={fill=blue!40, text=yellow},
-     G={fill=green!80!blue,circle,minimum size=5mm},
-     R={fill=red,text=white, font=\tiny},
-     Y={fill=yellow!20, text=blue},
-  }]{[R]1[B]2,[G]3,[Y]4}
-
+  \Tableau[star style={fill=green!80!blue,text=white},
+    ribbon style={fill=yellow, text=red},
+    ribbons={15_A,24_B,42_C,51_D},
+  ]{123*4,567,89*{10},*{11}}
 
 \end{document}
+
+  \tikzset{
+    B/.style={pattern=north east lines, pattern color=blue},
+    G/.style={pattern=north west lines, pattern color=ForestGreen},
+  }
+
+  \Diagram[ribbons={(G)16ccccrrr, (B)16crrcccr}]{6,5^2,2} % unlabelled diagram
+
+  \Tableau[styles={R={red,thick}, C={cyan,thick}}, paths={(R)14ccrc,(C)23rcc}]{1234,567,89{10}}
+
 % Rows
 % \typeout{Rows ============================================================}
 
