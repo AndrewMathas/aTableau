@@ -74,9 +74,9 @@
   { Unrecognised~style:~'#1' }
   { The~available~tableau~styles~are~australian,~english,~french~and~ukrainian~and~the~available~abacus~styles~are~north,~south,~east~and~west~}
 
-\msg_new:nnnn { aTableau } { unknown-abacus }
-  { Unrecognised~abacus~top/bottom~setting:~'#1' }
-  { The~supported~styles~for~the~top/bottom~of~the~abacus~are:~-/./}
+\msg_new:nnnn { aTableau } { unknown-abacus-ends }
+  { Unrecognised~abacus~ends~setting:~'#1' }
+  { The~supported~ends~for~the~top/bottom~of~the~abacus~are:~-,~_~,.~,|,~and~>}
 
 \msg_new:nnnn { aTableau } { unknown-cartan }
   { Unrecognised~Cartan~type~'#1' }
@@ -123,7 +123,7 @@
 \fp_new:N \l__atableau_row_dy_fp          % change in y-coordinate between rows
 \fp_new:N \l__atableau_rows_fp            % number of rows in abacus/tableau
 \fp_new:N \l__atableau_separation_fp      % distance between multitableau
-\fp_new:N \l__atableau_tick_width_fp      % half width of abacus ticks
+\fp_new:N \l__atableau_tick_length_fp     % half the length of the abacus ticks
 \fp_new:N \l__atableau_x_fp               % x-coordinate of the origin of the diagram
 \fp_new:N \l__atableau_xa_fp              % scratch x-coordinate of a node/bead
 \fp_new:N \l__atableau_xb_fp              % scratch x-coordinate of a node/bead
@@ -189,6 +189,7 @@
 \tl_new:N \l__atableau_capture_part_tl    % contains captured part
 \tl_new:N \l__atableau_capture_style_tl   % contains captured style
 \tl_new:N \l__atableau_capture_txt_tl     % contains captured text
+\tl_new:N \l__atableau_cartan_tl          % the Cartan type
 \tl_new:N \l__atableau_empty_tl           % symbol for empty tableau/diagram in a multi tableau/diagram
 \tl_new:N \l__atableau_entries_tl         % custom entries in tableau
 \tl_new:N \l__atableau_inner_tl           % colour of tableau inner walls
@@ -208,6 +209,7 @@
 \tl_new:N \l__atableau_snob_box_tl        % box entry for snobs
 \tl_new:N \l__atableau_separator_fg_tl    % foreground colour of the separator
 \tl_new:N \l__atableau_separator_tl       % the separator between multitableau: | or , or ...
+\tl_new:N \l__atableau_shading_tl         % the type of shading to use for the abacus beads
 \tl_new:N \l__atableau_show_tl            % automatic tableau/bead labelling
 \tl_new:N \l__atableau_skew_border_tl     % skew border colour
 \tl_new:N \l__atableau_starstyle_tl       % current star style in use
@@ -235,6 +237,11 @@
 % TikZ styling of aTableau components
 
 \tikzset{
+  % -----------------------------------------------------------------------
+  % Allow ball shading to be disabled via shade=none.
+  % The essential idea comes from https://tex.stackexchange.com/a/85750/234252
+  no~shade/.code={ \tikz@addmode{\tikz@mode@shadefalse } },
+  % -----------------------------------------------------------------------
   % all tikz settings are in the aTableau family
   aTableau/.is~family,
   aTableau/.cd,
@@ -275,7 +282,7 @@
         font           = \l__atableau_box_font_tl,
         text           = \l__atableau_box_text_tl,
     },
-    box/.style = {
+    boxStyle/.style = {
         aTableau/node,
         aTableau/innerWall,
         draw = \l__atableau_inner_tl,
@@ -378,29 +385,32 @@
     % abacus beads and runners
     % -----------------------------------------------------------------------
     % abacus beads
-    bead/.style = {
-        anchor         = center,
-        inner~sep      = 0pt,
-        shading        = ball,
-        font           = \l__atableau_bead_font_tl,
+    beadStyle/.style = {
         ball~color     = \l__atableau_bead_tl,
+        font           = \l__atableau_bead_font_tl,
         minimum~height = \fp_to_decimal:N \l__atableau_bead_size_fp cm,
         minimum~width  = \fp_to_decimal:N \l__atableau_bead_size_fp cm,
+        shading        = \l__atableau_shading_tl,
         shape          = \l__atableau_bead_shape_tl,
         text           = \l__atableau_bead_text_tl,
+        anchor         = center,
+        inner~sep      = 0pt,
     },
     % abacus runners
-    runner/.style = {
+    runnerStyle/.style = {
         line~cap = rect,
         very~thick,
         draw = \l__atableau_runner_tl,
+    },
+    abacusEnds/.style = {
+        aTableau/runnerStyle,
     },
     abacusStarStyle/.style = {
         text = aTableauMain,
         ball~color = aTableauStarStyle,
     },
     % abacus ticks
-    tick/.style = {
+    tickStyle/.style = {
         draw = \l__atableau_tick_tl,
         semithick,
     },
@@ -542,6 +552,19 @@
   { \seq_set_from_clist:cn {l__atableau_#1_seq} {#2} }
 }
 
+% usage: \__atableau_set_abacus_ends:nn {top} {top}
+% Set the abacus ends abacus_top and abacus_bottom and give an error
+% message if the ends are not one of =,-,.,|,>
+\cs_new_protected:Npn \__atableau_set_abacus_ends:nn #1 #2
+{
+    \tl_set:Nn \l__atableau_abacus_top_tl {#1}
+    \str_if_in:nnF {-.>|\c_underscore_str*} {#1}
+    { \msg_error:nne {aTableau} {unknown-abacus-ends} {#1}}
+
+    \tl_set:Nn \l__atableau_abacus_bottom_tl {#2}
+    \str_if_in:nnF {-.>\c_underscore_str|*} {#2}
+    { \msg_error:nne {aTableau} {unknown-abacus-ends} {#2}}
+}
 
 % ---------------------------------------------------------------------------
 % command variants
@@ -563,6 +586,7 @@
 \cs_generate_variant:Nn \__atableau_create_coordinate:nn {VV, Vo, Vn}
 \cs_generate_variant:Nn \__atableau_draw_tableau:n {V,x}
 \cs_generate_variant:Nn \__atableau_entry:n {x}
+\cs_generate_variant:Nn \__atableau_draw_abacus_end:nnn {noo}
 \cs_generate_variant:Nn \__atableau_set_bead_coordinates:nnn {nVV, nno, noo, non, noV}
 \cs_generate_variant:Nn \__atableau_set_box_coordinates:nnn {nVV, nVn, nVo, nnV, noo, nVe}
 \cs_generate_variant:Nn \__atableau_set_partition:nn {no}
@@ -1347,7 +1371,7 @@
 % ---------------------------------------------------------------------------
 % Tableaux
 
-% usage: \__atableau_draw_tableau:n {entries}
+% usage: \__atableau_draw_tableau:n {tableau specifications}
 % The entries are first primarily because the \Diagram commands need
 % to force the entries to expand
 \cs_new_protected:Npn \__atableau_draw_tableau:n #1
@@ -1355,7 +1379,7 @@
     % set the star style
     \tl_set:Nn \l__atableau_starstyle_tl {aTableau/tableauStarStyle}
 
-    % turn off boxes if
+    % disable interior boxes if boxes_bool is false
     \bool_if:NF \l__atableau_boxes_bool { \__atableau_tikzset_append:nn {box} {draw=none} }
 
     % initialise the skew shape for a shifted tableaux
@@ -1378,8 +1402,8 @@
 
     % Parse #1 into the rows and columns with style. Initially we used
     % \seq_set_split:Nnn here, but this required double bracing
-    % singleton multi-character entries in columns. Now we peek for the
-    % commas and the style simultaneously
+    % multi-character entries whenever they were he only entry in their
+    % column. Now we peek for the commas and the style simultaneously.
     \__atableau_peek_tableau:w #1 \q_recursion_tail \q_recursion_stop
 
     % add the nodes with style
@@ -1390,8 +1414,9 @@
 }
 
 % usage: \__atableau_finalise_tableau:
-% Collect together common code to finish drawing the tableau by adding the
-% ribbons, paths, snobs, skew boxes, border and the dotted rows and columns.
+% As it is used in several places, collect the code that finishes
+% drawing the tableau by adding the ribbons, paths, snobs, skew boxes,
+% border and the dotted rows and columns.
 \cs_new_protected:Nn \__atableau_finalise_tableau:
 {
     % prevent paths and ribbons from updating shape
@@ -1472,8 +1497,8 @@
 \cs_new_protected:Npn \__atableau_set_box_coordinates_conjugate:nnn #1 #2 #3
 {
     \tl_set:Nx \l__atableau_name_tl {\l__atableau_prefix_tl-\int_eval:n{1+#3}-\int_eval:n {1+#2}}
-    \fp_set:cn {l__atableau_x#1_fp} {\l__atableau_x_fp+((#3+0.5)*\l__atableau_row_dx_fp+(#2+0.5)*\l__atableau_col_dx_fp)*\fp_use:N\l__atableau_box_wd_fp }
-    \fp_set:cn {l__atableau_y#1_fp} {\l__atableau_y_fp+((#3+0.5)*\l__atableau_row_dy_fp+(#2+0.5)*\l__atableau_col_dy_fp)*\fp_use:N\l__atableau_box_ht_fp }
+    \fp_set:cn {l__atableau_x#1_fp} {\l__atableau_x_fp+((#3+0.5)*\l__atableau_row_dx_fp+(#2+0.5)*\l__atableau_col_dx_fp)*\l__atableau_box_wd_fp }
+    \fp_set:cn {l__atableau_y#1_fp} {\l__atableau_y_fp+((#3+0.5)*\l__atableau_row_dy_fp+(#2+0.5)*\l__atableau_col_dy_fp)*\l__atableau_box_ht_fp }
     \__atableau_update_extrema:n #1
 }
 
@@ -1489,9 +1514,9 @@
 % Used by both the tableaux and abacus commands
 \cs_new_protected:Npn \__atableau_set_bead_coordinates:nnn #1 #2 #3
 {
-    \tl_set:Nx \l__atableau_name_tl {\l__atableau_prefix_tl-\int_eval:n{#2}-\int_eval:n{#3}}
-    \fp_set:cn {l__atableau_x#1_fp} {\l__atableau_x_fp+(#2*\l__atableau_row_dx_fp+#3*\l__atableau_col_dx_fp)*\fp_use:N\l__atableau_abacus_wd_fp }
-    \fp_set:cn {l__atableau_y#1_fp} {\l__atableau_y_fp+(#2*\l__atableau_row_dy_fp+#3\l__atableau_col_dy_fp)*\fp_use:N\l__atableau_abacus_ht_fp }
+    \tl_set:Nx \l__atableau_name_tl {\l__atableau_prefix_tl-\fp_to_int:n{#2}-\fp_to_int:n{#3}}
+    \fp_set:cn {l__atableau_x#1_fp} {\l__atableau_x_fp+(#2*\l__atableau_row_dx_fp+#3*\l__atableau_col_dx_fp)*\l__atableau_abacus_wd_fp }
+    \fp_set:cn {l__atableau_y#1_fp} {\l__atableau_y_fp+(#2*\l__atableau_row_dy_fp+#3*\l__atableau_col_dy_fp)*\l__atableau_abacus_ht_fp }
 }
 
 % ---------------------------------------------------------------------------
@@ -1548,14 +1573,14 @@
 
     \tl_if_empty:nTF {#1}
     {   % draw box if it has the default styling
-        \node[aTableau/box] (\l__atableau_name_tl)
+        \node[aTableau/boxStyle] (\l__atableau_name_tl)
             at (\fp_use:N\l__atableau_xl_fp, \fp_use:N\l__atableau_yl_fp)
             {\__atableau_entry:n{#2}};
     }
     {   % save the node to \l__atableau_styled_nodes_tl if it is styled
         \tl_put_right:Nx \l__atableau_styled_nodes_tl
         {
-            \exp_not:N \node [aTableau/box,#1] (\l__atableau_name_tl)
+            \exp_not:N \node [aTableau/boxStyle,#1] (\l__atableau_name_tl)
                 at (\fp_use:N\l__atableau_xl_fp, \fp_use:N\l__atableau_yl_fp)
                 {\exp_not:N\__atableau_entry:n{#2}};
         }
@@ -2262,37 +2287,77 @@
 % ---------------------------------------------------------------------------
 
 % abacuses
-% usage: \__atableau_draw_abacus_end:nn {abacus_top/abacus_bottom} % {0/row index}
+% usage: \__atableau_draw_abacus_end:nnn {abacus_top/abacus_bottom} % {0/row index} {±1}
 % Draw the top/bottom on gthe abacus. Here #1 is either
 % \l__atableau_abacus_top_tl  or \l__atableau_abacus_bottom_tl and #2 is
 % either 0, for top, or the row index of the last row, for bottom
-\cs_new_protected:Npn \__atableau_draw_abacus_end:nn #1 #2
+\cs_new_protected:Npn \__atableau_draw_abacus_end:nnn #1 #2 #3
 {
-\typeout{ENDS:~#1,~#2.}
     \str_case:Vn #1
     {
-        {---}
+        {-}
             {   % draw a line
-            \typeout{~-~adding~end~---}
                 \__atableau_set_bead_coordinates:non {a} {#2} {0}
                 \__atableau_set_bead_coordinates:noo {b} {#2} { \int_eval:n {\l__atableau_cols_int-1} }
-                \draw[aTableau/runner]
+                \draw[aTableau/abacusEnds]
                   (\fp_eval:n{\l__atableau_xa_fp-\l__atableau_col_dx_fp*\l__atableau_abacus_wd_fp/2},
                    \fp_eval:n{\l__atableau_ya_fp-\l__atableau_col_dy_fp*\l__atableau_abacus_ht_fp/2})
                    -- (\fp_eval:n{\l__atableau_xb_fp+\l__atableau_col_dx_fp*\l__atableau_abacus_wd_fp/2},
                        \fp_eval:n{\l__atableau_yb_fp+\l__atableau_col_dy_fp*\l__atableau_abacus_ht_fp/2});
             }
-        {...}
+        {_}
+            {   % draw a line
+                \__atableau_set_bead_coordinates:non {a} {#2} {0}
+                \__atableau_set_bead_coordinates:noo {b} {#2} { \int_eval:n {\l__atableau_cols_int-1} }
+                \draw[aTableau/abacusEnds] (\fp_use:N\l__atableau_xa_fp, \fp_use:N\l__atableau_ya_fp)
+                   -- (\fp_use:N\l__atableau_xb_fp, \fp_use:N\l__atableau_yb_fp);
+            }
+        {.}
             { % draw dots
-            \typeout{~-~adding~end~...}
                 \int_step_inline:nn {\l__atableau_cols_int}
                 {
                     % draw the abacus runners from (xa,ya) to (xb,yb)
-                    \__atableau_set_bead_coordinates:nno {a} { #2 } { \int_eval:n{##1-1} }
-                    \__atableau_set_bead_coordinates:noo {b} { #2+1 } { \int_eval:n{##1-1} }
-                    \draw[aTableau/runner, dotted] (\fp_use:N\l__atableau_xa_fp,\fp_use:N\l__atableau_ya_fp)--(\fp_use:N\l__atableau_xb_fp,\fp_use:N\l__atableau_yb_fp);
+                    \__atableau_set_bead_coordinates:noo {a} { #2 } { \int_eval:n{##1-1} }
+                    \__atableau_set_bead_coordinates:noo {b} { #3 } { \int_eval:n{##1-1} }
+                    \draw[aTableau/abacusEnds, dotted] (\fp_use:N\l__atableau_xa_fp,\fp_use:N\l__atableau_ya_fp)--(\fp_use:N\l__atableau_xb_fp,\fp_use:N\l__atableau_yb_fp);
                 }
             }
+        {>}
+            { % draw dots
+                \int_step_inline:nn {\l__atableau_cols_int}
+                {
+                    % draw the abacus runners from (xa,ya) to (xb,yb)
+                    \int_compare:nNnTF {#2} = {0}
+                    {
+                        \__atableau_set_bead_coordinates:noo {a} { \fp_eval:n{#2+0.5} } { \fp_eval:n{##1-1} }
+                        \__atableau_set_bead_coordinates:noo {b} { \fp_eval:n{#3+0.5} } { \fp_eval:n{##1-1} }
+                    }
+                    {
+                        \__atableau_set_bead_coordinates:noo {a} { \fp_eval:n{#2-0.5} } { \fp_eval:n{##1-1} }
+                        \__atableau_set_bead_coordinates:noo {b} { \fp_eval:n{#3-0.5} } { \fp_eval:n{##1-1} }
+                    }
+                    \draw[aTableau/abacusEnds,->] (\fp_use:N\l__atableau_xa_fp,\fp_use:N\l__atableau_ya_fp)--(\fp_use:N\l__atableau_xb_fp,\fp_use:N\l__atableau_yb_fp);
+                }
+            }
+
+        {*}
+            { % draw dots
+                \int_step_inline:nn {\l__atableau_cols_int}
+                {
+                    % draw the abacus runners from (xa,ya) to (xb,yb)
+                    \int_compare:nNnTF {#2} = {0}
+                    {
+                        \__atableau_set_bead_coordinates:noo {a} { \fp_eval:n{#2} } { \fp_eval:n{##1-1} }
+                        \__atableau_set_bead_coordinates:noo {b} { \fp_eval:n{#3-0.5} } { \fp_eval:n{##1-1} }
+                    }
+                    {
+                        \__atableau_set_bead_coordinates:noo {a} { \fp_eval:n{#2} } { \fp_eval:n{##1-1} }
+                        \__atableau_set_bead_coordinates:noo {b} { \fp_eval:n{#3+0.5} } { \fp_eval:n{##1-1} }
+                    }
+                    \draw[aTableau/abacusEnds,dotted,->] (\fp_use:N\l__atableau_xa_fp,\fp_use:N\l__atableau_ya_fp)--(\fp_use:N\l__atableau_xb_fp,\fp_use:N\l__atableau_yb_fp);
+                }
+            }
+
         % {none} { do nothing }
     }
 }
@@ -2329,47 +2394,35 @@
     % unless they have been set, determine the number of abacus rows
     \int_compare:nNnT {\l__atableau_rows_int} = {0}
     {
-        \typeout{initial=\int_use:N \l_tmpa_int}
         \int_set:Nn \l__atableau_rows_int { 1+\int_div_truncate:nn {\l__atableau_beads_int-1 + \seq_item:Nn \l__atableau_shape_seq 1} {#1} }
     }
-    \typeout{Abacus~with~\int_use:N\l__atableau_rows_int~\space~rows~and~\int_use:N\l__atableau_cols_int~\space~runners~from~max=\seq_item:Nn \l__atableau_shape_seq 1,~e=#1.}
-
-    % draw the abacus top
-    \__atableau_draw_abacus_end:nn \l__atableau_abacus_top_tl {0}
 
     % draw the abacus runners
     \int_zero:N \l__atableau_col_int
     \int_step_inline:nn {\l__atableau_cols_int}
     {
-        \typeout{~-~adding~runner~##1~<~\int_use:N\l__atableau_cols_int}
         % draw the abacus runners from (xa,ya) to (xb,yb)
         \__atableau_set_bead_coordinates:nno {a} { 0 } { \int_eval:n{##1-1} }
         \__atableau_set_bead_coordinates:noo {b} { \int_eval:n{\l__atableau_rows_int+1} } { \int_eval:n{##1-1} }
-        \draw[aTableau/runner] (\fp_use:N\l__atableau_xa_fp,\fp_use:N\l__atableau_ya_fp)--(\fp_use:N\l__atableau_xb_fp,\fp_use:N\l__atableau_yb_fp);
+        \draw[aTableau/runnerStyle] (\fp_use:N\l__atableau_xa_fp,\fp_use:N\l__atableau_ya_fp)--(\fp_use:N\l__atableau_xb_fp,\fp_use:N\l__atableau_yb_fp);
         % draw the ticks
-        \typeout{~-~About~to~add~\int_use:N\l__atableau_rows_int~\space~ticks~of~width~\fp_use:N\l__atableau_tick_width_fp.}
         \int_zero:N \l__atableau_row_int
         \int_step_inline:nn {\l__atableau_rows_int}
         {
-            \typeout{~-~adding~tick~####1~<~\int_use:N\l__atableau_rows_int}
             \__atableau_set_bead_coordinates:noo {l} { \int_eval:n{####1} } { \int_eval:n{##1-1} }
             % add and subtract (half) tick width
-            \fp_set:Nn \l__atableau_xa_fp {\l__atableau_xl_fp+\l__atableau_tick_width_fp*\l__atableau_col_dx_fp}
-            \fp_set:Nn \l__atableau_ya_fp {\l__atableau_yl_fp+\l__atableau_tick_width_fp*\l__atableau_col_dy_fp}
-            \fp_set:Nn \l__atableau_xb_fp {\l__atableau_xl_fp-\l__atableau_tick_width_fp*\l__atableau_col_dx_fp}
-            \fp_set:Nn \l__atableau_yb_fp {\l__atableau_yl_fp-\l__atableau_tick_width_fp*\l__atableau_col_dy_fp}
-            \draw[aTableau/tick] (\fp_use:N\l__atableau_xa_fp,\fp_use:N\l__atableau_ya_fp)--(\fp_use:N\l__atableau_xb_fp,\fp_use:N\l__atableau_yb_fp);
-            \typeout{~-~finished~tick~####1.}
+            \fp_set:Nn \l__atableau_xa_fp {\l__atableau_xl_fp+\l__atableau_tick_length_fp*\l__atableau_col_dx_fp}
+            \fp_set:Nn \l__atableau_ya_fp {\l__atableau_yl_fp+\l__atableau_tick_length_fp*\l__atableau_col_dy_fp}
+            \fp_set:Nn \l__atableau_xb_fp {\l__atableau_xl_fp-\l__atableau_tick_length_fp*\l__atableau_col_dx_fp}
+            \fp_set:Nn \l__atableau_yb_fp {\l__atableau_yl_fp-\l__atableau_tick_length_fp*\l__atableau_col_dy_fp}
+            \draw[aTableau/tickStyle] (\fp_use:N\l__atableau_xa_fp,\fp_use:N\l__atableau_ya_fp)--(\fp_use:N\l__atableau_xb_fp,\fp_use:N\l__atableau_yb_fp);
         }
-        \typeout{~-~finished~runner~##1.}
     }
 
     % draw the beads on the abacus
-    \typeout{~-~About~to~add~\int_use:N\l__atableau_beads_int~\space~beads~from~#2.}
     \int_step_inline:nn { \l__atableau_beads_int } % finally, add the beads, with labels and styles
     {
 
-        \typeout{~-~adding~bead~##1~with~part=\seq_item:Nn\l__atableau_shape_seq{##1},~style=\seq_item:Nn\l__atableau_styles_seq{##1},~text=\seq_item:Nn \l__atableau_texts_seq {##1}.}
         % determine the row and column indices for the bead
         \bool_if:NTF \l__atableau_beta_numbers_bool
         {
@@ -2380,7 +2433,6 @@
         }
         \int_set:Nn \l__atableau_row_int { \int_div_truncate:nn {\l_tmpa_int} {\l__atableau_cols_int} }
         \int_set:Nn \l__atableau_col_int { \int_mod:nn {\l_tmpa_int} {\l__atableau_cols_int} }
-        \typeout{~-~row=\int_use:N\l__atableau_row_int,~col=\int_use:N\l__atableau_col_int.}
 
         % determine the bead coordinates: push everything 0.5 of a
         % unit down to allow space of the top of the abacus
@@ -2388,49 +2440,38 @@
 
         \str_case:VnF \l__atableau_show_tl
         {
-           {beta}    { \tl_set:No \l_tmpa_tl { \int_use:N\l_tmpa_int }                     }
-           {residue} {
+          {beta}     { \tl_set:No \l_tmpa_tl { \int_use:N\l_tmpa_int }                     }
+          {residues} {
+                       % if it is not set already, automatically set e based on the number of runns and the Cartan type
+                       \int_compare:nNnT {\l__atableau_rows_int} = {0}
+                       {
+                            \str_case:enF {\l__atableau_cartan_tl}
+                            {
+                                {A } { \int_set_eq:NN \l__atableau_e_int \l__atableau_rows_int}
+                                {AA} { \int_set:NN:Nn \l__atableau_e_int {\l__atableau_rows_int/2} }
+                                {C } { \int_set:NN:Nn \l__atableau_e_int {\l__atableau_rows_int/2} }
+                                {DD} { \int_set:NN:Nn \l__atableau_e_int {\l__atableau_rows_int/2} }
+                            }
+                       }
                        \tl_set:No \l_tmpc_tl { \seq_item:Nn \l__atableau_shape_seq {##1}}
                        \tl_set:No \l_tmpa_tl { \__atableau_residue:nn {\l__atableau_charge_int - ##1 + \l_tmpc_tl} {\l__atableau_rows_int} }
                      }
-           {rows }   { \tl_set:No \l_tmpa_tl { ##1 }                                       }
-           {shape}   { \tl_set:No \l_tmpa_tl { \seq_item:Nn \l__atableau_shape_seq {##1} } }
-           {}        { \tl_set:No \l_tmpa_tl { \seq_item:Nn \l__atableau_texts_seq  {##1} } }
+          {rows }    { \tl_set:No \l_tmpa_tl { ##1 }                                       }
+          {shape}    { \tl_set:No \l_tmpa_tl { \seq_item:Nn \l__atableau_shape_seq {##1} } }
+          {}         { \tl_set:No \l_tmpa_tl { \seq_item:Nn \l__atableau_texts_seq  {##1} } }
         }
         {
             \msg_error:nnx {aTableau} {unrecognised-abacus-label} {  \l__atableau_show_tl }
         }
-        \typeout{~-~placing~(\int_eval:n{\l__atableau_r_int+1},\int_use:N\l__atableau_col_int)~bead~at~(\fp_use:N\l__atableau_xl_fp,\fp_use:N\l__atableau_yl_fp),~style="\seq_item:Nn \l__atableau_styles_seq {##1}",~label="\l_tmpa_tl"}
         % draw the bead with style
         \tl_set:No \l_tmpb_tl { \seq_item:Nn \l__atableau_styles_seq {##1} }
-    \typeout{**~tmpb=\l_tmpb_tl,~name=\l__atableau_name_tl,~xl=\fp_use:N \l__atableau_xl_fp,~yl=\fp_use:N \l__atableau_yl_fp,~tmpa=\l_tmpa_tl. }
-        \exp_last_unbraced:Nx \node{[aTableau/bead, \l_tmpb_tl]} (\l__atableau_name_tl)
+        \exp_last_unbraced:Nx \node{[aTableau/beadStyle, \l_tmpb_tl]} (\l__atableau_name_tl)
         at (\fp_use:N\l__atableau_xl_fp,\fp_use:N\l__atableau_yl_fp){\__atableau_entry:x {\l_tmpa_tl}};
-        \typeout{bead~placed!!!}
      }
 
-    % draw the abacus bottom
-    \__atableau_draw_abacus_end:nn \l__atableau_abacus_bottom_tl {\int_eval:n {\l__atableau_row_int+1}}
-}
-
-% braid diagrams:
-% Usage:
-%  - \braid{a_1,...a_n}   : braid diagram connecting k to a_k
-%  - \braid*{a_1,...a_n}  : braid diagram connecting k to a_k with top labels
-%  - \braid!{a_1,...a_n}  : braid diagram connecting k to a_k with bottom labels
-%  - \braid*!{a_1,...a_n} : braid diagram connecting k to a_k with top and bottom labels
-% The command also accepts an optional argument, which is passed to the
-% underlying TikZ environment.
-\NewDocumentCommand\braid{ O{} s t! m }{%
-  \begin{tikzpicture}[rounded~corners, thick, NavyBlue, #1]
-    \foreach \pt [count=\c] in {#4}{
-      \node[aTableau/bead] at (\c,1){};
-      \node[aTableau/bead] at (\pt,0){};
-      \draw[aTableau/wall] (\c,1) -- (\pt,0);
-    }
-    \IfBooleanT{#2}{ \foreach \pt [count=\c] in  {#4} \node at (\c, 1.3) {$\c$}; }
-    \IfBooleanT{#3}{ \foreach \pt [count=\c] in  {#4} \node at (\c,-0.3) {$\c$}; }
-  \end{tikzpicture}%
+    % draw the top and bottom ends of the abacus
+    \__atableau_draw_abacus_end:nnn \l__atableau_abacus_top_tl {0} {-1}
+    \__atableau_draw_abacus_end:noo \l__atableau_abacus_bottom_tl  {\int_eval:n {\l__atableau_rows_int+1}} {\int_eval:n {\l__atableau_rows_int+2}}
 }
 
 % ---------------------------------------------------------------------------
@@ -2462,6 +2503,8 @@
     % set the Cartan type
     cartan .choices:nn = { A, C, AA, DD }
     {
+        % record the Cartan type for use in abacuses
+        \tl_set:Nn \l__atableau_cartan_tl {#1}
         % define all of the type dependent functions here...
         \cs_set_eq:Nc \__atableau_residue:nn {__atableau_residue_#1:nn}
     },
@@ -2474,7 +2517,9 @@
 
     dotted~cols .code:n = { \__atableau_set_multiseq_key:nn {dotted_cols} {#1} },
     dotted~cols .value_required:n = true,
-    dotted~columns .meta:n = { dotted~cols = {#1} },
+
+    e .int_set:N = \l__atableau_e_int,
+    e .initial:n = 0,
 
     entries .tl_set:N = \l__atableau_show_tl,  % automatic bead labelling
     entries .value_required:n = false,
@@ -2619,7 +2664,7 @@
     border~colour .value_required:n = true,
     border~colour .initial:n = aTableauMain,
 
-    border~style .code:n = { \__atableau_tikzset_append:nn {border} {#1} },
+    border~style .code:n = { \__atableau_tikzset_append:nn {borderStyle} {#1} },
     border~style .value_required:n = true,
 
     % node height and width
@@ -2658,8 +2703,8 @@
     inner~style .code:n = { \__atableau_tikzset_append:nn {innerWall} {#1} },
     inner~style .value_required:n = true,
 
-    math~boxes .code:n = { \cs_set_eq:NN \__atableau_entry:n \__atableau_entry_math:n },
-    text~boxes .code:n = { \cs_set_eq:NN \__atableau_entry:n \__atableau_entry_text:n },
+    math~entries .code:n = { \cs_set_eq:NN \__atableau_entry:n \__atableau_entry_math:n },
+    text~entries .code:n = { \cs_set_eq:NN \__atableau_entry:n \__atableau_entry_text:n },
 
     % -- paths ---------------------------------------
     paths .code:n = { \__atableau_set_multiseq_key:nn {paths} {#1} },
@@ -2808,15 +2853,12 @@
     west .code:n = \__atableau_set_style:nn {abacus} {west},
 
     % abacus style
-    abacus~top .choices:nn = {--,---,...,none}
-        { \tl_set:Nn \l__atableau_abacus_top_tl {#1} },
-    abacus~top/unknown .code:n = { \msg_error:nne { aTableau } { unknown-abacus } {#1} },
-    abacus~top .initial:n = ---,
+    abacus~ends .code:n = { \__atableau_set_abacus_ends:nn #1 },
+    abacus~ends .value_required:n = true,
+    abacus~ends .initial:n = {-|},
 
-    abacus~bottom .choices:nn = {--,---,...,none}
-        { \tl_set:Nn \l__atableau_abacus_bottom_tl {#1} },
-    abacus~bottom/unknown .code:n = { \msg_error:nne { aTableau } { unknown-abacus } {#1} },
-    abacus~bottom .initial:n =none,
+    abacus~ends~style .code:n = { \__atableau_tikzset_append:nn {abacusEnds} {#1} },
+    abacus~ends~style .value_required:n = true,
 
     abacus~star~style .code:n = { \__atableau_tikzset_append:nn {abacusStarStyle} {#1} },
     abacus~star~style .value_required:n = true,
@@ -2826,15 +2868,22 @@
     bead .initial:n = aTableauMain,
 
     bead~font .tl_set:N = \l__atableau_bead_font_tl, % bead font
-    bead~font .initial:n = \scriptsize,
+    bead~font .initial:n = \small,
     bead~font .value_required:n = true,
 
     bead~size .fp_set:N = \l__atableau_bead_size_fp,
-    bead~size .initial:n = 0.3,
+    bead~size .initial:n = 0.4,
 
     bead~sep .fp_set:N = \l__atableau_abacus_ht_fp, % bead separation
     bead~sep .value_required:n = true,
-    bead~sep .initial:n = 0.35,
+    bead~sep .initial:n = 0.42,
+
+    bead~shape .tl_set:N = \l__atableau_bead_shape_tl, % bead shape colour
+    bead~shape .value_required:n = true,
+    bead~shape .initial:n = circle,
+
+    bead~style .code:n = { \__atableau_tikzset_append:nn {beadStyle} {#1} },
+    bead~style .value_required:n = true,
 
     bead~text .tl_set:N = \l__atableau_bead_text_tl, % bead text colour
     bead~text .value_required:n = true,
@@ -2843,22 +2892,33 @@
     beta~numbers .bool_set:N = \l__atableau_beta_numbers_bool,
     beta~numbers .initial:n = false,
 
-    e .int_set:N = \l__atableau_e_int,
-    e .initial:n = 0,
+    no~shade .code:n = { \__atableau_tikzset_append:nn {beadStyle} {no~shade,} },
+    no~shade .value_required:n = false,
 
     runner .tl_set:N = \l__atableau_runner_tl, % runner colour
+    runner .value_required:n = true,
     runner .initial:n = aTableauInner,
+
+    runner~style .code:n = { \__atableau_tikzset_append:nn {runnerStyle} {#1} },
+    runner~style .value_required:n = true,
 
     runner~sep .fp_set:N = \l__atableau_abacus_wd_fp, % runner separation
     runner~sep .value_required:n = true,
-    runner~sep .initial:n = 0.35,
+    runner~sep .initial:n = 0.42,
+
+    shading .tl_set:N = \l__atableau_shading_tl,
+    shading .value_required:n = true,
+    shading .initial:n = ball,
 
     tick .tl_set:N = \l__atableau_tick_tl, % tick colour
     tick .initial:n = aTableauInner,
 
-    tick~width .code:n = { \fp_set:Nn \l__atableau_tick_width_fp {#1/2} }, % (half) tick width separation
-    tick~width .value_required:n = true,
-    tick~width .initial:n = 0.1,
+    tick~style .code:n = { \__atableau_tikzset_append:nn {tickStyle} {#1} },
+    tick~style .value_required:n = true,
+
+    tick~length .code:n = { \fp_set:Nn \l__atableau_tick_length_fp {#1/2} }, % (half) tick width separation
+    tick~length .value_required:n = true,
+    tick~length .initial:n = 0.1,
 }
 
 
@@ -3009,8 +3069,6 @@
 %  - support for different conventions (english, french, ukrainian, australian)
 %  - support diagrams, tableaux, including tabloids, skew and shifted tableaux and ribbon tableaux
 %  - stars and styles
-%  - KLRW diagrams ??
-%  - quivers ??
 
 % ---------------------------------------------------------------------------
 %
