@@ -6,17 +6,42 @@
 
 \begin{document}
 
-  \Tableau[star style={fill=green!80!blue,text=white},
-    snob style={fill=yellow, text=red},
-    snobs={15_A,24_B,42_C,51_D},
-  ]{123*4,567,89*{10},*{11}}
+\begin{tikzpicture}
+   \draw[<-,->](0,0)--++(3,0);
+\end{tikzpicture}
 
-  \Tableau[star style={fill=green!80!blue,text=white},
-    ribbon style={fill=yellow, text=red},
-    ribbons={15_A,24_B,42_C,51_D},
-  ]{123*4,567,89*{10},*{11}}
+\bigskip
+
+  \Abacus[abacus ends=_|]{3}{2,1^2,0^3} \qquad
+  \Abacus[abacus ends=|-]{3}{2,1^2,0^3}
+
+  \bigskip
+
+  \Abacus[abacus ends=-_]{3}{2,1^2,0^3} \qquad
+  \Abacus[abacus ends=->]{3}{2,1^2,0^3}
+
+  \bigskip
+
+  \Abacus[abacus ends=..]{3}{2,1^2,0^3} \qquad
+  \Abacus[abacus ends=.-]{3}{2,1^2,0^3}
+
+  \bigskip
+
+  \Abacus[abacus ends=|>]{3}{2,1^2,0^3} \qquad
+  \Abacus[abacus ends=>>]{3}{2,1^2,0^3}
 
 \end{document}
+
+  \Tabloid[skew={0,1,2}]{19{11}7,29{10},6} \qquad
+  \Tabloid[conjugate,skew={0,1,2}]{19{11}7,29{10},6}
+
+  \Tableau[box height=0.5]{123,455,674} \qquad
+  \Tableau[box width=0.2,ukrainian]{123,455}
+
+\aTabset{ukrainian}
+
+  \Tableau{123,455,674} \qquad
+  \Tableau[ukrainian]{123,455}
 
   \tikzset{
     B/.style={pattern=north east lines, pattern color=blue},
@@ -25,7 +50,16 @@
 
   \Diagram[ribbons={(G)16ccccrrr, (B)16crrcccr}]{6,5^2,2} % unlabelled diagram
 
+  \Abacus{1}{2,1,1}
+
+  \aTabset{north} \Abacus{2}{2,1^2,0^3}
+
+
+
+
   \Tableau[styles={R={red,thick}, C={cyan,thick}}, paths={(R)14ccrc,(C)23rcc}]{1234,567,89{10}}
+
+\end{document}
 
 % Rows
 % \typeout{Rows ============================================================}
