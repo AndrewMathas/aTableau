@@ -1,6 +1,6 @@
 % ----------------------------------------------------------------------
 % Title:    aTableau.  Author:   Andrew Mathas Created:  October 2023
-% Modified: 19:05 Tuesday, 14 January 2025
+% Modified: 11:19 Wednesday, 15 January 2025
 % ----------------------------------------------------------------------
 \documentclass{amsart}
 \usepackage[svgnames,table]{xcolor}
@@ -514,10 +514,10 @@
   and a key-value interface for additional customization.  Under the
   hood, everything is drawn using \TikZ (and \LaTeX3).  These commands
   can be used either as standalone commands or as part of a
-  \keyword{tikzpicture} environment.  This package grew out of my own
-  research, so it does all of the things that I want it to do. On the
-  other hand, it is written as flexibly as possible in the hope that it
-  will draw the diagrams that others need.
+  \keyword{tikzpicture} environment.  This package started as code for
+  drawing the diagrams that I need in my own research. It is written as
+  flexibly as possible in the hope that it will draw the diagrams that
+  others need.
 
   For the impatient, here is a basic example that shows how to use the main
   commands provided by the \aTableau package:
@@ -553,7 +553,7 @@
   \begin{center}
       \aTabset{align=centre}
       \begin{tabular}{lp{0.6\textwidth}l} \toprule
-        \textcolor{aTableauMain}{Convention} &\textcolor{aTableauMain}{\aTableau command} & \textcolor{aTableauMain}{Diagram} \\ \midrule
+        \textcolor{aTableauMain}{Convention} &\textcolor{aTableauMain}{\aTableau command} & \textcolor{aTableauMain}{Picture} \\ \midrule
           English    & \keyword{\Tableau[english]{1234,567,89{10},{11}{12}}}\newline(the default)
                      & \Tableau{1234,567,89{10},{11}{12}}\\[10mm]
           French     & \keyword{\Tableau[french]{1234,567,89{10},{11}{12}}}
@@ -576,7 +576,7 @@
   \end{center}
 
   This table shows how the commands provided by \aTableau work: there
-  are basic commands for drawing diagrams, and these diagrams can be
+  are basic commands for drawing pictures, and these pictures can be
   embellished using optional arguments, which use a key-value interface.
 
   The different conventions for diagrams, and tableaux, are listed in
@@ -617,14 +617,14 @@
   diagram.
   \indexcmd{aTabset}
 
-  Each of the \aTableau commands is designed to be easy to use and easy to read,
-  and it is highly customisable. Each command accepts an optional list
-  of key-value options that modify the diagrams. In addition, optional
+  Each of the \aTableau commands is designed to be easy to use, easy to read,
+  and easy to customise. Each command accepts an optional list
+  of key-value options that modify and embellish the diagrams. In addition, optional
   styling can be applied to entries of a tableau and the beads in an
   abacus.  Each command can be used as a standalone object in a
   document, or they can be incorporated into a larger
-  \keyword{tikzpicture} environment, making makes it possible to use
-  these commands as part of more complicated diagrams.
+  \keyword{tikzpicture} environment, making it possible to use
+  these commands to create more complicated pictures.
 
   The general syntax of an \aTableau command is:
   \begin{quote}
@@ -639,14 +639,14 @@
   a~\keyword{tikzpicture} environment. See \autoref{SS:coordinates} for
   more detail about how these coordinates work.
 
-  The key-value \textit{options}, which control the style and appearance
-  of the final diagram, are optional.  The possible options, or keys,
-  for the \aTableau commands are described in detail below, with
-  examples. This section emphasises only some of these options together
-  with the fact that every key can be set ``globally'' (inside the
-  current \LaTeX\ group), by using \keyword{\aTabset{...options...}}. As
-  discussed already, the default options for the document can also be
-  set via \keyword{\usepackage[options]{atableau}}.\indexcmd{aTabset}
+  The key-value \emph{options}, or \emph{keys}, control the style and
+  appearance of the final diagram. The keys are optional and are
+  described in detail below, with examples. This section emphasises only
+  some of these options together with the fact that every key can be set
+  ``globally'' (inside the current \LaTeX\ group), by using
+  \keyword{\aTabset{...options...}}. As discussed already, the default
+  options for the document can also be set via
+  \keyword{\usepackage[options]{atableau}}.\indexcmd{aTabset}
 
   Many of the \aTableau options are specific to the particular diagrams
   being drawn. The full list of the \aTableau commands and their options
@@ -701,13 +701,13 @@
   border=true}, and to \option{border=false}.
 
   \index{American dialect}
-  American spelling variations of keys are tolerated. For example, you
+  For all keys, American spelling variations are tolerated. For example, you
   can use \option{center} and \option{color} instead of the correct
   spellings of \option{centre} and \option{colour}, respectively.
 
   \begin{warning}
     Unlike the egalitarian \aTableau settings, \TikZ-style settings
-    \emph{do not} countenance English spelling!
+    \emph{do not} countenance English spelling of the English language!
   \end{warning}
 
   The next example contrasts using the \keyword{\Diagram} command both
@@ -741,7 +741,7 @@
   by the~\keyword{\Diagram} command, even though most of the commands in
   the example are \TikZ commands. In particular, the shading of the
   boxes in the \emph{$(1,2)$-hook} and \emph{$(1,2)$-rim hook} is done
-  by the \option{ribbons} key. (In fact, this entire picture can be
+  by the \option{ribbons} key. (In fact, the right-hand picture could be
   drawn without using a \keyword{tikzpicture} environment by using
   the \option{tikz after} key to add the \keyword{\draw}-commands.)
 
@@ -875,10 +875,12 @@
   \end{tikzpicture}
   \end{Example}
 
-  Notice that even though the \keyword{\SkewTableau} commands are being used inside a
-  \keyword{tikzpicture} environment they do not need coordinates because
-  the skew tableaux are not explicit components in the environment,
-  being all (implicitly) inside \TikZ-nodes.
+  Notice that even though the \keyword{\SkewTableau} commands are being
+  used inside a \keyword{tikzpicture} environment they do not need
+  coordinates because the skew tableaux are being placed by the \TikZ
+  \keyword{\matrix} command. The \keyword{\SkewTableau} commands are not
+  explicit components in the \keyword{tikzpicture} environment, being
+  all (implicitly) inside \TikZ-nodes.
 
   The following sections describe the commands defined by the \aTableau
   package and how to use them.  We start with the \keyword{\Tableau}
@@ -915,16 +917,17 @@
     \end{tabular}
   \end{center}
 
-  In addition, the \keyword{\aTabset} command can be used to set default
-  \aTableau options.
+  In addition, the \keyword{\aTabset} command is provided for setting
+  can default \aTableau values for the \aTableau options.
 
   For easier reference, here is the list of the \aTableau keys, together
   with a quick explanation of what they do. The last two columns
   indicate whether the options apply to tableau (and diagrams), or to
-  abacuses~--- or both!  Options starting with \keyword{(no)} are
-  boolean options and their inverses. If not given a true or false value
-  then they are implicitly set to true. Although not listed, spelling
-  variations of keys from the American-English dialect are tolerated.
+  abacuses~--- or both!  Options starting with \keyword{(no)} are a pair
+  of boolean options and their inverses. If not given a true or false
+  value then they are implicitly set to true. Although not explicitly
+  listed, spelling variations of keys from the American dialect
+  of English are tolerated.
 
   \begin{xltabular}{0.9\textwidth}{lXcc}
     \toprule
@@ -953,8 +956,8 @@
     \option{charge}            & Set charge for contents and residues                & \Yes & \Yes \\
     \option{conjugate}         & Draw the conjugate tableau/diagram                  & \Yes & \No \\
     \option{delimiters}        & Set delimiters for multitableau and multidiagrams   & \Yes & \No  \\
-    \option{dotted cols}       & Specify diagram columns to replace with dots        & \Yes & \Yes \\
-    \option{dotted rows}       & Specify diagram rows to replace with dots           & \Yes & \Yes \\
+    \option{dotted cols}       & Specify columns to replace with dots                & \Yes & \Yes \\
+    \option{dotted rows}       & Specify rows to replace with dots                   & \Yes & \Yes \\
     \option{east}              & Make abacus grow in the easterly direction          & \Yes & \No \\
     \option{empty}             & Symbol for empty tableau in multitableau            & \Yes & \No \\
     \option{english}           & Use the English convention for tableaux             & \Yes & \No \\
@@ -990,7 +993,6 @@
     \option{separator colour}  & Set separator colour for multitableau               & \Yes & \No \\
     \option*{separators}       & Enable separators in multitableau                   & \Yes & \No \\
     \option{separator}         & Set separator colour in multitableau                & \Yes & \No \\
-    \option{shading}           &                                                     & \No  & \Yes\\
     \option{shifted}           & Set true for a shifted tableau                      & \Yes & \No \\
     \option{skew border style} & Set \TikZ-style of the skew border                  & \Yes & \No \\
     \option*{skew border}      & Set skew border colour                              & \Yes & \No \\
@@ -1003,7 +1005,7 @@
     \option{snob style}        & Sets style of a snob                                & \Yes & \No \\
     \option{south}             & Make abacus grow in the southerly direction         & \Yes & \No \\
     \option{star style}        & Set \TikZ-style of tableau $*$-nodes                & \Yes & \No \\
-    \option{styles}            & Short-hand for setting single use \TikZ-styles      & \Yes & \Yes \\
+    \option{styles}            & Short-hand for defining single use \TikZ-styles     & \Yes & \Yes \\
     \option{tabloid}           & Set true for a shifted tableau                      & \Yes & \No \\
     \option{text entries}      & Typeset box and label entries in text-mode          & \Yes & \Yes \\
     \option{tick}              & Set the colour of the abacus runner ticks           & \No  & \Yes \\
@@ -1478,7 +1480,7 @@
   \end{example}
 
   \option[\aTableauColour{Main}]{border colour}[any colour]
-  \option*[thick,line~cap=rect]{border style}[\TikZ-styling]
+  \option*[thick, line~cap=rect]{border style}[\TikZ-styling]
 
   The \option{border colour} option sets the colour of the border wall,
   whereas \option{border style} sets the \TikZ-styling of the border wall.
@@ -1492,31 +1494,6 @@
   The \option{border style} key \emph{appends} any \TikZ-styles to the
   current styling of the wall.
 
-  \option[0.5]{box height}[a decimal giving the height in \unit{cm}]
-  \option*[0.5]{box width}[a decimal giving the width in \unit{cm}]
-
-  Sets the width and height of the boxes in the tableau. The default
-  height and width of the boxes is \qty{0.5}{cm} when using the
-  \option{english} and \option{french} conventions and
-  \qty{0.7012}{cm}, which is approximately $1/\sqrt{2}$\unit{cm}, when
-  using the \option{ukrainian} and \option{australian} conventions. (In
-  all cases, the default side length of the boxes is \qty{0.5}{cm}.)
-
-  \begin{example}
-  \aTabset{align=top}
-  \Tableau[box height=0.5]{123,455,674} \qquad
-  \Tableau[box width=0.2,ukrainian]{123,455}
-  \end{example}
-
-  \begin{example}
-  \aTabset{align=top}
-  \Tableau[box height=0.5]{123,455,674} \qquad
-  \Tableau[box width=0.2,ukrainian]{123,455}
-  \end{example}
-
-  See also the \option{scale}, \option{xscale} and \option{yscale}
-  options.
-
   % nodes
   \option[none]{box fill}[any colour]
 
@@ -1528,7 +1505,7 @@
   \option{border colour} and \option{inner colour}, respectively.
 
   \begin{example}
-  \Tableau[box fill=blue,box text=yellow]{123,455,674} \qquad
+  \Tableau[box fill=blue, box text=yellow]{123,455,674} \qquad
   \Tableau[box fill=red!10]{123,455}
   \end{example}{}
 
@@ -1545,6 +1522,39 @@
   \Tableau[box font=\tiny]{123,455,674} \qquad
   \Tableau[text entries, box font=\bfseries]{123,455}
   \end{example}{}
+
+  \option[0.5]{box height}[a decimal giving the height in \unit{cm}]
+  \option*[0.5]{box width}[a decimal giving the width in \unit{cm}]
+
+  Sets the width and height of the boxes in the tableau. The default
+  height and width of the boxes is \qty{0.5}{cm} when using the
+  \option{english} and \option{french} conventions and
+  \qty{0.7012}{cm}, which is approximately $1/\sqrt{2}$\unit{cm}, when
+  using the \option{ukrainian} and \option{australian} conventions. (In
+  all cases, the default side length of the boxes is \qty{0.5}{cm}.)
+
+  \begin{example}
+  \aTabset{align=top}
+  \Tableau[box height=0.8]{123,455,674} \qquad
+  \Tableau[box width=0.2, ukrainian]{123,455}
+  \end{example}
+
+  The \option{box height} and \option{box width} keys need to be set
+  \emph{after} changing the tableau convention using
+  \option{australian}, \option{english}, \option{french}, or
+  \option{ukrainian} because the conventions change the height and width
+  of the tableau boxes. In particular, in the last example, \option{box
+  width=0.2} has no effect because of the following
+  \option{ukrainian} setting.
+
+  \begin{example}
+  \aTabset{align=top}
+  \Tableau[box height=0.3]{123,455,674} \qquad
+  \Tableau[ukrainian, box width=0.2]{123,455}
+  \end{example}
+
+  See also the \option{scale}, \option{xscale} and \option{yscale}
+  options.
 
   \option[\aTableauColour{Main}]{box text}[any colour]
 
@@ -1566,8 +1576,8 @@
   \Tableau[conjugate]{123,45,67}
   \end{example}
 
-  \option[centre]{halign}[centre,left,right]
-  \option*[centre]{valign}[bottom,centre,top]
+  \option[centre]{halign}[centre, left, right]
+  \option*[centre]{valign}[bottom, centre, top]
 
   By default, the entries in tableaux are centered, both horizontally
   and vertically, and it is your responsibility to ensure that the
@@ -1592,7 +1602,7 @@
   These keys are provided for completeness only. We recommend not using them!
 
   \option[\aTableauColour{Inner}]{inner colour}[any colour]
-  \option*[thin,line cap=rect]{inner style}[\TikZ-styling]
+  \option*[thin, line cap=rect]{inner style}[\TikZ-styling]
 
   The \option{inner colour} option sets the colour of the inner wall,
   whereas \option{inner style} sets the \TikZ-styling of the inner wall.
@@ -1626,7 +1636,7 @@
   \end{example}{}
 
   \option[]{label}[any character/text]
-  \option*[font=\textbackslash scriptsize,text=\aTableauColour{Inner}]{label style}[\TikZ commands]
+  \option*[font=\textbackslash scriptsize, text=\aTableauColour{Inner}]{label style}[\TikZ commands]
 
   The \option{label} key adds a label to a tableau next to the
   $(1,1)$-box. The style of the label can
@@ -1634,8 +1644,8 @@
 
   \begin{example}
   \Tableau[ukrainian, label={$\mathtt{t}$}]{13,25,4} \quad
-  \Tableau[french,label=0,label style={red}]{13,5} \quad
-  \Tableau[label style={draw=orange,circle,inner sep=0pt},
+  \Tableau[french, label=0, label style={red}]{13,5} \quad
+  \Tableau[label style={draw=orange,circle, inner sep=0pt},
     label=1] {12,35,5}
   \end{example}{}
 
@@ -1700,10 +1710,11 @@
   \option[-]{path box}[A node entry]
   \option*[-]{path box style}[\TikZ-styling commands]
 
-  The \option{path box} sets the default entry that us used in box in
-  each path. The \option{path box} is only used if you have not
-  specified a box entry as a subscript in the path/ribbon specification.
-  This key is useful if you want to mark all of the boxes in the path.
+  The \option{path box} sets the default entry for every box on a path.
+  The \option{path box} is only used if you have not specified a box
+  entry as a subscript in the path/ribbon specification.  This key is
+  useful if you want to mark all of the boxes in every path with the
+  same symbol.
 
   \begin{example}
   \tikzset{R/.style={red,thick},C/.style={cyan,thick}}
@@ -1764,8 +1775,8 @@
   same way as \option{path box} and \option{path box style},
   respectively.
 
-  Finally, \TikZ-styling can be added to ribbons using
-  \option{ribbon style} and \option{ribbon box style}. The \option{ribbon style} changes the
+  \TikZ-styling can be added to ribbons using \option{ribbon style} and
+  \option{ribbon box style}. The \option{ribbon style} changes the
   default style of the entire ribbon, whereas \option{ribbon box style}
   changes the default style of the individual boxes in the ribbon.
 
@@ -1853,7 +1864,7 @@
   \end{example}
 
   \begin{example}
-  \Tableau[australian,yscale=2]{ 13{10}{11}{1+x},2{1+x} }
+  \Tableau[australian, yscale=2]{ 13{10}{11}{1+x},2{1+x} }
   \end{example}
 
   \begin{warning}
@@ -1925,7 +1936,7 @@
   \Tableau[french]{[R]1[B]2,[G]3,[Y]4}
   \end{example}
 
-  you can save a little bit of typing by using the \option{styles} key:
+  you can save some typing using the \option{styles} key:
 
   \begin{example}
   \Tableau[french, styles={
@@ -1937,8 +1948,8 @@
   \end{example}
 
   Styles defined this way will only be available in the current picture.
-  Use \keyword{\tikzset} whenever you are defining styles that will be
-  used more than once.
+  Use \keyword{\tikzset} whenever you are defining styles that are likely
+  to be used more than once.
 
   \option[false]{tabloid}[true/false]
 
@@ -1962,8 +1973,8 @@
 
   \begin{example}[lefthand width=0.24\textwidth]
   \Tableau[
-   tikz before={\draw[help lines,step=0.5](-0.5,-2)grid(2,0.5);},
-   tikz after={\draw[ultra thick,red]
+   tikz before={\draw[help lines, step=0.5](-0.5,-2)grid(2,0.5);},
+   tikz after={\draw[ultra thick, red]
                  (A-1-3.north east)--(A-1-3.south east)
                  --(A-2-1.north east)--(A-3-1.south east)
                  --(A-3-1.south west);
@@ -2031,7 +2042,7 @@
 
   \begin{example}[lefthand width=0.3\textwidth]
   \tikz[remember picture, overlay]
-   \draw[very thick, ->,red]
+   \draw[very thick, ->, red]
      (0,0) node[right,align=left]
         {This circle is too big!\\Use minimum size=5mm}
      to [out=135, in=225](A-3-1);
@@ -2345,7 +2356,7 @@
   The \option{entries} option provides a shortcut for drawing some common
   tableaux of a specified shape.
 
-  \option[]{entries}[contents,first,hooks,last,residues]
+  \option[]{entries}[contents, first, hooks, last, residues]
 
   The possible choices are:
 
@@ -2374,7 +2385,7 @@
     \index{tableau!last}
   \begin{example}
   \Diagram[entries=last]{3,2,2} \qquad
-  \Diagram[australian,entries=last]{2^2,1}
+  \Diagram[australian, entries=last]{2^2,1}
   \end{example}
 
     \item\option{entries=hooks} print the diagram where each box is
@@ -2387,7 +2398,7 @@
     \index{hook lengths}
   \begin{example}
   \Diagram[entries=hooks]{3,2,2} \qquad
-  \Diagram[ukrainian,entries=hooks]{2^2,1}
+  \Diagram[ukrainian, entries=hooks]{2^2,1}
   \end{example}
 
   \item\option{entries=contents} where each box is
@@ -2396,7 +2407,7 @@
 
   \begin{example}
   \Diagram[entries=contents]{3,2,1} \qquad
-  \Diagram[french,entries=contents]{2^2,1}
+  \Diagram[french, entries=contents]{2^2,1}
   \end{example}
 
   \smallskip\noindent Inside a tableau, the default minus sign for a
@@ -2427,7 +2438,7 @@
     \smallskip
   \begin{example}
   % affine type C
-  \Diagram[french,entries=residues,
+  \Diagram[french, entries=residues,
     e=2, cartan=C] {8,4,2}
   \end{example}
 
@@ -2490,7 +2501,7 @@
   \begin{example}
   \tikzset{R/.style={fill=red!20,text=red}}
   \SkewTableau[french]{1^2}{13,5*7,[R]79} \qquad
-  \Tableau[french,skew={1^2}]{13,5*7,[R]79}
+  \Tableau[french, skew={1^2}]{13,5*7,[R]79}
   \end{example}
 
   Similarly, the \keyword{\SkewDiagram} command is an alias for the
@@ -2498,7 +2509,7 @@
 
   \begin{example}
   \SkewDiagram[french]{1^2}{2^3} \qquad
-  \Diagram[french,skew={1^2}]{2^3}
+  \Diagram[french, skew={1^2}]{2^3}
   \end{example}
 
   As the \keyword{\SkewTableau} and \keyword{\SkewTableaua} commands
@@ -2517,7 +2528,7 @@
   \begin{example}
   \tikzset{R/.style={fill=red!20,circle}}
   \SkewTableau[skew border]{2,1^2}{12[R]3,45,67}
-  \SkewTableau[french,skew border]{2,1^2}{12[R]3,45,67}
+  \SkewTableau[french, skew border]{2,1^2}{12[R]3,45,67}
   \end{example}
 
   Note that \option{skew border} only draws the border of the skew shape
@@ -2618,7 +2629,7 @@
   \ShiftedDiagram[entries=first]{4,2,1} \qquad
   \ShiftedDiagram[entries=hooks]{4,2,1} \qquad
   \ShiftedDiagram[entries=last]{4,2,1} \qquad
-  \ShiftedDiagram[entries=residues,e=3]{4,2,1}
+  \ShiftedDiagram[entries=residues, e=3]{4,2,1}
   \end{Example}
 
   The definition of hook lengths for shifted diagrams can be found, for
@@ -2655,7 +2666,7 @@
 
   \begin{example}
   \Diagram[tabloid]{3^2,1} \qquad
-  \Diagram[tabloid,french]{3,1^2}
+  \Diagram[tabloid, french]{3,1^2}
   \end{example}
 
   Some authors work with \emph{column tabloids}. Such tableaux do not
@@ -2664,7 +2675,7 @@
 
   \begin{example}
   \Tabloid[conjugate]{123,4} \qquad
-  \Diagram[conjugate,tabloid]{3,1} \qquad
+  \Diagram[conjugate, tabloid]{3,1} \qquad
   \end{example}
 
   Similarly, skew tabloids and shifted tabloids can be drawn using the \option{skew}
@@ -2673,7 +2684,7 @@
 
   \begin{example}
   \Tabloid[skew={2,1}]{19{11},29{10},6} \qquad
-  \Tabloid[conjugate,skew={0,1,2}]{19{11}7,29{10},6}
+  \Tabloid[conjugate, skew={0,1,2}]{19{11}7,29{10},6}
   \end{example}
 
 
@@ -2687,7 +2698,7 @@
   boxes~$R$ that are totally ordered by their contents. (Recall from
   \autoref{SS:entries} that the content of the box in row~$a$ and
   column~$b$ is $b-a$.) Therefore, a ribbon does not contain a
-  \Diagram[scale=0.3,border=false,align=bottom]{2^2}-square, and if
+  \Diagram[scale=0.3, border=false, align=bottom]{2^2}-square, and if
   $(a,b)\in R$ then at most one of $(a+1,b)$ and $(a,b-1)$ belongs
   to~$R$.  The \emph{head} of a ribbon~$R$ is the unique node of maximal
   content.  A \emph{ribbon tableau} is a tableau that is tiled by
@@ -2818,7 +2829,7 @@
   Here is an example of a $3$-ribbon skew tableau.
 
   \begin{example}
-  \RibbonTableau[skew={2^2,1^2},skew border]{
+  \RibbonTableau[skew={2^2,1^2}, skew border]{
      14c_0r,15r_1c, 18c_7c,26r_9r,
      34c_2c,35r_8r,42r_3c, 44c_4r,
      54r_6c,62c_5r
@@ -2872,7 +2883,7 @@
   ]{11, (fill=blue!10)12rc, 14crrcc}
   \end{example}
 
-  Here is a nice use of \option{paths} to add arrows to a ribbon
+  Here is a cute use of \option{paths} to add arrows to a ribbon
   tableau:
 
   \begin{example}[lefthand width=0.35\textwidth]
@@ -2890,13 +2901,14 @@
   \end{example}
 
   The arrows are added by the \option{paths} key using the two styles
-  \textsf{L} and \textsf{R}, which draw arrows to the left and right,
-  respectively, where left and right is with respect to the two boxes in
-  each path.  The two \keyword{\foreach} statements might look
-  complicated, but they are just loops which add the entries in the
-  tableau. These loops set \keyword{\r}, \keyword{\c} and \keyword{\l}
-  equal to the row index, column index and label, respectively, using
-  the following sequences of triples.
+  \textsf{L} and \textsf{R}, which draws ``left'' and ``right'' arrows
+  between the two boxes on the left respectively, where left and right
+  is with respect to order of the two boxes in the draw command.  The
+  two \keyword{\foreach} statements might look complicated, but they are
+  just loops which add the entries in the tableau. These loops set
+  \keyword{\r}, \keyword{\c} and \keyword{\l} equal to the row index,
+  column index and label, respectively, using the following sequences of
+  triples.
 
   \option[draw=\aTableauColour{Inner}, thin]{ribbon style}{\TikZ-styling}
   \option*[-]{ribbon box style}{\TikZ-styling}
@@ -2938,11 +2950,10 @@
   tableau contains multiple ribbons, then \option{ribbon box} is used
   for all ribbons.
 
-  Similarly, these are keys
-  \option{path style}, \option{path box}, \option{path box style},
-  \option{snob style}, \option{snob box} and \option{snob box style} tha
-  work in the same way. In addition, most keys for \keyword{\Tableau}
-  work as expected for ribbon tableaux.
+  Similarly, there are keys \option{path style}, \option{path box},
+  \option{path box style}, \option{snob style}, \option{snob box} and
+  \option{snob box style} tha work in the same way. Many of the
+  \keyword{\Tableau} keys work as expected for ribbon tableaux.
 
   % --------------------------------------------------------------
   \subsection{Multidiagrams and multitableaux}\label{S:Multitableau}
@@ -3085,7 +3096,7 @@
   \Multidiagram[empty=$\emptyset$]{ 3,2 | | 2^2 }
   \end{example}
 
-  \option[]{entries}[contents,first,hooks,last,residues]
+  \option[]{entries}[contents, first, hooks, last, residues]
   \option*[]{charge}[$|$-separated list of charges]
   \index{contents}
   \index{residues}
@@ -3161,7 +3172,7 @@
   Specifying the \option{charge} offsets the residues in each component.
 
   \begin{example}
-    \Multidiagram[french,entries=residues, e=3,
+    \Multidiagram[french, entries=residues, e=3,
       charge={1,2}]{3,2,1|1^2}
   \end{example}
 
@@ -3182,7 +3193,7 @@
   No extra space is allowed for the labels, so use \option{xoffsets}
   and \option{yoffsets} to adjust for wide labels.
 
-  \option[B]{name}[character]
+  \option[A]{name}[character]
 
   The \option{name} option is used to change the default prefix for the
   box node names. In a tableau, or diagram, the box names depend on the
@@ -3237,18 +3248,18 @@
   decimal number.
 
   \begin{example}
-  \Multidiagram[ukrainian,scale=0.5]{3,2^2|...|2,1^2}
+  \Multidiagram[ukrainian, scale=0.5]{3,2^2|...|2,1^2}
   \end{example}
 
   \begin{example}
-  \Multitableau[rows=3,scale=0.8,box font=\tiny]
+  \Multitableau[rows=3, scale=0.8, box font=\tiny]
        {{1_1}{1_1}{1_1}{2_1},{2_1}{2_1}{2_1} |
         {1_2}{3_3},{{2_2}} |
         {1_3}{1_3},{{2_3}}}
   \end{example}
 
   \begin{example}
-  \Multitableau[ukrainian,rows=2.5,scale=0.8,box font=\tiny]
+  \Multitableau[ukrainian, rows=2.5, scale=0.8, box font=\tiny]
        {{1_1}{1_1}{1_1}{2_1},{2_1}{2_1}{2_1} |
         {1_2}{3_3},{{2_2}} |
         {1_3}{1_3},{{2_3}}}
@@ -3264,9 +3275,9 @@
   and delimiters are drawn.
 
   \begin{example}
-  \Multitableau[separators,scale=0.8]
+  \Multitableau[separators, scale=0.8]
     {123,45,67 | 89,{10}{11}}  \par\bigskip
-  \Multidiagram[no separators,scale=0.7]
+  \Multidiagram[no separators, scale=0.7]
     {3,2^2|2,1^2} \par\bigskip
   \end{example}
 
@@ -3429,7 +3440,7 @@
   to \keyword{1^2} are coloured red, whereas the other three beads that
   correspond to a~$1$ are either orange or an off-white colour, which is
   the default \option{abacus star style}. As with the tableaux commands,
-  more complicated bead styles can be defined using \keyword{\tikzset}.
+  we recommend using \keyword{\tikzset} to define more complicated bead styles.
 
   In addition to applying style to the individual beads on the abacus,
   labels for the beads can (optionally) be given as subscripts in the
@@ -3448,14 +3459,16 @@
   will spill into the abacus. Traditionally, abacus beads are not labelled,
   but you can give labels to as many beads as you like.
 
-  You can remove beads by adding the \emph{no shade} style%
-  \footnote{Surprisingly, \TikZ \emph{does not} provide
-  a way to disable a shading that is already in effect. The
-  \emph{no shade} style is based on a stack exchange post of
-  \href{https://tex.stackexchange.com/a/85750/234252}{Jake}'s and it
-  will work whenever the \aTableau package is loaded.}. In such cases,
-  you probably want to replace the bead with a label, so you will also
-  need to change the text, which is white by default.
+  You can remove beads that you have placed on the abacus using the \emph{no shade} style%
+  \footnote{Surprisingly, \TikZ \emph{does not} provide a way to disable
+  a shading that is already in effect. The \emph{no shade} style is
+  based on a \href{https://tex.stackexchange.com/a/85750/234252}{stack
+  exchange post}. The \emph{no shade} key is available if the \aTableau
+  package is loaded.}.
+  The point of being able to remove beads in this way is that this
+  allows you to put something else in its place using the bead label.
+  In such cases, you probably want to replace the bead with a label, so
+  you will also need to change the text, which is white by default.
 
   \begin{example}[label=Ex:NoShade]
   \Abacus[styles={C={no shade,text=red}}]
@@ -3482,32 +3495,32 @@
   \option{tikz before}, and
   \option{tikzpicture}. See \autoref{S:keys} for the complete list.
 
-  \option[true]{south}{true/false}
-  \option*[false]{east}{false/true}
-  \option*[false]{north}{false/true}
-  \option*[false]{west}{false/true}
+  \option[true]{south}[true/false]
+  \option*[false]{east}[false/true]
+  \option*[false]{north}[false/true]
+  \option*[false]{west}[false/true]
 
   Just like tableaux, abacus have four different conventions.  By
   default, abacuses are drawn in the southerly direction, from top to
   bottom. Using these keys, abacuses can also be drawn to the north,
   east and west.
 
-  \begin{example}
-  \Abacus[south]{2}{4^3,2,1} \qquad % the default
-  \Abacus[east]{2}{4^3,2,1}  \par\smallskip\par
-  \Abacus[north]{2}{4^3,2,1} \qquad
-  \Abacus[west]{2}{4^3,2,1}
-  \end{example}
+  \begin{Example}
+  \Abacus[south]{2}{4^3,2,1}\qquad \Abacus[east]{2}{4^3,2,1}\qquad
+  \Abacus[north]{2}{4^3,2,1}\qquad \Abacus[west]{2}{4^3,2,1}
+  \end{Example}
+
+  The name of the convention gives the direction that the abacus grows in.
 
   \option[$-|$]{abacus ends}  [any pair of: $-$, \_\!\_, ., *, $|$, \textgreater]
   \option*[very thick, draw=\aTableauColour{Inner}]{abacus ends style}[\TikZ-styling]
 
   The \option{abacus ends} key sets the style used for the top and
-  bottom of the abacus. The meaning of these five
-  symbols is the following:
+  bottom of the abacus. The meaning of these six symbols is the
+  following:
 
   \begin{quote}
-    \begin{options}[labelwidth=1em,nosep]
+    \begin{options}[labelwidth=1em, nosep]
       \item[$-$] Adds a line that extends slightly past the first and last runners
       \item[\_\!\_]  Adds a line between the first and last runners
       \item[.]   Add dots to the end of each runner
@@ -3518,15 +3531,15 @@
   \end{quote}
 
   Exactly two of these styling characters must be given when setting
-  \option{abacus ends}. There are six options for the top of the
-  abacus, and six options for the bottom, so there are 36 possible
-  configurations. We will not list all of them, but here are some
-  examples.
+  \option{abacus ends}. There are six options for the top of the abacus,
+  and six options for the bottom, so there are 36 possible
+  configurations (most of which will never be used...). We do not list
+  all of them, but here are some examples.
 
   \begin{Example}
   \aTabset{align=top}
   \Abacus[abacus ends=-|]{3}{2,1^2,0^3}\qquad\Abacus[abacus ends=-_]{3}{2,1^2,0^3}\qquad
-  \Abacus[abacus ends=-.]{3}{2,1^2,0^3}\qquad\Abacus[abacus ends=->]{3}{2,1^2,0^3}\qquad
+  \Abacus[abacus ends=_.]{3}{2,1^2,0^3}\qquad\Abacus[abacus ends=->]{3}{2,1^2,0^3}\qquad
   \Abacus[abacus ends=>|]{3}{2,1^2,0^3}\qquad\Abacus[abacus ends=_-]{3}{2,1^2,0^3}\qquad
   \Abacus[abacus ends=>-]{3}{2,1^2,0^3}\qquad\Abacus[abacus ends=-*]{3}{2,1^2,0^3}
   \end{Example}
@@ -3534,7 +3547,7 @@
  As one more example, \emph{beta numbers} might be displayed using:
 
   \begin{example}
-  \Abacus[abacus ends=**, east, rows=9]{1}{2,1^2,*0^3}
+  \Abacus[abacus ends=**, east, rows=7]{1}{2,1^2,*0^2}
   \end{example}
 
   The \option{abacus ends style} key changes the \TikZ-styling of the
@@ -3575,7 +3588,7 @@
   \end{example}
 
   The \option{bead} key changes the colour of every bead on the
-  abacus. As shown, use the \TikZ-style \keyword{ball colour} to
+  abacus. As shown, use the \TikZ-style \keyword{ball color} to
   change the colour of individual beads.
 
   \option[\textbackslash small]{bead font}[\LaTeX\ font command]
@@ -3608,15 +3621,19 @@
   \begin{example}
   \Abacus[bead size=0.6,
           bead sep=0.65,
-          runner sep=0.6]
+          runner sep=0.65]
   {3}{3_3,2^2,1^3}
   \end{example}
 
+  As with tableau, you can also change the size f the abacuses using
+  \option{scale}, \option{xscale} and \option{yscale}. Changing these
+  keys globally affects both abacuses and tableaux.
+
   \option[circle]{bead style}[\TikZ styling]
 
-  The keys above are usually sufficient for finetuning the style of the
-  abacus beads. The \option{abacus style} key appends \TikZ-styling to
-  the default bead style.
+  The keys above are usually sufficient for fine-tuning the style of the
+  abacus beads. Alternatively, the \option{bead style} key appends
+  \TikZ-styling to the default bead style.
 
   \begin{example}
   \Abacus[bead style={shading=axis}, bead text=red] {3}{3_3,2^2,1^3}
@@ -3652,31 +3669,31 @@
   \option[]{dotted cols}[list of runner indices]
   \option*[]{dotted rows}[list of row indices]
 
-  \option[]{entries}[beta,residue,rows,shape]
+  \option[]{entries}[beta, residue, rows, shape]
 
   The \option{entries} option provides a shortcut for drawing some common
   tableaux of a specified shape. The possible choices are:
 
   \begin{itemize}
 
-    \item[beta]\index{entries!beta}
+    \item\option{entries=beta}\index{entries!beta}
     Label the beads by their beta numbers
   \begin{example}
   \Abacus[entries=beta]{3}{3,2^2,0^2} \qquad
   \Abacus[entries=beta]{4}{3,2^2,0^2}
   \end{example}
 
-  \item[residues]\index{entries!residues}
+  \item\option{entries=residues}\index{entries!residues}
   Label the beads by their residues. Unlike for tableaux, it is not not
   necessary to specify the quantum characteristic \option{e}, because
   this is determined by the number of runners and the \option{cartan}
   type. (You can set \option{e} manually as well.)
   \begin{example}
   \Abacus[entries=residues,]{3}{3,2^2,0^2} \qquad
-  \Abacus[entries=residues,cartan=C]{4}{3,2^2,0^2}
+  \Abacus[entries=residues, cartan=C]{4}{3,2^2,0^2}
   \end{example}
 
-  \item[rows]\label{entries!rows}
+  \item\option{entries=rows}\label{entries!rows}
   Label the beads by their rows index of the corresponding part in the
   partition.
   \begin{example}
@@ -3684,7 +3701,7 @@
   \Abacus[entries=beta]{4}{3,2^2,0^2}
   \end{example}
 
-  \item[shape]\index{entries!partition}
+  \item\option{entries=shape}\index{entries!partition}
   Label the beads by their shape, which is the corresponding partition.
   \begin{example}
   \Abacus[entries=shape]{3}{3,2^2,0^2} \qquad
@@ -3705,16 +3722,31 @@
   displayed.
 
   \begin{example}
-    \Abacus[no shade]{3}{3,2^2,0^2} \qquad
-    \Abacus[bead style={no shade, shape=diamond, fill=brown, text=white}]{3}{3,2^2,0^2}
+    \Abacus[no shade, bead text=red]{3}{3_1,2_2,2_3} \qquad
+    \Abacus[bead style={no shade, shape=diamond,
+      fill=brown, text=white}]{3}{3_1,2_2,2_3,0^2}
   \end{example}
 
   As the first example shows, if you use the \option{no shade} key then
-  you need to define a style for the abacus beads. As the second example
+  you need to define a new style for the abacus beads. As the second example
   shows, rather than using \option{no shape} as an \aTableau-key you can
   use it directly as a \TikZ-style inside \option{bead style}. (We
   include the \option{no shade} partly for convenience and partly to
   advertise how it can be used.)
+
+  \option[-]{rows}{non-negative integer}
+
+  By default, the \keyword{\Abacus} command uses the smallest number of
+  rows necessary to display all of the beads on the abacus. Use the
+  \option{rows} key to change the number of rows displayed. If you use
+  the \option{rows} key, then it is your responsibility to ensure that
+  the abacus has enough rows to display all of the beads.
+
+  \begin{example}
+  \Abacus{3}{3,2^2,0^2} \qquad
+  \Abacus[rows=4]{3}{3,2^2,0^2} \qquad
+  \Abacus[rows=5]{3}{3,2^2,0^2}
+  \end{example}
 
   \option[draw=\aTableauColour{Inner}]{runner}[\LaTeX colour]
   \option*[very thick]{runner style}[\TikZ-styling]
@@ -3724,10 +3756,12 @@
   \begin{example}
     \Abacus{3}{3,2^2} \qquad
     \Abacus[runner=red]{3}{5,3,2,0^2} \qquad
-    \Abacus[runner=brown, bead=blue]{3}{6,4,3,[ball color=red]0^2}
+    \Abacus[runner=brown, bead=blue]
+      {3}{6,4,3,[ball color=red]0^2}
   \end{example}
 
-  Append \TikZ-styling keys to the style for the abacus runners.
+  The \option{runner style} key appends \TikZ-styling to the abacus
+  runner style.
 
   \begin{example}
     \Abacus[runner style={dashed}]{3}{3,2^2} \quad
@@ -3735,16 +3769,16 @@
 
   \option[\aTableauColour{Inner}]{tick}[\LaTeX colour]
   \option*[semithick]{tick style}[\TikZ style]
-  \option*[0.1]{tick length}[a decimal number]
+  \option*[0.1]{tick length}[a decimal number, length in \unit{cm}]
 
   These three keys control the ticks on the abacus runners, which mark
-  the empty bead positions.
+  the empty bead positions. Use \option{tick} to the colour of the
+  ticks on the abacus runners. The other two key have he obvious meanings.
 
   \begin{example}
-    \tikzset{B/.style={ball color=LightSkyBlue}}
-    \Abacus[beta numbers]{4}{6,4,3,1,0}
-    \quad $\longrightarrow$\quad
-    \Abacus[beta numbers]{4}{7,5,4,2,1,[B]0}
+    \Abacus[tick=red]{3}{6,4,3,1,0} \qquad
+    \Abacus[tick style={ultra thick,orange}]{3}{6,4,3,1,0} \qquad
+    \Abacus[tick length=0.3]{3}{6,4,3,1,0} \qquad
   \end{example}
 
   % --------------------------------------------------------------
@@ -3802,9 +3836,9 @@
   the \keyword{\Symb} command below.
 
   \begin{example}
-  \newcommand\Symb[2]{\begin{array}{l}#1\\#2\end{array}}
+  \newcommand\Symb[2]{\genfrac{}{}{0pt}{}{#1}{#2}}
   \Tableau[ukrainian, box font=\scriptsize,
-     tikz after = {\draw[ultra thick,red]
+     tikz after = {\draw[ultra thick, red]
         (A-2-3.east)--(A-2-2.south)--(A-3-2.west)
                     --(A-3-3.north)--cycle;
   }]{
@@ -3862,7 +3896,7 @@
  \pic at (T) {ustring={gray}{A-4-4}{}{A-4-4}};
  \pic at (T) {ustring={gray}{A-5-2}{A-4-3,A-3-4}{A-3-4}};
  \pic at (T) {ustring={gray}{A-5-3}{}{A-5-3}};
- \pic at (T) {ustring={ForestGreen}{A-5-1}{A-4-2,A-3-3,A-2-4}{A-2-4}};
+ \pic at (T) {ustring={red}{A-5-1}{A-4-2,A-3-3,A-2-4}{A-2-4}};
  \pic at (O) {dstring={gray}{A-1-1}{}{A-1-1}};  % down strings
  \pic at (O) {dstring={gray}{A-2-1}{A-1-2}{A-1-2}};
  \pic at (O) {dstring={gray}{A-3-1}{A-2-2,A-1-3}{A-1-3}};

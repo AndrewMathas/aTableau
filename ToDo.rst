@@ -28,13 +28,8 @@ Bugs
 ----
 
 * fix keyword styling in manual
-
-* edge not quite long enough for \Tabloid[skew={0,1,2}]{19{11}7,29{10},6}
-
-* there are too many abacus rows when using beta numbers: \Abacus[beta numbers]{3}{6,4,3,[ball color=red]0}
-
-* are the style settings of thick and semithick working properly for
-  the abacus runners and ticks?
+* \Abacus[entries=residues, cartan=C]{4}{3,2^2,0^2} is displaying
+    negative residues
 
 * entries=rows does not take into account the  "zero beads" at the start
   of the abacus
