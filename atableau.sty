@@ -112,32 +112,36 @@
 \bool_new:N \l__atableau_tabloid_bool     % true if a tabloid
 \bool_new:N \l__atableau_separators_bool  % true if drawing separators for multishapes
 
+\fp_new:N \l__atableau_ab_col_dx_fp       % change in x-coordinate between columns in an abacus
+\fp_new:N \l__atableau_ab_col_dy_fp       % change in y-coordinate between columns in an abacus
+\fp_new:N \l__atableau_ab_row_dx_fp       % change in x-coordinate between rows in an abacus
+\fp_new:N \l__atableau_ab_row_dy_fp       % change in y-coordinate between rows in an abacus
 \fp_new:N \l__atableau_abacus_ht_fp       % height of the tableaux nodes/separation between abacus beads
 \fp_new:N \l__atableau_abacus_wd_fp       % width of the tableaux nodes/separation between abacus runners
 \fp_new:N \l__atableau_bead_size_fp       % bead radius
 \fp_new:N \l__atableau_box_ht_fp          % height of a tableau box
 \fp_new:N \l__atableau_box_wd_fp          % width of a tableau box
-\fp_new:N \l__atableau_col_dx_fp          % change in x-coordinate between columns
-\fp_new:N \l__atableau_col_dy_fp          % change in y-coordinate between columns
-\fp_new:N \l__atableau_row_dx_fp          % change in x-coordinate between rows
-\fp_new:N \l__atableau_row_dy_fp          % change in y-coordinate between rows
 \fp_new:N \l__atableau_rows_fp            % number of rows in abacus/tableau
 \fp_new:N \l__atableau_separation_fp      % distance between multitableau
+\fp_new:N \l__atableau_tab_col_dx_fp      % change in x-coordinate between columns in a tableau
+\fp_new:N \l__atableau_tab_col_dy_fp      % change in y-coordinate between columns in a tableau
+\fp_new:N \l__atableau_tab_row_dx_fp      % change in x-coordinate between rows in a tableau
+\fp_new:N \l__atableau_tab_row_dy_fp      % change in y-coordinate between rows in a tableau
 \fp_new:N \l__atableau_tick_length_fp     % half the length of the abacus ticks
 \fp_new:N \l__atableau_x_fp               % x-coordinate of the origin of the diagram
 \fp_new:N \l__atableau_xa_fp              % scratch x-coordinate of a node/bead
 \fp_new:N \l__atableau_xb_fp              % scratch x-coordinate of a node/bead
 \fp_new:N \l__atableau_xl_fp              % x-coordinate of a tableau node/bead
+\fp_new:N \l__atableau_xmax_fp            % maximum x-coordinate for multidiagrams and multitableaux
 \fp_new:N \l__atableau_xoffsets_seq       % x-offsets for the (1,1)-nodes in a multi-tableau
 \fp_new:N \l__atableau_xscale_fp          % scaling in the x-direction
 \fp_new:N \l__atableau_xsep_fp            % x-coordinate difference to next separator for multishapes
 \fp_new:N \l__atableau_y_fp               % y-coordinate of the origin of the diagram
-\fp_new:N \l__atableau_xmax_fp            % maximum x-coordinate for multidiagrams and multitableaux
-\fp_new:N \l__atableau_ymax_fp            % maximum y-coordinate for multidiagrams and multitableaux
-\fp_new:N \l__atableau_ymin_fp            % minimum y-coordinate for multidiagrams and multitableaux
 \fp_new:N \l__atableau_ya_fp              % scratch y-coordinate of a node/bead
 \fp_new:N \l__atableau_yb_fp              % scratch y-coordinate of a node/bead
 \fp_new:N \l__atableau_yl_fp              % y-coordinate of a tableau node/bead
+\fp_new:N \l__atableau_ymax_fp            % maximum y-coordinate for multidiagrams and multitableaux
+\fp_new:N \l__atableau_ymin_fp            % minimum y-coordinate for multidiagrams and multitableaux
 \fp_new:N \l__atableau_yoffsets_seq       % t-offsets for the (1,1)-nodes in a multi-tableau
 \fp_new:N \l__atableau_yscale_fp          % scaling in the x-direction
 
@@ -214,7 +218,6 @@
 \tl_new:N \l__atableau_skew_border_tl     % skew border colour
 \tl_new:N \l__atableau_starstyle_tl       % current star style in use
 \tl_new:N \l__atableau_styled_nodes_tl    % token lists of nodes with non-default style
-\tl_new:N \l__atableau_tableau_style_tl   % tableaux style: australian, english (default), french, ukrainian
 \tl_new:N \l__atableau_tick_tl            % abacus tick colour
 \tl_new:N \l__atableau_tikz_after_tl      % TikZ commands for after the diagram
 \tl_new:N \l__atableau_tikz_before_tl     % TikZ commands for before the diagram
@@ -256,8 +259,8 @@
     % outer tableau wall
     border/.style = {
         % shifting allows us to use \__atableau_set_box_coordinates:nnn when drawing the border
-        shift = {(\fp_eval:n{-(\l__atableau_row_dx_fp+\l__atableau_col_dx_fp)*\l__atableau_box_wd_fp/2},
-                  \fp_eval:n{-(\l__atableau_row_dy_fp+\l__atableau_col_dy_fp)*\l__atableau_box_ht_fp/2})},
+        shift = {(\fp_eval:n{-(\l__atableau_tab_row_dx_fp+\l__atableau_tab_col_dx_fp)*\l__atableau_box_wd_fp/2},
+                  \fp_eval:n{-(\l__atableau_tab_row_dy_fp+\l__atableau_tab_col_dy_fp)*\l__atableau_box_ht_fp/2})},
         line~cap = rect,
         very~thick,
         draw = \l__atableau_outer_tl,
@@ -265,8 +268,8 @@
     % skew walls
     skewBorder/.style = {
         % shifting allows us to use \__atableau_set_box_coordinates:nnn when drawing the border
-        shift = {(\fp_eval:n{-(\l__atableau_row_dx_fp+\l__atableau_col_dx_fp)*\l__atableau_box_wd_fp/2},
-                  \fp_eval:n{-(\l__atableau_row_dy_fp+\l__atableau_col_dy_fp)*\l__atableau_box_ht_fp/2})},
+        shift = {(\fp_eval:n{-(\l__atableau_tab_row_dx_fp+\l__atableau_tab_col_dx_fp)*\l__atableau_box_wd_fp/2},
+                  \fp_eval:n{-(\l__atableau_tab_row_dy_fp+\l__atableau_tab_col_dy_fp)*\l__atableau_box_ht_fp/2})},
         draw  = \l__atableau_skew_border_tl,
         thick
     },
@@ -325,8 +328,8 @@
     % -----------------------------------------------------------------------
     % label styles
     labelStyle/.style = {
-        shift = {(\fp_eval:n{-0.2*(\l__atableau_row_dx_fp+\l__atableau_col_dx_fp)*\l__atableau_box_wd_fp},
-                  \fp_eval:n{-0.2*(\l__atableau_row_dy_fp+\l__atableau_col_dy_fp)*\l__atableau_box_ht_fp})},
+        shift = {(\fp_eval:n{-0.2*(\l__atableau_tab_row_dx_fp+\l__atableau_tab_col_dx_fp)*\l__atableau_box_wd_fp},
+                  \fp_eval:n{-0.2*(\l__atableau_tab_row_dy_fp+\l__atableau_tab_col_dy_fp)*\l__atableau_box_ht_fp})},
         font=\scriptsize,
         text = \l__atableau_inner_tl,
     },
@@ -422,44 +425,45 @@
 % sets the basic styles for the tableaux and abacus commands
 \cs_new:Npn \__atableau_set_style:nn #1 #2
 {
+\typeout{Setting~#1/#2}
     \str_case:enF { #1/#2 }
     {
       {tableau/english}
         {
-          \fp_set:Nn \l__atableau_col_dx_fp {1}
-          \fp_set:Nn \l__atableau_col_dy_fp {0}
-          \fp_set:Nn \l__atableau_row_dx_fp {0}
-          \fp_set:Nn \l__atableau_row_dy_fp {-1}
+          \fp_set:Nn \l__atableau_tab_col_dx_fp {1}
+          \fp_set:Nn \l__atableau_tab_col_dy_fp {0}
+          \fp_set:Nn \l__atableau_tab_row_dx_fp {0}
+          \fp_set:Nn \l__atableau_tab_row_dy_fp {-1}
           \fp_set:Nn \l__atableau_box_ht_fp {\l__atableau_yscale_fp*0.5}
           \fp_set:Nn \l__atableau_box_wd_fp {\l__atableau_xscale_fp*0.5}
           \tl_set:Nn \l__atableau_box_shape_tl {rectangle}
         }
       {tableau/french}
         {
-          \fp_set:Nn \l__atableau_col_dx_fp {1}
-          \fp_set:Nn \l__atableau_col_dy_fp {0}
-          \fp_set:Nn \l__atableau_row_dx_fp {0}
-          \fp_set:Nn \l__atableau_row_dy_fp {1}
+          \fp_set:Nn \l__atableau_tab_col_dx_fp {1}
+          \fp_set:Nn \l__atableau_tab_col_dy_fp {0}
+          \fp_set:Nn \l__atableau_tab_row_dx_fp {0}
+          \fp_set:Nn \l__atableau_tab_row_dy_fp {1}
           \fp_set:Nn \l__atableau_box_ht_fp {\l__atableau_yscale_fp*0.5}
           \fp_set:Nn \l__atableau_box_wd_fp {\l__atableau_xscale_fp*0.5}
           \tl_set:Nn \l__atableau_box_shape_tl {rectangle}
         }
       {tableau/australian}
         {
-          \fp_set:Nn \l__atableau_col_dx_fp {0.5}
-          \fp_set:Nn \l__atableau_col_dy_fp {-0.5}
-          \fp_set:Nn \l__atableau_row_dx_fp {-0.5}
-          \fp_set:Nn \l__atableau_row_dy_fp {-0.5}
+          \fp_set:Nn \l__atableau_tab_col_dx_fp {0.5}
+          \fp_set:Nn \l__atableau_tab_col_dy_fp {-0.5}
+          \fp_set:Nn \l__atableau_tab_row_dx_fp {-0.5}
+          \fp_set:Nn \l__atableau_tab_row_dy_fp {-0.5}
           \fp_set:Nn \l__atableau_box_ht_fp {\l__atableau_yscale_fp*0.7012} % 1/sqrt(2)
           \fp_set:Nn \l__atableau_box_wd_fp {\l__atableau_xscale_fp*0.7012}
           \tl_set:Nn \l__atableau_box_shape_tl {diamond}
         }
       {tableau/ukrainian}
         {
-          \fp_set:Nn \l__atableau_col_dx_fp {0.5}
-          \fp_set:Nn \l__atableau_col_dy_fp {0.5}
-          \fp_set:Nn \l__atableau_row_dx_fp {-0.5}
-          \fp_set:Nn \l__atableau_row_dy_fp {0.5}
+          \fp_set:Nn \l__atableau_tab_col_dx_fp {0.5}
+          \fp_set:Nn \l__atableau_tab_col_dy_fp {0.5}
+          \fp_set:Nn \l__atableau_tab_row_dx_fp {-0.5}
+          \fp_set:Nn \l__atableau_tab_row_dy_fp {0.5}
           \fp_set:Nn \l__atableau_box_ht_fp {\l__atableau_yscale_fp*0.7012}
           \fp_set:Nn \l__atableau_box_wd_fp {\l__atableau_xscale_fp*0.7012}
           \tl_set:Nn \l__atableau_box_shape_tl {diamond}
@@ -470,50 +474,48 @@
         }
       {abacus/south}
         {
-          \fp_set:Nn \l__atableau_col_dx_fp {1}
-          \fp_set:Nn \l__atableau_col_dy_fp {0}
-          \fp_set:Nn \l__atableau_row_dx_fp {0}
-          \fp_set:Nn \l__atableau_row_dy_fp {-1}
-          \fp_set:Nn \l__atableau_box_ht_fp {\l__atableau_yscale_fp*0.5}
-          \fp_set:Nn \l__atableau_box_wd_fp {\l__atableau_xscale_fp*0.5}
+          \fp_set:Nn \l__atableau_ab_col_dx_fp {1}
+          \fp_set:Nn \l__atableau_ab_col_dy_fp {0}
+          \fp_set:Nn \l__atableau_ab_row_dx_fp {0}
+          \fp_set:Nn \l__atableau_ab_row_dy_fp {-1}
+          \fp_set:Nn \l__atableau_abacus_ht_fp {\l__atableau_yscale_fp*0.5}
+          \fp_set:Nn \l__atableau_abacus_wd_fp {\l__atableau_xscale_fp*0.5}
           \tl_set:Nn \l__atableau_bead_shape_tl  {circle}
         }
       {abacus/north}
         {
-          \fp_set:Nn \l__atableau_col_dx_fp {1}
-          \fp_set:Nn \l__atableau_col_dy_fp {0}
-          \fp_set:Nn \l__atableau_row_dx_fp {0}
-          \fp_set:Nn \l__atableau_row_dy_fp {1}
+          \fp_set:Nn \l__atableau_ab_col_dx_fp {1}
+          \fp_set:Nn \l__atableau_ab_col_dy_fp {0}
+          \fp_set:Nn \l__atableau_ab_row_dx_fp {0}
+          \fp_set:Nn \l__atableau_ab_row_dy_fp {1}
           \tl_set:Nn \l__atableau_bead_shape_tl  {circle}
-          \fp_set:Nn \l__atableau_box_wd_fp {\l__atableau_xscale_fp*0.5}
-          \fp_set:Nn \l__atableau_box_ht_fp {\l__atableau_yscale_fp*0.5}
+          \fp_set:Nn \l__atableau_abacus_wd_fp {\l__atableau_xscale_fp*0.5}
+          \fp_set:Nn \l__atableau_abacus_ht_fp {\l__atableau_yscale_fp*0.5}
         }
       {abacus/east}
         {
-          \fp_set:Nn \l__atableau_col_dx_fp {0}
-          \fp_set:Nn \l__atableau_col_dy_fp {-1}
-          \fp_set:Nn \l__atableau_row_dx_fp {1}
-          \fp_set:Nn \l__atableau_row_dy_fp {0}
+          \fp_set:Nn \l__atableau_ab_col_dx_fp {0}
+          \fp_set:Nn \l__atableau_ab_col_dy_fp {-1}
+          \fp_set:Nn \l__atableau_ab_row_dx_fp {1}
+          \fp_set:Nn \l__atableau_ab_row_dy_fp {0}
           \tl_set:Nn \l__atableau_bead_shape_tl  {circle}
-          \fp_set:Nn \l__atableau_box_wd_fp {\l__atableau_xscale_fp*0.5}
-          \fp_set:Nn \l__atableau_box_ht_fp {\l__atableau_yscale_fp*0.5}
+          \fp_set:Nn \l__atableau_abacus_wd_fp {\l__atableau_xscale_fp*0.5}
+          \fp_set:Nn \l__atableau_abacus_ht_fp {\l__atableau_yscale_fp*0.5}
       }
       {abacus/west}
         {
-          \fp_set:Nn \l__atableau_col_dx_fp {0}
-          \fp_set:Nn \l__atableau_col_dy_fp {1}
-          \fp_set:Nn \l__atableau_row_dx_fp {-1}
-          \fp_set:Nn \l__atableau_row_dy_fp {0}
+          \fp_set:Nn \l__atableau_ab_col_dx_fp {0}
+          \fp_set:Nn \l__atableau_ab_col_dy_fp {1}
+          \fp_set:Nn \l__atableau_ab_row_dx_fp {-1}
+          \fp_set:Nn \l__atableau_ab_row_dy_fp {0}
           \tl_set:Nn \l__atableau_bead_shape_tl  {circle}
-          \fp_set:Nn \l__atableau_box_wd_fp {\l__atableau_xscale_fp*0.5}
-          \fp_set:Nn \l__atableau_box_ht_fp {\l__atableau_yscale_fp*0.5}
+          \fp_set:Nn \l__atableau_abacus_wd_fp {\l__atableau_xscale_fp*0.5}
+          \fp_set:Nn \l__atableau_abacus_ht_fp {\l__atableau_yscale_fp*0.5}
         }
     }
     {
         \msg_error:nnx {aTableau} {unrecognised-style} {#1/#2}
     }
-    % remember the style to make it persistent
-    \tl_set:cn {l__atableau_#1_style_tl} {#2}
 }
 
 % usage: \__atableau_set_xscale:n {x-scale} : rescale the x-dimension
@@ -1051,6 +1053,10 @@
       \str_if_eq:nnF {skew} {#1}
       {
           \int_set:Nn \l__atableau_c_int { 0\seq_item:Nn \l__atableau_skew_seq {\l__atableau_r_int+1}}
+          \bool_if:nT { \l__atableau_tabloid_bool && \int_compare_p:nNn {\l__atableau_r_int} > {0} }
+          {
+              \int_set:Nn \l__atableau_c_int { \int_min:nn {\l__atableau_c_int} {0\seq_item:Nn \l__atableau_skew_seq {\l__atableau_r_int}} }
+          }
       }
       \__atableau_set_box_coordinates:nVV {a} \l__atableau_r_int \l__atableau_c_int
       \__atableau_set_box_coordinates:nVn {b} \l__atableau_r_int {##1}
@@ -1073,6 +1079,11 @@
     \tl_if_empty:NF \l__atableau_border_tl
     {
       % fill in the last line
+      \bool_if:nT { \l__atableau_tabloid_bool && \int_compare_p:nNn {\l__atableau_r_int} > {0} }
+      {
+          \int_set:Nn \l__atableau_c_int { 0\seq_item:NV \l__atableau_skew_seq \l__atableau_r_int }
+          \__atableau_set_box_coordinates:nVV {a} \l__atableau_r_int \l__atableau_c_int
+      }
       \tl_put_right:Nx \l__atableau_border_tl {(\fp_use:N\l__atableau_xa_fp,\fp_use:N\l__atableau_ya_fp)--(\fp_use:N\l__atableau_xb_fp,\fp_use:N\l__atableau_yb_fp)}
       % draw the border
       \draw[aTableau/#2] \l__atableau_border_tl;
@@ -1120,12 +1131,12 @@
         \int_set:No \l__atableau_c_int   { 0\seq_item:NV \l__atableau_shape_seq \l__atableau_r_int }   % mu_r
 
         % shift in col-direction
-        \fp_set:Nn \l__atableau_xa_fp {\l__atableau_col_dx_fp*\l__atableau_box_wd_fp}
-        \fp_set:Nn \l__atableau_ya_fp {\l__atableau_col_dy_fp*\l__atableau_box_ht_fp}
+        \fp_set:Nn \l__atableau_xa_fp {\l__atableau_tab_col_dx_fp*\l__atableau_box_wd_fp}
+        \fp_set:Nn \l__atableau_ya_fp {\l__atableau_tab_col_dy_fp*\l__atableau_box_ht_fp}
 
         % shift in row-direction
-        \fp_set:Nn \l__atableau_xb_fp {\l__atableau_row_dx_fp*\l__atableau_box_wd_fp}
-        \fp_set:Nn \l__atableau_yb_fp {\l__atableau_row_dy_fp*\l__atableau_box_ht_fp}
+        \fp_set:Nn \l__atableau_xb_fp {\l__atableau_tab_row_dx_fp*\l__atableau_box_wd_fp}
+        \fp_set:Nn \l__atableau_yb_fp {\l__atableau_tab_row_dy_fp*\l__atableau_box_ht_fp}
 
         % a draw between the coordinates a, b, c, d
         \__atableau_set_box_coordinates:noo {l} {\l__atableau_row_int-1} {\l__atableau_col_int-1} % point b
@@ -1223,12 +1234,12 @@
 
 
         % shift in col-direction
-        \fp_set:Nn \l__atableau_xa_fp {\l__atableau_col_dx_fp*\l__atableau_box_wd_fp}
-        \fp_set:Nn \l__atableau_ya_fp {\l__atableau_col_dy_fp*\l__atableau_box_ht_fp}
+        \fp_set:Nn \l__atableau_xa_fp {\l__atableau_tab_col_dx_fp*\l__atableau_box_wd_fp}
+        \fp_set:Nn \l__atableau_ya_fp {\l__atableau_tab_col_dy_fp*\l__atableau_box_ht_fp}
 
         % shift in row-direction
-        \fp_set:Nn \l__atableau_xb_fp {\l__atableau_row_dx_fp*\l__atableau_box_wd_fp}
-        \fp_set:Nn \l__atableau_yb_fp {\l__atableau_row_dy_fp*\l__atableau_box_ht_fp}
+        \fp_set:Nn \l__atableau_xb_fp {\l__atableau_tab_row_dx_fp*\l__atableau_box_wd_fp}
+        \fp_set:Nn \l__atableau_yb_fp {\l__atableau_tab_row_dy_fp*\l__atableau_box_ht_fp}
 
         % a draw between the coordinates a, b, c, d
         \__atableau_set_box_coordinates:noo {l} {\l__atableau_row_int-1} {\l__atableau_col_int-1} % point b
@@ -1289,8 +1300,8 @@
    \bool_if:nF { \seq_if_empty_p:N \l__atableau_skew_seq || \l__atableau_skew_border_bool }
    {   % attach label to the (1,skew_1)-box
        \tl_set:Nn \l_tmpa_tl { 0\seq_item:Nn \l__atableau_skew_seq {1} }
-       \fp_add:Nn \l__atableau_xa_fp {\l_tmpa_tl*\l__atableau_col_dx_fp*\l__atableau_box_wd_fp}
-       \fp_add:Nn \l__atableau_ya_fp {\l_tmpa_tl*\l__atableau_col_dy_fp*\l__atableau_box_wd_fp}
+       \fp_add:Nn \l__atableau_xa_fp {\l_tmpa_tl*\l__atableau_tab_col_dx_fp*\l__atableau_box_wd_fp}
+       \fp_add:Nn \l__atableau_ya_fp {\l_tmpa_tl*\l__atableau_tab_col_dy_fp*\l__atableau_box_wd_fp}
    }
    % add the label
    \node[aTableau/labelStyle] at (\fp_use:N\l__atableau_xa_fp,\fp_use:N\l__atableau_ya_fp) {\l__atableau_label_tl};
@@ -1330,12 +1341,12 @@
     \bool_if:NTF \l__atableau_conjugate_bool
     {
       % adding to the left-hand side
-      \fp_add:Nn \l__atableau_xa_fp {\l__atableau_col_dx_fp*\l__atableau_box_wd_fp}
-      \fp_add:Nn \l__atableau_ya_fp {\l__atableau_col_dy_fp*\l__atableau_box_ht_fp}
+      \fp_add:Nn \l__atableau_xa_fp {\l__atableau_tab_col_dx_fp*\l__atableau_box_wd_fp}
+      \fp_add:Nn \l__atableau_ya_fp {\l__atableau_tab_col_dy_fp*\l__atableau_box_ht_fp}
 
       % adding to the right-hand side
-      \fp_add:Nn \l__atableau_xb_fp {\l__atableau_col_dx_fp*\l__atableau_box_wd_fp}
-      \fp_add:Nn \l__atableau_yb_fp {\l__atableau_col_dy_fp*\l__atableau_box_ht_fp}
+      \fp_add:Nn \l__atableau_xb_fp {\l__atableau_tab_col_dx_fp*\l__atableau_box_wd_fp}
+      \fp_add:Nn \l__atableau_yb_fp {\l__atableau_tab_col_dy_fp*\l__atableau_box_ht_fp}
 
       \bool_if:NTF \l__atableau_tabloid_bool
       {
@@ -1349,12 +1360,12 @@
     }
     {
       % adding to  the left-hand side
-      \fp_add:Nn \l__atableau_xa_fp {\l__atableau_row_dx_fp*\l__atableau_box_wd_fp}
-      \fp_add:Nn \l__atableau_ya_fp {\l__atableau_row_dy_fp*\l__atableau_box_ht_fp}
+      \fp_add:Nn \l__atableau_xa_fp {\l__atableau_tab_row_dx_fp*\l__atableau_box_wd_fp}
+      \fp_add:Nn \l__atableau_ya_fp {\l__atableau_tab_row_dy_fp*\l__atableau_box_ht_fp}
 
       % adding to  the right-hand side
-      \fp_add:Nn \l__atableau_xb_fp {\l__atableau_row_dx_fp*\l__atableau_box_wd_fp}
-      \fp_add:Nn \l__atableau_yb_fp {\l__atableau_row_dy_fp*\l__atableau_box_ht_fp}
+      \fp_add:Nn \l__atableau_xb_fp {\l__atableau_tab_row_dx_fp*\l__atableau_box_wd_fp}
+      \fp_add:Nn \l__atableau_yb_fp {\l__atableau_tab_row_dy_fp*\l__atableau_box_ht_fp}
 
       \bool_if:NTF \l__atableau_tabloid_bool
       {
@@ -1483,8 +1494,8 @@
 \cs_new_protected:Npn \__atableau_set_box_coordinates_normal:nnn #1 #2 #3
 {
     \tl_set:Nx \l__atableau_name_tl {\l__atableau_prefix_tl-\int_eval:n{1+#2}-\int_eval:n {1+#3}}
-    \fp_set:cn {l__atableau_x#1_fp} {\l__atableau_x_fp+((#2+0.5)*\l__atableau_row_dx_fp+(#3+0.5)*\l__atableau_col_dx_fp)*\l__atableau_box_wd_fp }
-    \fp_set:cn {l__atableau_y#1_fp} {\l__atableau_y_fp+((#2+0.5)*\l__atableau_row_dy_fp+(#3+0.5)*\l__atableau_col_dy_fp)*\l__atableau_box_ht_fp }
+    \fp_set:cn {l__atableau_x#1_fp} {\l__atableau_x_fp+((#2+0.5)*\l__atableau_tab_row_dx_fp+(#3+0.5)*\l__atableau_tab_col_dx_fp)*\l__atableau_box_wd_fp }
+    \fp_set:cn {l__atableau_y#1_fp} {\l__atableau_y_fp+((#2+0.5)*\l__atableau_tab_row_dy_fp+(#3+0.5)*\l__atableau_tab_col_dy_fp)*\l__atableau_box_ht_fp }
     \__atableau_update_extrema:n #1
 }
 
@@ -1497,8 +1508,8 @@
 \cs_new_protected:Npn \__atableau_set_box_coordinates_conjugate:nnn #1 #2 #3
 {
     \tl_set:Nx \l__atableau_name_tl {\l__atableau_prefix_tl-\int_eval:n{1+#3}-\int_eval:n {1+#2}}
-    \fp_set:cn {l__atableau_x#1_fp} {\l__atableau_x_fp+((#3+0.5)*\l__atableau_row_dx_fp+(#2+0.5)*\l__atableau_col_dx_fp)*\l__atableau_box_wd_fp }
-    \fp_set:cn {l__atableau_y#1_fp} {\l__atableau_y_fp+((#3+0.5)*\l__atableau_row_dy_fp+(#2+0.5)*\l__atableau_col_dy_fp)*\l__atableau_box_ht_fp }
+    \fp_set:cn {l__atableau_x#1_fp} {\l__atableau_x_fp+((#3+0.5)*\l__atableau_tab_row_dx_fp+(#2+0.5)*\l__atableau_tab_col_dx_fp)*\l__atableau_box_wd_fp }
+    \fp_set:cn {l__atableau_y#1_fp} {\l__atableau_y_fp+((#3+0.5)*\l__atableau_tab_row_dy_fp+(#2+0.5)*\l__atableau_tab_col_dy_fp)*\l__atableau_box_ht_fp }
     \__atableau_update_extrema:n #1
 }
 
@@ -1515,8 +1526,8 @@
 \cs_new_protected:Npn \__atableau_set_bead_coordinates:nnn #1 #2 #3
 {
     \tl_set:Nx \l__atableau_name_tl {\l__atableau_prefix_tl-\fp_to_int:n{#2}-\fp_to_int:n{#3}}
-    \fp_set:cn {l__atableau_x#1_fp} {\l__atableau_x_fp+(#2*\l__atableau_row_dx_fp+#3*\l__atableau_col_dx_fp)*\l__atableau_abacus_wd_fp }
-    \fp_set:cn {l__atableau_y#1_fp} {\l__atableau_y_fp+(#2*\l__atableau_row_dy_fp+#3*\l__atableau_col_dy_fp)*\l__atableau_abacus_ht_fp }
+    \fp_set:cn {l__atableau_x#1_fp} {\l__atableau_x_fp+(#2*\l__atableau_ab_row_dx_fp+#3*\l__atableau_ab_col_dx_fp)*\l__atableau_abacus_wd_fp }
+    \fp_set:cn {l__atableau_y#1_fp} {\l__atableau_y_fp+(#2*\l__atableau_ab_row_dy_fp+#3*\l__atableau_ab_col_dy_fp)*\l__atableau_abacus_ht_fp }
 }
 
 % ---------------------------------------------------------------------------
@@ -1672,7 +1683,7 @@
 
     % keep track of min/max y-coordinates used and max x-coordinate
     \fp_set_eq:NN \l__atableau_xmax_fp \l__atableau_x_fp
-    \fp_set:Nn \l__atableau_ymax_fp {\l__atableau_y_fp + \l__atableau_row_dy_fp*\l__atableau_box_ht_fp/2} % middle of box
+    \fp_set:Nn \l__atableau_ymax_fp {\l__atableau_y_fp + \l__atableau_tab_row_dy_fp*\l__atableau_box_ht_fp/2} % middle of box
     \fp_set_eq:NN \l__atableau_ymin_fp \l__atableau_ymax_fp
 
     \seq_map_inline:Nn \l__atableau_component_seq
@@ -1757,20 +1768,20 @@
             % the origin is c * col_dx units from the separator + xoffset
             \fp_add:Nn \l__atableau_x_fp
             {
-                abs(\l__atableau_c_int*\l__atableau_row_dx_fp*\l__atableau_box_wd_fp) % number of columns
+                abs(\l__atableau_c_int*\l__atableau_tab_row_dx_fp*\l__atableau_box_wd_fp) % number of columns
                 + 0\seq_item:NV \l__atableau_xoffsets_seq \l__atableau_component_int  % x-offset
             }
             % the next separator is is r * row_dx units from the origin
             \fp_set:Nn \l__atableau_xsep_fp {
-                abs(\l__atableau_r_int*\l__atableau_col_dx_fp*\l__atableau_box_wd_fp)
+                abs(\l__atableau_r_int*\l__atableau_tab_col_dx_fp*\l__atableau_box_wd_fp)
                 + \l__atableau_separation_fp
             }
 
             % compute maximum height of the diagram
             \fp_set:Nn \l__atableau_yb_fp
             {
-                \l__atableau_c_int*\l__atableau_row_dy_fp*\l__atableau_box_ht_fp
-                  + \l__atableau_r_int*abs(\l__atableau_col_dy_fp)*\l__atableau_box_ht_fp
+                \l__atableau_c_int*\l__atableau_tab_row_dy_fp*\l__atableau_box_ht_fp
+                  + \l__atableau_r_int*abs(\l__atableau_tab_col_dy_fp)*\l__atableau_box_ht_fp
                   + 0\seq_item:NV \l__atableau_yoffsets_seq \l__atableau_component_int
             }
         }
@@ -1778,20 +1789,20 @@
             % the origin is r * row_dx units from the separator + xoffset
             \fp_add:Nn \l__atableau_x_fp
             {
-                abs(\l__atableau_r_int*\l__atableau_row_dx_fp*\l__atableau_box_wd_fp) % number of columns
+                abs(\l__atableau_r_int*\l__atableau_tab_row_dx_fp*\l__atableau_box_wd_fp) % number of columns
                 + 0\seq_item:NV \l__atableau_xoffsets_seq \l__atableau_component_int  % x-offset
             }
             % the next separator is is c * col_dx units from the origin
             \fp_set:Nn \l__atableau_xsep_fp
             {
-                abs(\l__atableau_c_int*\l__atableau_col_dx_fp*\l__atableau_box_wd_fp) % number of columns
+                abs(\l__atableau_c_int*\l__atableau_tab_col_dx_fp*\l__atableau_box_wd_fp) % number of columns
                 + \l__atableau_separation_fp
             }
             % compute maximum height of the diagram
             \fp_set:Nn \l__atableau_yb_fp
             {
-                \l__atableau_r_int*\l__atableau_row_dy_fp*\l__atableau_box_ht_fp
-                  + \l__atableau_c_int*\l__atableau_col_dy_fp*\l__atableau_box_ht_fp
+                \l__atableau_r_int*\l__atableau_tab_row_dy_fp*\l__atableau_box_ht_fp
+                  + \l__atableau_c_int*\l__atableau_tab_col_dy_fp*\l__atableau_box_ht_fp
                   + 0\seq_item:NV \l__atableau_yoffsets_seq \l__atableau_component_int
              }
         }
@@ -1840,7 +1851,7 @@
       % need to adjust ymin and ymax by half the box height
       \fp_compare:nNnTF {\l__atableau_rows_fp} > {0}
       {
-        \fp_compare:nNnTF {\l__atableau_row_dy_fp} > {0}
+        \fp_compare:nNnTF {\l__atableau_tab_row_dy_fp} > {0}
         {
           \fp_add:Nn \l__atableau_ymax_fp {  (\l__atableau_rows_fp-0.5)*\l__atableau_box_ht_fp }
           \fp_add:Nn \l__atableau_ymin_fp {  -0.5*\l__atableau_box_ht_fp }
@@ -2006,18 +2017,18 @@
 \cs_new_protected:Nn \__atableau_initialise_ribbon_head:
 {
     % 1. Make (xl,yl) the top corner of the ribbon and add it
-    \fp_add:Nn \l__atableau_xl_fp { 0.5*(\l__atableau_col_dx_fp-\l__atableau_row_dx_fp)*\l__atableau_box_wd_fp }
-    \fp_add:Nn \l__atableau_yl_fp { 0.5*(\l__atableau_col_dy_fp-\l__atableau_row_dy_fp)*\l__atableau_box_ht_fp }
+    \fp_add:Nn \l__atableau_xl_fp { 0.5*(\l__atableau_tab_col_dx_fp-\l__atableau_tab_row_dx_fp)*\l__atableau_box_wd_fp }
+    \fp_add:Nn \l__atableau_yl_fp { 0.5*(\l__atableau_tab_col_dy_fp-\l__atableau_tab_row_dy_fp)*\l__atableau_box_ht_fp }
     \tl_set:Nx \l__atableau_ribbon_path_tl { (\fp_use:N\l__atableau_xl_fp,\fp_use:N\l__atableau_yl_fp) }
 
     % 2. Make (xa,ya) the top left of the ribbon and add it on the left (decreasing column)
-    \fp_set:Nn \l__atableau_xa_fp {\l__atableau_xl_fp-\l__atableau_col_dx_fp*\l__atableau_box_wd_fp}
-    \fp_set:Nn \l__atableau_ya_fp {\l__atableau_yl_fp-\l__atableau_col_dy_fp*\l__atableau_box_ht_fp}
+    \fp_set:Nn \l__atableau_xa_fp {\l__atableau_xl_fp-\l__atableau_tab_col_dx_fp*\l__atableau_box_wd_fp}
+    \fp_set:Nn \l__atableau_ya_fp {\l__atableau_yl_fp-\l__atableau_tab_col_dy_fp*\l__atableau_box_ht_fp}
     \tl_put_left:Nx \l__atableau_ribbon_path_tl { (\fp_use:N\l__atableau_xa_fp,\fp_use:N\l__atableau_ya_fp)-- }
 
     % 3. Make (xb,yb) the bottom right corner and add it on the right (increasing row)
-    \fp_set:Nn \l__atableau_xb_fp {\l__atableau_xl_fp+\l__atableau_row_dx_fp*\l__atableau_box_wd_fp}
-    \fp_set:Nn \l__atableau_yb_fp {\l__atableau_yl_fp+\l__atableau_row_dy_fp*\l__atableau_box_ht_fp}
+    \fp_set:Nn \l__atableau_xb_fp {\l__atableau_xl_fp+\l__atableau_tab_row_dx_fp*\l__atableau_box_wd_fp}
+    \fp_set:Nn \l__atableau_yb_fp {\l__atableau_yl_fp+\l__atableau_tab_row_dy_fp*\l__atableau_box_ht_fp}
     \tl_put_right:Nx \l__atableau_ribbon_path_tl { --(\fp_use:N\l__atableau_xb_fp,\fp_use:N\l__atableau_yb_fp) }
 }
 
@@ -2085,26 +2096,26 @@
             \int_decr:N \l__atableau_col_int
 
             % Move (xa,ya) back one column add it to the ribbon on the left
-            \fp_sub:Nn \l__atableau_xa_fp {\l__atableau_col_dx_fp*\l__atableau_box_wd_fp}
-            \fp_sub:Nn \l__atableau_ya_fp {\l__atableau_col_dy_fp*\l__atableau_box_ht_fp}
+            \fp_sub:Nn \l__atableau_xa_fp {\l__atableau_tab_col_dx_fp*\l__atableau_box_wd_fp}
+            \fp_sub:Nn \l__atableau_ya_fp {\l__atableau_tab_col_dy_fp*\l__atableau_box_ht_fp}
             \tl_put_left:Nx \l__atableau_ribbon_path_tl { (\fp_use:N\l__atableau_xa_fp,\fp_use:N\l__atableau_ya_fp)-- }
 
             % Move (xb,xb) back one column add it to the ribbon on the right
-            \fp_sub:Nn \l__atableau_xb_fp {\l__atableau_col_dx_fp*\l__atableau_box_wd_fp}
-            \fp_sub:Nn \l__atableau_yb_fp {\l__atableau_col_dy_fp*\l__atableau_box_ht_fp}
+            \fp_sub:Nn \l__atableau_xb_fp {\l__atableau_tab_col_dx_fp*\l__atableau_box_wd_fp}
+            \fp_sub:Nn \l__atableau_yb_fp {\l__atableau_tab_col_dy_fp*\l__atableau_box_ht_fp}
             \tl_put_right:Nx \l__atableau_ribbon_path_tl { --(\fp_use:N\l__atableau_xb_fp,\fp_use:N\l__atableau_yb_fp) }
           }
       {r} { % move forward one row
             \int_incr:N \l__atableau_row_int
 
             % Move (xa,ya) forward one row add it to the ribbon on the left
-            \fp_add:Nn \l__atableau_xa_fp {\l__atableau_row_dx_fp*\l__atableau_box_wd_fp}
-            \fp_add:Nn \l__atableau_ya_fp {\l__atableau_row_dy_fp*\l__atableau_box_ht_fp}
+            \fp_add:Nn \l__atableau_xa_fp {\l__atableau_tab_row_dx_fp*\l__atableau_box_wd_fp}
+            \fp_add:Nn \l__atableau_ya_fp {\l__atableau_tab_row_dy_fp*\l__atableau_box_ht_fp}
             \tl_put_left:Nx \l__atableau_ribbon_path_tl { (\fp_use:N\l__atableau_xa_fp,\fp_use:N\l__atableau_ya_fp)-- }
 
             % Move (xb,xb) forward one row add it to the ribbon on the right
-            \fp_add:Nn \l__atableau_xb_fp {\l__atableau_row_dx_fp*\l__atableau_box_wd_fp}
-            \fp_add:Nn \l__atableau_yb_fp {\l__atableau_row_dy_fp*\l__atableau_box_ht_fp}
+            \fp_add:Nn \l__atableau_xb_fp {\l__atableau_tab_row_dx_fp*\l__atableau_box_wd_fp}
+            \fp_add:Nn \l__atableau_yb_fp {\l__atableau_tab_row_dy_fp*\l__atableau_box_ht_fp}
             \tl_put_right:Nx \l__atableau_ribbon_path_tl { --(\fp_use:N\l__atableau_xb_fp,\fp_use:N\l__atableau_yb_fp) }
           }
     }
@@ -2126,8 +2137,8 @@
       {c} { % move back one column
             \int_decr:N \l__atableau_col_int
 
-            \fp_sub:Nn \l__atableau_xl_fp {\l__atableau_col_dx_fp*\l__atableau_box_wd_fp}
-            \fp_sub:Nn \l__atableau_yl_fp {\l__atableau_col_dy_fp*\l__atableau_box_ht_fp}
+            \fp_sub:Nn \l__atableau_xl_fp {\l__atableau_tab_col_dx_fp*\l__atableau_box_wd_fp}
+            \fp_sub:Nn \l__atableau_yl_fp {\l__atableau_tab_col_dy_fp*\l__atableau_box_ht_fp}
             \tl_put_right:Nx \l__atableau_ribbon_path_tl
             {
                 --(\fp_use:N\l__atableau_xl_fp,\fp_use:N\l__atableau_yl_fp)
@@ -2137,8 +2148,8 @@
       {r} { % move forward one row
             \int_incr:N \l__atableau_row_int
 
-            \fp_add:Nn \l__atableau_xl_fp {\l__atableau_row_dx_fp*\l__atableau_box_wd_fp}
-            \fp_add:Nn \l__atableau_yl_fp {\l__atableau_row_dy_fp*\l__atableau_box_ht_fp}
+            \fp_add:Nn \l__atableau_xl_fp {\l__atableau_tab_row_dx_fp*\l__atableau_box_wd_fp}
+            \fp_add:Nn \l__atableau_yl_fp {\l__atableau_tab_row_dy_fp*\l__atableau_box_ht_fp}
             \tl_put_right:Nx \l__atableau_ribbon_path_tl
             {
                 --(\fp_use:N\l__atableau_xl_fp,\fp_use:N\l__atableau_yl_fp)
@@ -2205,8 +2216,8 @@
 \cs_new_protected:Nn \__atableau_finalise_ribbon:
 {
     % Add the last node to the ribbon
-    \fp_add:Nn \l__atableau_xa_fp {\l__atableau_row_dx_fp*\l__atableau_box_wd_fp}
-    \fp_add:Nn \l__atableau_ya_fp {\l__atableau_row_dy_fp*\l__atableau_box_ht_fp}
+    \fp_add:Nn \l__atableau_xa_fp {\l__atableau_tab_row_dx_fp*\l__atableau_box_wd_fp}
+    \fp_add:Nn \l__atableau_ya_fp {\l__atableau_tab_row_dy_fp*\l__atableau_box_ht_fp}
     \tl_put_left:Nx \l__atableau_ribbon_path_tl { (\fp_use:N\l__atableau_xa_fp, \fp_use:N\l__atableau_ya_fp)-- }
 
     % add a closing cycle
@@ -2300,10 +2311,10 @@
                 \__atableau_set_bead_coordinates:non {a} {#2} {0}
                 \__atableau_set_bead_coordinates:noo {b} {#2} { \int_eval:n {\l__atableau_cols_int-1} }
                 \draw[aTableau/abacusEnds]
-                  (\fp_eval:n{\l__atableau_xa_fp-\l__atableau_col_dx_fp*\l__atableau_abacus_wd_fp/2},
-                   \fp_eval:n{\l__atableau_ya_fp-\l__atableau_col_dy_fp*\l__atableau_abacus_ht_fp/2})
-                   -- (\fp_eval:n{\l__atableau_xb_fp+\l__atableau_col_dx_fp*\l__atableau_abacus_wd_fp/2},
-                       \fp_eval:n{\l__atableau_yb_fp+\l__atableau_col_dy_fp*\l__atableau_abacus_ht_fp/2});
+                  (\fp_eval:n{\l__atableau_xa_fp-\l__atableau_ab_col_dx_fp*\l__atableau_abacus_wd_fp/2},
+                   \fp_eval:n{\l__atableau_ya_fp-\l__atableau_ab_col_dy_fp*\l__atableau_abacus_ht_fp/2})
+                   -- (\fp_eval:n{\l__atableau_xb_fp+\l__atableau_ab_col_dx_fp*\l__atableau_abacus_wd_fp/2},
+                       \fp_eval:n{\l__atableau_yb_fp+\l__atableau_ab_col_dy_fp*\l__atableau_abacus_ht_fp/2});
             }
         {_}
             {   % draw a line
@@ -2394,7 +2405,9 @@
     % unless they have been set, determine the number of abacus rows
     \int_compare:nNnT {\l__atableau_rows_int} = {0}
     {
-        \int_set:Nn \l__atableau_rows_int { 1+\int_div_truncate:nn {\l__atableau_beads_int-1 + \seq_item:Nn \l__atableau_shape_seq 1} {#1} }
+        \bool_if:NTF \l__atableau_beta_numbers_bool
+        { \int_set:Nn \l__atableau_rows_int { 1+\int_div_truncate:nn { 0\seq_item:Nn \l__atableau_shape_seq 1} {#1} } }
+        { \int_set:Nn \l__atableau_rows_int { 1+\int_div_truncate:nn {\l__atableau_beads_int-1 + 0\seq_item:Nn \l__atableau_shape_seq 1} {#1} } }
     }
 
     % draw the abacus runners
@@ -2411,10 +2424,10 @@
         {
             \__atableau_set_bead_coordinates:noo {l} { \int_eval:n{####1} } { \int_eval:n{##1-1} }
             % add and subtract (half) tick width
-            \fp_set:Nn \l__atableau_xa_fp {\l__atableau_xl_fp+\l__atableau_tick_length_fp*\l__atableau_col_dx_fp}
-            \fp_set:Nn \l__atableau_ya_fp {\l__atableau_yl_fp+\l__atableau_tick_length_fp*\l__atableau_col_dy_fp}
-            \fp_set:Nn \l__atableau_xb_fp {\l__atableau_xl_fp-\l__atableau_tick_length_fp*\l__atableau_col_dx_fp}
-            \fp_set:Nn \l__atableau_yb_fp {\l__atableau_yl_fp-\l__atableau_tick_length_fp*\l__atableau_col_dy_fp}
+            \fp_set:Nn \l__atableau_xa_fp {\l__atableau_xl_fp+\l__atableau_tick_length_fp*\l__atableau_ab_col_dx_fp}
+            \fp_set:Nn \l__atableau_ya_fp {\l__atableau_yl_fp+\l__atableau_tick_length_fp*\l__atableau_ab_col_dy_fp}
+            \fp_set:Nn \l__atableau_xb_fp {\l__atableau_xl_fp-\l__atableau_tick_length_fp*\l__atableau_ab_col_dx_fp}
+            \fp_set:Nn \l__atableau_yb_fp {\l__atableau_yl_fp-\l__atableau_tick_length_fp*\l__atableau_ab_col_dy_fp}
             \draw[aTableau/tickStyle] (\fp_use:N\l__atableau_xa_fp,\fp_use:N\l__atableau_ya_fp)--(\fp_use:N\l__atableau_xb_fp,\fp_use:N\l__atableau_yb_fp);
         }
     }

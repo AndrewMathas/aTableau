@@ -22,11 +22,13 @@ A LaTeX package for symmetric group combinatorics, including:
 
 .. code-block:: latex
 
+    \Tableau{12345,678,9{10},{11}}
+    \Diagram[australian]{4^4,2,1^3}
     \Tabloid{1379{11},249{10},6,8}
-    \SkewTableau{3,2,1}{345,56,9{10}}
+    \SkewTableau[ukrainian]{3,2,1}{345,56,9{10}}
     \SkewTableau[french]{3,2}{345,56,9{10}}
     \RibbonTablea[ukrainian, skew={4,1^2}]{16rcrrrccrcc, 26, 34rc}
-    \Abacus[rows=3, infinite]{3}{0,2,3,4,5}
+    \Abacus[rows=3, abacus ends=..]{3}{0,2,3,4,5}
     \Abacus{3}{0,2,3,4,5}
 
 
