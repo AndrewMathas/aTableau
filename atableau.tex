@@ -1,6 +1,6 @@
 % ----------------------------------------------------------------------
 % Title:    aTableau.  Author:   Andrew Mathas Created:  October 2023
-% Modified: 11:19 Wednesday, 15 January 2025
+% Modified: 15:21 Friday, 17 January 2025
 % ----------------------------------------------------------------------
 \documentclass{amsart}
 \usepackage[svgnames,table]{xcolor}
@@ -22,8 +22,8 @@
 
 % ----------------------------------------------------------------------
 \usepackage{bbding}
-\newcommand\Yes{\textcolor{ForestGreen}{\CheckmarkBold}}
 \newcommand\No{\textcolor{red}{\XSolidBrush}}
+% \Yes, which adds a hyperlink, is defined below
 
 % ----------------------------------------------------------------------
 \usepackage[a4paper,hmargin=24mm, vmargin=18mm, footskip=10mm]{geometry}
@@ -55,29 +55,43 @@
 }
 
 \ExplSyntaxOn
+\NewDocumentCommand\Yes{o}
+{
+  \IfNoValueTF{#1}
+  {
+    \hyperref[\g_lastlink_tl]{\textcolor{ForestGreen}{\CheckmarkBold}}
+  }
+  {
+    \hyperref[\g_lastlink_tl-\str_lowercase:f{#1}]{\textcolor{ForestGreen}{\CheckmarkBold}}
+  }
+}
+
 % Add hyperinks for (new displayed) options
+\tl_new:N \g_lastlink_tl
 \prop_new:N \l__atableau_options_prop
 \NewDocumentCommand\AddOptionLink{m}
 {
-   \tl_set:Nx \l_tmpc_tl {Option:\str_lowercase:f{#1}}
-   \prop_if_in:NVF \l__atableau_options_prop \l_tmpc_tl
+   \tl_gset:Nx \g_lastlink_tl {Key:\str_lowercase:f{#1}}
+   \prop_if_in:NVF \l__atableau_options_prop \g_lastlink_tl
    {
-      \phantomsection\label{Option:\str_lowercase:n{#1}}% add a label for references
-      \prop_put:NVn \l__atableau_options_prop \l_tmpc_tl {}
+      \phantomsection\label{Key:\str_lowercase:n{#1}}% add a label for references
+      \prop_put:NVn \l__atableau_options_prop \g_lastlink_tl {}
    }
 }
 % \option*[default value]{option name}[accepts]
 % The *-version does not do a \bigskip before the option. A hyperlink is
 % added for new displayed options. If #2 is blank then the *-version
-% puts (no) before the option key.
-\NewDocumentCommand\option{ somo }
+% puts (no) before the option key. If #5 is given then it is added to
+% to the hyperlink.
+\NewDocumentCommand\option{ somo d<> }
 {%
   \IfNoValueTF{#2}
   {%
     \seq_set_split:Nnn \l_tmpa_seq {=} {#3}%
     \seq_pop_left:NN \l_tmpa_seq \l_tmpa_tl%
-    \tl_set:Nn \l_tmpb_tl {Option:\str_lowercase:f{\l_tmpa_tl}}
-    \hyperref[\l_tmpb_tl]{\textsf{\color{aTableauInner}\IfBooleanT{#1}{(no)~}\l_tmpa_tl}}%
+    \tl_gset:Nx \g_lastlink_tl {Key:\str_lowercase:f{\l_tmpa_tl}}
+    \IfNoValueF{#5} { \tl_gput_right:No \g_lastlink_tl {\str_lowercase:f{-#5}} }
+    \hyperref[\g_lastlink_tl]{\textsf{\color{aTableauInner}\IfBooleanT{#1}{(no)~}\l_tmpa_tl}}%
     \index{\l_tmpa_tl}%
     \seq_if_empty:NF \l_tmpa_seq%
     {
@@ -87,7 +101,8 @@
   }
   {%
     \IfBooleanTF{#1}{\newline}{\bigskip}%
-    \AddOptionLink{#3}% add a label for references
+    % add a label for references
+    \IfNoValueTF{#5} { \AddOptionLink{#3} }{ \AddOptionLink{#3-#5} }
     \noindent\textsf{\textcolor{aTableauInner}{#3}}%
     \tl_if_blank:nF {#2}{~(default:~\textcolor{DarkRed}{#2})}%
     \hfill%
@@ -636,8 +651,9 @@
   \footnote{Currently, only Cartesian coordinates are supported. For
   example, it is not possible to use named or polar coordinates.}
   are optional, being necessary if (and only if), the diagram is part of
-  a~\keyword{tikzpicture} environment. See \autoref{SS:coordinates} for
-  more detail about how these coordinates work.
+  a~\keyword{tikzpicture} environment. See \autoref{SS:coordinates} and
+  \autoref{SS:abcoordinates} for more detail about how these coordinates
+  work for tableaux and abacuses, respectively.
 
   The key-value \emph{options}, or \emph{keys}, control the style and
   appearance of the final diagram. The keys are optional and are
@@ -936,7 +952,7 @@
     \endhead
     \option{abacus ends}       & Set the top and bottom of the abacus                & \No  & \Yes\\
     \option{abacus ends style} & Set the style of the top and bottom of the abacus   & \No  & \Yes\\
-    \option{align}             & Set baseline alignment of \aTableau diagram         & \Yes & \Yes\\
+    \option{align}             & Set baseline alignment of \aTableau diagram         & \Yes & \Yes[abacus]\\
     \option{australian}        & Use the Australian convention for tableaux          & \Yes & \No \\
     \option{bead}              & Set the colour of the abacus beads                  & \No  & \Yes \\
     \option{bead font}         & Set the font used for the abacus bead labels        & \No  & \Yes \\
@@ -952,27 +968,27 @@
     \option{box style}         & Set tableau box style                               & \Yes & \No \\
     \option{box width}         & Set tableau box width                               & \Yes & \No \\
     \option*{boxes}            & Draw inner walls around boxes                       & \Yes & \No \\
-    \option{cartan}            & Set Cartan type for residues                        & \Yes & \Yes \\
-    \option{charge}            & Set charge for contents and residues                & \Yes & \Yes \\
+    \option{cartan}            & Set Cartan type for residues                        & \Yes & \Yes[abacus] \\
+    \option{charge}            & Set charge for contents and residues                & \Yes & \Yes[abacus] \\
     \option{conjugate}         & Draw the conjugate tableau/diagram                  & \Yes & \No \\
     \option{delimiters}        & Set delimiters for multitableau and multidiagrams   & \Yes & \No  \\
-    \option{dotted cols}       & Specify columns to replace with dots                & \Yes & \Yes \\
-    \option{dotted rows}       & Specify rows to replace with dots                   & \Yes & \Yes \\
+    \option{dotted cols}       & Specify columns to replace with dots                & \Yes & \Yes[abacus] \\
+    \option{dotted rows}       & Specify rows to replace with dots                   & \Yes & \Yes[abacus] \\
     \option{east}              & Make abacus grow in the easterly direction          & \Yes & \No \\
     \option{empty}             & Symbol for empty tableau in multitableau            & \Yes & \No \\
     \option{english}           & Use the English convention for tableaux             & \Yes & \No \\
-    \option{entries}           & Draw contents/residues/hooks/first/last tableau     & \Yes & \No \\
-    \option{e}                 & Set the quantum characteristic for residues         & \Yes & \Yes \\
+    \option{entries}           & Add entries to tableaux and abacuses                & \Yes & \Yes[abacus] \\
+    \option{e}                 & Set the quantum characteristic for residues         & \Yes & \Yes[abacus] \\
     \option{french}            & Use the French convention for tableaux              & \Yes & \No \\
-    \option{halign}            & Horizontal alignment of box entries and bead labels & \Yes & \Yes \\
+    \option{halign}            & Horizontal alignment of box entries and bead labels & \Yes & \Yes[abacus] \\
     \option{inner colour}      & Set colour of inner tableau wall                    & \Yes & \No \\
     \option{inner style}       & Set style of inner tableau wall                     & \Yes & \No \\
     \option{label style}       & Set style of tableau labels                         & \Yes & \No \\
     \option{label}             & Set tableau label                                   & \Yes & \No \\
     \option{left delimiter}    & Set left delimiter for multitableau                 & \Yes & \No \\
-    \option{math entries}      & Typeset box and label entries in math-mode          & \Yes & \Yes \\
-    \option{name}              & Prefix of named nodes                               & \Yes & \Yes \\
-    \option{north}             & Make abacus grow in the northerly direction         & \Yes & \No \\
+    \option{math entries}      & Typeset box and label entries in math-mode          & \Yes & \Yes[abacus] \\
+    \option{name}              & Prefix of named nodes                               & \Yes & \Yes[abacus] \\
+    \option{north}             & Make abacus grow in the northerly direction         & \No  & \Yes\\
     \option{path box style}    & Sets style of boxes on each path                    & \Yes & \No \\
     \option{path box}          & Adds default box entry for each path                & \Yes & \No \\
     \option{path style}        & Sets style of a path                                & \Yes & \No \\
@@ -985,10 +1001,10 @@
     \option{ribbon box style}  & Sets style of boxes on each ribbon                  & \Yes & \No \\
     \option{ribbon style}      & Sets style of a ribbon                              & \Yes & \No \\
     \option{right delimiter}   & Set left delimiter for multitableau                 & \Yes & \No \\
-    \option{rows}              & Set number of rows in multitableau or abacus        & \Yes & \Yes \\
+    \option{rows}              & Set number of rows in multitableau or abacus        & \Yes & \Yes[abacus] \\
     \option{runner style}      & Set the colour of the abacus runners                & \No  & \Yes \\
     \option{runner~sep}        & Set distance between consecutive abacus runners     & \No  & \Yes \\
-    \option{scale}             & Sets the \aTableau scale                            & \Yes & \Yes \\
+    \option{scale}             & Sets the \aTableau scale                            & \Yes & \Yes[abacus] \\
     \option{separation}        & Set distance between components in multitableau     & \Yes & \No \\
     \option{separator colour}  & Set separator colour for multitableau               & \Yes & \No \\
     \option*{separators}       & Enable separators in multitableau                   & \Yes & \No \\
@@ -1005,21 +1021,21 @@
     \option{snob style}        & Sets style of a snob                                & \Yes & \No \\
     \option{south}             & Make abacus grow in the southerly direction         & \Yes & \No \\
     \option{star style}        & Set \TikZ-style of tableau $*$-nodes                & \Yes & \No \\
-    \option{styles}            & Short-hand for defining single use \TikZ-styles     & \Yes & \Yes \\
+    \option{styles}            & Short-hand for defining single use \TikZ-styles     & \Yes & \Yes[abacus] \\
     \option{tabloid}           & Set true for a shifted tableau                      & \Yes & \No \\
-    \option{text entries}      & Typeset box and label entries in text-mode          & \Yes & \Yes \\
+    \option{text entries}      & Typeset box and label entries in text-mode          & \Yes & \Yes[abacus] \\
     \option{tick}              & Set the colour of the abacus runner ticks           & \No  & \Yes \\
     \option{tick width}        & Set the width of the abacus runners                 & \No  & \Yes \\
-    \option{tikz after}        & \TikZ-code injected after \aTableau picture         & \Yes & \Yes \\
-    \option{tikz before}       & \TikZ-code injected before \aTableau picture        & \Yes & \Yes \\
-    \option{tikzpicture}       & Sets tikzpicture environment keys                    & \Yes & \No \\
+    \option{tikz after}        & \TikZ-code injected after \aTableau picture         & \Yes & \Yes[abacus] \\
+    \option{tikz before}       & \TikZ-code injected before \aTableau picture        & \Yes & \Yes[abacus] \\
+    \option{tikzpicture}       & Sets tikzpicture environment keys                   & \Yes & \No \\
     \option{ukrainian}         & Use the Ukrainian convention for tableaux           & \Yes & \No \\
-    \option{valign}            & Set vertical alignment                              & \Yes & \Yes \\
+    \option{valign}            & Set vertical alignment                              & \Yes & \Yes[abacus] \\
     \option{west}              & Make abacus grow in the westerly direction          & \Yes & \No \\
     \option{xoffsets}          & Set $x$-offsets for components in a multitableau    & \Yes & \No \\
-    \option{xscale}            & Set \aTableau $x$-scale                             & \Yes & \Yes \\
+    \option{xscale}            & Set \aTableau $x$-scale                             & \Yes & \Yes[abacus] \\
     \option{yoffsets}          & Set $y$-offsets for components in a multitableau    & \Yes & \No \\
-    \option{yscale}            & Set \aTableau $y$-scale                             & \Yes & \Yes \\
+    \option{yscale}            & Set \aTableau $y$-scale                             & \Yes & \Yes[abacus] \\
     \bottomrule
   \end{xltabular}
 
@@ -1326,7 +1342,7 @@
   % --------------------------------------------------------------
   \subsubsection{Tableau coordinates}\label{SS:coordinates}
   \index{xy@$(x,y)$}
-  \index{Cartesian coordinates}
+  \index{Cartesian coordinates!tableau}
 
   The $(x,y)$-coordinates are required if, and only if, the
   \keyword{\Tableau}command is used inside a \keyword{tikzpicture}
@@ -1399,8 +1415,8 @@
   in combinatorics of defining by example.
 
   \begin{example}[lefthand width=0.3\textwidth]
-    \Tableau[ukrainian, styles={R={fill=red!20,draw=red}}]
-      {12[R]3,45}
+  \Tableau[ukrainian, styles={R={fill=red!20,draw=red}}]
+    {12[R]3,45}
   \end{example}
 
   \begin{example}[lefthand width=0.3\textwidth]
@@ -1414,9 +1430,14 @@
   \end{example}
 
   \begin{example}[lefthand width=0.3\textwidth]
-  \tikzset{B/.style={fill=blue!20, thick, text=white}}
-  \Tableau[australian]{12[B]3,45}
+  \Tableau[australian, styles={B={fill=blue!20, text=white}}]
+    {12[B]3,45}
   \end{example}
+
+  Changing the convention sets the \option{box height} and \option{box
+  width}, relative to the current \option{scale}. If you want to use a
+  custom box height and box width, then you need to set them
+  \emph{after} specifying the convention.
 
   By default, the \option{english} convention is used to draw tableaux
   and Young diagrams. The default convention can be changed using
@@ -1543,9 +1564,9 @@
   \emph{after} changing the tableau convention using
   \option{australian}, \option{english}, \option{french}, or
   \option{ukrainian} because the conventions change the height and width
-  of the tableau boxes. In particular, in the last example, \option{box
-  width=0.2} has no effect because of the following
-  \option{ukrainian} setting.
+  of the tableau boxes (and later conventions override earlier ones). In
+  particular, in the last example, \option{box width=0.2} has no effect
+  because of the following \option{ukrainian} setting.
 
   \begin{example}
   \aTabset{align=top}
@@ -2245,12 +2266,10 @@
   \option[]{dotted cols}[comma separated list of columns]
   \option*[]{dotted rows}[comma separated list of rows]
 
-  The \option{dotted rows} and \option{dotted cols} keys can be used
-  to draw  diagrams where the specified rows and columns are
-  replaced with dots. This makes it possible to draw \emph{generic}
-  diagrams, where the number of rows and columns is not fully
-  specified.  Instead of \option{dotted cols}, you can use the
-  equivalent short-hand key \option{dotted cols}.
+  The \option{dotted rows} and \option{dotted cols} keys draw diagrams
+  where the specified rows and columns are replaced with dots. This
+  makes it possible to draw \emph{generic} diagrams, where the number of
+  rows and columns is not fully specified.
 
   \begin{example}
   \aTabset{scale=0.8}
@@ -2276,7 +2295,7 @@
   anything that was drawn in these rows and columns will disappear.  The
   \option{dotted rows} and \option{dotted cols} keys can be used with
   the \keyword{\Tableau} command, with the caveat that this will remove
-  all boxes, with their contents, ghat are in the specified rows and columns.
+  all boxes, with their contents, in the specified rows and columns.
 
   When the \option{dotted rows} and \option{dotted cols} keys are
   used together, the \option{dotted rows} are applied first.
@@ -2301,7 +2320,6 @@
     tikz after = {\draw[red] (1,-1.6) circle(0.3);}
   ] {6,5,5,5,2,1}
   \end{example}
-
 
   The \option{dotted rows} and \option{dotted cols} keys are not
   designed to be used with the \option{conjugate} key.
@@ -2719,7 +2737,7 @@
   Unlike the \keyword{\Tableau} command, the entries of a ribbon tableau
   are given by ribbon specifications (rather than tableau)
   specifications. Ribbon specifications are also used by the three keys
-  \option{ribbons}, \option{pats}, and \option{snobs}, which were
+  \option{ribbons}, \option{paths}, and \option{snobs}, which were
   introduced in \autoref{SS:TableauOptions}.
 
   To understand the ribbon specifications, observe that if $(a,b)$ is
@@ -2883,8 +2901,8 @@
   ]{11, (fill=blue!10)12rc, 14crrcc}
   \end{example}
 
-  Here is a cute use of \option{paths} to add arrows to a ribbon
-  tableau:
+  Here is a cute use of \option{paths} to add arrows to a skew
+  $2$-ribbon tableau:
 
   \begin{example}[lefthand width=0.35\textwidth]
   \RibbonTableau[skew={4,3,2,1},
@@ -2902,13 +2920,13 @@
 
   The arrows are added by the \option{paths} key using the two styles
   \textsf{L} and \textsf{R}, which draws ``left'' and ``right'' arrows
-  between the two boxes on the left respectively, where left and right
-  is with respect to order of the two boxes in the draw command.  The
-  two \keyword{\foreach} statements might look complicated, but they are
-  just loops which add the entries in the tableau. These loops set
+  between the two boxes, where left and right is with respect to the
+  line-order of the two boxes in the corresponding draw command.  The
+  two \keyword{\foreach}-statements might look complicated, but they are
+  just loops that add the entries of the tableau. These loops set
   \keyword{\r}, \keyword{\c} and \keyword{\l} equal to the row index,
-  column index and label, respectively, using the following sequences of
-  triples.
+  column index and label, respectively, using the two lists of
+  \keyword{\r}\!/\!\keyword{\c}\!/\!\keyword{\l} triples given above.
 
   \option[draw=\aTableauColour{Inner}, thin]{ribbon style}{\TikZ-styling}
   \option*[-]{ribbon box style}{\TikZ-styling}
@@ -2946,7 +2964,7 @@
   \end{example}
 
   As shown, whenever a box entry is given as a subscript it is used
-  instead of the current value of \option{ribbon box}. If a ribbon
+  instead of the value of \option{ribbon box}. If a ribbon
   tableau contains multiple ribbons, then \option{ribbon box} is used
   for all ribbons.
 
@@ -3078,7 +3096,7 @@
   \end{example}
 
   To remove a delimiter, set \option{left delimiter} or
-  \option{right delimiter} to empty.
+  \option{right delimiter} to nothing.
 
   \begin{example}
   \Multitableau[left delimiter=, right delimiter=]
@@ -3096,8 +3114,8 @@
   \Multidiagram[empty=$\emptyset$]{ 3,2 | | 2^2 }
   \end{example}
 
-  \option[]{entries}[contents, first, hooks, last, residues]
-  \option*[]{charge}[$|$-separated list of charges]
+  \option[]{entries}[contents, first, hooks, last, residues]<multitableau>
+  \option*[]{charge}[$|$-separated list of charges]<multitableau>
   \index{contents}
   \index{residues}
   \index{contents!multitableau}
@@ -3113,11 +3131,12 @@
   \index{multitableau!last}
   \index{multitableau!residue}
 
-  Use the \option{entries} key to draw particular types of tableau of the
-  specified shape. Use \option{charge} to provide offsets in each
-  component when using \option{entries=contents} and
-  \option{entries=residues} (and no charge should be set when using
-  \option{entries=first} and \option{entries=last}).
+  The \option{entries} key automatically fills in particular types of
+  entries for you to draw the requested tableau of the specified shape.
+  Use \option{charge} to provide offsets in each component when using
+  \option{entries=contents} and \option{entries=residues} (and no charge
+  should be set when using \option{entries=first} and
+  \option{entries=last}).
 
   The possible choices are:
   \begin{itemize}
@@ -3443,10 +3462,9 @@
   we recommend using \keyword{\tikzset} to define more complicated bead styles.
 
   In addition to applying style to the individual beads on the abacus,
-  labels for the beads can (optionally) be given as subscripts in the
+  \emph{labels} for any bead can (optionally) be given as a subscript in the
   bead specifications. Again, the same labels are applied to all of the
   corresponding beads when exponential notation is used.
-  \index{no shade}
 
   \begin{example}
   \Abacus{2}{5_5, 4_4, 3_3, 2_2,0_0} \qquad
@@ -3460,23 +3478,51 @@
   but you can give labels to as many beads as you like.
 
   You can remove beads that you have placed on the abacus using the \emph{no shade} style%
-  \footnote{Surprisingly, \TikZ \emph{does not} provide a way to disable
-  a shading that is already in effect. The \emph{no shade} style is
-  based on a \href{https://tex.stackexchange.com/a/85750/234252}{stack
-  exchange post}. The \emph{no shade} key is available if the \aTableau
-  package is loaded.}.
+  \footnote{\TikZ \emph{does not} provide a way to disable
+  a shading that is already in effect. The \emph{no shade} style, which is
+  based on a \href{https://tex.stackexchange.com/a/85750/234252}{stack exchange post},
+  is available whenever the \aTableau package is loaded.}.
   The point of being able to remove beads in this way is that this
   allows you to put something else in its place using the bead label.
-  In such cases, you probably want to replace the bead with a label, so
-  you will also need to change the text, which is white by default.
+  In such cases, you probably want to change the text colour, which is white
+  by default.
 
   \begin{example}[label=Ex:NoShade]
   \Abacus[styles={C={no shade,text=red}}]
     {5}{8^2_-,7_+,5_a,4^2_b,[C]1_\bullet^3,1_d}
   \end{example}
+  \index{no shade}
 
   As with tableau boxes, the bead labels are typeset in
-  mathematics~mode by default.
+  mathematics~mode by default. This can changed using
+  \option{math entries} and \option{text entries}.
+  \index{math entries!abacus}
+  \index{text entries!abacus}
+
+  % --------------------------------------------------------------
+  \subsubsection{Abacus coordinates}\label{SS:abcoordinates}
+  \index{xy@$(x,y)$}
+  \index{Cartesian coordinates!abacus}
+
+  The $(x,y)$-coordinates are required if, and only if, the
+  \keyword{\Abacus}command is used inside a \keyword{tikzpicture}
+  environment, in which case $(x,y)$ gives the coordinates of the
+  ``outside corner'' of the box in row~$1$ and column~$1$ of the
+  tableau. The following example shows how tableaux are placed using
+  $(x,y)$-coordinates inside a \keyword{tikzpicture} environment. The
+  example also shows that, by default, the beads and runners in an
+  abacus are half a unit apart.
+
+  \begin{example}
+  \begin{tikzpicture}[add grid]
+    \aTabset{abacus ends=_|}
+    \Abacus(0,0.5)  [south]              {3}{2,1^2}
+    \Abacus(0,2)    [east,  bead=red]    {3}{2,1^2}
+    \Abacus(2.5,0.5)[north, bead=orange] {3}{2,1^2}
+    \Abacus(3.5,-1) [west,  bead=brown]  {3}{2,1^2}
+  \end{tikzpicture}
+  \end{example}
+
   % --------------------------------------------------------------
   \subsection{Abacus keys}
 
@@ -3495,22 +3541,32 @@
   \option{tikz before}, and
   \option{tikzpicture}. See \autoref{S:keys} for the complete list.
 
-  \option[true]{south}[true/false]
-  \option*[false]{east}[false/true]
-  \option*[false]{north}[false/true]
-  \option*[false]{west}[false/true]
+  \option[true]{south}
+  \option*[]{east}
+  \option*[]{north}
+  \option*[]{west}
 
   Just like tableaux, abacus have four different conventions.  By
-  default, abacuses are drawn in the southerly direction, from top to
-  bottom. Using these keys, abacuses can also be drawn to the north,
-  east and west.
+  default, abacuses are drawn with the runners pointing to the south,
+  from top to bottom, and runners increasing from left to right. Similar
+  to tableaux, we number the rows $0,1,\dots$, and we number the
+  runners, or columns, $0,1,\dots,e-1$, from left to right (when using
+  \option{south}). If there are $e$ runners, then the bead in row~$r$
+  and column~$c$ is in position $er+c$. See \autoref{Ex:BeadPositions}
+  for an example.
+
+  Using the keys \option{east}, \option{north} and \option{west},
+  abacuses can be drawn so that the row index increases to the east,
+  north, and west, respectively.
 
   \begin{Example}
-  \Abacus[south]{2}{4^3,2,1}\qquad \Abacus[east]{2}{4^3,2,1}\qquad
-  \Abacus[north]{2}{4^3,2,1}\qquad \Abacus[west]{2}{4^3,2,1}
+\Abacus[south,entries=betas]{2}{4^2,2,1}\qquad\Abacus[east,entries=betas]{2}{4^2,2,1}\qquad
+\Abacus[north,entries=betas]{2}{4^2,2,1}\qquad\Abacus[west,entries=betas]{2}{4^2,2,1}
   \end{Example}
 
-  The name of the convention gives the direction that the abacus grows in.
+  To make these conventions clearer, we have used
+  \option{entries=betas}<abacus> to label the beads in these abacuses by
+  their bead positions, or \emph{beta numbers}.
 
   \option[$-|$]{abacus ends}  [any pair of: $-$, \_\!\_, ., *, $|$, \textgreater]
   \option*[very thick, draw=\aTableauColour{Inner}]{abacus ends style}[\TikZ-styling]
@@ -3588,8 +3644,8 @@
   \end{example}
 
   The \option{bead} key changes the colour of every bead on the
-  abacus. As shown, use the \TikZ-style \keyword{ball color} to
-  change the colour of individual beads.
+  abacus. As shown, the colour of individual beads can be changed by
+  applying the \TikZ-style \keyword{ball color} to the bead.
 
   \option[\textbackslash small]{bead font}[\LaTeX\ font command]
 
@@ -3613,7 +3669,7 @@
   \option*[0.42]{runner sep}[decimal number, distance in \unit{cm}]
 
   These three keys control the size of the beads and the distance
-  between them, so they would normally be used togther. By default, the
+  between them, so they would normally be used together. By default, the
   \emph{diameter} of the abacus beads is \qty{0.4}{cm}, the distance
   between adjacent beads on the same runner is \qty{.42}{cm}, and the
   distance between consecutive runners is \qty{0.42}{cm}.
@@ -3629,15 +3685,21 @@
   \option{scale}, \option{xscale} and \option{yscale}. Changing these
   keys globally affects both abacuses and tableaux.
 
-  \option[circle]{bead style}[\TikZ styling]
+  \option[]{bead style}[\TikZ styling]
 
   The keys above are usually sufficient for fine-tuning the style of the
   abacus beads. Alternatively, the \option{bead style} key appends
-  \TikZ-styling to the default bead style.
+  \TikZ-styling to the default bead style, which has many moving parts.
 
   \begin{example}
-  \Abacus[bead style={shading=axis}, bead text=red] {3}{3_3,2^2,1^3}
+  \Abacus[bead style={shading=axis}, bead text=red] {3}{3_3,2^2,1^3} \qquad
+  \Abacus[bead style={no shade, fill=aTableauMain}] {3}{3_3,2^2,1^3}
   \end{example}
+
+  By default, the beads look like balls (they use the
+  \TikZ-styling \keyword{shading=ball, ball color=}\aTableauColour{Main}).
+  In contrast, the beads on the left look like go beads, and those
+  on the right are flat.
 
   \option[white]{bead text}[any colour]
 
@@ -3649,12 +3711,14 @@
 
   \option[false]{beta numbers}[false/true]
 
-  When \option{beta numbers} is true, the numbers in the bead
-  specifications should be entered as \emph{beta numbers}. The beta
-  numbers give the bead positions, which are numbered $0,1,\dots$,
-  starting from the first row and then continuing in this way in
-  subsequent rows. Up to shift, bead numbers are first column hook
-  lengths. In particular, beta numbers are pairwise distinct.
+  When \option{beta numbers} is set, the numbers in the bead
+  specifications are entered as \emph{beta numbers}. The beta numbers
+  give the bead positions, which are numbered $0,1,\dots$, starting from
+  the first row and then continuing in this way in subsequent rows. More
+  explicitly, if there are $e$ runners then the bead to row~$r$ and
+  column~$c$ is in position $er+c$. Up to shift, bead numbers are first
+  column hook lengths. In particular, beta numbers are pairwise
+  distinct.
 
   \begin{example}
   \Abacus{3}{3,2^2} \qquad
@@ -3663,31 +3727,81 @@
   \end{example}
 
   There is no inverse key to \option{beta numbers}, however,
-  \option{beta numbers=false} will remove the requirement to use beta
-  numbers for the bead specifications.
+  \option{beta numbers=false} will remove the requirement that beta
+  numbers be used in the bead specifications.
 
-  \option[]{dotted cols}[list of runner indices]
-  \option*[]{dotted rows}[list of row indices]
+  \option[]{dotted cols}[list of runner indices]<abacus>
+  \option*[]{dotted rows}[list of row indices]<abacus>
 
-  \option[]{entries}[beta, residue, rows, shape]
+  The \option{dotted rows}<abacus> and \option{dotted cols}<abacus> keys
+  draw abacuses where the specified rows and columns are replaced with
+  dots. This makes it possible to draw \emph{generic} abacuses, where
+  the number of rows and columns is not fully specified. Note that for
+  abacuses, both the row and column indexing starts from~$0$.
 
-  The \option{entries} option provides a shortcut for drawing some common
-  tableaux of a specified shape. The possible choices are:
+  \begin{example}
+  \Abacus[dotted rows={2,4}]{4}{8,5,4,3,2,1} \qquad
+  \Abacus[dotted cols={1,3},abacus ends=-*]{6}{9,8,5,4,3^3,2}
+  \end{example}
+
+  As with tableau, consecutive rows and columns treated together.
+
+  \begin{example}
+  \Abacus[dotted rows={1,2,3}]{4}{8,5,4,3,2,1} \qquad
+  \Abacus[dotted cols={1,2,3},abacus ends=-*]{6}{9,8,5,4,3^3,2}
+  \end{example}
+
+  Comparing these two examples shows that the beads and runners in the
+  dotted rows and columns are removed by \option{dotted rows}<abacus>
+  and \option{dotted cols}<abacus>, respectively. Named coordinates,
+  for use with \option{name}<abacus>, are not created for the bead and
+  tick positions on the dotted rows and columns.
+
+  The \option{dotted cols}<abacus> ad \option{dotted rows}<abacus> keys
+  can be used together, in which case the \option{dotted rows}<abacus>
+  are removed first, followed by the \option{dotted cols}<abacus>. The
+  output may need to be adjusted if the dotted rows and columns overlap.
+  For example, consider the abacus:
+
+  \begin{example}
+  \Abacus[dotted cols={2,3},
+          dotted rows={2,3}
+  ]{6}{26,21^2,5^2,3,2^2,0^2}
+  \end{example}
+
+  The cross-hatched dots in the centre of the abacus are not ideal. The
+  following trick addresses this:
+
+  \begin{example}[lefthand width=0.16\textwidth]
+  \Abacus[dotted cols={2,3}, dotted rows={2,3},
+    tikz after = {
+      \draw[aTableau/clearBoxes](A-1-1.south east)rectangle(A-4-4.north west);
+      \draw[aTableau/dotted](A-1-1.south east)--(A-4-4.north west);
+    }
+  ]{6}{26,21^2,5^2,3,2^2,0^2}
+  \end{example}
+
+  \option[]{entries}[betas, residues, rows, shape]<abacus>
+
+  Like the \option{entries} key for tableaux, the \option{entries} option
+  for abacuses provides a shortcut for labelling the abacus beads
+  by some common choices. The possible choices are:
 
   \begin{itemize}
 
-    \item\option{entries=beta}\index{entries!beta}
-    Label the beads by their beta numbers
+    \item\option{entries=betas}\index{entries!beta}
+    \label{beta numbers!abacuses}
+    Label the beads by the corresponding \emph{beta numbers}.
   \begin{example}
-  \Abacus[entries=beta]{3}{3,2^2,0^2} \qquad
-  \Abacus[entries=beta]{4}{3,2^2,0^2}
+  \Abacus[entries=betas]{3}{3,2^2,0^2} \qquad
+  \Abacus[entries=betas]{4}{3,2^2,0^2}
   \end{example}
 
   \item\option{entries=residues}\index{entries!residues}
   Label the beads by their residues. Unlike for tableaux, it is not not
   necessary to specify the quantum characteristic \option{e}, because
   this is determined by the number of runners and the \option{cartan}
-  type. (You can set \option{e} manually as well.)
+  type. You can can override this by setting \option{e} manually.
   \begin{example}
   \Abacus[entries=residues,]{3}{3,2^2,0^2} \qquad
   \Abacus[entries=residues, cartan=C]{4}{3,2^2,0^2}
@@ -3697,8 +3811,8 @@
   Label the beads by their rows index of the corresponding part in the
   partition.
   \begin{example}
-  \Abacus[entries=beta]{3}{3,2^2,0^2} \qquad
-  \Abacus[entries=beta]{4}{3,2^2,0^2}
+  \Abacus[entries=rows]{3}{3,2^2,0^2} \qquad
+  \Abacus[entries=rows]{4}{3,2^2,0^2}
   \end{example}
 
   \item\option{entries=shape}\index{entries!partition}
@@ -3712,6 +3826,25 @@
 
   \option[A]{name}{text}
 
+  Just like the tableaux commands, the \keyword{abacus} command defines
+  named coordinates for all of the \emph{beads} and \emph{ticks} on the
+  abacus. By default, the named coordinates take the form
+  $(\mathsf{A{-}r{-}c})$, for the bead or tick in row~$r$ and column~$c$ of the
+  abacus. Note that for abacuses, both the row and column indexing starts
+  from~$0$. The key \option{name} changes the prefix used for the names.
+  For example, after \option{name=X} the node names take the
+  form~$(\mathsf{X{-}r{-}c})$.
+
+  \begin{Example}[label=Ex:BeadPositions]
+    \Abacus[name=X,
+      tikz after={
+        \draw[orange,<-,thick] (X-0-0.west) -- ++(-1,0)
+            node[blue,align=left,anchor=east] {Empty bead\\ position};
+        \draw[red,<-,thick] (X-2-2.east) -- ++(2,0)
+            node[blue,align=left,anchor=west] {First part of\\the partition};
+    }]{3}{4^3,1^2}
+  \end{Example}
+
   \option[]{no shade}[]
 
   The abacus balls are drawn with the \TikZ style
@@ -3724,15 +3857,15 @@
   \begin{example}
     \Abacus[no shade, bead text=red]{3}{3_1,2_2,2_3} \qquad
     \Abacus[bead style={no shade, shape=diamond,
-      fill=brown, text=white}]{3}{3_1,2_2,2_3,0^2}
+      fill=brown, text=yellow}]{3}{3_1,2_2,2_3,0^2}
   \end{example}
 
   As the first example shows, if you use the \option{no shade} key then
-  you need to define a new style for the abacus beads. As the second example
-  shows, rather than using \option{no shape} as an \aTableau-key you can
-  use it directly as a \TikZ-style inside \option{bead style}. (We
-  include the \option{no shade} partly for convenience and partly to
-  advertise how it can be used.)
+  you need to define a new style for the abacus beads. As the second
+  example shows, rather than using \option{no shape} as an \aTableau-key
+  you can use it directly as a \TikZ-style in \option{bead style}.
+  (We include the \option{no shade} option partly for convenience and
+  partly to advertise how it can be used.)
 
   \option[-]{rows}{non-negative integer}
 
@@ -3855,7 +3988,7 @@
   more involved. Most of the diagram is drawn using \emph{pics} from
   \TikZ, which are a good way to add repeating features to a
   \keyword{tikzpicture}. In the code below, \emph{pics} are used to add
-  the up and down strings to this diagram, taking as input the string
+  the up and down strings to this drawing, taking as input the string
   colour, the starting box, the list of the boxes the strings goes
   through, and the final box.  At the risk of further obfuscation, this
   could be done a little more efficiently. From the perspective of this
