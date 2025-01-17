@@ -64,7 +64,7 @@
 
 \msg_new:nnnn { aTableau } { unrecognised-abacus-label }
   { Unrecognised~abacus~label~'#1'. }
-  { The~possible~abacus~labels~are...}
+  { The~possible~abacus~labels~are~betas,~residues,~rows~and~shape}
 
 \msg_new:nnnn { aTableau } { unrecognised-show }
   { Unrecognised~entries~value:~'#1' }
@@ -417,6 +417,13 @@
         draw = \l__atableau_tick_tl,
         semithick,
     },
+    % the named coordinate for an abacus tick
+    namedTick/.style = {
+        minimum~height = \fp_to_decimal:N \l__atableau_bead_size_fp cm,
+        minimum~width  = \fp_to_decimal:N \l__atableau_bead_size_fp cm,
+        shape          = \l__atableau_bead_shape_tl,
+        draw=none,
+    }
 }
 
 % ---------------------------------------------------------------------------
@@ -425,7 +432,6 @@
 % sets the basic styles for the tableaux and abacus commands
 \cs_new:Npn \__atableau_set_style:nn #1 #2
 {
-\typeout{Setting~#1/#2}
     \str_case:enF { #1/#2 }
     {
       {tableau/english}
@@ -564,7 +570,7 @@
     { \msg_error:nne {aTableau} {unknown-abacus-ends} {#1}}
 
     \tl_set:Nn \l__atableau_abacus_bottom_tl {#2}
-    \str_if_in:nnF {-.>\c_underscore_str|*} {#2}
+    \str_if_in:nnF {-.>|\c_underscore_str*} {#2}
     { \msg_error:nne {aTableau} {unknown-abacus-ends} {#2}}
 }
 
@@ -589,7 +595,7 @@
 \cs_generate_variant:Nn \__atableau_draw_tableau:n {V,x}
 \cs_generate_variant:Nn \__atableau_entry:n {x}
 \cs_generate_variant:Nn \__atableau_draw_abacus_end:nnn {noo}
-\cs_generate_variant:Nn \__atableau_set_bead_coordinates:nnn {nVV, nno, noo, non, noV}
+\cs_generate_variant:Nn \__atableau_set_bead_coordinates:nnn {nVV, nnV, nno, noo, non, noV}
 \cs_generate_variant:Nn \__atableau_set_box_coordinates:nnn {nVV, nVn, nVo, nnV, noo, nVe}
 \cs_generate_variant:Nn \__atableau_set_partition:nn {no}
 \cs_generate_variant:Nn \__atableau_set_style:nn {nV}
@@ -1091,9 +1097,9 @@
 }
 
 
-% usage: \__atableau_remove_dotted_rows:
+% usage: \__atableau_remove_dotted_tableau_rows:
 % Poke some holes in the border for the rows in dotted_rows_seq
-\cs_new_protected:Nn \__atableau_remove_dotted_rows:
+\cs_new_protected:Nn \__atableau_remove_dotted_tableau_rows:
 {
     % To collect repeated rows in dotted_rows_seq
     % we use \seq_map_inline:Nn and then compare ##1 with \l__atableau_r_int to
@@ -1187,9 +1193,9 @@
     }
 }
 
-% usage: \__atableau_remove_dotted_cols:
+% usage: \__atableau_remove_dotted_tableau_cols:
 % Poke some holes in the border for the cols in dotted_rows_seq
-\cs_new_protected:Nn \__atableau_remove_dotted_cols:
+\cs_new_protected:Nn \__atableau_remove_dotted_tableau_cols:
 {
     % To collect repeated columns in dotted_cols_seq
     % we use \seq_map_inline:Nn and then compare ##1 with \l__atableau_c_int to
@@ -1454,8 +1460,8 @@
     \bool_if:NT \l__atableau_border_bool      { \__atableau_draw_border:nn {shape} {border} }
 
     % remove dotted rows and columns
-    \seq_if_empty:NF \l__atableau_dotted_rows_seq \__atableau_remove_dotted_rows:
-    \seq_if_empty:NF \l__atableau_dotted_cols_seq \__atableau_remove_dotted_cols:
+    \seq_if_empty:NF \l__atableau_dotted_rows_seq \__atableau_remove_dotted_tableau_rows:
+    \seq_if_empty:NF \l__atableau_dotted_cols_seq \__atableau_remove_dotted_tableau_cols:
 
     % add snobs
     \tl_set:Nn \l__atableau_ribbon_type_tl {snob} % change ribbon type to snob
@@ -1525,7 +1531,7 @@
 % Used by both the tableaux and abacus commands
 \cs_new_protected:Npn \__atableau_set_bead_coordinates:nnn #1 #2 #3
 {
-    \tl_set:Nx \l__atableau_name_tl {\l__atableau_prefix_tl-\fp_to_int:n{#2}-\fp_to_int:n{#3}}
+    \tl_set:Nx \l__atableau_name_tl {\l__atableau_prefix_tl-\fp_to_int:n{#2-1}-\fp_to_int:n{#3}}
     \fp_set:cn {l__atableau_x#1_fp} {\l__atableau_x_fp+(#2*\l__atableau_ab_row_dx_fp+#3*\l__atableau_ab_col_dx_fp)*\l__atableau_abacus_wd_fp }
     \fp_set:cn {l__atableau_y#1_fp} {\l__atableau_y_fp+(#2*\l__atableau_ab_row_dy_fp+#3*\l__atableau_ab_col_dy_fp)*\l__atableau_abacus_ht_fp }
 }
@@ -2327,27 +2333,33 @@
             { % draw dots
                 \int_step_inline:nn {\l__atableau_cols_int}
                 {
-                    % draw the abacus runners from (xa,ya) to (xb,yb)
-                    \__atableau_set_bead_coordinates:noo {a} { #2 } { \int_eval:n{##1-1} }
-                    \__atableau_set_bead_coordinates:noo {b} { #3 } { \int_eval:n{##1-1} }
-                    \draw[aTableau/abacusEnds, dotted] (\fp_use:N\l__atableau_xa_fp,\fp_use:N\l__atableau_ya_fp)--(\fp_use:N\l__atableau_xb_fp,\fp_use:N\l__atableau_yb_fp);
+                    \seq_if_in:NeF \l__atableau_dotted_cols_seq { \int_eval:n{##1-1} }
+                    {
+                        % draw the abacus runners from (xa,ya) to (xb,yb)
+                        \__atableau_set_bead_coordinates:noo {a} { #2 } { \int_eval:n{##1-1} }
+                        \__atableau_set_bead_coordinates:noo {b} { #3 } { \int_eval:n{##1-1} }
+                        \draw[aTableau/abacusEnds, dotted] (\fp_use:N\l__atableau_xa_fp,\fp_use:N\l__atableau_ya_fp)--(\fp_use:N\l__atableau_xb_fp,\fp_use:N\l__atableau_yb_fp);
+                    }
                 }
             }
         {>}
             { % draw dots
                 \int_step_inline:nn {\l__atableau_cols_int}
                 {
-                    % draw the abacus runners from (xa,ya) to (xb,yb)
-                    \int_compare:nNnTF {#2} = {0}
+                    \seq_if_in:NeF \l__atableau_dotted_cols_seq { \int_eval:n{##1-1} }
                     {
-                        \__atableau_set_bead_coordinates:noo {a} { \fp_eval:n{#2+0.5} } { \fp_eval:n{##1-1} }
-                        \__atableau_set_bead_coordinates:noo {b} { \fp_eval:n{#3+0.5} } { \fp_eval:n{##1-1} }
+                        % draw the abacus runners from (xa,ya) to (xb,yb)
+                        \int_compare:nNnTF {#2} = {0}
+                        {
+                            \__atableau_set_bead_coordinates:noo {a} { \fp_eval:n{#2+0.5} } { \fp_eval:n{##1-1} }
+                            \__atableau_set_bead_coordinates:noo {b} { \fp_eval:n{#3+0.5} } { \fp_eval:n{##1-1} }
+                        }
+                        {
+                            \__atableau_set_bead_coordinates:noo {a} { \fp_eval:n{#2-0.5} } { \fp_eval:n{##1-1} }
+                            \__atableau_set_bead_coordinates:noo {b} { \fp_eval:n{#3-0.5} } { \fp_eval:n{##1-1} }
+                        }
+                        \draw[aTableau/abacusEnds,->] (\fp_use:N\l__atableau_xa_fp,\fp_use:N\l__atableau_ya_fp)--(\fp_use:N\l__atableau_xb_fp,\fp_use:N\l__atableau_yb_fp);
                     }
-                    {
-                        \__atableau_set_bead_coordinates:noo {a} { \fp_eval:n{#2-0.5} } { \fp_eval:n{##1-1} }
-                        \__atableau_set_bead_coordinates:noo {b} { \fp_eval:n{#3-0.5} } { \fp_eval:n{##1-1} }
-                    }
-                    \draw[aTableau/abacusEnds,->] (\fp_use:N\l__atableau_xa_fp,\fp_use:N\l__atableau_ya_fp)--(\fp_use:N\l__atableau_xb_fp,\fp_use:N\l__atableau_yb_fp);
                 }
             }
 
@@ -2355,17 +2367,20 @@
             { % draw dots
                 \int_step_inline:nn {\l__atableau_cols_int}
                 {
-                    % draw the abacus runners from (xa,ya) to (xb,yb)
-                    \int_compare:nNnTF {#2} = {0}
+                    \seq_if_in:NeF \l__atableau_dotted_cols_seq { \int_eval:n{##1-1} }
                     {
-                        \__atableau_set_bead_coordinates:noo {a} { \fp_eval:n{#2} } { \fp_eval:n{##1-1} }
-                        \__atableau_set_bead_coordinates:noo {b} { \fp_eval:n{#3-0.5} } { \fp_eval:n{##1-1} }
+                        % draw the abacus runners from (xa,ya) to (xb,yb)
+                        \int_compare:nNnTF {#2} = {0}
+                        {
+                            \__atableau_set_bead_coordinates:noo {a} { \fp_eval:n{#2} } { \fp_eval:n{##1-1} }
+                            \__atableau_set_bead_coordinates:noo {b} { \fp_eval:n{#3-0.5} } { \fp_eval:n{##1-1} }
+                        }
+                        {
+                            \__atableau_set_bead_coordinates:noo {a} { \fp_eval:n{#2} } { \fp_eval:n{##1-1} }
+                            \__atableau_set_bead_coordinates:noo {b} { \fp_eval:n{#3+0.5} } { \fp_eval:n{##1-1} }
+                        }
+                        \draw[aTableau/abacusEnds,dotted,->] (\fp_use:N\l__atableau_xa_fp,\fp_use:N\l__atableau_ya_fp)--(\fp_use:N\l__atableau_xb_fp,\fp_use:N\l__atableau_yb_fp);
                     }
-                    {
-                        \__atableau_set_bead_coordinates:noo {a} { \fp_eval:n{#2} } { \fp_eval:n{##1-1} }
-                        \__atableau_set_bead_coordinates:noo {b} { \fp_eval:n{#3+0.5} } { \fp_eval:n{##1-1} }
-                    }
-                    \draw[aTableau/abacusEnds,dotted,->] (\fp_use:N\l__atableau_xa_fp,\fp_use:N\l__atableau_ya_fp)--(\fp_use:N\l__atableau_xb_fp,\fp_use:N\l__atableau_yb_fp);
                 }
             }
 
@@ -2414,22 +2429,47 @@
     \int_zero:N \l__atableau_col_int
     \int_step_inline:nn {\l__atableau_cols_int}
     {
-        % draw the abacus runners from (xa,ya) to (xb,yb)
-        \__atableau_set_bead_coordinates:nno {a} { 0 } { \int_eval:n{##1-1} }
-        \__atableau_set_bead_coordinates:noo {b} { \int_eval:n{\l__atableau_rows_int+1} } { \int_eval:n{##1-1} }
-        \draw[aTableau/runnerStyle] (\fp_use:N\l__atableau_xa_fp,\fp_use:N\l__atableau_ya_fp)--(\fp_use:N\l__atableau_xb_fp,\fp_use:N\l__atableau_yb_fp);
-        % draw the ticks
-        \int_zero:N \l__atableau_row_int
-        \int_step_inline:nn {\l__atableau_rows_int}
+        \int_set:Nn \l_tmpa_int {##1-1} % save recalculating this many times
+        % skip the runners in dotted_cols_seq
+        \seq_if_in:NVF \l__atableau_dotted_cols_seq \l_tmpa_int
         {
-            \__atableau_set_bead_coordinates:noo {l} { \int_eval:n{####1} } { \int_eval:n{##1-1} }
-            % add and subtract (half) tick width
-            \fp_set:Nn \l__atableau_xa_fp {\l__atableau_xl_fp+\l__atableau_tick_length_fp*\l__atableau_ab_col_dx_fp}
-            \fp_set:Nn \l__atableau_ya_fp {\l__atableau_yl_fp+\l__atableau_tick_length_fp*\l__atableau_ab_col_dy_fp}
-            \fp_set:Nn \l__atableau_xb_fp {\l__atableau_xl_fp-\l__atableau_tick_length_fp*\l__atableau_ab_col_dx_fp}
-            \fp_set:Nn \l__atableau_yb_fp {\l__atableau_yl_fp-\l__atableau_tick_length_fp*\l__atableau_ab_col_dy_fp}
-            \draw[aTableau/tickStyle] (\fp_use:N\l__atableau_xa_fp,\fp_use:N\l__atableau_ya_fp)--(\fp_use:N\l__atableau_xb_fp,\fp_use:N\l__atableau_yb_fp);
+            % draw the abacus runners from (xa,ya) to (xb,yb)
+            \__atableau_set_bead_coordinates:nnV {a} { 0 } \l_tmpa_int
+            \__atableau_set_bead_coordinates:noV {b} { \int_eval:n{\l__atableau_rows_int+1} } \l_tmpa_int
+            \draw[aTableau/runnerStyle] (\fp_use:N\l__atableau_xa_fp,\fp_use:N\l__atableau_ya_fp)--(\fp_use:N\l__atableau_xb_fp,\fp_use:N\l__atableau_yb_fp);
+
+            % draw ticks
+            \int_zero:N \l__atableau_row_int
+            \int_step_inline:nn {\l__atableau_rows_int}
+            {
+                \__atableau_set_bead_coordinates:noV {l} { ####1 } \l_tmpa_int
+                % add a named node
+                \node[aTableau/namedTick] (\l__atableau_name_tl) at (\fp_use:N\l__atableau_xl_fp,\fp_use:N\l__atableau_yl_fp){};
+                % add and subtract (half) tick width
+                \fp_set:Nn \l__atableau_xa_fp {\l__atableau_xl_fp+\l__atableau_tick_length_fp*\l__atableau_ab_col_dx_fp}
+                \fp_set:Nn \l__atableau_ya_fp {\l__atableau_yl_fp+\l__atableau_tick_length_fp*\l__atableau_ab_col_dy_fp}
+                \fp_set:Nn \l__atableau_xb_fp {\l__atableau_xl_fp-\l__atableau_tick_length_fp*\l__atableau_ab_col_dx_fp}
+                \fp_set:Nn \l__atableau_yb_fp {\l__atableau_yl_fp-\l__atableau_tick_length_fp*\l__atableau_ab_col_dy_fp}
+
+                \draw[aTableau/tickStyle,name=\l__atableau_name_tl] (\fp_use:N\l__atableau_xa_fp,\fp_use:N\l__atableau_ya_fp)--(\fp_use:N\l__atableau_xb_fp,\fp_use:N\l__atableau_yb_fp);
+            }
         }
+    }
+
+    % set e when entries=residues
+    \tl_if_eq:VnT \l__atableau_show_tl {residues}
+    {
+          % if it is not set already, automatically set e based on the number of runns and the Cartan type
+          \int_compare:nNnT {\l__atableau_rows_int} = {0}
+          {
+              \str_case:enF {\l__atableau_cartan_tl}
+              {
+                  {A } { \int_set_eq:NN \l__atableau_e_int \l__atableau_rows_int}
+                  {AA} { \int_set:NN:Nn \l__atableau_e_int {\l__atableau_rows_int/2} }
+                  {C } { \int_set:NN:Nn \l__atableau_e_int {\l__atableau_rows_int/2} }
+                  {DD} { \int_set:NN:Nn \l__atableau_e_int {\l__atableau_rows_int/2} }
+              }
+          }
     }
 
     % draw the beads on the abacus
@@ -2451,40 +2491,185 @@
         % unit down to allow space of the top of the abacus
         \__atableau_set_bead_coordinates:noV {l} {\int_eval:n{\l__atableau_row_int+1} } \l__atableau_col_int
 
-        \str_case:VnF \l__atableau_show_tl
+        \seq_if_in:NVF \l__atableau_dotted_rows_seq \l__atableau_row_int
         {
-          {beta}     { \tl_set:No \l_tmpa_tl { \int_use:N\l_tmpa_int }                     }
-          {residues} {
-                       % if it is not set already, automatically set e based on the number of runns and the Cartan type
-                       \int_compare:nNnT {\l__atableau_rows_int} = {0}
-                       {
-                            \str_case:enF {\l__atableau_cartan_tl}
-                            {
-                                {A } { \int_set_eq:NN \l__atableau_e_int \l__atableau_rows_int}
-                                {AA} { \int_set:NN:Nn \l__atableau_e_int {\l__atableau_rows_int/2} }
-                                {C } { \int_set:NN:Nn \l__atableau_e_int {\l__atableau_rows_int/2} }
-                                {DD} { \int_set:NN:Nn \l__atableau_e_int {\l__atableau_rows_int/2} }
-                            }
-                       }
-                       \tl_set:No \l_tmpc_tl { \seq_item:Nn \l__atableau_shape_seq {##1}}
-                       \tl_set:No \l_tmpa_tl { \__atableau_residue:nn {\l__atableau_charge_int - ##1 + \l_tmpc_tl} {\l__atableau_rows_int} }
-                     }
-          {rows }    { \tl_set:No \l_tmpa_tl { ##1 }                                       }
-          {shape}    { \tl_set:No \l_tmpa_tl { \seq_item:Nn \l__atableau_shape_seq {##1} } }
-          {}         { \tl_set:No \l_tmpa_tl { \seq_item:Nn \l__atableau_texts_seq  {##1} } }
+             \seq_if_in:NVF \l__atableau_dotted_cols_seq \l__atableau_col_int
+            {
+                \str_case:VnF \l__atableau_show_tl
+                {
+                  {betas}    { \tl_set:No \l_tmpa_tl { \int_use:N\l_tmpa_int }                     }
+                  {residues} {
+                               \tl_set:No \l_tmpc_tl { \seq_item:Nn \l__atableau_shape_seq {##1}}
+                               \tl_set:No \l_tmpa_tl { \__atableau_residue:nn {\l__atableau_charge_int - ##1 + \l_tmpc_tl} {\l__atableau_rows_int} }
+                             }
+                  {rows }    { \tl_set:No \l_tmpa_tl { ##1 }                                       }
+                  {shape}    { \tl_set:No \l_tmpa_tl { \seq_item:Nn \l__atableau_shape_seq {##1} } }
+                  {}         { \tl_set:No \l_tmpa_tl { \seq_item:Nn \l__atableau_texts_seq {##1} } }
+                }
+                {
+                    \msg_error:nnx {aTableau} {unrecognised-abacus-label} {  \l__atableau_show_tl }
+                }
+                % draw the bead with style
+                \tl_set:No \l_tmpb_tl { \seq_item:Nn \l__atableau_styles_seq {##1} }
+                \exp_last_unbraced:Nx \node{[aTableau/beadStyle, \l_tmpb_tl]}
+                    at (\fp_use:N\l__atableau_xl_fp,\fp_use:N\l__atableau_yl_fp){\__atableau_entry:x {\l_tmpa_tl}};
+            }
         }
-        {
-            \msg_error:nnx {aTableau} {unrecognised-abacus-label} {  \l__atableau_show_tl }
-        }
-        % draw the bead with style
-        \tl_set:No \l_tmpb_tl { \seq_item:Nn \l__atableau_styles_seq {##1} }
-        \exp_last_unbraced:Nx \node{[aTableau/beadStyle, \l_tmpb_tl]} (\l__atableau_name_tl)
-        at (\fp_use:N\l__atableau_xl_fp,\fp_use:N\l__atableau_yl_fp){\__atableau_entry:x {\l_tmpa_tl}};
      }
 
     % draw the top and bottom ends of the abacus
     \__atableau_draw_abacus_end:nnn \l__atableau_abacus_top_tl {0} {-1}
     \__atableau_draw_abacus_end:noo \l__atableau_abacus_bottom_tl  {\int_eval:n {\l__atableau_rows_int+1}} {\int_eval:n {\l__atableau_rows_int+2}}
+
+    % remove dotted rows and columns
+    \seq_if_empty:NF \l__atableau_dotted_rows_seq \__atableau_remove_dotted_abacus_rows:
+    \seq_if_empty:NF \l__atableau_dotted_cols_seq \__atableau_remove_dotted_abacus_cols:
+
+}
+
+% usage: \__atableau_remove_dotted_abacus_cols:
+% Add dots to the columns of the abacus in \l__atableau_dotted_cols_seq
+\cs_new_protected:Nn \__atableau_remove_dotted_abacus_cols:
+{
+    % shift in row-direction
+    \fp_set:Nn \l_tmpa_fp {\l__atableau_ab_row_dx_fp*\l__atableau_abacus_wd_fp}
+    \fp_set:Nn \l_tmpb_fp {\l__atableau_ab_row_dy_fp*\l__atableau_abacus_ht_fp}
+
+    % take a copy of \l__atableau_dotted_cols_seq so that the pop_left's below
+    % do not destroy it
+    \seq_set_eq:NN \l_tmpb_seq \l__atableau_dotted_cols_seq
+    \bool_do_until:nn { \seq_if_empty_p:N \l_tmpb_seq }
+    {
+        \seq_pop_left:NN \l_tmpb_seq \l_tmpa_tl
+        \int_set:Nn \l__atableau_col_int {\l_tmpa_tl}
+        \int_set:Nn \l__atableau_c_int {\l__atableau_col_int+1}
+
+        % LaTeX3 does not provide \seq_if_in_p:NNTF, so ...
+        \bool_set_true:N \l_tmpa_bool
+        \bool_do_while:nn { \l_tmpa_bool }
+        {
+            \int_set:Nn \l_tmpa_int {0\seq_item:Nn \l_tmpb_seq 1}
+            \int_compare:nNnTF {\l__atableau_c_int} = {\l_tmpa_int}
+            {
+              \seq_pop_left:NN \l_tmpb_seq \l_tmpa_tl
+              \int_incr:N \l__atableau_c_int
+            }
+            { \bool_set_false:N \l_tmpa_bool }
+        }
+
+        \__atableau_set_bead_coordinates:nnV {l} { 0 } \l__atableau_col_int
+
+        % set (xa,ya) and (xb,yb) to the "left" and "right" hand coordinates that we want remove
+        \fp_set:Nn \l__atableau_xa_fp {\l__atableau_xl_fp-0.35*\l__atableau_ab_col_dx_fp*\l__atableau_abacus_wd_fp}
+        \fp_set:Nn \l__atableau_ya_fp {\l__atableau_yl_fp-0.35*\l__atableau_ab_col_dy_fp*\l__atableau_abacus_ht_fp}
+        \fp_set:Nn \l__atableau_xb_fp {\l__atableau_xl_fp+(\l__atableau_c_int-\l__atableau_col_int-0.65)*\l__atableau_ab_col_dx_fp*\l__atableau_abacus_wd_fp}
+        \fp_set:Nn \l__atableau_yb_fp {\l__atableau_yl_fp+(\l__atableau_c_int-\l__atableau_col_int-0.65)*\l__atableau_ab_col_dy_fp*\l__atableau_abacus_ht_fp}
+
+        % blank out any line at the top of the abacus and replace it with dots
+        \tl_if_in:nVT {-_} \l__atableau_abacus_top_tl
+        {
+            \draw[aTableau/clearBoxes]
+                (\fp_eval:n{\l__atableau_xa_fp-0.1*\l_tmpa_fp}, \fp_eval:n{\l__atableau_ya_fp-0.1*\l_tmpb_fp})
+                --++(\fp_eval:n{0.2*\l_tmpa_fp},\fp_eval:n{0.2*\l_tmpb_fp})
+                --(\fp_eval:n{\l__atableau_xb_fp+0.1*\l_tmpa_fp}, \fp_eval:n{\l__atableau_yb_fp+0.1*\l_tmpb_fp})
+                --++(\fp_eval:n{-0.2*\l_tmpa_fp},\fp_eval:n{-0.2*\l_tmpb_fp})
+                    --cycle
+            ;
+            % first blank out the possible header line and replace with dots
+            %\draw[fill=white,draw=none](\fp_use:N\l__atableau_xa_fp,\fp_use:N\l__atableau_ya_fp)--(\fp_use:N\l__atableau_xb_fp,\fp_use:N\l__atableau_yb_fp);
+            \draw[aTableau/dotted](\fp_use:N\l__atableau_xa_fp,\fp_use:N\l__atableau_ya_fp)--(\fp_use:N\l__atableau_xb_fp,\fp_use:N\l__atableau_yb_fp);
+        }
+
+        % now draw the dots
+        \int_zero:N \l__atableau_row_int
+        \int_step_inline:nn {\l__atableau_rows_int}
+        {
+            \fp_add:Nn \l__atableau_xa_fp {\l_tmpa_fp}
+            \fp_add:Nn \l__atableau_ya_fp {\l_tmpb_fp}
+            \fp_add:Nn \l__atableau_xb_fp {\l_tmpa_fp}
+            \fp_add:Nn \l__atableau_yb_fp {\l_tmpb_fp}
+            \draw[aTableau/dotted](\fp_use:N\l__atableau_xa_fp,\fp_use:N\l__atableau_ya_fp)--(\fp_use:N\l__atableau_xb_fp,\fp_use:N\l__atableau_yb_fp);
+        }
+
+        % blank out any line at the bottom of the abacus and replace it with dots
+        \tl_if_in:nVT {-_} \l__atableau_abacus_bottom_tl
+        {
+            \fp_add:Nn \l__atableau_xa_fp {\l_tmpa_fp}
+            \fp_add:Nn \l__atableau_ya_fp {\l_tmpb_fp}
+            \fp_add:Nn \l__atableau_xb_fp {\l_tmpa_fp}
+            \fp_add:Nn \l__atableau_yb_fp {\l_tmpb_fp}
+            \draw[aTableau/clearBoxes]
+            (\fp_eval:n{\l__atableau_xa_fp-0.1*\l_tmpa_fp}, \fp_eval:n{\l__atableau_ya_fp-0.1*\l_tmpb_fp})
+            --++(\fp_eval:n{0.2*\l_tmpa_fp},\fp_eval:n{0.2*\l_tmpb_fp})
+            --(\fp_eval:n{\l__atableau_xb_fp+0.1*\l_tmpa_fp}, \fp_eval:n{\l__atableau_yb_fp+0.1*\l_tmpb_fp})
+            --++(\fp_eval:n{-0.2*\l_tmpa_fp},\fp_eval:n{-0.2*\l_tmpb_fp})
+                --cycle
+            ;
+            % first blank out the possible header line and replace with dots
+            \draw[aTableau/dotted](\fp_use:N\l__atableau_xa_fp,\fp_use:N\l__atableau_ya_fp)--(\fp_use:N\l__atableau_xb_fp,\fp_use:N\l__atableau_yb_fp);
+        }
+    }
+}
+
+% usage: \__atableau_remove_dotted_abacus_rows:
+% Add dots to the rows of the abacus in \l__atableau_dotted_rows_seq
+\cs_new_protected:Nn \__atableau_remove_dotted_abacus_rows:
+{
+      % shift in column-direction
+      \fp_set:Nn \l_tmpa_fp {\l__atableau_ab_col_dx_fp*\l__atableau_abacus_wd_fp}
+      \fp_set:Nn \l_tmpb_fp {\l__atableau_ab_col_dy_fp*\l__atableau_abacus_ht_fp}
+
+      % take a copy of \l__atableau_dotted_rows_seq so that the pop_left's below
+      % do not destroy it
+      \seq_set_eq:NN \l_tmpb_seq \l__atableau_dotted_rows_seq
+      \bool_do_until:nn { \seq_if_empty_p:N \l_tmpb_seq }
+      {
+          \seq_pop_left:NN \l_tmpb_seq \l_tmpa_tl
+          \int_set:Nn \l__atableau_row_int {\l_tmpa_tl}
+          \int_set:Nn \l__atableau_r_int {\l__atableau_row_int+1}
+
+          % LaTeX3 does not provide \seq_if_in_p:NNTF, so ...
+          \bool_set_true:N \l_tmpa_bool
+          \bool_do_while:nn { \l_tmpa_bool }
+          {
+              \int_set:Nn \l_tmpa_int {0\seq_item:Nn \l_tmpb_seq 1}
+              \int_compare:nNnTF {\l__atableau_r_int} = {\l_tmpa_int}
+              {
+                \seq_pop_left:NN \l_tmpb_seq \l_tmpa_tl
+                \int_incr:N \l__atableau_r_int
+              }
+              { \bool_set_false:N \l_tmpa_bool }
+          }
+
+          \__atableau_set_bead_coordinates:non {l} { \int_eval:n{\l__atableau_row_int+1} } { 0 }
+
+          % set (xa,ya) and (xb,yb) to the "left" and "right" hand coordinates that we want remove
+          \fp_set:Nn \l__atableau_xa_fp {\l__atableau_xl_fp-0.35*\l__atableau_ab_row_dx_fp*\l__atableau_abacus_wd_fp}
+          \fp_set:Nn \l__atableau_ya_fp {\l__atableau_yl_fp-0.35*\l__atableau_ab_row_dy_fp*\l__atableau_abacus_ht_fp}
+          \fp_set:Nn \l__atableau_xb_fp {\l__atableau_xl_fp+(\l__atableau_r_int-\l__atableau_row_int-0.65)*\l__atableau_ab_row_dx_fp*\l__atableau_abacus_wd_fp}
+          \fp_set:Nn \l__atableau_yb_fp {\l__atableau_yl_fp+(\l__atableau_r_int-\l__atableau_row_int-0.65)*\l__atableau_ab_row_dy_fp*\l__atableau_abacus_ht_fp}
+
+          \draw[aTableau/clearBoxes]
+              (\fp_eval:n{\l__atableau_xa_fp-0.1*\l_tmpa_fp}, \fp_eval:n{\l__atableau_ya_fp-0.1*\l_tmpb_fp})
+              --++(\fp_eval:n{(\l__atableau_cols_int+0.2)*\l_tmpa_fp},\fp_eval:n{(\l__atableau_cols_int+0.2)*\l_tmpb_fp})
+              --(\fp_eval:n{\l__atableau_xb_fp+(\l__atableau_cols_int+0.1)*\l_tmpa_fp}, \fp_eval:n{\l__atableau_yb_fp+(\l__atableau_cols_int+0.1)*\l_tmpb_fp})
+              --(\fp_eval:n{\l__atableau_xb_fp-0.1*\l_tmpa_fp}, \fp_eval:n{\l__atableau_yb_fp-0.1*\l_tmpb_fp})
+              --cycle
+          ;
+          % first blank out the possible header line and replace with dots
+          \draw[aTableau/dotted](\fp_use:N\l__atableau_xa_fp,\fp_use:N\l__atableau_ya_fp)--(\fp_use:N\l__atableau_xb_fp,\fp_use:N\l__atableau_yb_fp);
+
+          % now draw the dots
+          \int_step_inline:nnn {2} {\l__atableau_cols_int}
+          {
+              \fp_add:Nn \l__atableau_xa_fp {\l_tmpa_fp}
+              \fp_add:Nn \l__atableau_ya_fp {\l_tmpb_fp}
+              \fp_add:Nn \l__atableau_xb_fp {\l_tmpa_fp}
+              \fp_add:Nn \l__atableau_yb_fp {\l_tmpb_fp}
+              \draw[aTableau/dotted](\fp_use:N\l__atableau_xa_fp,\fp_use:N\l__atableau_ya_fp)--(\fp_use:N\l__atableau_xb_fp,\fp_use:N\l__atableau_yb_fp);
+          }
+
+    }
 }
 
 % ---------------------------------------------------------------------------
