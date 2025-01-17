@@ -579,8 +579,6 @@
 % TODO: prune the variants that are not used
 
 \cs_generate_variant:Nn \fp_add:Nn {NV}
-\cs_generate_variant:Nn \int_compare:nNnTF {oNVT, oNnT, oNoT}
-\cs_generate_variant:Nn \int_compare:nNnT {oNnT}
 \cs_generate_variant:Nn \int_set:Nn {No}
 \cs_generate_variant:Nn \int_while_do:nNnn {oNon}
 \cs_generate_variant:Nn \msg_warning:nnn {nno}
@@ -2439,7 +2437,6 @@
             \draw[aTableau/runnerStyle] (\fp_use:N\l__atableau_xa_fp,\fp_use:N\l__atableau_ya_fp)--(\fp_use:N\l__atableau_xb_fp,\fp_use:N\l__atableau_yb_fp);
 
             % draw ticks
-            \int_zero:N \l__atableau_row_int
             \int_step_inline:nn {\l__atableau_rows_int}
             {
                 \__atableau_set_bead_coordinates:noV {l} { ####1 } \l_tmpa_int
@@ -2459,7 +2456,7 @@
     % set e when entries=residues
     \tl_if_eq:VnT \l__atableau_show_tl {residues}
     {
-          % if it is not set already, automatically set e based on the number of runns and the Cartan type
+          % if it is not set already, then set e based on the number of runners and the Cartan type
           \int_compare:nNnT {\l__atableau_rows_int} = {0}
           {
               \str_case:enF {\l__atableau_cartan_tl}
@@ -2497,14 +2494,19 @@
             {
                 \str_case:VnF \l__atableau_show_tl
                 {
-                  {betas}    { \tl_set:No \l_tmpa_tl { \int_use:N\l_tmpa_int }                     }
+                  {betas}    {   \tl_set:No \l_tmpa_tl { \int_use:N\l_tmpa_int }                     }
                   {residues} {
-                               \tl_set:No \l_tmpc_tl { \seq_item:Nn \l__atableau_shape_seq {##1}}
-                               \tl_set:No \l_tmpa_tl { \__atableau_residue:nn {\l__atableau_charge_int - ##1 + \l_tmpc_tl} {\l__atableau_rows_int} }
+                                 \int_set:Nn \l_tmpb_int { \l__atableau_charge_int+\l_tmpa_int-\l__atableau_beads_int }
+                                 \tl_set:No \l_tmpa_tl { \__atableau_residue:nn {\l_tmpb_int} {\l__atableau_rows_int} }
                              }
-                  {rows }    { \tl_set:No \l_tmpa_tl { ##1 }                                       }
-                  {shape}    { \tl_set:No \l_tmpa_tl { \seq_item:Nn \l__atableau_shape_seq {##1} } }
-                  {}         { \tl_set:No \l_tmpa_tl { \seq_item:Nn \l__atableau_texts_seq {##1} } }
+                  {rows }    {
+                                 \int_set:Nn \l_tmpb_int { \l_tmpa_int-\l__atableau_beads_int+##1 }
+                                 \int_compare:nNnTF {\l_tmpb_int} > {0}
+                                 { \tl_set:No \l_tmpa_tl { \int_use:N \l_tmpb_int }}
+                                 { \tl_set:No \l_tmpa_tl { {-} }                  }
+                              }
+                  {shape}    {   \tl_set:No \l_tmpa_tl { \seq_item:Nn \l__atableau_shape_seq {##1} } }
+                  {}         {   \tl_set:No \l_tmpa_tl { \seq_item:Nn \l__atableau_texts_seq {##1} } }
                 }
                 {
                     \msg_error:nnx {aTableau} {unrecognised-abacus-label} {  \l__atableau_show_tl }
@@ -2515,7 +2517,7 @@
                     at (\fp_use:N\l__atableau_xl_fp,\fp_use:N\l__atableau_yl_fp){\__atableau_entry:x {\l_tmpa_tl}};
             }
         }
-     }
+    }
 
     % draw the top and bottom ends of the abacus
     \__atableau_draw_abacus_end:nnn \l__atableau_abacus_top_tl {0} {-1}

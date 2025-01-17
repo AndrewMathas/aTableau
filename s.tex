@@ -5,6 +5,13 @@
 \usetikzlibrary{decorations.pathmorphing, patterns}
 
 \begin{document}
+  \Abacus[entries=residues,]{3}{3,2^2,0^2} \qquad
+  \Abacus[entries=residues, cartan=C]{4}{3,2^2,0^2}
+
+  \Abacus[entries=rows]{3}{3,2^2,0^2} \qquad
+  \Abacus[entries=rows]{4}{3,2^2,0^2}
+
+\end{document}
 
     \Abacus[dotted cols={2,3}, dotted rows={2,3}, abacus ends=--]{6}{21,14^2,10^2,5^2,3,2^2,0^2}
     \Abacus[dotted cols={2,3}, dotted rows={2,3}, abacus ends=->]{6}{21,14^2,10^2,5^2,3,2^2,0^2}
@@ -39,7 +46,6 @@
     \Abacus[dotted cols={3,4,5}, abacus ends=>|]{6}{8,5,4,3,2,1} \qquad
     \Abacus[dotted cols={3,4,5}, abacus ends=*|,east]{6}{8,5,4,3,2,1}
 
-\end{document}
 
   \Tabloid[skew={0,2,2}]{19{11},29{10}7982734,6}
 

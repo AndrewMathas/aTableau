@@ -14,10 +14,13 @@ are welcome.*
 
 A LaTeX package for symmetric group combinatorics, including:
     - Young diagrams
-    - tabloids
     - tableaux
+    - tabloids
+    - skew tableaux
+    - shifted tableaux
+    - ribbon tableaux
+    - multitableaux
     - abacuses
-    - KLRW diagrams
 
 
 .. code-block:: latex
