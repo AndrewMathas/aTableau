@@ -1,10 +1,5 @@
-
 A ToDo list for a aTableau
 ==========================
-
-* abacus documentation and keys for customising abacuses
-  * ?? full frame
-  * residue labels
 
 * check the manual index
 * check the manual hyperlinks
@@ -17,6 +12,7 @@ Bugs
 Things we could do
 ------------------
 
+* ?? allow an optioon for a full abacus frame
 * ?? rewrite ribbons and \Abacus to simultaneously parse the specifications
   and draw the picture
 * ?? rewrite the partition parsing using quarks
