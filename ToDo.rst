@@ -1,13 +1,8 @@
 A ToDo list for a aTableau
 ==========================
 
-* check the manual index
-* check the manual hyperlinks
-
 Bugs
 ----
-
-* fix keyword styling in manual
 
 Things we could do
 ------------------
