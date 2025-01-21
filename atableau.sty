@@ -28,8 +28,8 @@
 
 % ---------------------------------------------------------------------------
 % package date and version
-\def\atableau@version{2.0.alpha}
-\def\atableau@release{2024-10-14}
+\def\atableau@version{2.0.0}
+\def\atableau@release{2025-01-22}
 
 \providecommand\DeclareRelease[3]{}
 \providecommand\DeclareCurrentRelease[2]{}
@@ -2758,12 +2758,22 @@
     cartan/unknown .code:n = { \msg_error:nne { aTableau } { unknown-cartan } {#1} },
     cartan .initial:n = A,
 
-    % dotted rows and columns for tableaux and abacuses
-    dotted~rows .code:n = { \__atableau_set_multiseq_key:nn {dotted_rows} {#1} },
-    dotted~rows .value_required:n = true,
+    charge .code:n =
+    {
+      % To cater for multipartitions, the charge is a sequence .
+      % Set l__atableau_charge_int is the first item in the sequence
+      \regex_split:nnN {[,\|]} {#1} \l__atableau_charge_seq
+      \int_set:Nn \l__atableau_charge_int { \seq_item:Nn \l__atableau_charge_seq {1} }
+    },
+    charge .value_required:n = true,
+    charge .initial:n = 0,
 
+    % dotted rows and columns for tableaux and abacuses
     dotted~cols .code:n = { \__atableau_set_multiseq_key:nn {dotted_cols} {#1} },
     dotted~cols .value_required:n = true,
+
+    dotted~rows .code:n = { \__atableau_set_multiseq_key:nn {dotted_rows} {#1} },
+    dotted~rows .value_required:n = true,
 
     e .int_set:N = \l__atableau_e_int,
     e .initial:n = 0,
@@ -2780,18 +2790,9 @@
     halign .unknown .code:n = { \msg_error:nne { aTableau } { unknown-halign } {#1} },
     halign .initial:n = centre,
 
-    % label
-    label .code:n = {
-        \tl_if_in:nnTF {#1} {|}
-        {
-            % unpack the ribbons into \l__atableau_multiribbons_seq
-            \seq_set_split:cnn {l__atableau_multilabel_seq} {|} {#1}
-        }
-        { \tl_set:No \l__atableau_label_tl {#1} }
-    },
-
-    label~style .code:n = { \__atableau_tikzset_append:nn {labelStyle} {#1} },
-    label~style .value_required:n = true,
+    % math/text mode for boxes and beads
+    math~entries .code:n = { \cs_set_eq:NN \__atableau_entry:n \__atableau_entry_math:n },
+    text~entries .code:n = { \cs_set_eq:NN \__atableau_entry:n \__atableau_entry_text:n },
 
     % tableau node name prefix
     name .tl_set:N  = \l__atableau_prefix_tl,
@@ -2863,45 +2864,12 @@
     Russian .code:n = \__atableau_set_style:nn {tableau} {ukrainian},
     russian .code:n = \__atableau_set_style:nn {tableau} {ukrainian},
 
-    charge .code:n =
-    {
-      % To cater for multipartitions, the charge is a sequence .
-      % Set l__atableau_charge_int is the first item in the sequence
-      \regex_split:nnN {[,\|]} {#1} \l__atableau_charge_seq
-      \int_set:Nn \l__atableau_charge_int { \seq_item:Nn \l__atableau_charge_seq {1} }
-    },
-    charge .value_required:n = true,
-    charge .initial:n = 0,
-
-    conjugate .code:n =
-    {
-        \tl_set:Nx \l_tmpa_tl {\str_lowercase:n {#1}}
-        \str_if_eq:VnTF \l_tmpa_tl {true}
-        {
-            \bool_set_true:N \l__atableau_conjugate_bool
-            \cs_set_eq:NN \__atableau_set_box_coordinates:nnn \__atableau_set_box_coordinates_conjugate:nnn
-        }
-        {
-            \bool_set_false:N \l__atableau_conjugate_bool
-            \cs_set_eq:NN \__atableau_set_box_coordinates:nnn \__atableau_set_box_coordinates_normal:nnn
-        }
-    },
-    conjugate .default:n = true,
-    conjugate .initial:n = false,
-
     border .bool_set:N = \l__atableau_border_bool,
     border .default:n = true,
     border .initial:n = true,
 
     no~border .bool_set_inverse:N = \l__atableau_border_bool,
     no~border .default:n = true,
-
-    boxes .bool_set:N = \l__atableau_boxes_bool,
-    boxes .default:n = true,
-    boxes .initial:n = true,
-
-    no~boxes .bool_set_inverse:N = \l__atableau_boxes_bool,
-    no~boxes .default:n = true,
 
     % border colours
 
@@ -2943,18 +2911,48 @@
     box~style .code:n = { \__atableau_tikzset_append:nn {boxStyle} {#1} },
     box~style .value_required:n = true,
 
-    inner~colour .tl_set:N = \l__atableau_inner_tl,
-    inner~colour .value_required:n = true,
-    inner~colour .initial:n = aTableauInner,
+    boxes .bool_set:N = \l__atableau_boxes_bool,
+    boxes .default:n = true,
+    boxes .initial:n = true,
 
-    inner~color .tl_set:N = \l__atableau_inner_tl,
-    inner~color .value_required:n = true,
+    no~boxes .bool_set_inverse:N = \l__atableau_boxes_bool,
+    no~boxes .default:n = true,
+
+    conjugate .code:n =
+    {
+        \tl_set:Nx \l_tmpa_tl {\str_lowercase:n {#1}}
+        \str_if_eq:VnTF \l_tmpa_tl {true}
+        {
+            \bool_set_true:N \l__atableau_conjugate_bool
+            \cs_set_eq:NN \__atableau_set_box_coordinates:nnn \__atableau_set_box_coordinates_conjugate:nnn
+        }
+        {
+            \bool_set_false:N \l__atableau_conjugate_bool
+            \cs_set_eq:NN \__atableau_set_box_coordinates:nnn \__atableau_set_box_coordinates_normal:nnn
+        }
+    },
+    conjugate .default:n = true,
+    conjugate .initial:n = false,
+
+    inner~wall .tl_set:N = \l__atableau_inner_tl,
+    inner~wall .value_required:n = true,
+    inner~wall .initial:n = aTableauInner,
 
     inner~style .code:n = { \__atableau_tikzset_append:nn {innerWall} {#1} },
     inner~style .value_required:n = true,
 
-    math~entries .code:n = { \cs_set_eq:NN \__atableau_entry:n \__atableau_entry_math:n },
-    text~entries .code:n = { \cs_set_eq:NN \__atableau_entry:n \__atableau_entry_text:n },
+    % label
+    label .code:n = {
+        \tl_if_in:nnTF {#1} {|}
+        {
+            % unpack the ribbons into \l__atableau_multiribbons_seq
+            \seq_set_split:cnn {l__atableau_multilabel_seq} {|} {#1}
+        }
+        { \tl_set:No \l__atableau_label_tl {#1} }
+    },
+
+    label~style .code:n = { \__atableau_tikzset_append:nn {labelStyle} {#1} },
+    label~style .value_required:n = true,
 
     % -- paths ---------------------------------------
     paths .code:n = { \__atableau_set_multiseq_key:nn {paths} {#1} },
@@ -3023,27 +3021,26 @@
     no~skew~border .bool_set_inverse:N = \l__atableau_skew_border_bool,
     no~skew~border .default:n = true,
 
-    skew colour .tl_set:N = \l__atableau_skew_border_tl,
-    skew color .tl_set:N = \l__atableau_skew_border_tl,
-    skew colour .initial:n = aTableauSkew,
-
     skew~border~style .code:n = { \__atableau_tikzset_append:nn {skewBorder} {#1} },
     skew~border~style .value_required:n = true,
 
     skew~boxes .bool_set:N = \l__atableau_skew_boxes_bool,
-    no~skew~boxes .bool_set_inverse:N = \l__atableau_skew_boxes_bool,
     skew~boxes .default:n  = true,
     skew~boxes .initial:n  = false,
 
+    no~skew~boxes .bool_set_inverse:N = \l__atableau_skew_boxes_bool,
+
     skew~box~style .code:n = { \__atableau_tikzset_append:nn {skewBox} {#1} },
     skew~box~style .value_required:n = true,
+
+    skew colour .tl_set:N = \l__atableau_skew_border_tl,
+    skew color .tl_set:N = \l__atableau_skew_border_tl,
+    skew colour .initial:n = aTableauSkew,
 
     tabloid .bool_set:N = \l__atableau_tabloid_bool,
     tabloid .initial:n  = false,
 
     % -- multitableaux and multidiagrams --------------------
-    empty .tl_set:N = \l__atableau_empty_tl,
-    empty .initial:n = \textendash,
 
     delimiters .code:n = { \__atableau_set_delimiters:nn #1 },
     delimiters .value_required:n = true,
@@ -3054,6 +3051,9 @@
 
     right~delimiter .tl_set:N = \l__atableau_right_delimiter_tl,
     right~delimiter .value_required:n = true,
+
+    empty .tl_set:N = \l__atableau_empty_tl,
+    empty .initial:n = \textendash,
 
     separators .bool_set:N = \l__atableau_separators_bool,
     separators .default:n = true,
@@ -3169,12 +3169,12 @@
     tick .tl_set:N = \l__atableau_tick_tl, % tick colour
     tick .initial:n = aTableauInner,
 
-    tick~style .code:n = { \__atableau_tikzset_append:nn {tickStyle} {#1} },
-    tick~style .value_required:n = true,
-
     tick~length .code:n = { \fp_set:Nn \l__atableau_tick_length_fp {#1/2} }, % (half) tick width separation
     tick~length .value_required:n = true,
     tick~length .initial:n = 0.1,
+
+    tick~style .code:n = { \__atableau_tikzset_append:nn {tickStyle} {#1} },
+    tick~style .value_required:n = true,
 }
 
 
