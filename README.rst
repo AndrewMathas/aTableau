@@ -6,12 +6,6 @@
 aTableau
 ========
 
-*This version of the package is already quite powerful, but it is still
-in the proof-of-concept phase. There are still bugs and some commands
-are not yet documented.  Several planned features have not been
-implemented. Everything is subject to change. Comments and suggestions
-are welcome.*
-
 A LaTeX package for symmetric group combinatorics, including:
     - Young diagrams
     - tableaux
