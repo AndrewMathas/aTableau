@@ -1,0 +1,13 @@
+#! /usr/bin/env bash
+
+# script to create tar file to upload to ctan
+
+CTANIFY="/Library/TeX/texbin/ctanify"
+
+$CTANIFY -no-tds atableau.{ini,sty,pdf,tex} README.md
+
+echo "Check version, release date and the copyright years in atableau.sty"
+
+ag "@version" atableau.sty | ag def
+ag "@release" atableau.sty | ag def
+ag "2022" atableau.sty | ag C

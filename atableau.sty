@@ -1,6 +1,6 @@
 % ---------------------------------------------------------------------------
 %
-% atableau - Andrew Mathas (c) 2022-2024
+% atableau - Andrew Mathas (C) 2022-2025
 %
 %  A latex package for symmetric group combinatorics, including:
 %    - abacuses
@@ -28,7 +28,7 @@
 
 % ---------------------------------------------------------------------------
 % package date and version
-\def\atableau@version{2.0.1}
+\def\atableau@version{2.0.2}
 \def\atableau@release{2025-01-22}
 
 \providecommand\DeclareRelease[3]{}
@@ -586,39 +586,33 @@
 
 % ---------------------------------------------------------------------------
 % command variants
-% TODO: prune the variants that are not used
 
 \cs_generate_variant:Nn \fp_add:Nn {NV}
 \cs_generate_variant:Nn \int_set:Nn {No}
-\cs_generate_variant:Nn \int_while_do:nNnn {oNon}
-\cs_generate_variant:Nn \msg_warning:nnn {nno}
 \cs_generate_variant:Nn \seq_put_right:Nn {Nx}
-\cs_generate_variant:Nn \seq_set_item:Nnn {Nno, NVV,Nox, NVx, Nnx}
-\cs_generate_variant:Nn \seq_set_from_clist:Nn {No, co}
+\cs_generate_variant:Nn \seq_set_item:Nnn {NVx, Nnx, Nox}
+\cs_generate_variant:Nn \seq_set_from_clist:Nn {co}
 \cs_generate_variant:Nn \seq_set_split:Nnn {cnn}
 
 \cs_generate_variant:Nn \__atableau_add_ribbon:n {V}
 \cs_generate_variant:Nn \__atableau_count_row:n {x}
-\cs_generate_variant:Nn \__atableau_create_coordinate:nn {VV, Vo, Vn}
-\cs_generate_variant:Nn \__atableau_draw_tableau:n {V,x}
+\cs_generate_variant:Nn \__atableau_draw_tableau:n {V}
 \cs_generate_variant:Nn \__atableau_entry:n {x}
 \cs_generate_variant:Nn \__atableau_draw_abacus_end:nnn {noo}
-\cs_generate_variant:Nn \__atableau_set_bead_coordinates:nnn {nVV, nnV, nno, noo, non, noV}
-\cs_generate_variant:Nn \__atableau_set_box_coordinates:nnn {nVV, nVn, nVo, nnV, noo, nVe}
+\cs_generate_variant:Nn \__atableau_set_bead_coordinates:nnn {nVV, nnV, noo, non, noV}
+\cs_generate_variant:Nn \__atableau_set_box_coordinates:nnn {nVV, nVn, noo }
 \cs_generate_variant:Nn \__atableau_set_partition:nn {no}
-\cs_generate_variant:Nn \__atableau_set_style:nn {nV}
-\cs_generate_variant:Nn \__atableau_tl_put_right_braced:Nn { NV, cV, cv, Nx, cx, No, Ne }
+\cs_generate_variant:Nn \__atableau_tl_put_right_braced:Nn { NV, Nx, No, Ne }
 
 % ---------------------------------------------------------------------------
 % utility functions
 
-% usage: \__atableau_tl_put_right_braced:Nn
-% Add DOUBLE braces around it's argument
+% usage: \__atableau_tl_put_right_braced:Nn #1 #2
+% Add braces around #2 and append to #1
 \cs_new_protected:Nn \__atableau_tl_put_right_braced:Nn
 {
   \tl_put_right:Nn #1 { {#2} }
 }
-
 
 % ---------------------------------------------------------------------------
 % expandable residue functions
@@ -672,7 +666,7 @@
 }
 
 % usage: \__atableau_residue_D:nn
-% Computes the residue of #1  in affine type C. When e=3 this residue pattern is
+% Computes the residue of #1 in affine type C. When e=3 this residue pattern is
 %    0 1 2 3 3 2 1 0 0 1 2 3 3 2 1 0 0 1 ...
 % As with \int_mod:n, the result is left in the input stream.
 \cs_new:Npn \__atableau_residue_DD:nn #1 #2
@@ -1122,7 +1116,7 @@
         \int_set:Nn \l__atableau_row_int {\l_tmpa_tl}
         \int_set:Nn \l__atableau_r_int {\l__atableau_row_int+1}
 
-        % LaTeX3 does not provide \seq_if_in_p:NNTF, so ...
+        % LaTeX3 does not provide \seq_if_in_p:NN, so ...
         \bool_set_true:N \l_tmpa_bool
         \bool_do_while:nn { \l_tmpa_bool }
         {
@@ -1209,7 +1203,6 @@
     % we use \seq_map_inline:Nn and then compare ##1 with \l__atableau_c_int to
     % determine if this is a new column.
 
-
     % conjugate partition and skew shape
     \__atableau_compute_conjugate_partition:N \l__atableau_skew_seq
     \seq_set_eq:NN \l_tmpa_seq \l__atableau_conjugate_seq % \l_tmpa_seq is the conjugate skew
@@ -1224,7 +1217,7 @@
         \int_set:Nn \l__atableau_col_int {\l_tmpa_tl}
         \int_set:Nn \l__atableau_c_int {\l__atableau_col_int+1}
 
-        % LaTeX3 does not provide \seq_if_in_p:NNTF, so ...
+        % LaTeX3 does not provide \seq_if_in_p:NN, so ...
         \bool_set_true:N \l_tmpa_bool
         \bool_do_while:nn { \l_tmpa_bool }
         {
@@ -1349,7 +1342,7 @@
 % usage: \__atableau_add_row_ends: increment the (xa,ya) and (xb,yb) coordinates down
 % one row and add the lines at the left and right hand ends of the row to
 % \l__atableau_border_tl. If this is a tabloid then we only want to add the
-% coordinates but otherwise we joint them up
+% coordinates but otherwise we join them up
 \cs_new_protected:Nn \__atableau_add_row_ends:
 {
     \bool_if:NTF \l__atableau_conjugate_bool
@@ -1583,7 +1576,7 @@
 \cs_set_eq:NN \__atableau_entry:n \__atableau_entry_math:n
 
 % usage: \__atableau_draw_entry:nn [style] {entry}
-% Used by draw_tableau to draw a node entry #2 in the tableau using the style #1
+% Used by draw_tableau to draw the node entry #2 in the tableau using the style #1
 \cs_new_protected:Npn \__atableau_draw_entry:nn [#1] #2
 {
     % exit when we reach the end of the row
@@ -1616,15 +1609,6 @@
     \__atableau_peek_tableau:w
 }
 
-% usage: \__atableau_create_coordinate:nn {row} {col}
-% Here <row> and <col>
-\cs_new_protected:Npn \__atableau_create_coordinate:nn #1 #2
-{
-    \__atableau_set_box_coordinates:nnn {l} {#1} {#2}
-    \coordinate(\l__atableau_name_tl) at (\fp_use:N\l__atableau_xl_fp,\fp_use:N\l__atableau_yl_fp);
-}
-
-
 % ---------------------------------------------------------------------------
 % diagrams
 
@@ -1648,7 +1632,7 @@
 
     % depending on \l__atableau_show_tl, generate the tableau entries
     \str_case:VnF \l__atableau_show_tl
-    { % TODO: find a better syntax
+    {
         {contents} { \__atableau_shape_to_content:N  \l__atableau_shape_seq }
         {last}     { \__atableau_shape_to_last:N     \l__atableau_shape_seq }
         {hooks}    { \__atableau_shape_to_hook:N     \l__atableau_shape_seq }
@@ -2593,7 +2577,7 @@
         \int_set:Nn \l__atableau_col_int {\l_tmpa_tl}
         \int_set:Nn \l__atableau_c_int {\l__atableau_col_int+1}
 
-        % LaTeX3 does not provide \seq_if_in_p:NNTF, so ...
+        % LaTeX3 does not provide \seq_if_in_p:NN, so ...
         \bool_set_true:N \l_tmpa_bool
         \bool_do_while:nn { \l_tmpa_bool }
         {
@@ -2677,7 +2661,7 @@
           \int_set:Nn \l__atableau_row_int {\l_tmpa_tl}
           \int_set:Nn \l__atableau_r_int {\l__atableau_row_int+1}
 
-          % LaTeX3 does not provide \seq_if_in_p:NNTF, so ...
+          % LaTeX3 does not provide \seq_if_in_p:NN, so ...
           \bool_set_true:N \l_tmpa_bool
           \bool_do_while:nn { \l_tmpa_bool }
           {
@@ -3327,7 +3311,7 @@
 
 % ---------------------------------------------------------------------------
 %
-% Copyright (C) 2022-24 by Andrew Mathas <andrew.mathas@gmail.com>
+% Copyright (C) 2022-25 by Andrew Mathas <andrew.mathas@gmail.com>
 %
 % This work may be distributed and/or modified under the
 % conditions of the LaTeX Project Public License (LPPL), either
@@ -3340,9 +3324,11 @@
 % Andrew Mathas.
 %
 % This package consists of the files:
+%       atableau.ini
+%       atableau.pdf
 %       atableau.sty
 %       atableau.tex
-%       README.rst
+%       README.md
 %
 % ---------------------------------------------------------------------------
 
