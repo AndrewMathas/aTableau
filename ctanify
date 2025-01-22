@@ -4,7 +4,7 @@
 
 CTANIFY="/Library/TeX/texbin/ctanify"
 
-$CTANIFY -no-tds atableau.{ini,sty,pdf,tex} README.md
+$CTANIFY -no-tds atableau.{ini,sty,pdf,tex} README.md LICENSE
 
 echo "Check version, release date and the copyright years in atableau.sty"
 
