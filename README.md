@@ -3,9 +3,9 @@
 ![LaTeX](https://img.shields.io/badge/LaTeX-008080?logo=latex&logoColor=fff&style=flat)
 
 # aTableau
+1
 
-
-A LaTeX package for symmetric group combinatorics, including:
+A LaTeX package for symmetric group combinatorics, with commands for:
 
   -   Young diagrams
   -   tableaux
@@ -30,3 +30,16 @@ A LaTeX package for symmetric group combinatorics, including:
 \Abacus[rows=3, abacus ends=..]{3}{0,2,3,4,5}
 \Abacus{3}{0,2,3,4,5}
 ```
+
+### Dependencies
+[LaTeX3](https://www.latex-project.org/latex3/) and [TikZ](https://tikz.net/)
+
+## Author
+Andrew Mathas 
+
+## Licence
+LPPL Version 1.3  2003-12-01
+
+## Repository
+[github.com/AndrewMathas/aTableau/](github.com/AndrewMathas/aTableau/)
+
