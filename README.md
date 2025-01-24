@@ -3,18 +3,17 @@
 ![LaTeX](https://img.shields.io/badge/LaTeX-008080?logo=latex&logoColor=fff&style=flat)
 
 # aTableau
-1
 
 A LaTeX package for symmetric group combinatorics, with commands for:
 
-  -   Young diagrams
-  -   tableaux
-  -   tabloids
-  -   skew tableaux
-  -   shifted tableaux
-  -   ribbon tableaux
-  -   multitableaux
-  -   abacuses
+  - Young diagrams
+  - tableaux
+  - tabloids
+  - skew tableaux
+  - shifted tableaux
+  - ribbon tableaux
+  - multitableaux
+  - abacuses
 
 ``` latex
 \Tableau{12345,678,9{10},{11}}

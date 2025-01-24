@@ -4,7 +4,16 @@
 
 CTANIFY="/Library/TeX/texbin/ctanify"
 
-$CTANIFY -no-tds atableau.{ini,sty,pdf,tex} README.md LICENSE
+
+TAR=$(tar --version)
+GTAR=$(tar --version)
+
+if [[ "$TAR" != "$GTAR" ]]
+then
+  echo "WARNING: tar is not gnu-tar!"
+fi
+
+$CTANIFY --no-tds atableau.{ini,sty,pdf,tex} README.md LICENSE
 
 echo "Check version, release date and the copyright years in atableau.sty"
 

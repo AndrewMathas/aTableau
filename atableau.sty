@@ -17,10 +17,10 @@
 % See http://www.latex-project.org/lppl.txt
 
 % ---------------------------------------------------------------------------
+
 % load TikZ early to avoid \ExplSyntaxOn...\ExplSyntaxOff wrappers
 \RequirePackage{tikz}
 \usetikzlibrary{shapes.geometric,matrix}
-
 
 % Correct for negative signs in contents being too long to fit in a tableau
 \RequirePackage{amsfonts} %% <- also included by amssymb
@@ -28,8 +28,8 @@
 
 % ---------------------------------------------------------------------------
 % package date and version
-\def\atableau@version{2.0.2}
-\def\atableau@release{2025-01-22}
+\def\atableau@version{2.1.0}
+\def\atableau@release{2025-01-24}
 
 \providecommand\DeclareRelease[3]{}
 \providecommand\DeclareCurrentRelease[2]{}
@@ -38,6 +38,20 @@
 
 \ProvidesExplPackage{atableau} {\atableau@release} {\atableau@version}
   {A latex package for symmetric group combinatorics }
+
+
+% Give a warning if the LaTeX installation is older than TeXLive 2024
+\IfFormatAtLeastTF { 2024-04-13 } {}
+{
+    \PackageWarning {aTableau}
+    {
+      The~aTableau~package~uses~many~recent~features~from~
+      ~LaTeX3.~Your~LaTeX ~installation~appears~to~be~quite~,
+      ~which~might~result~in~errors~from~the ~package.~You~
+      ~may~need~to~update~your~LaTeX~installation~to~at~
+      ~least~TeXLive~2024
+    }
+}
 
 % ---------------------------------------------------------------------------
 % package errors
@@ -127,6 +141,8 @@
 \fp_new:N \l__atableau_box_wd_fp          % width of a tableau box
 \fp_new:N \l__atableau_rows_fp            % number of rows in abacus/tableau
 \fp_new:N \l__atableau_separation_fp      % distance between multitableau
+\fp_new:N \l__atableau_script_fp          % scaling when used as a subscript
+\fp_new:N \l__atableau_sscriptscript_fp   % scaling when used as a subsubscript
 \fp_new:N \l__atableau_tab_col_dx_fp      % change in x-coordinate between columns in a tableau
 \fp_new:N \l__atableau_tab_col_dy_fp      % change in y-coordinate between columns in a tableau
 \fp_new:N \l__atableau_tab_row_dx_fp      % change in x-coordinate between rows in a tableau
@@ -454,6 +470,7 @@
           \fp_set:Nn \l__atableau_box_wd_fp {\l__atableau_xscale_fp*0.5}
           \tl_set:Nn \l__atableau_box_shape_tl {rectangle}
         }
+
       {tableau/french}
         {
           \fp_set:Nn \l__atableau_tab_col_dx_fp {1}
@@ -464,6 +481,7 @@
           \fp_set:Nn \l__atableau_box_wd_fp {\l__atableau_xscale_fp*0.5}
           \tl_set:Nn \l__atableau_box_shape_tl {rectangle}
         }
+
       {tableau/australian}
         {
           \fp_set:Nn \l__atableau_tab_col_dx_fp {0.5}
@@ -474,6 +492,7 @@
           \fp_set:Nn \l__atableau_box_wd_fp {\l__atableau_xscale_fp*0.7012}
           \tl_set:Nn \l__atableau_box_shape_tl {diamond}
         }
+
       {tableau/ukrainian}
         {
           \fp_set:Nn \l__atableau_tab_col_dx_fp {0.5}
@@ -484,10 +503,7 @@
           \fp_set:Nn \l__atableau_box_wd_fp {\l__atableau_xscale_fp*0.7012}
           \tl_set:Nn \l__atableau_box_shape_tl {diamond}
         }
-      {tableau/russian}
-        {
-          \__atableau_set_style:nn {tableau} {ukrainian}
-        }
+
       {abacus/south}
         {
           \fp_set:Nn \l__atableau_ab_col_dx_fp {1}
@@ -498,6 +514,7 @@
           \fp_set:Nn \l__atableau_abacus_wd_fp {\l__atableau_xscale_fp*0.5}
           \tl_set:Nn \l__atableau_bead_shape_tl  {circle}
         }
+
       {abacus/north}
         {
           \fp_set:Nn \l__atableau_ab_col_dx_fp {1}
@@ -508,6 +525,7 @@
           \fp_set:Nn \l__atableau_abacus_wd_fp {\l__atableau_xscale_fp*0.5}
           \fp_set:Nn \l__atableau_abacus_ht_fp {\l__atableau_yscale_fp*0.5}
         }
+
       {abacus/east}
         {
           \fp_set:Nn \l__atableau_ab_col_dx_fp {0}
@@ -518,6 +536,7 @@
           \fp_set:Nn \l__atableau_abacus_wd_fp {\l__atableau_xscale_fp*0.5}
           \fp_set:Nn \l__atableau_abacus_ht_fp {\l__atableau_yscale_fp*0.5}
       }
+
       {abacus/west}
         {
           \fp_set:Nn \l__atableau_ab_col_dx_fp {0}
@@ -2728,7 +2747,7 @@
     align/centre .code:n = { \tikzset{baseline=(current~bounding~box.center)}},
     align/bottom .code:n = { \tikzset{baseline=(current~bounding~box.south)} },
     align/south  .code:n = { \tikzset{baseline=(current~bounding~box.south)} },
-    align .unknown .code:n = { \msg_error:nne { aTableau } { unknown-baseline } {#1} },
+    align .unknown .code:n = { \msg_error:nnn { aTableau } { unknown-baseline } {#1} },
     align .initial:n     = centre,
 
     % set the Cartan type
@@ -2786,6 +2805,15 @@
     % scaling
     scale .code:n = { \__atableau_set_xscale:n {#1} \__atableau_set_yscale:n {#1} },
     scale .value_required:n = true,
+
+    % subscript an subsubscript scalinmg
+    script .fp_set:N = \l__atableau_script_fp,
+    script .value_required:n = true,
+    script .initial:n = 0.5,
+
+    scriptscript .fp_set:N = \l__atableau_scriptscript_fp,
+    scriptscript .value_required:n = true,
+    scriptscript .initial:n = 0.4,
 
     star~style .code:n = { \__atableau_tikzset_append:nn {tableauStarStyle} {#1} },
     star~style .value_required:n = true,
@@ -3186,20 +3214,46 @@
       % keep changes to settings local by working inside a group
       \keys_set:nn {atableau} {#1}
       \IfNoValueTF {#2}
-      { % wrap inside a tikzpicture environment, placing the picture at (0,0)
-        \__atableau_set_origin:nn (0,0)
-        \exp_last_unbraced:Ne \tikz{[\l__atableau_tikzpicture_tl]}
-        {
-          \l__atableau_tikz_before_tl
-          #3
-          \l__atableau_tikz_after_tl
-        }
+      {   % wrap inside a tikzpicture environment, placing the picture at (0,0)
+          \__atableau_set_origin:nn (0,0)
+
+          \mode_if_math:TF
+          {
+              % We want to automatically rescale when used as a subscript, which
+              % we do by putting the tikz code inside a box and then using
+              % \mathchoice to adjust for script size, using an idea of cfr's
+
+              \hbox_set:Nw \l_tmpa_box
+                  \exp_last_unbraced:Ne \tikz{[\l__atableau_tikzpicture_tl]}
+                    { \l__atableau_tikz_before_tl #3 \l__atableau_tikz_after_tl }
+              \hbox_set_end:
+
+              \mathchoice
+              {   % display style: do nothing
+                  \box_use:N \l_tmpa_box
+              }
+              {   % text style: do nothing
+                  \box_use:N \l_tmpa_box
+              }
+              {   % script style: rescale
+                  \box_scale:Nnn \l_tmpa_box {\l__atableau_script_fp*\l__atableau_xscale_fp}
+                                             {\l__atableau_script_fp*\l__atableau_yscale_fp}
+                  \box_use:N \l_tmpa_box
+              }
+              {   % scriptscript style: rescale
+                  \box_scale:Nnn \l_tmpa_box {\l__atableau_scriptscript_fp*\l__atableau_xscale_fp}
+                                             {\l__atableau_scriptscript_fp*\l__atableau_yscale_fp}
+                  \box_use:N \l_tmpa_box
+              }
+          }
+          {   % Not in maths-mode. tcolorbox objects to using a box here
+              \exp_last_unbraced:Ne \tikz{[\l__atableau_tikzpicture_tl]}
+                { \l__atableau_tikz_before_tl #3 \l__atableau_tikz_after_tl }
+          }
       }
       { % already inside a tikzpicture environment
         \__atableau_set_origin:nn (#2)
-        \l__atableau_tikz_before_tl
-        #3
-        \l__atableau_tikz_after_tl
+        \l__atableau_tikz_before_tl #3 \l__atableau_tikz_after_tl
       }
     \group_end:
 }
@@ -3295,11 +3349,11 @@
 % ---------------------------------------------------------------------------
 % CHANGE LOG
 %
-% Version 1.0
+% Version 1.0.0 - 2023-10-06
 %  - initial version
 %  - Young diagrams, tabloids, tableaux, shifted tableaux, Ukrainian tableaux, abacuses, braids
 %
-% Version 2.0
+% Version 2.0.0 - 2025-01-22
 %  - completely rewritten using LaTeX3
 %  - key interface for the tableaux options
 %  - macros can be used both in and outside tikzpicture environments
@@ -3307,6 +3361,10 @@
 %  - support for different conventions (english, french, ukrainian, australian)
 %  - support diagrams, tableaux, including tabloids, skew and shifted tableaux and ribbon tableaux
 %  - stars and styles
+%
+% Version 2.1.0 - 2025-01-24
+%  - support for using aTableau commands in super and subscripts
+
 
 % ---------------------------------------------------------------------------
 %
