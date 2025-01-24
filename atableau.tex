@@ -1,6 +1,6 @@
 % ----------------------------------------------------------------------
 % Title:    aTableau.  Author:   Andrew Mathas Created:  October 2023
-% Modified: 22:42 Wednesday, 22 January 2025
+% Modified: 16:58 Friday, 24 January 2025
 % ----------------------------------------------------------------------
 \documentclass{amsart}
 \usepackage[svgnames,table]{xcolor}
@@ -8,6 +8,7 @@
 \usepackage{xspace}
 \usepackage{manfnt}
 \usepackage{booktabs}
+\usepackage{longtable}
 \usepackage{xltabular}
 \usepackage{siunitx}
 \usepackage{array}
@@ -41,23 +42,35 @@
   \tikz[baseline={(current bounding box.south)}]\node[minimum width=8mm, minimum height=2ex,fill=aTableau#1]{};%
 }
 
-\usepackage{enumitem}
-\setlist{itemsep=2mm, parsep=2mm}
-\newlist{options}{description}{1}
-% remove the colon from the description label by redefining \makelabel
-\newcommand\optionlabel[1]{\sffamily\bfseries\color{aTableauInner}#1\hss}
-\setlist[options]{
-  before=\let\makelabel\optionlabel,
-  labelwidth=\textwidth,
-  nosep,
+\ExplSyntaxOn
+% \optionlabel applies \option to the csv in #1 except in the case
+% when #1 starts with a * when the rest of #1 is printed
+\NewDocumentCommand\optionlabel{ m }
+{
+    \str_if_eq:eeTF { \str_head:n {#1} } {*}
+    {
+        \tl_set:Nx \l_tmpb_tl { \str_tail:n {#1} }
+        \tl_put_left:Nn \l_tmpb_tl {\sffamily\color{aTableauInner}}
+    }
+    {
+        \tl_clear:N \l_tmpa_tl
+        \tl_clear:N \l_tmpb_tl
+        \clist_map_inline:nn {#1}
+        {
+            \tl_put_right:Ne \l_tmpb_tl { \l_tmpa_tl \exp_not:N\option{##1}}
+            \tl_set:Nn \l_tmpa_tl {,~}
+        }
+    }
+    \l_tmpb_tl\hss
 }
 
-\ExplSyntaxOn
-\NewDocumentCommand\Yes{o}
+\NewDocumentCommand\Yes{o d()}
 {
   \IfNoValueTF{#1}
   {
-    \hyperref[\g_lastlink_tl]{\textcolor{ForestGreen}{\CheckmarkBold}}
+    \IfNoValueTF{#2}
+    { \hyperref[\g_lastlink_tl]{\textcolor{ForestGreen}{\CheckmarkBold}} }
+    { \hyperref[Key:#2]{\textcolor{ForestGreen}{\CheckmarkBold}} }
   }
   {
     \hyperref[\g_lastlink_tl-\str_lowercase:f{#1}]{\textcolor{ForestGreen}{\CheckmarkBold}}
@@ -76,7 +89,7 @@
       \prop_put:NVn \l__atableau_options_prop \g_lastlink_tl {}
    }
 }
-% \option*[default value]{option name}[accepted values]<hyperlink context>
+% \option*[default value]{option name}[accepted values]<hyperlink context>(link name)
 % The \option command is slightly overloaded, both in terms of arguments
 % (there are five) and in terms of use.
 % 1. If #2 is given then \option gives the syntax for the using this key:
@@ -98,7 +111,7 @@
 % added for new displayed options. If #2 is blank then the *-version
 % puts (no) before the option key. If #5 is given then it is added to
 % to the hyperlink.
-\NewDocumentCommand\option{ somo d<> }
+\NewDocumentCommand\option{ somo d<> d()}
 {%
   \seq_set_split:Nnn \l_tmpa_seq {=} {#3}%
   \seq_pop_left:NN \l_tmpa_seq \l_tmpa_tl%
@@ -107,8 +120,12 @@
   { \tl_set:No \l_tmpb_tl { \seq_use:Nn \l_tmpa_seq {=} } }
   \IfNoValueTF{#2}
   {%
-    \tl_gset:Nx \g_lastlink_tl {Key:\str_lowercase:f{\l_tmpa_tl}}
-    \IfNoValueF{#5} { \tl_gput_right:No \g_lastlink_tl {\str_lowercase:f{-#5}} }
+    \IfNoValueTF{#6}
+    {
+      \tl_gset:Nx \g_lastlink_tl {Key:\str_lowercase:f{\l_tmpa_tl}}
+      \IfNoValueF{#5} { \tl_gput_right:No \g_lastlink_tl {\str_lowercase:f{-#5}} }
+    }
+    { \tl_gset:Ne \g_lastlink_tl {Key:#6} }
     \hyperref[\g_lastlink_tl]{\textsf{\color{aTableauInner}\IfBooleanT{#1}{(no)~}\l_tmpa_tl}}
     \index{\l_tmpa_tl}%
     \tl_if_empty:NF \l_tmpb_tl { \textsf{\,$=$\,}\textsf{\textcolor{orange}{\l_tmpb_tl}} }
@@ -214,6 +231,17 @@
         }
 }
 \ExplSyntaxOff
+
+% ---------------------------------------------------------------------------
+\usepackage{enumitem}
+\setlist{itemsep=2mm, parsep=2mm}
+\newlist{options}{description}{1}
+% remove the colon from the description label by redefining \makelabel
+\setlist[options]{
+  before=\let\makelabel\optionlabel,
+  labelwidth=\textwidth,
+  nosep,
+}
 
 % ---------------------------------------------------------------------------
 % the index
@@ -434,9 +462,10 @@
     sharp corners=northwest,
     sharp corners=southeast,
   },
+  title={\tiny\thetcbcounter},
   sharp corners=northeast,
   parbox=false,
-  lefthand width=0.35\textwidth,
+  lefthand width=0.34\textwidth,
   listing style=atableau,
   parbox=false,
   parskip=4mm
@@ -447,11 +476,10 @@
   text outside listing,
   boxsep = 0pt,
   left=0mm,
-  right=2mm,
-  title={\tiny\thetcbcounter},
   #1
 }
 
+\let\thetcolorboxnumber\relax
 
 \DeclareTCBListing[use counter=examples, number within=subsection,%crefname={Example}{Examples}
 ]{Example}{ !O{} }{%
@@ -567,7 +595,7 @@
 \def\equationautorefname~#1\null{(#1)\null}
 \renewcommand\sectionautorefname{Chapter}
 \renewcommand\subsectionautorefname{Section}
-\renewcommand\subsubsectionautorefname{Subsection}
+\def\subsubsectionautorefname~#1\null{\S#1\null}
 
 \begin{document}
 
@@ -657,27 +685,26 @@
 
   \begin{center}
       \aTabset{align=centre}
-      \begin{tabular}{lp{0.6\textwidth}l} \toprule
+      \begin{longtable}{lp{0.6\textwidth}l} \toprule % longtable allows footnotes
         \textcolor{aTableauMain}{Convention} &\textcolor{aTableauMain}{\aTableau command} & \textcolor{aTableauMain}{Picture} \\ \midrule
           English    & \keyword{\Tableau[english]{1234,567,89{10},{11}{12}}}\newline(the default)
                      & \Tableau{1234,567,89{10},{11}{12}}\\[10mm]
           French     & \keyword{\Tableau[french]{1234,567,89{10},{11}{12}}}
                      & \Tableau[french]{1234,567,89{10},{11}{12}}\\[10mm]
-          Ukrainian\footnotemark
+          Ukrainian
+          \footnote{Some authors call this the Russian convention. The \option{russian}(ukrainian) key may also be used.}
                      & \keyword{\Tableau[ukrainian]{1234,567,89{10},{11}{12}}}
                      & \Tableau[ukrainian]{1234,567,89{10},{11}{12}}\\[10mm]
-          Australian\footnotemark
+          Australian
+          \footnote{I have not seen a name for this convention in the literature. Calling this the \textit{Australian convention} seems apt.}
                      & \keyword{\Tableau[australian]{1234,567,89{10},{11}{12}}}
                      & \Tableau[australian]{1234,567,89{10},{11}{12}} \\[10mm]
           \bottomrule
-      \end{tabular}
+      \end{longtable}
       \index{english@English}
       \index{french@French}
       \index{ukrainian@Ukrainian}
       \index{australian@Australian}
-      \footnotetext[1]{Some authors call this the Russian convention.}
-      \footnotetext[2]{I have not seen a name for this convention in the literature. Calling this the
-      \textit{Australian convention} seems apt.}
   \end{center}
 
   This table shows how the commands provided by \aTableau work: there
@@ -742,8 +769,8 @@
   example, it is not possible to use named or polar coordinates.}
   are optional, being necessary if (and only if), the diagram is part of
   a~\keyword{tikzpicture} environment. See \autoref{SS:coordinates} and
-  \autoref{SS:abcoordinates} for more detail about how these coordinates
-  work for tableaux and abacuses, respectively.
+  \autoref{SS:abcoordinates} for more detail about how to use these coordinates
+  for tableaux and abacuses, respectively.
 
   The key-value \emph{options}, or \emph{keys}, control the style and
   appearance of the final diagram. The keys are optional and are
@@ -758,8 +785,8 @@
   Many of the \aTableau options are specific to the particular diagrams
   being drawn. The full list of the \aTableau commands and their options
   is given in \autoref{S:keys}, with the following sections giving more
-  details and many examples.  The following options are common to all
-  \aTableau commands.
+  details and many examples. The keys that are common to all
+  \aTableau commands are:
 
   \begin{options}
     \item[align]\index{align}
@@ -777,11 +804,14 @@
     Set the prefix for the \TikZ \emph{named anchors} for the boxes and
     beads in \aTableau diagrams.
 
-    \item[scale, xscale,
-    yscale]\index{scale}\index{xscale}\index{yscale}
+    \item[scale, xscale, yscale, script, scriptscript]
+    \index{scale}\index{xscale}\index{yscale}\index{script}\index{scriptscript}
     Use \option{scale} to rescale all \aTableau diagrams. Use
     \option{xscale} to rescale in the $x$-direction and \option{yscale}
-    to rescale in the $y$-direction.
+    to rescale in the $y$-direction. The \option{script} and
+    \option{scriptscript} keys can be used to fine-tune the size of
+    \aTableau commands when used as subscripts (rare) and subsubscripts
+    (unlikely).
 
     \item[styles]\index{styles}
     A short-hand for defining single-use \TikZ-styles for the current
@@ -847,10 +877,19 @@
   The first diagram shows that most of the right-hand diagram is drawn
   by the~\keyword{\Diagram} command, even though most of the commands in
   the example are \TikZ commands. In particular, the shading of the
-  boxes in the \emph{$(1,2)$-hook} and \emph{$(1,2)$-rim hook} is done
-  by the \option{ribbons} key. (In fact, the right-hand picture could be
-  drawn without using a \keyword{tikzpicture} environment by using
-  the \option{tikz after} key to add the \keyword{\draw}-commands.)
+  boxes in the \emph{$(1,2)$-hook}, and the \emph{$(1,2)$-rim hook}, is
+  done by the \option{ribbons} key. (In fact, the right-hand picture
+  could be drawn without using a \keyword{tikzpicture} environment by
+  using the \option{tikz after} key to add the three
+  \keyword{\draw}-commands.)
+
+  \begin{warning}
+     Unlike the \TikZ-commands, you should \emph{not} put a semicolon
+     after an \aTableau-command when it is used inside a
+     \keyword{tikzpicture} environment. If you accidentally add a
+     semicolon then, most of the time it will not cause any harm and
+     \TikZ will just give you a warning.
+  \end{warning}
 
   The top of the last example defines two \TikZ-styles, \textsf{B} and
   \text{G}, which add the \textsf{b}lue and \textsf{g}reen coloured
@@ -994,6 +1033,13 @@
   command because all of the diagram and tableau commands, except for
   \keyword{\RibbonTableau}, are derived from \keyword{\Tableau}.
 
+
+  \begin{warning}
+    The \aTableau package relies heavily on \ctan{LaTeX3}, so it
+    requires an update-to-date version of \LaTeX. You may need to update
+    your \LaTeX\ installation if it is older than \TeX Live 2024.
+  \end{warning}
+
   % --------------------------------------------------------------
   \section{Tableaux and Young diagrams}
 
@@ -1048,11 +1094,11 @@
     where:
 
     \begin{options}
-      \item[$(x,y)$]\index{xy@$(x,y)$} The Cartesian coordinates $(x,y)$
+      \item[*$(x,y)$]\index{xy@$(x,y)$} The Cartesian coordinates $(x,y)$
       are needed if, and only if, the tableau is a component of a
       \keyword{tikzpicture} environment.
-      \item[options] Optional arguments. Described, with examples, below.
-      \item[tableau entries]\index{tableau entries} The
+      \item[*options] Optional arguments. Described, with examples, below.
+      \item[*tableau entries]\index{tableau entries} The
       \keyword{tableau entries} are given as a comma-separated list, with commas
       separating rows and each \textit{token}, or braced-group of
       tokens, being in a separate column. As we explain below, each
@@ -1579,7 +1625,7 @@
 
   \index{dashed}
   \index{style!dashed}
-  If you closely at the second tableau in \autoref{Ex:dashed}, you will
+  If you look closely at the second tableau in \autoref{Ex:dashed}, you will
   notice that the dashes are not very clean. This is because, for
   example, the dashes on bottom of one box do not properly match up with
   the dashes on the top of the adjacent box below it. Rather than
@@ -1617,9 +1663,10 @@
   \option[true]{math entries}[true/false]
   \option*[false]{text entries}[true/false]
 
-  Use the \option{math entries} and \option{text entries} to have the
-  tableau entries typeset as either mathematics or text, respectively.
-  By default, the entries of a tableau are typeset as mathematics.
+  Use the \option{math entries} and \option{text entries} keys to have
+  the tableau entries typeset as either mathematics or text,
+  respectively. By default, the entries of a tableau are typeset as
+  mathematics.
 
   \begin{example}
   \Tableau[math entries]{ABCD, efg, HI}\qquad% the default
@@ -1631,14 +1678,14 @@
   By default, the boxes can be referenced using the node names
   \textsf{(A-1-1)}, \textsf{(A-1-2)}, \textsf{(A-1-3)}, \dots, with
   \textsf{(A-$r$-$c$)} referring to the box in row~$r$ and column~$c$.
-  Use the \option{name} key to change the \emph{prefix} \textsf{A} to
+  Use \option{name} to change the \emph{prefix} \textsf{A} to
   anything else that you like.  This feature is most useful when you
   have several tableaux inside a \keyword{tikzpicture} environment
   because by using \option{name} you can refer to boxes in the different
   diagrams. If you only have one tableau, then you would not normally
   need to change the default prefix for the node names. See
-  \autoref{E:NodeNames} for a description of the anchor names. For
-  examples using node names and anchors see \autoref{Ex:ABnames},
+  \autoref{E:NodeNames} for a description of the extended anchor names.
+  For examples using node names and anchors see \autoref{Ex:ABnames},
   \autoref{Ex:pointing} and \autoref{Ex:waves}.
 
   \option[]{paths=path specifications}[list of paths]
@@ -1688,7 +1735,7 @@
   ]{1234,567,89{10}}
   \end{example}
 
-  Use the \option{path box style} to change the style of the boxes in
+  Use \option{path box style} to change the style of the boxes in
   the path.
 
   \begin{example}
@@ -1750,7 +1797,7 @@
     ribbons={22rc}]{123,45,67}
   \end{example}
 
-  Use the \option{ribbon box style} key to change the default style of the
+  Use \option{ribbon box style} to change the default style of the
   boxes in a ribbon. For example, noting that a box is a ribbon of
   length~$1$, the following code uses ribbons of length one (that is,
   nodes), to highlight the addable nodes of this tableau.
@@ -1841,6 +1888,22 @@
     width} options.
   \end{warning}
 
+  \option[0.5]{script=value}[decimal number]
+  \option*[0.4]{scriptscript=value}[decimal number]
+
+  Although rare, tableaux and diagrams are sometimes used as subscripts
+  and superscripts. The pacakage automatically rescales tableau when
+  they are used as subscripts and superscripts, with the \option{script}
+  and \option{scriptscript} keys giving finer control over the scaling
+  of subscripts and subsubscripts, respectively. The current values of
+  the \option{scale}, \option{xscale} and \option{yscale} keys are taken
+  into account.
+
+  \begin{example}
+    $v_{\Tableau{123,45}}$ \qquad% the default
+    $v_{\Tableau[script=0.3, xscale=2]{123,45}}$
+  \end{example}
+
   \option[false]{shifted}[true/false]
 
   Set to \textsf{true} for a shifted tableau or shifted diagram. Shifted
@@ -1856,7 +1919,7 @@
   See \autoref{S:Shifted} for the options specific to shifted tableaux and
   shifted diagrams.
 
-  \option[(0)]{skew=partition}[a partition]
+  \option[0]{skew=partition}[a partition]
 
   Specify the skew shape for a skew tableau or skew diagram. Skew
   tableaux, and skew diagrams, are discussed in more detail in
@@ -1872,7 +1935,7 @@
 
   \option[fill=\aTableauColour{StarStyle}]{star style=style}[\TikZ-styling]
 
-  Use the \option{star style} to add to the style of the starred entries
+  Use \option{star style} to change the style of the starred entries
   of a tableau. (In \TikZ parlance, \option{star style} \emph{appends}
   appends these styles to the default \option{star style}.)
 
@@ -1960,7 +2023,7 @@
   \option{tikzpicture} option is ignored  when the \keyword{\Tableau}
   command is equipped with $(x,y)$-coordinates.
 
-  As a first example, we use \keyword{tikzpicture={rotate=30}}
+  As a first example, we can use \keyword{tikzpicture={rotate=30}}
   to rotate a tableau by 90 degrees:
 
   \begin{example}
@@ -1983,9 +2046,8 @@
   \Tableau[tikzpicture={transform canvas={rotate=90}}]{123,45}
   \end{example}
 
-  A more interesting example is that by using
-  \option{tikzpicture=remember picture} we can add annotations to
-  a tableau. For example, consider:
+  A more interesting application is using
+  \option{tikzpicture=remember picture} to annotate a tableau:
 
   \begin{example}[lefthand width=0.3\textwidth, label={Ex:pointing}]
   \Tableau[ukrainian, name=A,
@@ -2001,7 +2063,7 @@
   \textsf{(A-1-1)}, \textsf{(A-1-2)}, \textsf{(A-1-3)}, \dots. As the
   example uses \textit{remember picture}, other \keyword{tikzpicture}
   environments can reference the node names in last tableau, which
-  allows us to do things like this:
+  allows us to refer back to the table above using:
 
   \vspace*{3mm}
 
@@ -2012,6 +2074,8 @@
         {This circle is too big!\\Use minimum size=5mm}
      to [out=135, in=225](A-3-1);
   \end{example}
+
+  (See the \ctan{tikzmark} package for extensions of this idea.)
 
   % --------------------------------------------------------------
   \subsubsection{Compositions}
@@ -2074,7 +2138,7 @@
   \index{tableau!*}
   \index{tableau![}
 
-  The characters  \textsf{[]}, \textsf{,}, and \textsf{*} have
+  The characters  \textsf{[}, \textsf{,}, and \textsf{*} have
   special meanings in the \textit{tableau specifications}. Enclose these characters in
   braces when you want to use these characters as entries in a tableau:
 
@@ -2083,7 +2147,7 @@
   \end{example}
 
   There is no need to enclose~\keyword{]} in braces because it only
-  becomes special when it is preceded by~\keyword{[}.
+  becomes special when it has a partner~\keyword{[}.
 
   % --------------------------------------------------------------
   \subsection{Young diagrams}
@@ -2101,10 +2165,10 @@
   \Tableau{~~~,~~~,~~,~}
   \end{example}
 
-  This approach works, but it is cumbersome, hard to proofread, and easy to miscount.
-  For this reason, \aTableau provides the \keyword{\Diagram} command.  The
-  \keyword{\Diagram} command uses almost the same syntax as the
-  \keyword{\Tableau} command:
+  This approach works, but it is cumbersome, hard to proofread, and easy
+  to get wrong.  For this reason, \aTableau provides the
+  \keyword{\Diagram} command.  The \keyword{\Diagram} command uses
+  almost the same syntax as the \keyword{\Tableau} command:
 
   \keyword{\Diagram (x,y) [options] {partition}}
 
@@ -2430,7 +2494,7 @@
   \end{example}
 
   \end{itemize}
-  Use the \option{charge} key to add offsets to the \option{contents} and \option{residues}.
+  Use \option{charge} to add offsets to the \option{contents} and \option{residues}.
 
   \begin{example}
   \Diagram[entries=contents, charge=2]{3,2,1} \qquad
@@ -2896,11 +2960,11 @@
   \option[draw=\aTableauColour{Inner}, thin]{ribbon style=style}{\TikZ-styling}
   \option*[]{ribbon box style=style}{\TikZ-styling}
 
-  Use the \option{ribbon style} and \option{ribbon box} options to
-  append to the default styling of the ribbons and the boxes in the
-  ribbons, respectively. By default, the full ribbons has an inner wall,
-  but the boxes in ribbons have no styling. If you want inner walls,
-  then they can be added using the \option{ribbon box} key.
+  Use the \option{ribbon style} and \option{ribbon box} keys to
+  append to the default styling of the ribbons, and the boxes in the
+  ribbons, respectively. By default, the full ribbon has inner wall
+  styling, but the boxes in ribbons have no styling. If you want inner
+  walls, then they can be added using the \option{ribbon box} key.
 
   \begin{example}
   \RibbonTableau[ribbon style={draw=red, thick,
@@ -3079,6 +3143,11 @@
   \Multidiagram[empty=$\emptyset$]{ 3,2 | | 2^2 }
   \end{example}
 
+  \begin{warning}
+    By default, the \option{empty} key is typeset as text and \emph{not}
+    as mathematics, which is the default for the tableau boxes.
+  \end{warning}
+
   \option[]{entries=value}[contents, first, hooks, last, residues]<multitableau>
   \option*[]{charge=offsets}[$|$-separated list of charges]<multitableau>
 
@@ -3100,8 +3169,8 @@
   The \option{entries} key automatically fills in particular types of
   entries for you to draw the requested tableau of the specified shape.
   Use \option{charge} to provide offsets in each component when using
-  \option{entries=contents} and \option{entries=residues} (and no charge
-  should be set when using \option{entries=first} and
+  \option{entries=contents} and \option{entries=residues} {(}the
+  \option{charge} is ignored when using \option{entries=first} and
   \option{entries=last}).
 
   \nopagebreak[0]
@@ -3170,7 +3239,7 @@
 
   \option[]{label=labels}[a $|$-separated list of labels]
 
-  Use the \option{label} key to add labels to the component diagrams.
+  Use \option{label} to add labels to the component diagrams.
 
   \begin{example}
     \Multitableau[label={1|2}]{123,45,67|{12}{14}}
@@ -3339,7 +3408,7 @@
   The \keyword{\Multitableau} and \keyword{\Multidiagram} commands try
   to draw the diagrams as compactly as possible with their first rows
   aligned, and the distance between the separators given by the value of
-  \option{separation}. Use the \option{xoffsets} to offset the
+  \option{separation}. Use \option{xoffsets} to offset the
   $x$-coordinates of the component diagrams and \option{yoffsets} to
   offset their $y$-coordinates.
 
@@ -3547,12 +3616,12 @@
 
   \begin{quote}
     \begin{options}[labelwidth=1em, nosep]
-      \item[$-$] Adds a line that extends slightly past the first and last runners
-      \item[\_\!\_]  Adds a line between the first and last runners
-      \item[.]   Add dots to the end of each runner
-      \item[*]   Add dots and an arrow to the end of each runner
-      \item[$|$] The runners do not have any additional decoration
-      \item[$>$] Add arrows to the end of each runner
+      \item[*$-$] Adds a line that extends slightly past the first and last runners
+      \item[*\_\!\_]  Adds a line between the first and last runners
+      \item[*.]   Add dots to the end of each runner
+      \item[**]   Add dots and an arrow to the end of each runner
+      \item[*$|$] The runners do not have any additional decoration
+      \item[*$>$] Add arrows to the end of each runner
     \end{options}
   \end{quote}
 
@@ -3858,8 +3927,8 @@
   \option[]{rows=row index}[non-negative integer]<abacus>
 
   By default, the \keyword{\Abacus} command uses the smallest number of
-  rows necessary to display all of the beads on the abacus. Use the
-  \option{rows}<abacus> key to change the number of rows displayed. If you use
+  rows necessary to display all of the beads on the abacus. Use
+  \option{rows}<abacus> to change the number of rows displayed. If you use
   the \option{rows}<abacus> key, then it is your responsibility to ensure that
   the abacus has enough rows to display all of the beads.
 
@@ -4151,6 +4220,8 @@
     \option{runner sep}        & Set distance between consecutive abacus runners     & \No  & \Yes \\
     \option{runner style}      & Set the colour of the abacus runners                & \No  & \Yes \\
     \option{scale}             & Sets the \aTableau scale                            & \Yes & \Yes[abacus] \\
+    \option{script}            & Sets the \aTableau scale for subscripts             & \Yes & \Yes(scale-abacus) \\
+    \option{scriptscript}      & Sets the \aTableau scale for subsubscripts          & \Yes & \Yes(scale-abacus) \\
     \option{separation}        & Set distance between components in multitableau     & \Yes & \No \\
     \option{separator colour}  & Set separator colour for multitableau               & \Yes & \No \\
     \option{separator}         & Set separator colour in multitableau                & \Yes & \No \\
@@ -4180,9 +4251,9 @@
     \option{valign}            & Set vertical alignment                              & \Yes & \Yes[abacus] \\
     \option{west}              & Make abacus grow in the westerly direction          & \Yes & \No \\
     \option{xoffsets}          & Set $x$-offsets for components in a multitableau    & \Yes & \No \\
-    \option{xscale}            & Set \aTableau $x$-scale                             & \Yes & \Yes[abacus] \\
+    \option{xscale}            & Set \aTableau $x$-scale                             & \Yes & \Yes(scale-abacus) \\
     \option{yoffsets}          & Set $y$-offsets for components in a multitableau    & \Yes & \No \\
-    \option{yscale}            & Set \aTableau $y$-scale                             & \Yes & \Yes[abacus] \\
+    \option{yscale}            & Set \aTableau $y$-scale                             & \Yes & \Yes(scale-abacus) \\
     \bottomrule
   \end{xltabular}
 
@@ -4287,6 +4358,17 @@
   should give the error. This is necessary because if I cannot reproduce
   your problem, then it is unlikely that I will be able to fix it.
 
+
+  % --------------------------------------------------------------
+  \subsection*{Acknowledgements}
+
+  Several features in the package have benefited from discussions on
+  \url{tex.stackexchange}. In particular, I thank
+    Max Chernoff,
+    Lars Madsen,
+    Clea F. Rees,
+  and
+    Jonathan P. Spratte.
 
 % ----------------------------------------------------------------------
 % bibliography
