@@ -37,7 +37,7 @@ A LaTeX package for symmetric group combinatorics, with commands for:
 Andrew Mathas 
 
 ## Licence
-LPPL Version 1.3  2003-12-01
+LPPL Version 1.3c  2008-05-04
 
 ## Repository
 [github.com/AndrewMathas/aTableau/](github.com/AndrewMathas/aTableau/)
