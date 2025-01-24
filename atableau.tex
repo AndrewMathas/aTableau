@@ -1,6 +1,6 @@
 % ----------------------------------------------------------------------
 % Title:    aTableau.  Author:   Andrew Mathas Created:  October 2023
-% Modified: 16:58 Friday, 24 January 2025
+% Modified: 10:58 Saturday, 25 January 2025
 % ----------------------------------------------------------------------
 \documentclass{amsart}
 \usepackage[svgnames,table]{xcolor}
@@ -49,7 +49,7 @@
 {
     \str_if_eq:eeTF { \str_head:n {#1} } {*}
     {
-        \tl_set:Nx \l_tmpb_tl { \str_tail:n {#1} }
+        \tl_set:Nx \l_tmpb_tl { \tl_tail:n {#1} }
         \tl_put_left:Nn \l_tmpb_tl {\sffamily\color{aTableauInner}}
     }
     {
@@ -2476,19 +2476,19 @@
 
     \smallskip
   \begin{example}
-  % affine type C
+  % affine type C : C^{(1)}_{e-1}
   \Diagram[french, entries=residues,
     e=2, cartan=C] {8,4,2}
   \end{example}
 
   \begin{example}
-  % twisted affine type A
+  % twisted affine type A : A^{(2)}_{2e}
   \Diagram[ukrainian, entries=residues,
      e=2, cartan=AA] {8,4,2}
   \end{example}
 
   \begin{example}
-  % twisted affine type D
+    % twisted affine type D : D^{(2)}_e
   \Diagram[australian, entries=residues,
     e=2, cartan=DD] {8,4,2}
   \end{example}
@@ -3670,7 +3670,7 @@
   \begin{example}
   \Abacus{3}{5,*4_a,*1^2,0^4} \qquad
   \Abacus[abacus star style={ball color=yellow,text=black}]
-    {3}{5,*4_a,*1^2,0^4}
+    {3}{5,*4_b,*1^2,0^4}
   \end{example}
 
   \option[\aTableauColour{Main}]{bead=colour}[a \LaTeX colour]
@@ -3697,8 +3697,8 @@
   \keyword{\itshape} and \keyword{\bfseries} will have any effect.
 
   \begin{example}
-  \Abacus{3}{3_3,2^2,1^3} \qquad
-  \Abacus[bead font=\tiny]{3}{3_3,2^2,1^3} \qquad
+  \Abacus{3}{3_1,2^2,1^3} \qquad
+  \Abacus[bead font=\tiny]{3}{3_2,2^2,1^3} \qquad
   \Abacus[text entries, bead font=\bfseries]{3}{3_3,2^2,1^3}
   \end{example}
 
@@ -3721,7 +3721,7 @@
   {3}{3_3,2^2,1^3}
   \end{example}
 
-  As with tableau, you can also change the size of the abacuses using
+  As with tableaux, you can also change the size of the abacuses using
   \option{scale}<abacus>, \option{xscale}<abacus> and
   \option{yscale}<abacus>. Changing these keys globally affects both
   abacuses and tableaux.
@@ -3785,7 +3785,7 @@
   \Abacus[dotted cols={1,3},abacus ends=-*]{6}{9,8,5,4,3^3,2}
   \end{example}
 
-  As with tableau, consecutive rows and columns are treated together.
+  As with tableaux, consecutive rows and columns are treated together.
 
   \begin{example}
   \Abacus[dotted rows={1,2,3}]{4}{8,5,4,3,2,1} \qquad
@@ -3811,15 +3811,14 @@
   \end{example}
 
   The cross-hatched dots in the centre of the abacus are not ideal. The
-  following trick addresses this:
+  following example addresses this:
 
   \begin{example}[lefthand width=0.16\textwidth, label=Ex:DottedAbacus]
   \Abacus[dotted cols={2,3}, dotted rows={2,3},
-    tikz after = {
-      \draw[aTableau/clearBoxes](A-1-1.south east)rectangle(A-4-4.north west);
-      \draw[aTableau/dottedLine](A-1-1.south east)--(A-4-4.north west);
-    }
-  ]{6}{26,21^2,5^2,3,2^2,0^2}
+   tikz after = {
+    \draw[aTableau/clearBoxes](A-1-1.south east)rectangle(A-4-4.north west);
+    \draw[aTableau/dottedLine](A-1-1.south east)--(A-4-4.north west);
+  }]{6}{26,21^2,5^2,3,2^2,0^2}
   \end{example}
 
   \option[]{entries=value}[betas, residues, rows, shape]<abacus>
@@ -3856,8 +3855,8 @@
   \AddKeyLink{cartan-abacus}
   \noindent
   As with (multi)tableau, use the \option{charge}<abacus> key to
-  add an offset to the residues, and the \option{cartan}<abacus> key for
-  residues of other Cartan types.
+  add an offset to the residues, and the \option{cartan} key for
+  residues of other affine Cartan types.
 
   \item\option{entries=rows}\index{entries!rows}
   Labels the beads by their rows index of the corresponding part in the
