@@ -1,22 +1,23 @@
 #! /usr/bin/env bash
 
-# script to create tar file to upload to ctan
+# create tar file for uploading atableau package to ctan
 
 CTANIFY="/Library/TeX/texbin/ctanify"
-
 
 TAR=$(tar --version)
 GTAR=$(tar --version)
 
 if [[ "$TAR" != "$GTAR" ]]
 then
+  # use gnu-tar because tar on macosx adds spurious system files
   echo "WARNING: tar is not gnu-tar!"
 fi
 
+# create the tar file for ctan
 $CTANIFY --no-tds atableau.{ini,sty,pdf,tex} README.md LICENSE
 
+# remind user to check version number and the copyright and release dates
 echo "Check version, release date and the copyright years in atableau.sty"
-
 ag "@version" atableau.sty | ag def
 ag "@release" atableau.sty | ag def
-ag "2022" atableau.sty | ag C
+ag "2022" atableau.sty     | ag C

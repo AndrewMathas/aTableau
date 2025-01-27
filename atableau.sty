@@ -12,16 +12,20 @@
 %    - tabloids
 %    - Young diagrams
 %
-% E-mail: andrew.mathas@gmail.com
 % Released under the LaTeX Project Public License v1.3c or later
 % See http://www.latex-project.org/lppl.txt
+%
+% The package is author-maintained in the sense of this license.  The
+% author can be contacted via email at andrew.mathas@gmail.com.
+% For bugs and other issues with the package please use
+% the package repository github.com/AndrewMathas/aTableau/
 
 % ---------------------------------------------------------------------------
-
 % load TikZ early to avoid \ExplSyntaxOn...\ExplSyntaxOff wrappers
 \RequirePackage{tikz}
 \usetikzlibrary{shapes.geometric,matrix}
 
+% ---------------------------------------------------------------------------
 % Correct for negative signs in contents being too long to fit in a tableau
 \RequirePackage{amsfonts} %% <- also included by amssymb
 \DeclareMathSymbol{\shortminus}{\mathbin}{AMSa}{"39}
@@ -39,8 +43,9 @@
 \ProvidesExplPackage{atableau} {\atableau@release} {\atableau@version}
   {A latex package for symmetric group combinatorics }
 
-
+% ---------------------------------------------------------------------------
 % Give a warning if the LaTeX installation is older than TeXLive 2024
+\NeedsTeXFormat{LaTeX2e}% [2023-01-01]
 \IfFormatAtLeastTF { 2024-04-13 } {}
 {
     \PackageWarning {aTableau}
@@ -451,7 +456,6 @@
 }
 
 % ---------------------------------------------------------------------------
-
 % usage: \__atableau_set_style:nn {abacus|tableau} {style}
 % sets the basic styles for the tableaux and abacus commands
 \cs_new:Npn \__atableau_set_style:nn #1 #2
@@ -468,7 +472,6 @@
           \fp_set:Nn \l__atableau_box_wd_fp {\l__atableau_xscale_fp*0.5}
           \tl_set:Nn \l__atableau_box_shape_tl {rectangle}
         }
-
       {tableau/french}
         {
           \fp_set:Nn \l__atableau_tab_col_dx_fp {1}
@@ -479,7 +482,6 @@
           \fp_set:Nn \l__atableau_box_wd_fp {\l__atableau_xscale_fp*0.5}
           \tl_set:Nn \l__atableau_box_shape_tl {rectangle}
         }
-
       {tableau/australian}
         {
           \fp_set:Nn \l__atableau_tab_col_dx_fp {0.5}
@@ -490,7 +492,6 @@
           \fp_set:Nn \l__atableau_box_wd_fp {\l__atableau_xscale_fp*0.7012}
           \tl_set:Nn \l__atableau_box_shape_tl {diamond}
         }
-
       {tableau/ukrainian}
         {
           \fp_set:Nn \l__atableau_tab_col_dx_fp {0.5}
@@ -501,7 +502,6 @@
           \fp_set:Nn \l__atableau_box_wd_fp {\l__atableau_xscale_fp*0.7012}
           \tl_set:Nn \l__atableau_box_shape_tl {diamond}
         }
-
       {abacus/south}
         {
           \fp_set:Nn \l__atableau_ab_col_dx_fp {1}
@@ -512,7 +512,6 @@
           \fp_set:Nn \l__atableau_abacus_wd_fp {\l__atableau_xscale_fp*0.5}
           \tl_set:Nn \l__atableau_bead_shape_tl  {circle}
         }
-
       {abacus/north}
         {
           \fp_set:Nn \l__atableau_ab_col_dx_fp {1}
@@ -523,7 +522,6 @@
           \fp_set:Nn \l__atableau_abacus_wd_fp {\l__atableau_xscale_fp*0.5}
           \fp_set:Nn \l__atableau_abacus_ht_fp {\l__atableau_yscale_fp*0.5}
         }
-
       {abacus/east}
         {
           \fp_set:Nn \l__atableau_ab_col_dx_fp {0}
@@ -534,7 +532,6 @@
           \fp_set:Nn \l__atableau_abacus_wd_fp {\l__atableau_xscale_fp*0.5}
           \fp_set:Nn \l__atableau_abacus_ht_fp {\l__atableau_yscale_fp*0.5}
       }
-
       {abacus/west}
         {
           \fp_set:Nn \l__atableau_ab_col_dx_fp {0}
@@ -566,7 +563,6 @@
     \fp_set:Nn \l__atableau_abacus_ht_fp {#1*\l__atableau_abacus_ht_fp}
     \fp_set:Nn \l__atableau_box_ht_fp    {#1*\l__atableau_box_ht_fp}
 }
-
 
 % usage: \__atableau_set_delimiters:nn {left delimiter} {right delimiter}
 \cs_new_protected:Npn \__atableau_set_delimiters:nn #1 #2
@@ -637,7 +633,7 @@
 % usage: \__atableau_residue_A:nn
 % Computes the residue of #1 mod #2. This is positive integer remainder when
 % dividing by #2. As with \int_mod:n, the result is left in the input stream.
-\cs_new:Npn \__atableau_residue_A:nn #1 #2
+\cs_new_nopar:Npn \__atableau_residue_A:nn #1 #2
 {
     \int_compare:nNnTF {#1} > {0}
         { \int_mod:nn {#1} {#2} }
@@ -648,7 +644,7 @@
 % Computes the residue of #1 in affine type C. When e=3 this residue pattern is
 %    0 1 2 3 2 1 0 1 2 3 2 1 0 1 ...
 % As with \int_mod:n, the result is left in the input stream.
-\cs_new:Npn \__atableau_residue_C:nn #1 #2
+\cs_new_nopar:Npn \__atableau_residue_C:nn #1 #2
 {
     \int_compare:nNnTF {#1} < {0}
     { % #1 is negative
@@ -667,7 +663,7 @@
 % Computes the residue of #1 in twisted type A. When e=3 this residue pattern is
 %    0 1 2 3 3 2 1 0 1 2 3 3 2 1 0 1 ...
 % As with \int_mod:n, the result is left in the input stream.
-\cs_new:Npn \__atableau_residue_AA:nn #1 #2
+\cs_new_nopar:Npn \__atableau_residue_AA:nn #1 #2
 {
     \int_compare:nNnTF {#1} < {0}
     { % #1 is negative
@@ -686,7 +682,7 @@
 % Computes the residue of #1 in affine type C. When e=3 this residue pattern is
 %    0 1 2 3 3 2 1 0 0 1 2 3 3 2 1 0 0 1 ...
 % As with \int_mod:n, the result is left in the input stream.
-\cs_new:Npn \__atableau_residue_DD:nn #1 #2
+\cs_new_nopar:Npn \__atableau_residue_DD:nn #1 #2
 {
     \int_compare:nNnTF {#1} < {0}
     { % #1 is negative
@@ -700,7 +696,6 @@
           { \int_eval:n { \int_mod:nn {#1} {2*#2+2} } }
     }
 }
-
 
 % use type A residues by default
 \cs_set_eq:NN \__atableau_residue:nn \__atableau_residue_A:nn
@@ -728,7 +723,6 @@
             {
                 \seq_put_right:No \l__atableau_skew_seq {\int_use:N \l__atableau_row_int}
                 \int_set_eq:NN \l__atableau_col_int \l__atableau_row_int
-
             }
             {
                 \int_set:Nn \l__atableau_col_int { 0\seq_item:Nn \l__atableau_skew_seq {\l__atableau_row_int+1}}
@@ -796,7 +790,8 @@
     }
 }
 
-% #1 is one of part, exp or txt
+% usage: \__atableau_record_bead:nn {place} {contents}
+% Records the bead data. Here #1 is one of part, exp or txt
 \cs_new_protected:Npn \__atableau_record_bead:nn #1 #2
 {
     \quark_if_recursion_tail_stop_do:nn {#2}
@@ -814,7 +809,6 @@
     \tl_put_right:cn {l__atableau_capture_#1_tl} {#2}
     \__atableau_peek_beads:nw {#1}
 }
-
 
 % usage: \__atableau_count_entries:nn [style] {entry}
 % Count the number of entries in the row, storing the result in c_int
@@ -1015,7 +1009,6 @@
                 \tl_set:Nx \l_tmpb_tl { \int_eval:n {\seq_item:Nn #1 {####1}  + \l__atableau_row_int - ##1 + \l_tmpa_int  } }
                 \__atableau_tl_put_right_braced:NV \l_tmpa_tl \l_tmpb_tl
                 \seq_set_item:Nnx \l_tmpc_seq {####1} {\l_tmpa_tl}
-
             }
         }
         \tl_set:Nx \l__atableau_entries_tl { \seq_use:Nn \l_tmpc_seq {,} }
@@ -1114,7 +1107,6 @@
       \draw[aTableau/#2] \l__atableau_border_tl;
     }
 }
-
 
 % usage: \__atableau_remove_dotted_tableau_rows:
 % Poke some holes in the border for the rows in dotted_rows_seq
@@ -1255,7 +1247,6 @@
         % set row and r to the row indices for col and c, respectively
         \int_set:No \l__atableau_row_int { 0\seq_item:NV \l__atableau_conjugate_seq \l__atableau_col_int } % mu_row
         \int_set:No \l__atableau_r_int   { 0\seq_item:NV \l__atableau_conjugate_seq \l__atableau_c_int }   % mu_r
-
 
         % shift in col-direction
         \fp_set:Nn \l__atableau_xa_fp {\l__atableau_tab_col_dx_fp*\l__atableau_box_wd_fp}
@@ -1540,7 +1531,6 @@
 % by default , normal coordinates are used
 \cs_set_eq:NN \__atableau_set_box_coordinates:nnn \__atableau_set_box_coordinates_normal:nnn
 
-
 % usage: \__atableau_set_bead_coordinates:nnn <letter> <row> <col>: given the row and columns
 % indices, row and col, define the corresponding coordinates in a tableau or abacus:
 %  - \l__atableau_xl_fp : x-coordinates
@@ -1662,7 +1652,6 @@
     }
     \__atableau_draw_tableau:V \l__atableau_entries_tl
 }
-
 
 % ---------------------------------------------------------------------------
 % multitableau and their diagrams
@@ -1912,7 +1901,6 @@
     }
 }
 
-
 % usage: \__atableau_multidiagram:n {entries}
 % The entries are first primarily because the \Diagram commands needs
 % to force the entries to expand
@@ -1993,7 +1981,8 @@
 % look for (ribbon) style inside parentheses: (style)
 \cs_new_protected:Npn \__atableau_peek_ribbon_style:w
 {
-    \peek_remove_spaces:n { % ignore spaces
+    \peek_remove_spaces:n
+    { % ignore spaces
       \peek_charcode:NTF (
         { \__atableau_save_ribbon_style:n   }
         { \__atableau_save_ribbon_style:n ()}
@@ -2008,7 +1997,6 @@
     \tl_set:Nn \l__atableau_ribbon_style_tl {#1}
     \__atableau_peek_style:nw {save_ribbon_head:nnn}
 }
-
 
 % usage: \__atableau_initialise_path_head:
 % Start \l__atableau_ribbon_path_tl for a path
@@ -2131,7 +2119,6 @@
     {
        \msg_error:nnx {aTableau} {invalid-ribbon-specification} {#1}
     }
-
 }
 
 % usage: \__atableau_add_to_path:n
@@ -2191,10 +2178,17 @@
     \seq_put_right:NV \l__atableau_rcs_seq \l__atableau_row_int % record the row of the node
     \seq_put_right:NV \l__atableau_rcs_seq \l__atableau_col_int % record the column of the node
 
+    % TODO: rather than saving the data here, we should draw the ribbons
+    % now -- or, rather, save this data as TikZ commands in
+    % \l__atableau_styled_nodes_tl and l__atableau_unstyled_nodes_tl so
+    % that the data can be printed as soon as the ribbon is read. This
+    % should be faster because it will remove the need to store the
+    % ribbon data in the \l__atabeleau_capture_*_seq sequences and then
+    % retrieve this information later in \__atableau_draw_ribbon:
+
     % check to see if this node has any text
     \__atableau_peek_ribbon_text:w
 }
-
 
 % update the shape of the ribbon tableau using the current values of
 % \l__atableau_row_int and \l__atableau_col_int
@@ -2233,7 +2227,6 @@
     \tl_put_right:Nn \l__atableau_ribbon_path_tl {--cycle}
 }
 
-
 % usage: \__atableau_finalise_path:n
 % We do not need to do anything to finalise a path
 \cs_set_eq:NN \__atableau_finalise_path:n \prg_do_nothing:
@@ -2249,7 +2242,6 @@
 % finally, add the nodes with custom styling or text.
 \cs_new_protected:Nn \__atableau_draw_ribbon:
 {
-
     \use:c { __atableau_finalise_ \l__atableau_ribbon_type_tl :}
 
     % We want to first draw the ribbon, with its outline and any filling, and
@@ -2277,22 +2269,26 @@
 
         % compute the box coordinates
         \__atableau_set_box_coordinates:nVV {l} \l__atableau_row_int \l__atableau_col_int
-        \tl_if_empty:eTF {##1\l_tmpa_tl}
+        \tl_if_empty:oTF {##1\l_tmpa_tl}
         {   % nodes with default style and no text are added to \l__atableau_unstyled_nodes_tl
+            % we have to grow the token list in several steps to control the expansions
             \tl_put_right:Nx \l__atableau_unstyled_nodes_tl
             {
                 \exp_not:N \node [aTableau/\l__atableau_ribbon_type_tl Box](\l__atableau_name_tl)
                     at (\fp_use:N\l__atableau_xl_fp,\fp_use:N\l__atableau_yl_fp)
-                    { \exp_not:N \__atableau_entry:n{\l_tmpc_tl }};
             }
+            \__atableau_tl_put_right_braced:No \l__atableau_unstyled_nodes_tl {\exp_not:N \__atableau_entry:n{\l_tmpc_tl}}
+            \tl_put_right:Nn \l__atableau_unstyled_nodes_tl {;}
         }
         {   % nodes with styling are added to \l__atableau_styled_nodes_tl
+            % we have to grow the token list in several steps to control the expansions
             \tl_put_right:Nx \l__atableau_styled_nodes_tl
             {
                 \exp_not:N \node [aTableau/\l__atableau_ribbon_type_tl Box,##1](\l__atableau_name_tl)
                     at (\fp_use:N\l__atableau_xl_fp,\fp_use:N\l__atableau_yl_fp)
-                    {\exp_not:N \__atableau_entry:n{\l_tmpa_tl}};
             }
+            \__atableau_tl_put_right_braced:No \l__atableau_styled_nodes_tl {\exp_not:N \__atableau_entry:n{\l_tmpa_tl}}
+            \tl_put_right:Nn \l__atableau_styled_nodes_tl {;}
         }
     }
     % draw the ribbon, applying any style
@@ -2302,7 +2298,6 @@
     \l__atableau_unstyled_nodes_tl
     \l__atableau_styled_nodes_tl
 }
-
 
 % ---------------------------------------------------------------------------
 
@@ -2377,7 +2372,6 @@
                 % set default "row height" of the runner labels for use below
                 \fp_set:Nn \l_tmpa_fp {-0.8}
             }
-
         {*}
             { % draw dots
                 \int_step_inline:nn {\l__atableau_cols_int}
@@ -2401,7 +2395,6 @@
                 % set default "row height" of the runner labels for use below
                 \fp_set:Nn \l_tmpa_fp {-1.8}
             }
-
         {|} {
                 % set default "row height" of the runner labels for use below
                 \fp_set:Nn \l_tmpa_fp {-0.4}
@@ -2417,7 +2410,6 @@
     \tl_set:Nn \l__atableau_starstyle_tl {aTableau/abacusStarStyle}
 
     \int_set:Nn \l__atableau_cols_int {#1}
-
 
     \seq_if_empty:NF \l__atableau_runner_labels_seq
     {
@@ -2574,7 +2566,6 @@
     % remove dotted rows and columns
     \seq_if_empty:NF \l__atableau_dotted_rows_seq \__atableau_remove_dotted_abacus_rows:
     \seq_if_empty:NF \l__atableau_dotted_cols_seq \__atableau_remove_dotted_abacus_cols:
-
 }
 
 % usage: \__atableau_remove_dotted_abacus_cols:
@@ -2718,7 +2709,6 @@
               \fp_add:Nn \l__atableau_yb_fp {\l_tmpb_fp}
               \draw[aTableau/dottedLine](\fp_use:N\l__atableau_xa_fp,\fp_use:N\l__atableau_ya_fp)--(\fp_use:N\l__atableau_xb_fp,\fp_use:N\l__atableau_yb_fp);
           }
-
     }
 }
 
@@ -3187,11 +3177,10 @@
     tick~style .value_required:n = true,
 }
 
-
 % ---------------------------------------------------------------------------
 % Usage: \__atableau_set_origin:nn (x,y)
 % Set the Cartesian coordinates for the corner of the (1,1) box
-% TODO: allow general TikZ-coorindates. To do this we could, for example, use ideas from
+% TODO: allow general TikZ-coordinates. To do this we could, for example, use ideas from
 % https://tex.stackexchange.com/questions/33703/extract-x-y-coordinate-of-an-arbitrary-point-in-tikz
 \cs_new_protected:Npn \__atableau_set_origin:nn (#1,#2)
 {
@@ -3209,58 +3198,58 @@
 \cs_new_protected:Npn \__atableau_tikzpicture:nnn #1 #2 #3
 {
     \group_begin:
-      % keep changes to settings local by working inside a group
-      \keys_set:nn {atableau} {#1}
-      \IfNoValueTF {#2}
-      {   % wrap inside a tikzpicture environment, placing the picture at (0,0)
-          \__atableau_set_origin:nn (0,0)
+        % keep changes to settings local by working inside a group
+        \keys_set:nn {atableau} {#1}
+        \IfNoValueTF {#2}
+        {   % wrap inside a tikzpicture environment, placing the picture at (0,0)
+            \__atableau_set_origin:nn (0,0)
 
-          \mode_if_math:TF
-          {
-              % We want to automatically rescale when used as a subscript, which
-              % we do by putting the tikz code inside a box and then using
-              % \mathchoice to adjust for script size, using an idea of cfr's
+            \mode_if_math:TF
+            {
+                % We want to automatically rescale when used as a subscript, which
+                % we do by putting the tikz code inside a box and then using
+                % \mathchoice to adjust for script size, using an idea of cfr's
 
-              \hbox_set:Nw \l_tmpa_box
-                  \exp_last_unbraced:Ne \tikz{[\l__atableau_tikzpicture_tl]}
-                    { \l__atableau_tikz_before_tl #3 \l__atableau_tikz_after_tl }
-              \hbox_set_end:
+                \hbox_set:Nw \l_tmpa_box
+                    \exp_last_unbraced:Ne \tikz{[\l__atableau_tikzpicture_tl]}
+                      { \l__atableau_tikz_before_tl #3 \l__atableau_tikz_after_tl }
+                \hbox_set_end:
 
-              \mathchoice
-              {   % display style: do nothing
-                  \box_use:N \l_tmpa_box
-              }
-              {   % text style: do nothing
-                  \box_use:N \l_tmpa_box
-              }
-              {   % script style: rescale
-                  \box_scale:Nnn \l_tmpa_box {\l__atableau_script_fp*\l__atableau_xscale_fp}
-                                             {\l__atableau_script_fp*\l__atableau_yscale_fp}
-                  \box_use:N \l_tmpa_box
-              }
-              {   % scriptscript style: rescale
-                  \box_scale:Nnn \l_tmpa_box {\l__atableau_scriptscript_fp*\l__atableau_xscale_fp}
-                                             {\l__atableau_scriptscript_fp*\l__atableau_yscale_fp}
-                  \box_use:N \l_tmpa_box
-              }
-          }
-          {   % Not in maths-mode. tcolorbox objects to using a box here
-              \exp_last_unbraced:Ne \tikz{[\l__atableau_tikzpicture_tl]}
-                { \l__atableau_tikz_before_tl #3 \l__atableau_tikz_after_tl }
-          }
-      }
-      { % already inside a tikzpicture environment
-        \__atableau_set_origin:nn (#2)
-        \l__atableau_tikz_before_tl #3 \l__atableau_tikz_after_tl
-      }
+                \mathchoice
+                {   % display style: do nothing
+                    \box_use:N \l_tmpa_box
+                }
+                {   % text style: do nothing
+                    \box_use:N \l_tmpa_box
+                }
+                {   % script style: rescale
+                    \box_scale:Nnn \l_tmpa_box {\l__atableau_script_fp*\l__atableau_xscale_fp}
+                                               {\l__atableau_script_fp*\l__atableau_yscale_fp}
+                    \box_use:N \l_tmpa_box
+                }
+                {   % scriptscript style: rescale
+                    \box_scale:Nnn \l_tmpa_box {\l__atableau_scriptscript_fp*\l__atableau_xscale_fp}
+                                               {\l__atableau_scriptscript_fp*\l__atableau_yscale_fp}
+                    \box_use:N \l_tmpa_box
+                }
+            }
+            {   % Not in maths-mode. tcolorbox objects to using a box here
+                \exp_last_unbraced:Ne \tikz{[\l__atableau_tikzpicture_tl]}
+                  { \l__atableau_tikz_before_tl #3 \l__atableau_tikz_after_tl }
+            }
+        }
+        {   % already inside a tikzpicture environment
+            \__atableau_set_origin:nn (#2)
+            \l__atableau_tikz_before_tl #3 \l__atableau_tikz_after_tl
+        }
     \group_end:
 }
 
 % ---------------------------------------------------------------------------
 % Public facing package commands
 
-% Almost all public-facing routines call \__atableau_tikzpicture:nnn,
-% which applies the settings, sets the coordinates of the origin and
+% Except for \aTabset, all public-facing commands use \__atableau_tikzpicture:nnn,
+% which applies the settings, sets the coordinates of the picture origin and
 % then ensures that the requested diagram is drawn inside a tikzpicture
 % environment.
 
@@ -3363,7 +3352,6 @@
 % Version 2.1.0 - 2025-01-24
 %  - support for using aTableau commands in super and subscripts
 %  - warnings about using older versions of LaTeX3
-
 
 % ---------------------------------------------------------------------------
 %

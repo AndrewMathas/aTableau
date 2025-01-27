@@ -1,6 +1,6 @@
 % ----------------------------------------------------------------------
-% Title:    aTableau.  Author:   Andrew Mathas Created:  October 2023
-% Modified: 10:58 Saturday, 25 January 2025
+% atableau - Andrew Mathas (C) 2022-2025
+% Modified: 20:42 Monday, 27 January 2025
 % ----------------------------------------------------------------------
 \documentclass{amsart}
 \usepackage[svgnames,table]{xcolor}
@@ -1240,7 +1240,7 @@
        \keyword{font}$=\langle\text{font commands}\rangle$
             & Sets the font \\
        \keyword{opacity}$=\langle\text{value}\rangle$
-            & Sets both the drawing and filling opacity to $=\langle\text{value}\rangle$\\
+            & Sets both the drawing and filling opacity to $\langle\text{value}\rangle$\\
        \keyword{text}$=\langle\text{colour}\rangle$
             & Sets the text colour in the node \\
        \bottomrule
@@ -1841,6 +1841,13 @@
   same way as the \option{path box} and \option{ribbon box}, and
   \option{path box style} and \option{ribbon box style}, keys.
 
+  \begin{example}
+  \Diagram[entries=contents, snob style={draw=none},
+    snob box={\hspace*{3mm}\cdots},
+    snobs={16, 26, 36, 46, 61_\vdots, 62_\vdots}
+  ] {5^5}
+  \end{example}
+
   \option[1]{scale=number}[a decimal number]
   \option*[1]{xscale=number}[a decimal number]
   \option*[1]{yscale=number}[a decimal number]
@@ -1976,8 +1983,9 @@
   \end{example}
 
   Styles defined this way will only be available in the current picture.
-  Use \keyword{\tikzset} whenever you are defining styles that are likely
-  to be used more than once.
+  Use \keyword{\tikzset} whenever you are defining styles that are
+  likely to be used more than once. Alternatively, you can use
+  \keyword{\aTabset{styles={...}}}.
 
   \option[false]{tabloid}[true/false]
 
@@ -4255,6 +4263,12 @@
     \option{yscale}            & Set \aTableau $y$-scale                             & \Yes & \Yes(scale-abacus) \\
     \bottomrule
   \end{xltabular}
+
+  All keys can be applied to all \aTableau pictures. Most of the time,
+  keys that cannot be applied to the current picture are silently
+  ignored.
+
+  \pagebreak[4]
 
   \emph{Most readers should ignore the following two subsections.}
 
