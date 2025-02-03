@@ -1,7 +1,7 @@
 % ----------------------------------------------------------------------
 % atableau - Andrew Mathas (C) 2022-2025
-% Modified: 14:02 Monday, 03 February 2025
-% ----------------------------------------------------------------------
+% Modified: 16:33 Friday, 07 February 2025
+% Modified: 16:33 Friday, 07 February 2025
 \documentclass{amsart}
 \usepackage[svgnames,table]{xcolor}
 \usepackage{atableau}
@@ -1139,8 +1139,8 @@
 
   % --------------------------------------------------------------
   \subsubsection{Adding style}
-  \index{star}
-  \index{*|see{star}}
+  \index{star style}
+  \index{*|see{star style}}
   \index{tableau entries!style}
   \index{tableau entries!star}
 
@@ -2432,18 +2432,20 @@
     \index{contents}
     \index{entries!contents}
   \begin{example}
-  \Diagram[entries=contents]{3,2,1} \qquad
-  \Diagram[french, entries=contents]{2^2,1}
+  \Diagram[entries=contents]{2^3} \qquad
+  \Diagram[french, entries=contents]{2^2,1}\qquad
+  \Tableau[french]{01,{-1}0,{-2}}
   \end{example}
   \AddKeyLink{contents}
   \AddKeyLink{residues}
   \AddKeyLink{charge}
 
-  \smallskip\noindent Inside a tableau, the default minus sign for a
-  negative number looks too long, so \aTableau uses
-  \keyword{\shortminus} for negative contents. For example, it prints
-  \keyword{\shortminus 1} instead of \keyword{-1}, which look like
-  $\shortminus1$ and $-1$, respectively.\indexcmd{shortminus}
+  \smallskip\noindent As shown by the last last tableau, the default
+  minus sign for a negative number is too long when it appears inside a
+  tableau.  To correct for this, \aTableau uses \keyword{\shortminus}
+  for negative content values. In the second diagram above, \aTableau
+  uses \keyword{\shortminus 1} instead of \keyword{-1}, which look
+  like $\shortminus1$ and $-1$, respectively.\indexcmd{shortminus}
 
   \item\option{entries=residues} prints the diagram where each box is
   labelled by its \emph{residue}, which is the row index minus the
@@ -2457,12 +2459,12 @@
   \Diagram[french, entries=residues, e=3]{3,2,1}
   \end{example}
 
-  \noindent\AddKeyLink{cartan}\AddKeyLink{e}
-    By default, residue sequences for affine type $A^{(1)}_e$, or the symmetric
-    group and friends, are given. In addition, residues in affine types
-    $C^{(1)}_e$, $A^{(2)}_{2e}$ and $D^{(2)}_e$, which can be accessed
-    using \option{cartan=C}, \option{cartan=AA}, and \option{cartan=DD},
-    respectively.
+  \noindent\AddKeyLink{cartan}\AddKeyLink{e}% By default, residue
+  sequences for affine type $A^{(1)}_e$, which correspond to the
+  symmetric group and friends, are used. In addition, residues in affine
+  types $C^{(1)}_e$, $A^{(2)}_{2e}$ and $D^{(2)}_e$, which can be
+  accessed using \option{cartan=C}, \option{cartan=AA}, and
+  \option{cartan=DD}, respectively.
 
     \smallskip
   \begin{example}
@@ -2530,8 +2532,8 @@
   \keyword{\SkewTableau} are specified in exactly the same way as in the
   \keyword{\Tableau} command. In particular, the entries of skew
   tableaux can, optionally, be given style prefixes, both using a~$*$ to
-  add the current \option{star style}, or arbitrary \TikZ-styling using
-  \keyword{[...]}.
+  add the current \option{star style}, or   \keyword{[...]} to add
+  arbitrary \TikZ-styling.
 
   \begin{example}
   \tikzset{R/.style={fill=red!20,text=red}}
@@ -2654,7 +2656,7 @@
   diagram
 
   \begin{example}
-  \ShiftedTableau[skew boxes]{1*23,4*5} \quad
+  \ShiftedTableau[skew boxes]{1*23,4*5,6} \qquad
   \ShiftedDiagram[skew border]{3,2}
   \end{example}
 
@@ -2741,10 +2743,12 @@
   ribbons. A box is a ribbon of length~$1$, so every tableau is a ribbon
   tableau.
 
+  Ribbon tableau can be drawn with the command:
+
   \keyword{\RibbonTableau (x,y) [options] {ribbon specifications}}
 
-  Like the other commands, the $(x,y)$-coordinates are optional and are
-  required if, and only if, the diagram is being used as part of a
+  Like the other \aTableau commands, the $(x,y)$-coordinates are
+  optional and are required if, and only if, the diagram is part of a
   \keyword{tikzpicture} environment. All options for the
   \keyword{\Tableau} command can be used for the ribbon command, so we
   refer to \autoref{S:Tableau} for a description of the available
@@ -2753,8 +2757,8 @@
   % --------------------------------------------------------------
   \subsubsection{Ribbon specifications}
   Unlike the \keyword{\Tableau} command, the entries of a ribbon tableau
-  are given by ribbon specifications (rather than tableau)
-  specifications. Ribbon specifications are also used by the three keys
+  are given by ribbon specifications (rather than tableau
+  specifications). Ribbon specifications are also used by the three keys
   \option{ribbons}, \option{paths}, and \option{snobs}, which were
   introduced in \autoref{SS:TableauOptions}.
 
@@ -2775,10 +2779,9 @@
   \end{example}
 
   The border of a ribbon tableau is the smallest (skew) partition that
-  contains all of its ribbons.  In the last example shows, the
-  \option{no border} key is used to disable the ribbon tableau border so
-  that we can better see the ribbon, which is the full diagram in these
-  two cases.
+  contains all of its ribbons.  In the last example, the \option{no
+  border} key is used to disable the ribbon tableau border to highlight
+  ribbon, which is the full diagram for these two tableaux.
 
   The following diagram shows a see-sawing ribbon with head in row~$1$
   and column~10, and tail in row~$5$ and column~$1$.
@@ -2790,7 +2793,7 @@
   As with tableau entries, each box in a ribbon can be preceded with a
   style specification, either using \keyword{*} for the \option{star
   style} or using \keyword{[...]} for more customised style
-  specifications.
+  specifications. Here is a more complicated example:
 
   \begin{example}
   \RibbonTableau{
@@ -2883,10 +2886,13 @@
     depending on whether the next box in the ribbon is given by
     increasing the row index, or decreasing the column index,
     respectively.
-    \item Optionally, each box in the ribbon, including the head, can be
+    \item Each box in the ribbon, including the head, can be
     given \TikZ-styling by prefixing it with a $*$, which gives the
     box the \option{star style}, or by giving \TikZ-styling keys inside
     square brackets $[...]$.
+    \item Entries can be added to the boxes in the ribbon by adding them
+    as a subscript, \textunderscore\texttt{\{entry\}}, to the ribbon
+    specification for the box.
   \end{itemize}
 
   Finally, when drawing the border, all ribbons in a
@@ -2897,8 +2903,8 @@
   any ribbons added using \option{paths}, \option{ribbons}, or
   \option{snobs} do not affect the border of the diagram or tableau. You
   can draw paths, ribbons, and snobs so that their boxes are either
-  inside or outside the border of the diagram or tableau. It can be
-  useful to place boxes outside of the diagrams.
+  inside or outside the border of the diagram or tableau. As shown
+  below, this allows you to place boxes outside of the ribbon tableau.
 
   \option[]{paths=path specifications}[comma separated ribbon specifications]<ribbons>
   \option*[]{ribbons=ribbon specifications}[comma separated ribbon specifications]<ribbons>
@@ -3535,15 +3541,16 @@
   The $(x,y)$-coordinates are required if, and only if, the
   \keyword{\Abacus}command is used inside a \keyword{tikzpicture}
   environment, in which case $(x,y)$ gives the coordinates of the
-  ``outside corner'' of the box in row~$1$ and column~$1$ of the
-  tableau. The following example shows how tableaux are placed using
+  ``outside corner'' of the bead in row~$0$ and column~$0$ of the abacus
+  (unlike tableaux, both the row and column indices start from~$0$). The
+  following example shows how abacuses are placed using
   $(x,y)$-coordinates inside a \keyword{tikzpicture} environment. The
   example also shows that, by default, the beads and runners in an
   abacus are half a unit apart.
 
   \begin{example}
   \begin{tikzpicture}[add grid]
-    \aTabset{abacus ends=_|}
+    \aTabset{abacus ends=_|, entries=betas}
     \Abacus(0,0.5)  [south]              {3}{2,1^2}
     \Abacus(0,2)    [east,  bead=red]    {3}{2,1^2}
     \Abacus(2.5,0.5)[north, bead=orange] {3}{2,1^2}
@@ -3551,13 +3558,16 @@
   \end{tikzpicture}
   \end{example}
 
+  As described below, using \option{entries=betas}<abacus> labels each bead with the corresponding
+  \emph{beta number}.
+
   % --------------------------------------------------------------
   \subsection{Abacus keys}
 
   The abacus keys, or options, control the general appearance of the
   abacuses drawn by the \keyword{\Abacus} command. Many of the options,
   or keys, for tableaux and diagrams can be applied to abacuses, and we
-  do not discuss all of these options here. For example, the
+  do not discuss all of those options here. For example, the
   \keyword{\Abacus} command accepts the following keys:
   \option{align}, \AddKeyLink{align-abacus}\AddKeyLink{halign-abacus}\AddKeyLink{valign-abacus}
   \option{math entries}, \AddKeyLink{math entries-abacus}
@@ -3772,7 +3782,8 @@
 
   \begin{example}
   \Abacus[dotted rows={2,4}]{4}{8,5,4,3,2,1} \qquad
-  \Abacus[dotted cols={1,3},abacus ends=-*]{6}{9,8,5,4,3^3,2}
+  \Abacus[dotted cols={1,3},abacus ends=-*]
+    {6}{9,8,5,4,3^3,2}
   \end{example}
 
   As with tableaux, consecutive rows and columns are treated together.
