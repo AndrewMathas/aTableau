@@ -1,6 +1,6 @@
 % ---------------------------------------------------------------------------
 % atableau - Andrew Mathas (C) 2022-2025
-% Modified: 11:34 Wednesday, 12 February 2025
+% Modified: 14:12 Wednesday, 12 February 2025
 % ---------------------------------------------------------------------------
 %
 % A latex package for symmetric group combinatorics:
@@ -578,7 +578,7 @@
 {
   \tl_if_in:nnTF {#2} {|}
   {
-      % unpack the ribbons into \l__atableau_multiribbons_seq
+      % unpack the ribbons into \l__atableau_multi#1_seq
       \seq_set_split:cnn {l__atableau_multi#1_seq} {|} {#2}
   }
   { \seq_set_from_clist:cn {l__atableau_#1_seq} {#2} }
@@ -610,7 +610,7 @@
 
 \cs_generate_variant:Nn \__atableau_add_ribbon:n {V}
 \cs_generate_variant:Nn \__atableau_count_row:n {x}
-\cs_generate_variant:Nn \__atableau_draw_node:nnnn {nVnn, nVno, oVno, oVnV}
+\cs_generate_variant:Nn \__atableau_tikz_node:nnnn {nVnn, nVnV, nVno, oVno, oVnV, oVnv}
 \cs_generate_variant:Nn \__atableau_draw_tableau:n {V}
 \cs_generate_variant:Nn \__atableau_entry:n {x}
 \cs_generate_variant:Nn \__atableau_draw_abacus_end:nnn {noo}
@@ -1307,11 +1307,11 @@
     }
 }
 
-% usage: \__atableau_draw_node:nnnn {style} {label} {fp-coordinate name} {entry}
+% usage: \__atableau_tikz_node:nnnn {style} {label} {fp-coordinate name} {entry}
 % Draw a TikZ node. This simplifies the code and controls expansion
-\cs_new_protected:Nn \__atableau_draw_node:nnnn
+\cs_new_protected:Nn \__atableau_tikz_node:nnnn
 {
-    \node[#1] (#2) at (\fp_use:c {l__atableau_x#3_fp}, \fp_use:c {l__atableau_y#3_fp}) { \__atableau_entry:n{#4} };
+    \node[#1] (#2) at (\fp_use:c {l__atableau_x#3_fp}, \fp_use:c {l__atableau_y#3_fp}) { \__atableau_entry:n {#4} };
 }
 
 % usage: \__atableau_draw_label:
@@ -1458,11 +1458,8 @@
     \cs_set_eq:NN \__atableau_update_shape: \prg_do_nothing:
 
     % add paths
-    \seq_if_empty:NF \l__atableau_paths_seq
-    {
-        \tl_set:Nn \l__atableau_ribbon_type_tl {path}   % change ribbon type to path
-        \seq_map_inline:Nn \l__atableau_paths_seq {\__atableau_add_ribbon:n {##1}}
-    }
+    \tl_set:Nn \l__atableau_ribbon_type_tl {path}   % change ribbon type to path
+    \seq_map_inline:Nn \l__atableau_paths_seq {\__atableau_add_ribbon:n {##1}}
 
     % add ribbons
     \tl_set:Nn \l__atableau_ribbon_type_tl {ribbon} % change ribbon type to ribbon
@@ -1607,7 +1604,7 @@
 
     \tl_if_empty:nTF {#1}
     {   % draw box if it has the default styling
-        \__atableau_draw_node:nVno {aTableau/boxStyle} \l__atableau_name_tl {l} {#2}
+        \__atableau_tikz_node:nVno {aTableau/boxStyle} \l__atableau_name_tl {l} {#2}
         %\node[aTableau/boxStyle] (\l__atableau_name_tl)
         %    at (\fp_use:N\l__atableau_xl_fp, \fp_use:N\l__atableau_yl_fp)
         %    {\__atableau_entry:n{#2}};
@@ -1615,7 +1612,7 @@
     {   % save the node to \l__atableau_styled_nodes_tl if it is styled
         \tl_put_right:No \l__atableau_styled_nodes_tl
         {
-            \__atableau_draw_node:oVno {aTableau/boxStyle,#1} \l__atableau_name_tl {l} {#2}
+            \__atableau_tikz_node:oVno {aTableau/boxStyle,#1} \l__atableau_name_tl {l} {#2}
             %\exp_not:N \node [aTableau/boxStyle,#1] (\l__atableau_name_tl)
             %    at (\fp_use:N\l__atableau_xl_fp, \fp_use:N\l__atableau_yl_fp)
             %    {\exp_not:N\__atableau_entry:n{#2}};
@@ -2282,24 +2279,25 @@
         \__atableau_set_box_coordinates:nVV {l} \l__atableau_row_int \l__atableau_col_int
         \tl_if_empty:oTF {##1\l_tmpa_tl}
         {   % nodes with default style and no text are added to \l__atableau_unstyled_nodes_tl
-            % we have to grow the token list in several steps to control the expansions
             \tl_put_right:No \l__atableau_unstyled_nodes_tl
             {
-                \__atableau_draw_node:oVnV {aTableau/\l__atableau_ribbon_type_tl Box} \l__atableau_name_tl {l} \l_tmpc_tl
+            \__atableau_tikz_node:nVnV {aTableau/\l__atableau_ribbon_type_tl Box} \l__atableau_name_tl {l} \l_tmpc_tl
                 %\exp_not:N \node [aTableau/\l__atableau_ribbon_type_tl Box](\l__atableau_name_tl)
                 %    at (\fp_use:N\l__atableau_xl_fp,\fp_use:N\l__atableau_yl_fp)
+                %    { \exp_not:N \__atableau_entry:n{\l_tmpc_tl }};
             }
             %\__atableau_tl_put_right_braced:No \l__atableau_unstyled_nodes_tl {\exp_not:N \__atableau_entry:n{\l_tmpc_tl}}
             %\tl_put_right:Nn \l__atableau_unstyled_nodes_tl {;}
         }
         {   % nodes with styling are added to \l__atableau_styled_nodes_tl
-            % we have to grow the token list in several steps to control the expansions
             \tl_put_right:No \l__atableau_styled_nodes_tl
             {
-                \__atableau_draw_node:oVnV {aTableau/\l__atableau_ribbon_type_tl Box,##1} \l__atableau_name_tl {l} \l_tmpa_tl
+                \__atableau_tikz_node:oVnV {aTableau/\l__atableau_ribbon_type_tl Box,##1} \l__atableau_name_tl {l} \l_tmpa_tl
                 %\exp_not:N \node [aTableau/\l__atableau_ribbon_type_tl Box,##1](\l__atableau_name_tl)
                 %    at (\fp_use:N\l__atableau_xl_fp,\fp_use:N\l__atableau_yl_fp)
+                %    {\exp_not:N \__atableau_entry:n{\l_tmpa_tl}};
             }
+            %\tl_show:N \l__atableau_styled_nodes_tl
             %\__atableau_tl_put_right_braced:No \l__atableau_styled_nodes_tl {\exp_not:N \__atableau_entry:n{\l_tmpa_tl}}
             %\tl_put_right:Nn \l__atableau_styled_nodes_tl {;}
         }
