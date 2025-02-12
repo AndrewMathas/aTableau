@@ -1,7 +1,7 @@
 % ----------------------------------------------------------------------
 % atableau - Andrew Mathas (C) 2022-2025
-% Modified: 16:33 Friday, 07 February 2025
-% Modified: 16:33 Friday, 07 February 2025
+% Modified: 16:39 Friday, 07 February 2025
+% Modified: 16:39 Friday, 07 February 2025
 \documentclass{amsart}
 \usepackage[svgnames,table]{xcolor}
 \usepackage{atableau}
@@ -2888,11 +2888,11 @@
     respectively.
     \item Each box in the ribbon, including the head, can be
     given \TikZ-styling by prefixing it with a $*$, which gives the
-    box the \option{star style}, or by giving \TikZ-styling keys inside
+    box the current \option{star style}, or by putting \TikZ-styling keys inside
     square brackets $[...]$.
-    \item Entries can be added to the boxes in the ribbon by adding them
-    as a subscript, \textunderscore\texttt{\{entry\}}, to the ribbon
-    specification for the box.
+    \item Add an entry to a box in the ribbon by adding it as a
+    subscript, \textunderscore\texttt{\{entry\}}, to the corresponding
+    ribbon specification for the box.
   \end{itemize}
 
   Finally, when drawing the border, all ribbons in a
