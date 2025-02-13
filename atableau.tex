@@ -1,7 +1,7 @@
 % ----------------------------------------------------------------------
 % atableau - Andrew Mathas (C) 2022-2025
-% Modified: 14:16 Wednesday, 12 February 2025
-% Modified: 14:16 Wednesday, 12 February 2025
+% Modified: 20:30 Thursday, 13 February 2025
+% Modified: 20:30 Thursday, 13 February 2025
 \documentclass{amsart}
 \usepackage[svgnames,table]{xcolor}
 \usepackage{atableau}
@@ -1552,7 +1552,7 @@
   \option{box style} to set the style of the tableau boxes directly.
 
   \begin{example}
-  \Tableau[box style={text=red, draw=orange,shape=circle}]{123,45} \qquad
+  \Tableau[box style={text=red,draw=teal,shape=circle}]{123,45} \qquad
   \Tableau[box style={font=\small}, french]{123,45}
   \end{example}
 
@@ -2989,9 +2989,9 @@
   \end{example}
 
   As shown, whenever a box entry is given as a subscript it is used
-  instead of the value of \option{ribbon box}. If a ribbon
-  tableau contains multiple ribbons, then \option{ribbon box} is used
-  for all ribbons.
+  instead of the value of \option{ribbon box}. If a ribbon tableau
+  contains multiple ribbons, then the same value of \option{ribbon box}
+  is used for all ribbons.
 
   Similarly, there are keys \option{path style}, \option{path box},
   \option{path box style}, \option{snob style}, \option{snob box} and
