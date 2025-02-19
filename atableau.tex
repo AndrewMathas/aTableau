@@ -1,7 +1,7 @@
 % ----------------------------------------------------------------------
 % atableau - Andrew Mathas (C) 2022-2025
-% Modified: 20:30 Thursday, 13 February 2025
-% Modified: 20:30 Thursday, 13 February 2025
+% Modified: 15:30 Tuesday, 18 February 2025
+% ----------------------------------------------------------------------
 \documentclass{amsart}
 \usepackage[svgnames,table]{xcolor}
 \usepackage{atableau}
@@ -266,7 +266,7 @@
 \def\l@subsubsection{\@tocline{2}{0pt}{3.5pc}{3pc}{}}
 \makeatother
 
-\newenvironment{warning}{\trivlist\item[\hskip\labelsep\textcolor{red}{\textdbend}]}{\endtrivlist}
+\newenvironment{warning}{\list{\textcolor{red}{\textdbend}\quad}{\leftmargin=3em}\item}{\endlist}
 
 % ---------------------------------------------------------------------------
 \usepackage[skins]{tcolorbox}
@@ -645,7 +645,7 @@
   % --------------------------------------------------------------
   \section{Introduction}
 
-  The package provides commands for drawing common objects in algebraic
+  This package provides commands for drawing common objects in algebraic
   combinatorics and representation theory, together with styling options
   and a key-value interface for additional customization.  Under the
   hood, everything is drawn using \TikZ (and \LaTeX3).  These commands
@@ -683,7 +683,7 @@
   diagrams.
 
   By way of example, the following table shows how to draw a
-  Young diagram of shape $\lambda=(4,3^2,2)$ using the four tableaux
+  tableau of shape $\lambda=(4,3^2,2)$ using the four tableaux
   conventions supported by \aTableau:
 
   \begin{center}
@@ -757,9 +757,9 @@
   of key-value options that modify and embellish the diagrams. In addition, optional
   styling can be applied to entries of a tableau and the beads in an
   abacus.  Each command can be used as a standalone object in a
-  document, or they can be incorporated into a larger
+  document, or it can be incorporated into a larger
   \keyword{tikzpicture} environment, making it possible to use
-  these commands to create more complicated pictures.
+  \aTableau commands to create more complicated pictures.
 
   The general syntax of an \aTableau command is:
   \begin{quote}
@@ -889,21 +889,23 @@
   \keyword{\draw}-commands.)
 
   \begin{warning}
-     Unlike the \TikZ-commands, you should \emph{not} put a semicolon
+     Unlike \TikZ-commands, you should \emph{not} put a semicolon
      after an \aTableau-command when it is used with Cartesian
      coordinates inside a \keyword{tikzpicture} environment. If you
      accidentally add a semicolon then, most of the time it will not
      cause any harm and \TikZ will just give you a warning.
   \end{warning}
 
-  The top of the last example defines two \TikZ-styles, \textsf{B} and
-  \text{G}, which add the \textsf{b}lue and \textsf{g}reen coloured
-  hatchings styling to the two hooks. Inside the \keyword{tikzpicture}
-  environment, the Young diagram is placed at position $(0,0)$ by the
-  \keyword{\Diagram} command. The three \keyword{\draw} commands are
-  used to add the three labelled arrows to the picture. Please consult
-  the very readable \TikZ manual if you would like more information
-  about the \TikZ-commands used in this example.
+  \TikZ-styling can be applied to the most of the components of the
+  pictures produced by \aTableau commands.  The top of the last example
+  defines two \TikZ-styles, \textsf{B} and \text{G}, which add the
+  \textsf{b}lue and \textsf{g}reen coloured hatchings styling to the two
+  hooks. Inside the \keyword{tikzpicture} environment, the Young diagram
+  is placed at position $(0,0)$ by the \keyword{\Diagram} command. The
+  three \keyword{\draw} commands are used to add the three labelled
+  arrows to the picture. Please consult the very readable \TikZ manual
+  if you would like more information about the \TikZ-commands used in
+  this example.
 
   From the viewpoint of \aTableau, the most important point of the last
   example is that the first \keyword{\Diagram} command is a standalone
@@ -1126,7 +1128,7 @@
   have blank lines inside a \keyword{\Tableau} command. As this example
   suggests, by default, the entries in a tableau are typeset in
   mathematics-mode, but this can be changed using the
-  \option{text entries} key, which is described below.
+  \option{text entries} key, as described below.
 
   As the examples above show, the tableau entries can be individual
   characters, or they can be \TeX\ commands. Tableaux frequently contain
@@ -1149,7 +1151,7 @@
   This is done by adding style prefixes to the tableau entries.  To take
   advantage of these styles you need to have at least rudimentary
   knowledge of \TikZ-styling. The examples in this manual might be
-  enough to get you started as they give a good indication of what is
+  enough to get you started, as they give a good indication of what is
   possible. For anything more exotic, please consult the \TikZ manual.
 
   The simplest way to change the style of an entry in a tableau is to
@@ -1160,7 +1162,7 @@
   \end{example}
 
   In this tableau, there is an asterisk before each of the entries $2$,
-  $3$, $4$, $5$ and $8$, which gives the corresponding boxes the
+  $3$, $4$, $5$, $7$ and $11$, which gives the corresponding boxes the
   \option{star style}.  By default, $*$-entries are given the
   \TikZ-styling \keyword{fill=}\aTableauColour{StarStyle} by default. You can
   change the default $*$-style using the \option{star style} key:
@@ -1171,10 +1173,10 @@
   \end{example}
 
   Note that the $*$-styling overrides the default styling of the
-  surrounding boxes. This is because the boxes with the default styling
-  are placed first, in the order that they are entered, after which the
-  boxes that have custom styles are placed. (This is discussed in more detail
-  in \autoref{SS:order}.)
+  surrounding boxes, such as their borders. This is because the boxes
+  with the default styling are placed first, in the order that they are
+  entered, after which the boxes that have custom styles are placed.
+  (This is discussed in more detail in \autoref{SS:order}.)
 
   The $*$-syntax is a quick shorthand for adding emphasis to some boxes
   in a tableau, but all of the $*$-entries are given the same style.
@@ -1241,7 +1243,7 @@
   \footnote{As shown below, as better approach to define a
   \TikZ-style whenever you are using ``complicated'' \TikZ-styles.}
   This is necessary to ensure that  \LaTeX\ does not get confused by the
-  commas in the style setting (since commas are also used to separate
+  commas in the style setting (because commas are used to separate
   the rows of the tableau).
 
   \begin{example}
@@ -1329,8 +1331,8 @@
   \end{tikzpicture}
   \end{example}
 
-  If in doubt, the \option{label} keys should help match each picture
-  to the corresponding command.
+  The \option{label} keys should help match each tableau to the
+  corresponding command.
 
   % --------------------------------------------------------------
   \subsubsection{Tableau keys}
@@ -1443,10 +1445,10 @@
   \option[true]{border}[true/false] \newline
   \option[false]{no border}[false/true]
 
-  The \option{border} and \option{no border} keys enable and disable The
-  \option{no border} key is inverse to \option{border}, so \option{no
-  border} is equivalent to \option{no border=true}the drawing of the
-  (thick) border wall around a tableau.
+  The \option{border} and \option{no border} keys enable and disable
+  drawing of the tableau border. The \option{no border} key is inverse
+  to \option{border}, so \option{no border} is equivalent to \option{no
+  border=true}the drawing of the (thick) border wall around a tableau.
 
   \begin{example}
   \Tableau[ukrainian, border=false]{123,455,674} \qquad
@@ -1552,7 +1554,8 @@
   \option{box style} to set the style of the tableau boxes directly.
 
   \begin{example}
-  \Tableau[box style={text=red,draw=teal,shape=circle}]{123,45} \qquad
+  \Tableau[box style={text=red,draw=teal,shape=circle}]
+    {123,45} \qquad
   \Tableau[box style={font=\small}, french]{123,45}
   \end{example}
 
@@ -1609,7 +1612,7 @@
   \index{style!dashed}
   If you look closely at the second tableau in \autoref{Ex:dashed}, you will
   notice that the dashes are not very clean. This is because, for
-  example, the dashes on bottom of one box do not properly match up with
+  example, the dashes on bottom of one box do not coincide with
   the dashes on the top of the adjacent box below it. Rather than
   using \option{inner style=dashes} it is better to use something like
   \option{inner style=\{dash pattern=on 1pt off 2pt\}}.
@@ -1873,8 +1876,7 @@
     affect all \aTableau diagrams, including tableaux, Young diagrams
     and abacuses. If you want to use \keyword{\aTabset} to change the
     default sizes of the diagrams and tableaux in your document, then it
-    is probably better to use the \option{box height} and \option{box
-    width} options.
+    is better to use the \option{box height} and \option{box width} options.
   \end{warning}
 
   \option[0.5]{script=value}[decimal number]
@@ -2181,8 +2183,8 @@
   example in this section, so all of the options for the
   \keyword{\Tableau} command can be used with \keyword{\Diagram}. Rather
   than repeating all of the \keyword{\Tableau} options in this section,
-  we highlight the more interesting options together with some new,
-  diagram specific, options.
+  we highlight the more interesting ones, together with some new,
+  diagram specific, keys.
 
   \begin{samepage}
   Just like the \keyword{\Tableau} command, \keyword{\Diagram} supports the
@@ -2321,8 +2323,9 @@
 
   The circled horizontal dots in the right-hand diagram are a ``user
   error'', not a bug. The left-hand diagram shows that these dots come
-  from column $3$ with \option{dotted cols} \emph{after} first removing
-  rows 4--5 with \option{dotted rows}.
+  from removing column, using the $3$ in \option{dotted cols}, because
+  this is done after \emph{after} first removing rows 4--5 with
+  \option{dotted rows}.
 
   The \option{dotted rows} and \option{dotted cols} keys are not
   designed to be used with the \option{conjugate} key.
@@ -2382,7 +2385,7 @@
 
   \begin{itemize}
 
-    \item\option{entries=first} print the \emph{first}
+    \item\option{entries=first}: Prints the \emph{first}
     \textbf{standard} tableau of this shape, with respect to the Bruhat
     order. This is the tableau that has the numbers $1,2\dots,n$ entered
     in order from top left to right along down successive rows (with
@@ -2396,7 +2399,7 @@
   \Diagram[ukrainian, entries=first]{3^2,2}
   \end{example}
 
-    \item\option{entries=last} print the \emph{last} \textbf{standard}
+    \item\option{entries=last}: Prints the \emph{last} \textbf{standard}
     tableau of this shape, with respect to the Bruhat order. This is the
     tableau that has the numbers $1,2\dots,n$ entered in order from top
     to bottom down successive columns (with appropriate modifications
@@ -2410,7 +2413,7 @@
   \Diagram[australian, entries=last]{2^2,1}
   \end{example}
 
-    \item\option{entries=hooks} print the diagram where each box is
+    \item\option{entries=hooks}: Prints the diagram where each box is
     labelled by the corresponding \emph{hook length}. If $\lambda$ is a
     partition and $\lambda'$ is its conjugate partition then the hook
     length of the box in row~$i$ and column~$j$ is
@@ -2424,7 +2427,7 @@
   \Diagram[ukrainian, entries=hooks]{2^2,1}
   \end{example}
 
-  \item\option{entries=contents} print the diagram where each box is
+  \item\option{entries=contents}: Prints the diagram where each box is
     labelled by its \emph{content}, which is the row index minus the
     column index.
 
@@ -2447,7 +2450,7 @@
   uses \keyword{\shortminus 1} instead of \keyword{-1}, which look
   like $\shortminus1$ and $-1$, respectively.\indexcmd{shortminus}
 
-  \item\option{entries=residues} prints the diagram where each box is
+  \item\option{entries=residues}: Prints the diagram where each box is
   labelled by its \emph{residue}, which is the row index minus the
   column index modulo an integer~$e\ge2$, which must also be supplied.
 
@@ -3173,7 +3176,7 @@
   The possible choices are:
   \begin{itemize}
 
-    \item\option{entries=first} print the \emph{first} \textbf{standard} tableau of this
+    \item\option{entries=first}: Prints the \emph{first} \textbf{standard} tableau of this
     shape, which has the numbers $1,2\dots,n$ entered in order from top
     left to right along down successive rows (with appropriate modifications for
     the non-English conventions).
@@ -3182,7 +3185,7 @@
   \Multidiagram[entries=first]{3,1^2|2^2,1}
   \end{example}
 
-    \item\option{entries=last} print the \emph{last} \textbf{standard} tableau of this
+    \item\option{entries=last}: Prints the \emph{last} \textbf{standard} tableau of this
     shape, which has the numbers $1,2\dots,n$ entered in order from top
     to bottom down successive columns, and right to left along components (with appropriate modifications for
     the non-English conventions).
@@ -3191,14 +3194,14 @@
   \Multidiagram[entries=last]{3,2,2|2^2}
   \end{example}
 
-    \item\option{entries=hooks} print the diagram where each box in each
+    \item\option{entries=hooks}: Prints the diagram where each box in each
     component is labelled by the corresponding \emph{hook length}.
 
   \begin{example}
   \Multidiagram[entries=hooks]{3,1^2|3^3}
   \end{example}
 
-    \item\option{entries=contents} print the diagram where each box is
+    \item\option{entries=contents}: Prints the diagram where each box is
     labelled by its \emph{content}, which is the row index minus the
     column index.
 
@@ -3210,7 +3213,7 @@
     As shown, the \option{charge} offsets the contents in each
     component.
 
-    \item\option{entries=residues} print the diagram where each box is
+    \item\option{entries=residues}: Prints the diagram where each box iss
     labelled by its \emph{residue}, which is the row index minus the
     column index modulo some integer~$e$, which must also be supplied.
 
@@ -3534,7 +3537,7 @@
   \index{text entries!abacus}
 
   % --------------------------------------------------------------
-  \subsubsection{Abacus coordinates}\label{SS:abcoordinates}
+  \subsection{Abacus coordinates}\label{SS:abcoordinates}
   \index{xy@$(x,y)$}
   \index{Cartesian coordinates!abacus}
 
@@ -3831,7 +3834,7 @@
 
   \begin{itemize}
 
-    \item\option{entries=betas}\index{entries!beta}\index{beta numbers!entries}
+    \item\option{entries=betas}:\index{entries!beta}\index{beta numbers!entries}
     \label{beta numbers!abacuses}
     Labels the beads by the corresponding \emph{beta numbers}.
   \begin{example}
@@ -3839,7 +3842,7 @@
   \Abacus[entries=betas]{4}{3,2^2,1^3,0^2}
   \end{example}
 
-  \item\option{entries=residues}\index{entries!residues}
+  \item\option{entries=residues}:\index{entries!residues}
   Labels the beads by their residues. Unlike for tableaux, it is not
   necessary to specify the quantum characteristic \option{e}<abacus>,
   because this is determined by the number of runners and the
@@ -3859,7 +3862,7 @@
   add an offset to the residues, and the \option{cartan} key for
   residues of other affine Cartan types.
 
-  \item\option{entries=rows}\index{entries!rows}
+  \item\option{entries=rows}:\index{entries!rows}
   Labels the beads by their rows index of the corresponding part in the
   partition.
   \begin{example}
@@ -3871,7 +3874,7 @@
   partition are marked with a dash, since there is no corresponding row
   in partition for such beads.
 
-  \item\option{entries=shape}\index{entries!partition}
+  \item\option{entries=shape}:\index{entries!partition}
   Labels the beads by their shape. That is, each bead is labelled by the
   corresponding by the corresponding part of the partition.
   \begin{example}
