@@ -1,6 +1,6 @@
 % ----------------------------------------------------------------------
 % atableau - Andrew Mathas (C) 2022-2025
-% Modified: 15:30 Tuesday, 18 February 2025
+% Modified: 11:56 Wednesday, 19 February 2025
 % ----------------------------------------------------------------------
 \documentclass{amsart}
 \usepackage[svgnames,table]{xcolor}
@@ -2712,7 +2712,7 @@
 
   Some authors work with \emph{column tabloids}. Such tableaux do not
   have a dedicated \aTableau command, however, they can be drawn using the
-  \option{conjugate} option:  \index{tabloids!column}
+  \option{conjugate} option:  \index{tabloid!column}
 
   \begin{example}
   \Tabloid[conjugate]{123,4} \qquad
@@ -3444,8 +3444,8 @@
   way to represent a partition~\cite{James:YoungD}. The abacus is
   particularly useful in modular representation theory, where the number
   of runners is the (quantum) characteristic. Abacus combinatorics are
-  now used to help many algebras beyond their initial appearance in the
-  representation theory of the symmetric groups.
+  now used in the representation theory of many algebras, so their use
+  has extended far beyond the symmetric groups.
 
   The partition corresponding to an abacus is given by counting the
   number of empty bead positions before each bead on the abacus. The
@@ -4150,17 +4150,17 @@
   In addition, the \keyword{\aTabset} command is provided for setting
   can default \aTableau values for the \aTableau options.
 
-  For easier reference, here is the list of the \aTableau keys, together
-  with a quick explanation of what they do. The last two columns
-  indicate whether the options apply to tableau (and diagrams), or to
-  abacuses~--- or both!  Options starting with \keyword{(no)} are a pair
-  of boolean options and their inverses. If not given a true or false
-  value then they are implicitly set to true. Although not explicitly
-  listed, spelling variations of keys from the American dialect
-  of English are tolerated.
+  For easier reference, here is the complete list of \aTableau keys,
+  together with a quick explanation of what they do. The last two
+  columns indicate whether the options apply to tableau (and diagrams),
+  or to abacuses~--- or both!  Options starting with \keyword{(no)} are
+  a pair of boolean options and their inverses. If not given a true or
+  false value then they are implicitly set to true. Although not
+  explicitly listed, spelling variations of keys from the American
+  dialect of English are tolerated.
 
-  Both the key names and the green ticks below are hyperlinks to the
-  relevant sections of the manual.
+  Here, and throughout the manual, the key names (and the green ticks
+  below) are hyperlinks to the relevant sections of the manual.
 
   \newcommand\heading[1]{\textcolor{MidnightBlue}{\textsf{\large#1}}}
   \rowcolors{2}{LightSkyBlue!10}{}
@@ -4191,8 +4191,8 @@
     \option{conjugate}         & Draw the conjugate tableau/diagram                  & \Yes & \No \\
     \option{e}                 & Set the quantum characteristic for residues         & \Yes & \Yes[abacus] \\
     \option{east}              & Make abacus grow in the easterly direction          & \Yes & \No \\
-    \option{delimiters}        & Set delimiters for multitableau and multidiagrams   & \Yes & \No  \\
-    \option{empty}             & Symbol for empty tableau in multitableau            & \Yes & \No \\
+    \option{delimiters}        & Set delimiters for multitableaux and multidiagrams  & \Yes & \No  \\
+    \option{empty}             & Symbol for empty tableau in a multitableau          & \Yes & \No \\
     \option{dotted cols}       & Specify columns to replace with dots                & \Yes & \Yes[abacus] \\
     \option{dotted rows}       & Specify rows to replace with dots                   & \Yes & \Yes[abacus] \\
     \option{english}           & Use the English convention for tableaux             & \Yes & \No \\
@@ -4203,7 +4203,7 @@
     \option{inner wall}        & Set colour of inner tableau wall                    & \Yes & \No \\
     \option{label}             & Set tableau label                                   & \Yes & \No \\
     \option{label style}       & Set style of tableau labels                         & \Yes & \No \\
-    \option{left delimiter}    & Set left delimiter for multitableau                 & \Yes & \No \\
+    \option{left delimiter}    & Set left delimiter for a multitableau               & \Yes & \No \\
     \option{math entries}      & Typeset box and label entries in math-mode          & \Yes & \Yes[abacus] \\
     \option{name}              & Prefix of named nodes                               & \Yes & \Yes[abacus] \\
     \option{north}             & Make abacus grow in the northerly direction         & \No  & \Yes\\
@@ -4215,20 +4215,20 @@
     \option{ribbon box}        & Adds default box entry for each ribbon              & \Yes & \No \\
     \option{ribbon style}      & Set ribbon style                                    & \Yes & \No \\
     \option{ribbon box style}  & Sets style of boxes on each ribbon                  & \Yes & \No \\
-    \option{right delimiter}   & List of labels for the abacus runners               & \No  & Yes \\
-    \option{rows}              & Set number of rows in multitableau or abacus        & \Yes & \Yes[abacus] \\
-    \option{runner}            & Set runner colour                                   & \No  & \Yes \\
-    \option{runner labels}     & Set the colour of the abacus runners                & \No  & \Yes \\
+    \option{right delimiter}   & Set right delimiter for a multitableau              & \No  & \Yes \\
+    \option{rows}              & Set number of rows in a multitableau or abacus      & \Yes & \Yes[abacus] \\
+    \option{runner}            & Set the colour of the abacus runners                & \No  & \Yes \\
+    \option{runner labels}     & List of labels for the abacus runners               & \No  & \Yes \\
     \option{runner label style}& Set the style for e abacus labels                   & \No  & \Yes \\
     \option{runner sep}        & Set distance between consecutive abacus runners     & \No  & \Yes \\
     \option{runner style}      & Set the colour of the abacus runners                & \No  & \Yes \\
     \option{scale}             & Sets the \aTableau scale                            & \Yes & \Yes[abacus] \\
     \option{script}            & Sets the \aTableau scale for subscripts             & \Yes & \Yes(scale-abacus) \\
     \option{scriptscript}      & Sets the \aTableau scale for subsubscripts          & \Yes & \Yes(scale-abacus) \\
-    \option{separation}        & Set distance between components in multitableau     & \Yes & \No \\
-    \option{separator colour}  & Set separator colour for multitableau               & \Yes & \No \\
-    \option{separator}         & Set separator colour in multitableau                & \Yes & \No \\
-    \option*{separators}       & Enable separators in multitableau                   & \Yes & \No \\
+    \option{separation}        & Set distance between components in a multitableau   & \Yes & \No \\
+    \option{separator colour}  & Set separator colour for a multitableau             & \Yes & \No \\
+    \option{separator}         & Set separator colour in a multitableau              & \Yes & \No \\
+    \option*{separators}       & Enable separators in a multitableau                 & \Yes & \No \\
     \option{shifted}           & True for a shifted tableau                          & \Yes & \No \\
     \option{skew}              & Set inner skew shape                                & \Yes & \No \\
     \option*{skew border}      & Set skew border colour                              & \Yes & \No \\
@@ -4260,13 +4260,13 @@
     \bottomrule
   \end{xltabular}
 
-  All keys can be applied to all \aTableau pictures. Most of the time,
-  keys that cannot be applied to the current picture are silently
-  ignored.
+  All keys can be used with all \aTableau pictures. Most of the time,
+  keys that are not intended to be applied to the current picture will
+  be silently ignored.
 
   \pagebreak[4]
 
-  \emph{Most readers should ignore the following two subsections.}
+  \emph{Most users should ignore the following two subsections.}
 
   % --------------------------------------------------------------
   \subsection{\aTableau Colours}\label{S:Colours}
@@ -4290,25 +4290,25 @@
   All of these colours are defined as HTML colours using the
   \keyword{\definecolor} command provided by \ctan{xcolor}.
 
-  We recommend using the key-value interface to change the
-  colours used in the pictures created by \aTableau, rather than
-  changing these colours. It is sometimes useful to be able to use these
-  colour names directly in your own styles.
+  We recommend using the key-value interface to change the colours used
+  in the pictures created by \aTableau, rather than changing these
+  colours. It is sometimes useful to use these colour names directly in
+  your own styles.
 
   % --------------------------------------------------------------
   \subsection{\aTableau styles}\label{S:TikZStyles}
 
-  This package is little than a glorified interface to some \TikZ
-  commands. Under the hood there are many custom \TikZ styles that control the
-  pictures drawn by the \aTableau package. It is possible, and sometimes
-  useful (see, for example, \autoref{Ex:DottedAbacus}), to use these
-  styles in your own drawings.
-  The key-value interface to the \aTableau commands is the recommended
-  way of changing these styles. You can, if you want, change these
-  styles directly using \keyword{\tikzset}, but there is a risk that you
-  may break some of the \aTableau commands if you do this. If you do
-  change these styles, we strongly recommend that you \emph{append} to
-  these styles rather than setting them directly.
+  This package is little more than a glorified interface to some \TikZ
+  commands. Under the hood there are many custom \TikZ styles that
+  control the pictures drawn by the \aTableau package. The key-value
+  interface to the \aTableau commands is the recommended way of changing
+  these styles, however, it is sometimes useful (see, for example,
+  \autoref{Ex:DottedAbacus}), to use these styles in your own drawings.
+  You can, if you want, change these styles directly using
+  \keyword{\tikzset}, but there is a risk that you may break some of the
+  corresponding \aTableau commands if you do this. If you do change
+  these styles, we strongly recommend that you \emph{append} to these
+  styles rather than setting them directly.
 
   \begin{center}
     \begin{xltabular}{0.9\textwidth}{ll}\toprule
