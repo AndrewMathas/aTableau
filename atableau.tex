@@ -1,6 +1,6 @@
 % ----------------------------------------------------------------------
 % atableau - Andrew Mathas (C) 2022-2025
-% Modified: 11:56 Wednesday, 19 February 2025
+% Modified: 16:43 Tuesday, 25 February 2025
 % ----------------------------------------------------------------------
 \documentclass{amsart}
 \usepackage[svgnames,table]{xcolor}
@@ -2323,7 +2323,7 @@
 
   The circled horizontal dots in the right-hand diagram are a ``user
   error'', not a bug. The left-hand diagram shows that these dots come
-  from removing column, using the $3$ in \option{dotted cols}, because
+  from removing column~$3$, using the $3$ in \option{dotted cols}, because
   this is done after \emph{after} first removing rows 4--5 with
   \option{dotted rows}.
 
@@ -2464,9 +2464,10 @@
 
   \noindent\AddKeyLink{cartan}\AddKeyLink{e}% By default, residue
   sequences for affine type $A^{(1)}_e$, which correspond to the
-  symmetric group and friends, are used. In addition, residues in affine
-  types $C^{(1)}_e$, $A^{(2)}_{2e}$ and $D^{(2)}_e$, which can be
-  accessed using \option{cartan=C}, \option{cartan=AA}, and
+  symmetric group and friends, are used. Following the conventions used,
+  for example, in~\cite{MathasTubbenhauer:BAD}, residues in affine
+  types $C^{(1)}_e$, $A^{(2)}_{2e}$ and $D^{(2)}_e$, are available
+  \option{cartan=C}, \option{cartan=AA}, and
   \option{cartan=DD}, respectively.
 
     \smallskip
@@ -2483,7 +2484,7 @@
   \end{example}
 
   \begin{example}
-    % twisted affine type D : D^{(2)}_e
+  % twisted affine type D : D^{(2)}_e
   \Diagram[australian, entries=residues,
     e=2, cartan=DD] {8,4,2}
   \end{example}
@@ -2505,31 +2506,32 @@
   \index{partition!skew}
   \index{tableau!skew}
 
-  A partition $\mu$ is \emph{contained} in another partition $\lambda$, which
-  is written as~$\mu\subseteq\lambda$, if $\mu_k\le\lambda_k$, for
+  A partition $\mu$ is \emph{contained} in another partition $\lambda$,
+  written as~$\mu\subseteq\lambda$, if $\mu_k\le\lambda_k$, for
   $k\ge0$. If $\mu\subseteq\lambda$ then the \emph{skew partition}
   $\lambda/\mu=\set{(r,c)\in\lambda|(r,c)\notin\mu}$ is the set of nodes
   that are in~$\lambda$ and not in~$\mu$. In this manual, $\mu$ is
-  the \emph{inner shape} and $\lambda/\mu$ is the outer shape. A
+  the \emph{inner shape} and $\lambda/\mu$ is the \emph{outer shape}. A
   \emph{skew tableau} is a labelling of the nodes in the diagram of a
-  skew partition. Skew partitions and skew tableau can be drawn using
+  skew partition. Skew partitions and skew tableaux can be drawn using
   the commands:
 
   \keyword{\SkewDiagram (x,y) [options] {inner shape} {outer shape}}\newline
   \keyword{\SkewTableau (x,y) [options] {inner shape} {skew tableau specifications}}
 
   \index{exponential notation}
-  As with the previous commands, the $(x,y)$--coordinates should be given
-  if, and only if, the picture is inside a \keyword{tikzpicture}
-  environment.  The inner and outer shapes can either be given as a
-  comma-separated list of non-negative integers, or in exponential notation.
+  As with the previous commands, the $(x,y)$--coordinates should be
+  given if, and only if, the picture is inside a \keyword{tikzpicture}
+  environment.  The partitions for the inner and outer shapes can either
+  be given as a comma-separated list of non-negative integers, or in
+  exponential notation.
 
   Skew tableau and skew diagrams should always be connected. Use
   \keyword{\Multidiagram} and \keyword{\Multitableau} to draw
   disconnected diagrams.
 
   In fact, the \keyword{\SkewTableau} is just an alias for the
-  \keyword{\Tableau}, using the \option{skew} key to set the inner
+  \keyword{\Tableau} command used with the \option{skew} key to set the inner
   shape. For this reason, all of the options for the \keyword{\Tableau}
   command can be used with \keyword{\SkewTableau}. The entries in a
   \keyword{\SkewTableau} are specified in exactly the same way as in the
@@ -2583,7 +2585,7 @@
   \option{skew border} has been set to \textsf{true}.
 
   \begin{example}
-  \SkewTableau[skew border style={draw=yellow},
+  \SkewTableau[skew border style={draw=brown},
       skew border]{2,1^2}{123,45,67} \qquad
   \SkewDiagram[skew border style={dashed,fill=red!10},
       skew border]{1^2}{2^3}
@@ -2681,11 +2683,11 @@
   \label{S:Tabloid}
   \indexcmd{Tabloid}
 
-  A \emph{tabloid} is an equivalence class of tableau, where two tableaux
-  are equivalent if they have the same entries in each row, up to a
-  permutation. In the literature, tabloids are usually drawn with lines
-  above and below each row, and without side borders. Tabloids can be
-  drawn with the \keyword{\Tabloid} command.
+  A \emph{tabloid} is an equivalence class of tableau, where two
+  tableaux are equivalent if they have the same set of entries in each
+  row. In the literature, tabloids are usually drawn with lines above
+  and below each row, and without side borders. Tabloids can be drawn
+  with the \keyword{\Tabloid} command.
 
   \keyword{\Tabloid (x,y) [options] {partition }}
 
@@ -2697,7 +2699,7 @@
   \begin{example}
   \tikzset{R/.style={fill=red!20,circle,minimum size=5mm}}
   \Tabloid[ukrainian]{12[R]3,45}\quad
-  \Tabloid[english]  {12[R]3,45}\quad
+  \Tabloid[english]  {1[R]3,25}\quad
   \Tabloid[french]   {12[R]3,45}
   \end{example}
 
@@ -2738,7 +2740,7 @@
   A \emph{ribbon} in a tableau, or a diagram, is a connected strip of
   boxes~$R$ that are totally ordered by their contents. (Recall from
   \autoref{SS:entries} that the content of the box in row~$a$ and
-  column~$b$ is $b-a$.) Therefore, a ribbon does not contain a
+  column~$b$ is $b-a$.) In particular, a ribbon does not contain a
   \Diagram[scale=0.3, border=false, align=bottom]{2^2}-square, and if
   $(a,b)\in R$ then at most one of $(a+1,b)$ and $(a,b-1)$ belongs
   to~$R$.  The \emph{head} of a ribbon~$R$ is the unique node of maximal
@@ -2752,8 +2754,8 @@
 
   Like the other \aTableau commands, the $(x,y)$-coordinates are
   optional and are required if, and only if, the diagram is part of a
-  \keyword{tikzpicture} environment. All options for the
-  \keyword{\Tableau} command can be used for the ribbon command, so we
+  \keyword{tikzpicture} environment. All of the keys for the
+  \keyword{\Tableau} command can be used with the ribbon command, so we
   refer to \autoref{S:Tableau} for a description of the available
   options.
 
@@ -2762,18 +2764,18 @@
   Unlike the \keyword{\Tableau} command, the entries of a ribbon tableau
   are given by ribbon specifications (rather than tableau
   specifications). Ribbon specifications are also used by the three keys
-  \option{ribbons}, \option{paths}, and \option{snobs}, which were
+  \option{paths}, \option{ribbons}, and \option{snobs}, which were
   introduced in \autoref{SS:TableauOptions}.
 
   To understand the ribbon specifications, observe that if $(a,b)$ is
-  the head of a ribbon, then we can walk along the ribbon by specifying
-  whether the \textsf{r}ow index increases or the \textsf{c}olumn index
-  decreases. That is, a ribbon is uniquely determined by specifying its
-  head $(a,b)$ together with a sequence of $\textsf{r}$'s and
-  \textsf{c}'s to indicate when the row index increases, or the column
-  index decreases, respectively. For example, vertical and horizontal
-  ribbons are given by a sequences of \textsf{r}'s and \textsf{c}'s,
-  respectively:
+  the head of a ribbon, which is the unique node of maximal content,
+  then we can walk along the ribbon by specifying whether the
+  \textsf{r}ow index increases, or the \textsf{c}olumn index decreases.
+  That is, a ribbon is uniquely determined by specifying its head
+  $(a,b)$ together with a sequence of $\textsf{r}$'s and \textsf{c}'s to
+  indicate when the row index increases, or the column index decreases,
+  respectively. For example, vertical and horizontal ribbons are given
+  by a sequences of \textsf{r}'s and \textsf{c}'s, respectively:
 
   \begin{example}
   \aTabset{align=top, no border}
@@ -2832,10 +2834,10 @@
   this example shows, the optional style of any box in the ribbon takes
   precedence over the style of the full ribbon.
 
-  Finally, it is often necessary to label some of the boxes in the
-  ribbon. Optionally, text can be added to the boxes in a ribbon by
-  supplying it as a \textit{subscript} to the corresponding entry in the
-  ribbon specification:
+  Finally, it is often necessary to label some of the boxes in a ribbon.
+  Optionally, text can be added to the boxes in a ribbon by supplying it
+  as a \textit{subscript} to the corresponding entry in the ribbon
+  specification:
 
   \begin{example}
   \RibbonTableau[french]    { 12_1 c_2 r_3 } \quad
@@ -2845,7 +2847,7 @@
 
   Here we have put spaces between the entries for the different boxes
   in the ribbon for clarity. There are often many ways to draw the same
-  ribbon tableau, especially if the entries have styling.
+  ribbon tableau:
 
   \begin{example}
   \tikzset{Fill/.style={fill=#1!20!white},
@@ -3036,7 +3038,7 @@
 
   \begin{example}
   \aTabset{scale=0.7}
-  \Multidiagram{3,2^2|2,1,1|1}
+  \Multidiagram{3,2^2|2,1,1|1}  \smallskip
   \Multitableau[box font=\tiny]
     { 123,45,67 | 89,{10},{11} | {12}{13}{14} }
 \end{example}
@@ -4381,8 +4383,8 @@
 
 % ----------------------------------------------------------------------
 % bibliography
-% \bibliography{papers}
-% \bibliographystyle{andrew}
+%\bibliography{papers}
+%\bibliographystyle{andrew}
 
 \begin{thebibliography}{10}
 
@@ -4436,6 +4438,13 @@
   \href{http://dx.doi.org/10.1090/ulect/015}{\textit{Iwahori-{H}ecke algebras
   and {S}chur algebras of the symmetric group}}, University Lecture Series,
   \textbf{15}, American Mathematical Society, Providence, RI, 1999.
+
+\bibitem{MathasTubbenhauer:BAD}
+\textsc{A.~Mathas and D.~Tubbenhauer},
+  \href{http://dx.doi.org/https://doi.org/10.1112/jlms.12706}{\textit{Cellularity
+  for weighted KLRW algebras of types $B$, $A^{(2)}$, $D^{(2)}$}}, Journal of
+  the London Mathematical Society, \textbf{107} (2023), 1002--1044.
+\newblock \href{http://arxiv.org/abs/2201.01998}{arXiv:2201.01998}.
 
 \bibitem{Mendes:hooks}
 \textsc{A.~Mendes}, \textit{The combinatorics of rim hook tableaux}, Australas.
