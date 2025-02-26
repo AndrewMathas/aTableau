@@ -1,6 +1,6 @@
 % ---------------------------------------------------------------------------
 % atableau - Andrew Mathas (C) 2022-2025
-% Modified: 09:15 Friday, 14 February 2025
+% Modified: 08:46 Thursday, 27 February 2025
 % ---------------------------------------------------------------------------
 %
 % A latex package for symmetric group combinatorics:
@@ -22,6 +22,11 @@
 % the package repository github.com/AndrewMathas/aTableau/
 
 % ---------------------------------------------------------------------------
+% aTableau package date and version
+\def\atableau@version{2.1.0}
+\def\atableau@release{2025-01-24}
+
+% ---------------------------------------------------------------------------
 % load TikZ early to avoid \ExplSyntaxOn...\ExplSyntaxOff wrappers
 \RequirePackage{tikz}
 \usetikzlibrary{shapes.geometric,matrix}
@@ -32,10 +37,6 @@
 \DeclareMathSymbol{\shortminus}{\mathbin}{AMSa}{"39}
 
 % ---------------------------------------------------------------------------
-% package date and version
-\def\atableau@version{2.1.0}
-\def\atableau@release{2025-01-24}
-
 \providecommand\DeclareRelease[3]{}
 \providecommand\DeclareCurrentRelease[2]{}
 \DeclareRelease{\atableau@version}{\atableau@release}{atableau.sty}
@@ -58,7 +59,7 @@
 }
 
 % ---------------------------------------------------------------------------
-% package errors
+% aTableau errors
 
 \msg_new:nnnn { aTableau } { empty-tableau-row }
   { Row~#1~of~tableau~is~empty }
@@ -121,7 +122,7 @@
   { The~supported~valign~options~are~bottom,~centre~and~top }
 
 % ---------------------------------------------------------------------------
-% package variables
+% aTableau variables
 
 \bool_new:N \l__atableau_beta_numbers_bool% true if specifying beta numbers
 \bool_new:N \l__atableau_frame_bool       % true if drawing framed abacus runners
@@ -254,7 +255,7 @@
 \tl_set:Nn \l__atableau_ribbon_type_tl {ribbon} % by default, ribbons are ribbons
 
 % ---------------------------------------------------------------------------
-% default colours
+% aTableau colours
 \definecolor{aTableauMain}      {HTML} {00008B}
 \definecolor{aTableauInner}     {HTML} {0073e6}
 \definecolor{aTableauSkew}      {HTML} {818589}
@@ -270,7 +271,7 @@
   % The essential idea comes from https://tex.stackexchange.com/a/85750/234252
   no~shade/.code={ \tikz@addmode{\tikz@mode@shadefalse } },
   % -----------------------------------------------------------------------
-  % all tikz settings are in the aTableau family
+  % aTableau settings are in the aTableau family
   aTableau/.is~family,
   aTableau/.cd,
     % -----------------------------------------------------------------------
@@ -740,8 +741,6 @@
     }
 }
 
-% ---------------------------------------------------------------------------
-
 % usage: \__atableau_peek_style:nw {command suffix}
 % Read the next entry in the input sequence, with any optional style given by
 % a * or [...], and then pass this data to the command \__atableau_#1.
@@ -758,6 +757,7 @@
     }
 }
 
+% usage: \__atableau_record_style:nn [style] {part}
 % To parse the bead specifications used by \Abacus we need to accept the
 % a "bead specification" of the following form
 %    [style]m^k_txt
@@ -780,7 +780,8 @@
     \__atableau_peek_beads:nw {part}
 }
 
-% look for a caret or an underscore and pass on to \__atableau_record_bead:nn
+% usage: \__atableau_peek_beads:nw {type} {stream}
+% Look for a caret or an underscore and pass on to \__atableau_record_bead:nn
 \cs_new_protected:Npn \__atableau_peek_beads:nw #1
 {
     \peek_remove_spaces:n { % ignore spaces
@@ -831,7 +832,7 @@
 }
 
 % ---------------------------------------------------------------------------
-% creating custom diagrams
+% creating custom diagrams for the key entries=...
 
 % usage: \__atableau_compute_conjugate_partition:N {seq}
 % compute the conjugate partition of <seq> and store in \l__atableau_conjugate_seq
@@ -857,7 +858,7 @@
 % list of integers, or as a comma separated list of integers with exponents
 % giving the multiplicity of each part. For example, 4,3,3,3,2 and 4,3^3,2
 % are both supported.
-% TODO? Rewrite using quarks?
+% TODO: ?? Remove the hack below and rewrite using quarks
 \cs_new_protected:Npn \__atableau_set_partition:nn #1 #2
 {
   \seq_clear:c {l__atableau_#1_seq}
@@ -916,8 +917,8 @@
     }
 }
 
-% Diagrams with show=last are drawn using the \Tableau command, with
 % usage: \__atableau_shape_to_last:N {partition sequence}
+% Diagrams with entries=last are drawn using the \Tableau command
 \cs_new_protected:Npn \__atableau_shape_to_last:N #1
 {
     % compute conjugate of #1 as \l__atableau_conjugate_seq
@@ -960,8 +961,8 @@
     }
 }
 
-% Diagrams with show=first are drawn using the \Tableau command, with
 % usage: \__atableau_shape_to_first:N {partition sequence}
+% Diagrams with entries=first are drawn using the \Tableau command
 \cs_new_protected:Npn \__atableau_shape_to_first:N #1
 {
     \tl_clear:N \l__atableau_entries_tl
@@ -981,8 +982,8 @@
 }
 
 % usage: \__atableau_shape_to_hook:N {partition_seq}
-% Return a string for the hooks length tableau
-% Diagrams with show=hooks are drawn using the \Tableau command
+% Return a string for the hook length tableau. Some extra care needed for
+% shifted tableau, which use a different definition of hook length
 \cs_new_protected:Npn \__atableau_shape_to_hook:N #1
 {
     % now construct the hook tableau
@@ -1035,8 +1036,8 @@
     }
 }
 
-% Residue diagrams are drawn using the \Tableau command, with
 % usage: \__atableau_shape_to_residue:N {partition sequence}
+% Residue diagrams are drawn using the \Tableau command
 \cs_new_protected:Npn \__atableau_shape_to_residue:N #1
 {
     \tl_clear:N \l__atableau_entries_tl
@@ -1061,7 +1062,8 @@
 % draw diagram border
 
 % usage: \__atableau_draw_border:nn #1 #2 {name of sequence} {name of style}
-% The name of the sequence is either skew or shape
+% The name of the sequence is either skew or shape.
+% This should probably be an N-type argument
 \cs_new_protected:Npn \__atableau_draw_border:nn #1 #2
 {
     \int_zero:N \l__atableau_r_int  % row index
@@ -1347,7 +1349,7 @@
 \cs_new_protected:Nn \__atableau_draw_skew_boxes:
 {
    \group_begin:
-     % override the style of the skew boxes inside this group
+     % override the ribbon style inside this group
      \tikzset{aTableau/ribbonBox/.style=aTableau/skewBox}
      \tikzset{aTableau/ribbonStyle/.style={draw=none,fill=none}}
      \tl_set:Nn \l__atableau_ribbon_type_tl {ribbon} % change ribbon type to ribbon
@@ -1447,9 +1449,9 @@
     \int_set:Nn \l__atableau_col_int { 0\seq_item:Nn \l__atableau_skew_seq {1}}
 
     % Parse #1 into the rows and columns with style. Initially we used
-    % \seq_set_split:Nnn here, but this required double bracing
-    % multi-character entries whenever they were he only entry in their
-    % column. Now we peek for the commas and the style simultaneously.
+    % \seq_set_split:Nnn here, but this required double bracing multi-character
+    % entries whenever there was only one entry in a row. Now we peek for the
+    % commas and the style simultaneously.
     \__atableau_peek_tableau:w #1 \q_recursion_tail \q_recursion_stop
 
     % add the nodes with style
@@ -1507,7 +1509,7 @@
     \fp_set:Nn \l__atableau_ymin_fp { min(\l__atableau_ymin_fp, \use:c{l__atableau_y#1_fp}) }
 }
 
-\cs_new_protected:Npn \__atableau_update_multi_xtrema:n #1
+\cs_new_protected:Npn \__atableau_update_xmax:n #1
 {
     % adjust xmax for multishapes
     \fp_set:Nn \l__atableau_xmax_fp { max(\l__atableau_xmax_fp, \use:c{l__atableau_x#1_fp}) }
@@ -1621,12 +1623,6 @@
     }
     {   % save the node to \l__atableau_styled_nodes_tl if it is styled
         \__atableau_put_tikz_node:noVno {styled_nodes} {aTableau/boxStyle,#1} \l__atableau_name_tl {l} {#2}
-        %\tl_put_right:No \l__atableau_styled_nodes_tl
-        %{
-        %    \exp_not:N \node [aTableau/boxStyle,#1] (\l__atableau_name_tl)
-        %        at (\fp_use:N\l__atableau_xl_fp, \fp_use:N\l__atableau_yl_fp)
-        %        {\exp_not:N\__atableau_entry:n{#2}};
-        %}
     }
     % look for the next entry, or finish
     \int_incr:N \l__atableau_col_int
@@ -1709,7 +1705,7 @@
         % update ymin, ymax and xmax (re-enable each time as this is disabled when placing ribbons)
         \fp_compare:nNnTF {\l__atableau_rows_fp} = {0}
         { \cs_set_eq:NN \__atableau_update_extrema:n \__atableau_update_multi_extrema:n } % update xmax, ymin, ymax
-        { \cs_set_eq:NN \__atableau_update_extrema:n \__atableau_update_multi_xtrema:n }  % update only xmax
+        { \cs_set_eq:NN \__atableau_update_extrema:n \__atableau_update_xmax:n }  % update only xmax
 
         % change the node prefix to include the component index
         \tl_set:No \l__atableau_prefix_tl {\l__atableau_multiprefix_tl-\int_use:N\l__atableau_component_int}
@@ -2176,7 +2172,7 @@
 }
 
 % For each successive r and c in the ribbon specification, determine the
-% surrpouding coordinates in the ribbon and save any custom styles in
+% surrounding coordinates in the ribbon and save any custom styles in
 % \l__atableau_styles_seq and then repeat
 \cs_new_protected:Npn \__atableau_save_ribbon:nn [#1] #2
 {
@@ -2727,7 +2723,7 @@
 }
 
 % ---------------------------------------------------------------------------
-% Keys for the package options and their defaults
+% Define keys for the aTableau options and set their defaults
 
 % setting TikZ styles via styles = { ... }
 \cs_new_protected:Npn \__atableau_tikzset:nn #1 #2        { \pgfqkeys{/tikz}{#1/.style={#2}} }
@@ -3260,7 +3256,7 @@
 }
 
 % ---------------------------------------------------------------------------
-% Public facing package commands
+% Public facing aTableau commands
 
 % Except for \aTabset, all public-facing commands use \__atableau_tikzpicture:nnn,
 % which applies the settings, sets the coordinates of the picture origin and
