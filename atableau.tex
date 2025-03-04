@@ -1,6 +1,6 @@
 % ----------------------------------------------------------------------
 % atableau - Andrew Mathas (C) 2022-2025
-% Modified: 18:18 Tuesday, 25 February 2025
+% Modified: 19:59 Monday, 03 March 2025
 % ----------------------------------------------------------------------
 \documentclass{amsart}
 \usepackage[svgnames,table]{xcolor}
@@ -3569,7 +3569,7 @@
 
   \begin{example}
   \begin{tikzpicture}[add grid]
-    \aTabset{abacus ends=_|, entries=betas}
+    \aTabset{abacus ends=_|, entries=beads}
     \Abacus(0,0.5)  [south]              {3}{2,1^2}
     \Abacus(0,2)    [east,  bead=red]    {3}{2,1^2}
     \Abacus(2.5,0.5)[north, bead=orange] {3}{2,1^2}
@@ -3577,7 +3577,7 @@
   \end{tikzpicture}
   \end{example}
 
-  As described below, using \option{entries=betas}<abacus> labels each bead with the corresponding
+  As described below, using \option{entries=beads}<abacus> labels each bead with the corresponding
   \emph{beta number}.
 
   % --------------------------------------------------------------
@@ -3618,12 +3618,12 @@
   north, and west, respectively.
 
   \begin{Example}
-\Abacus[south,entries=betas]{2}{4^2,2,1}\qquad\Abacus[east,entries=betas]{2}{4^2,2,1}\qquad
-\Abacus[north,entries=betas]{2}{4^2,2,1}\qquad\Abacus[west,entries=betas]{2}{4^2,2,1}
+\Abacus[south,entries=beads]{2}{4^2,2,1}\qquad\Abacus[east,entries=beads]{2}{4^2,2,1}\qquad
+\Abacus[north,entries=beads]{2}{4^2,2,1}\qquad\Abacus[west,entries=beads]{2}{4^2,2,1}
   \end{Example}
 
   To make these conventions clearer, we have used
-  \option{entries=betas}<abacus> to label the beads in these abacuses by
+  \option{entries=beads}<abacus> to label the beads in these abacuses by
   their bead positions, or \emph{beta numbers}.
 
   \option[$-|$]{abacus ends}  [any pair of: $-$, \_\!\_, ., *, $|$, \textgreater]
@@ -3661,8 +3661,8 @@
   \Abacus[abacus ends=>-]{3}{2,1^2,0^3}\qquad\Abacus[abacus ends=-*]{3}{2,1^2,0^3}
   \end{Example}
 
- As one more example, \emph{beta numbers} can be displayed on a single
- runner using:
+ As one more example, \emph{beta numbers} can be displayed on a single,
+ horizontal, runner using:
 
   \begin{example}
   \Abacus[abacus ends=**, east, rows=7]{1}{2,1^2,*0^2}
@@ -3844,6 +3844,11 @@
   }]{6}{26,21^2,5^2,3,2^2,0^2}
   \end{example}
 
+  Notice the use of the styles \keyword{aTableau/clearBoxes} and
+  \keyword{aTableau/dottedLine} to draw over, or
+  erase, the cross-hatched dots and to draw the dotted lines,
+  respectively
+
   \option[]{entries=value}[betas, residues, rows, shape]<abacus>
 
   Like the \option{entries} key for tableaux, the
@@ -3853,13 +3858,13 @@
 
   \begin{itemize}
 
-    \item\option{entries=betas}:\index{entries!beta}\index{beta numbers!entries}
+    \item\option{entries=beads}:\index{entries!beta}\index{beta numbers!entries}
     \label{beta numbers!abacuses}
     Labels the beads by the corresponding \emph{beta numbers}, or bead
     positions.
   \begin{example}
-  \Abacus[entries=betas]{3}{3,2^2,0^2} \qquad
-  \Abacus[entries=betas]{4}{3,2^2,1^3,0^2}
+  \Abacus[entries=beads]{3}{3,2^2,0^2} \qquad
+  \Abacus[entries=beads]{4}{3,2^2,1^3,0^2}
   \end{example}
 
   \item\option{entries=residues}:\index{entries!residues}
@@ -4099,7 +4104,6 @@
 \tikzset{% reusable keys for drawing the strings in the diagram using named nodes
    Cap/.style={out=45, in=135}, % caps are drawn with to[Cap]
    Cup/.style={out=315,in=225}, % cups are drawn with to[Cup]
-   redribbon/.style={fill=red!40,opacity=0.4},
    % define pics for drawing the curvy up and down strings
    pics/ustring/.style n args = {4}{% {colour}{first coord}{wave coords}{last coord}
       code = {
@@ -4120,10 +4124,10 @@
       }
    },
 }
-\begin{tikzpicture}
+\begin{tikzpicture}[red ribbon/.style={fill=red!40,opacity=0.4}]
  \coordinate (O) at (0,0); \coordinate (T) at (0,3.2);
  \draw(-2,0)--(2.5,0) (-2,3.2)--(2.5,3.2);
- \Diagram(0,0)[ukrainian, inner style=dotted, ribbons={(redribbon)24rcrcrc}]{5,4^3,3}
+ \Diagram(0,0)[ukrainian, inner style=dotted, ribbons={(red ribbon)24rcrcrc}]{5,4^3,3}
  \pic at (T) {ustring={gray}{A-1-5}{}{A-1-5}};  % up strings
  \pic at (T) {ustring={gray}{A-4-4}{}{A-4-4}};
  \pic at (T) {ustring={gray}{A-5-2}{A-4-3,A-3-4}{A-3-4}};

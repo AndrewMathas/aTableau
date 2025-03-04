@@ -1,0 +1,62 @@
+\documentclass{amsart}
+\usepackage[svgnames]{xcolor}
+\usepackage{atableau}
+
+\definecolor {runner} {HTML} {c3835c}
+\definecolor {bead} {HTML} {b49473}
+\tikzset{
+  runner/.style = {
+    draw=runner,
+    outer color = runner!90,
+    inner color = runner!20,
+    line width=1pt,
+  },
+  bead/.style = {
+    draw = bead,
+    outer color = bead,
+    inner color = bead!50,
+    rounded corners=7pt,
+  },
+  beady/.style = {
+    rounded corners=2pt,
+    shading=ball,
+    ball color=bead,
+    draw = bead,
+  },
+  runnery/.style = {
+    draw=runner,
+    double=runner!50,
+    double distance=4mm,
+  },
+  tick/.style = {
+    line width = 1pt,
+    draw = red,%bead,
+  }
+}
+
+
+\begin{document}
+
+
+  \begin{tikzpicture}
+     \foreach \run in {0,...,5}
+     {
+     \shadedraw[runner](\run,0)-0++(0.2,0)--++(0,6)--++(-0.4,0)--++(0,-6)--++(0.2,0);
+     }
+    \draw[bead](0,0)--++(0.4,0)--++(0,0.45)--++(-0.8,0)--++(0,-0.45)--++(0.2,0);
+    \draw[bead](2,0)--++(0.4,0)--++(0,0.45)--++(-0.8,0)--++(0,-0.45)--++(0.2,0);
+    \draw[bead](0,0.5)--++(0.4,0)--++(0,0.45)--++(-0.8,0)--++(0,-0.45)--++(0.2,0);
+    \draw[bead](1,0.5)--++(0.4,0)--++(0,0.45)--++(-0.8,0)--++(0,-0.45)--++(0.2,0);
+    \draw[beady](3,0)--++(0.4,0) to[out=45,in=315]++(0.0,0.46)--++(-0.8,0)to[out=215,in=135]++(0,-0.46)--++(0.4,0);
+    \draw[beady](3,0.5)--++(0.4,0) to[out=45,in=315]++(0.0,0.46)--++(-0.8,0)to[out=215,in=135]++(0,-0.46)--++(0.4,0);
+    \draw[beady](3,1.5)--++(0.4,0) to[out=45,in=315]++(0.0,0.46)--++(-0.8,0)to[out=215,in=135]++(0,-0.46)--++(0.4,0);
+    \draw[runnery](6,0)--+(0,6);
+    \draw[tick](2.78,1.25) to[out=0,in=180] ++(0.44,0);
+  \end{tikzpicture}
+
+  \Abacus[styles={b={ball color=blue},r={ball color=red},w={ball color=white}},abacus ends=--,scale=1.4]{3}{[b]9,[w]8,[r]8,[b]6,[b]6,[r]2,[b]1} \qquad
+  \Abacus{2}{5_5, 4_4, 3_3, 2_2,0_0} \qquad
+  \Abacus[styles={R={ball color=red, text=yellow}}]{3}{*5^2_5, [R]4^3_4, 3, 2_2,*0^2_{oo}} \qquad
+  \Abacus{4}{8^2_-,7_+,5_a,4^2_b,1_\times^3,1_d}
+
+\end{document}
