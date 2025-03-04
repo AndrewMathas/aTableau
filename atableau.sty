@@ -1,6 +1,6 @@
 % ---------------------------------------------------------------------------
 % atableau - Andrew Mathas (C) 2022-2025
-% Modified: 13:46 Tuesday, 04 March 2025
+% Modified: 08:28 Wednesday, 05 March 2025
 % ---------------------------------------------------------------------------
 %
 % A latex package for symmetric group combinatorics:
@@ -457,7 +457,7 @@
     }
     % styles for traditional abacuses
     traditionalBead/.style = {
-        rounded corners=2pt,
+        shape = rounded~rectangle,
         shading=ball,
         ball color=bead,
         draw = bead,
@@ -2448,6 +2448,7 @@
 
 \cs_new_protected:Npn \__atableau_abacus_bead_traditional:nn #1 #2
 {
+    \draw[aTableau/traditionalBead] (\fp_use:c{l__atableau_x#2_fp},\fp_use:c{l__atableau_y#2_fp})(3,1.5)--++(0.4,0) to[out=45,in=315]++(0.0,0.46)--++(-0.8,0)to[out=215,in=135]++(0,-0.46)--++(0.4,0);
 }
 
 \cs_new_protected:Npn \__atableau_abacus_runner_traditional:nn #1 #2
@@ -3243,7 +3244,21 @@
     tick~style .code:n = { \__atableau_tikzset_append:nn {tickStyle} {#1} },
     tick~style .value_required:n = true,
 
-    traditional .bool_set:N = \l__atableau_traditional_bool,
+    traditional .code:n = {
+        \bool_set_eq:Nc \l__atableau_traditional_bool { c_#1_bool }
+        \bool_if:NTF \l__atableau_traditional_bool
+        {
+            \cs_set_eq:NN \__atableau_abacus_bead:nnn  \__atableau_abacus_bead_traditional:nnn
+            \cs_set_eq:NN \__atableau_abacus_runner:nn \__atableau_abacus_runner_traditional:nn
+            \cs_set_eq:NN \__atableau_abacus_tick:nn   \__atableau_abacus_tick_traditional:nn
+        }
+        {
+            \cs_set_eq:NN \__atableau_abacus_bead:nnn  \__atableau_abacus_bead_standard:nnn
+            \cs_set_eq:NN \__atableau_abacus_runner:nn \__atableau_abacus_runner_standard:nn
+            \cs_set_eq:NN \__atableau_abacus_tick:nn   \__atableau_abacus_tick_standard:nn
+        }
+
+    },
     traditional .default:n = true,
     traditional .initial:n = true,
 }
