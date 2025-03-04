@@ -1,6 +1,6 @@
 % ---------------------------------------------------------------------------
 % atableau - Andrew Mathas (C) 2022-2025
-% Modified: 23:10 Monday, 03 March 2025
+% Modified: 13:46 Tuesday, 04 March 2025
 % ---------------------------------------------------------------------------
 %
 % A latex package for symmetric group combinatorics:
@@ -48,13 +48,11 @@
 % ---------------------------------------------------------------------------
 % Give a warning if the LaTeX installation is older than TeXLive 2024
 \NeedsTeXFormat{LaTeX2e}% [2023-01-01]
-\IfFormatAtLeastTF { 2024-04-13 } {}
+\IfExplAtLeastTF {2024-04-13} {}
 {
     \PackageWarning {aTableau}
     {
-      The~aTableau~package~uses~many~recent~features~from~ ~LaTeX3.~Your~LaTeX
-      ~installation~is~not~very~recent.~If~the~package~gives~you~errors~then~you
-      ~may~need~to~update~your~LaTeX~installation~to~at~least~TeXLive~2024.
+      The~aTableau~package~uses~many~recent~features~from~ ~LaTeX3.~Your~LaTeX~installation~is~not~very~recent.~If~the~package~gives~you~errors~then~you~may~need~to~update~your~LaTeX~installation~to~at~least~TeXLive~2024.
     }
 }
 
