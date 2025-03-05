@@ -1,6 +1,6 @@
 % ---------------------------------------------------------------------------
 % atableau - Andrew Mathas (C) 2022-2025
-% Modified: 13:45 Wednesday, 05 March 2025
+% Modified: 09:37 Thursday, 06 March 2025
 % ---------------------------------------------------------------------------
 %
 % A latex package for symmetric group combinatorics:
@@ -413,7 +413,7 @@
     % abacus beads and runners
     % -----------------------------------------------------------------------
     % abacus beads
-    beadStyle/.style = {
+    standardBead/.style = {
         ball~color     = \l__atableau_bead_tl,
         font           = \l__atableau_bead_font_tl,
         minimum~height = \fp_to_decimal:N \l__atableau_bead_size_fp cm,
@@ -425,7 +425,7 @@
         inner~sep      = 0pt,
     },
     % abacus runners
-    runnerStyle/.style = {
+    standardRunner/.style = {
         line~cap = rect,
         very~thick,
         draw = \l__atableau_runner_tl,
@@ -437,7 +437,7 @@
     },
     % style for the top and bottom of the abacus
     abacusEnds/.style = {
-        aTableau/runnerStyle,
+        aTableau/standardRunner,
     },
     % abacus star style
     abacusStarStyle/.style = {
@@ -445,7 +445,7 @@
         ball~color = aTableauStarStyle,
     },
     % abacus ticks
-    tickStyle/.style = {
+    standardTick/.style = {
         draw = \l__atableau_tick_tl,
         semithick,
     },
@@ -465,9 +465,10 @@
         draw = aTableauBead,
     },
     traditionalRunner/.style = {
-        draw=runner,
-        double=runner!50,
-        double distance=4mm,
+      draw=runner,
+      outer color = runner!90,
+      inner color = runner!20,
+      line width=1pt,
     },
     traditionalTick/.style = {
         line~width = 1pt,
@@ -2432,33 +2433,38 @@
 
 \cs_new_protected:Npn \__atableau_abacus_bead_standard:nnn #1 #2 #3
 {
-    \node[aTableau/beadStyle, #1] at (\fp_use:c{l__atableau_x#2_fp},\fp_use:c{l__atableau_y#2_fp})
+    \node[aTableau/standardBead, #1] at (\fp_use:c{l__atableau_x#2_fp},\fp_use:c{l__atableau_y#2_fp})
         {\__atableau_entry:n {#3}};
+}
+
+\cs_new_protected:Npn \__atableau_abacus_bead_traditional:nnn #1 #2 #3
+{
+    \draw[aTableau/traditionalBead] (\fp_use:c{l__atableau_x#2_fp},\fp_use:c{l__atableau_y#2_fp});
 }
 
 \cs_new_protected:Npn \__atableau_abacus_runner_standard:nn #1 #2
 {
-    \draw[aTableau/runnerStyle] (\fp_use:c{l__atableau_x#1_fp},\fp_use:c{l__atableau_y#1_fp})
+    \draw[aTableau/standardRunner] (\fp_use:c{l__atableau_x#1_fp},\fp_use:c{l__atableau_y#1_fp})
+        --(\fp_use:c{l__atableau_x#2_fp},\fp_use:c{l__atableau_y#2_fp});
+}
+
+\cs_new_protected:Npn \__atableau_abacus_runner_traditional:nn #1 #2
+{
+    \draw[aTableau/traditionalRunner]
+        (\fp_use:c{l__atableau_x#1_fp},\fp_use:c{l__atableau_y#1_fp})
         --(\fp_use:c{l__atableau_x#2_fp},\fp_use:c{l__atableau_y#2_fp});
 }
 
 \cs_new_protected:Npn \__atableau_abacus_tick_standard:nn #1 #2
 {
-    \draw[aTableau/tickStyle] (\fp_use:c{l__atableau_x#1_fp},\fp_use:c{l__atableau_y#1_fp})
+    \draw[aTableau/standardTick] (\fp_use:c{l__atableau_x#1_fp},\fp_use:c{l__atableau_y#1_fp})
         --(\fp_use:c{l__atableau_x#2_fp},\fp_use:c{l__atableau_y#2_fp});
-}
-
-\cs_new_protected:Npn \__atableau_abacus_bead_traditional:nnn #1 #2 #3
-{
-    \draw[aTableau/traditionalBead] (\fp_use:c{l__atableau_x#2_fp},\fp_use:c{l__atableau_y#2_fp})(3,1.5)--++(0.4,0) to[out=45,in=315]++(0.0,0.46)--++(-0.8,0)to[out=215,in=135]++(0,-0.46)--++(0.4,0);
-}
-
-\cs_new_protected:Npn \__atableau_abacus_runner_traditional:nn #1 #2
-{
 }
 
 \cs_new_protected:Npn \__atableau_abacus_tick_traditional:nn #1 #2
 {
+    \draw[aTableau/traditionalTick] (\fp_use:c{l__atableau_x#1_fp},\fp_use:c{l__atableau_y#1_fp})
+        --(\fp_use:c{l__atableau_x#2_fp},\fp_use:c{l__atableau_y#2_fp});
 }
 
 \cs_set_eq:NN \__atableau_abacus_bead:nnn  \__atableau_abacus_bead_standard:nnn
@@ -2525,7 +2531,7 @@
             \__atableau_set_bead_coordinates:nnV {a} { 0 } \l_tmpa_int
             \__atableau_set_bead_coordinates:noV {b} { \int_eval:n{\l__atableau_rows_int+1} } \l_tmpa_int
             \__atableau_abacus_runner:nn {a} {b}
-            %\draw[aTableau/runnerStyle] (\fp_use:N\l__atableau_xa_fp,\fp_use:N\l__atableau_ya_fp)--(\fp_use:N\l__atableau_xb_fp,\fp_use:N\l__atableau_yb_fp);
+            %\draw[aTableau/standardRunner] (\fp_use:N\l__atableau_xa_fp,\fp_use:N\l__atableau_ya_fp)--(\fp_use:N\l__atableau_xb_fp,\fp_use:N\l__atableau_yb_fp);
 
             % draw ticks
             \int_step_inline:nn {\l__atableau_rows_int}
@@ -2540,7 +2546,7 @@
                 \fp_set:Nn \l__atableau_yb_fp {\l__atableau_yl_fp-\l__atableau_tick_length_fp*\l__atableau_ab_col_dy_fp}
 
                 \__atableau_abacus_tick:nn {a} {b}
-                %\draw[aTableau/tickStyle] (\fp_use:N\l__atableau_xa_fp,\fp_use:N\l__atableau_ya_fp)
+                %\draw[aTableau/standardTick] (\fp_use:N\l__atableau_xa_fp,\fp_use:N\l__atableau_ya_fp)
                 %    --(\fp_use:N\l__atableau_xb_fp,\fp_use:N\l__atableau_yb_fp);
             }
         }
@@ -2607,7 +2613,7 @@
                 % draw the bead with style
                 \tl_set:No \l_tmpb_tl { \seq_item:Nn \l__atableau_styles_seq {##1} }
                 \__atableau_abacus_bead:enV \l_tmpb_tl {l} \l_tmpa_tl
-                %\exp_last_unbraced:Nx \node{[aTableau/beadStyle, \l_tmpb_tl]}
+                %\exp_last_unbraced:Nx \node{[aTableau/standardBead, \l_tmpb_tl]}
                 %    at (\fp_use:N\l__atableau_xl_fp,\fp_use:N\l__atableau_yl_fp){\__atableau_entry:x {\l_tmpa_tl}};
             }
         }
@@ -3201,7 +3207,7 @@
     bead~shape .value_required:n = true,
     bead~shape .initial:n = circle,
 
-    bead~style .code:n = { \__atableau_tikzset_append:nn {beadStyle} {#1} },
+    bead~style .code:n = { \__atableau_tikzset_append:nn {standardBead} {#1} },
     bead~style .value_required:n = true,
 
     bead~text .tl_set:N = \l__atableau_bead_text_tl, % bead text colour
@@ -3212,14 +3218,14 @@
     beta~numbers .default:n = false,
     beta~numbers .initial:n = false,
 
-    no~shade .code:n = { \__atableau_tikzset_append:nn {beadStyle} {no~shade,} },
+    no~shade .code:n = { \__atableau_tikzset_append:nn {standardBead} {no~shade,} },
     no~shade .value_required:n = false,
 
     runner .tl_set:N = \l__atableau_runner_tl, % runner colour
     runner .value_required:n = true,
     runner .initial:n = aTableauInner,
 
-    runner~style .code:n = { \__atableau_tikzset_append:nn {runnerStyle} {#1} },
+    runner~style .code:n = { \__atableau_tikzset_append:nn {standardRunner} {#1} },
     runner~style .value_required:n = true,
 
     runner~labels .code:n = { \seq_set_split:Nnn \l__atableau_runner_labels_seq {,} {#1} },
@@ -3243,7 +3249,7 @@
     tick~length .value_required:n = true,
     tick~length .initial:n = 0.1,
 
-    tick~style .code:n = { \__atableau_tikzset_append:nn {tickStyle} {#1} },
+    tick~style .code:n = { \__atableau_tikzset_append:nn {standardTick} {#1} },
     tick~style .value_required:n = true,
 
     traditional .code:n = {
@@ -3262,7 +3268,7 @@
         }
 
     },
-    traditional .default:n = true,
+    traditional .default:n = false,
     traditional .initial:n = true,
 }
 

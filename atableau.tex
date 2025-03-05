@@ -1,6 +1,6 @@
 % ----------------------------------------------------------------------
 % atableau - Andrew Mathas (C) 2022-2025
-% Modified: 19:59 Monday, 03 March 2025
+% Modified: 09:58 Thursday, 06 March 2025
 % ----------------------------------------------------------------------
 \documentclass{amsart}
 \usepackage[svgnames,table]{xcolor}
@@ -646,7 +646,7 @@
   % --------------------------------------------------------------
   \section{Introduction}
 
-  This package provides commands for drawing common objects in algebraic
+  The \aTableau package provides commands for drawing common objects in algebraic
   combinatorics and representation theory, together with styling options
   and a key-value interface for additional customization.  Under the
   hood, everything is drawn using \TikZ (and \LaTeX3).  These commands
@@ -732,7 +732,7 @@
   a comma-separated list of positive integers, or using exponential
   notation, which is usually shorter and easier to (proof)read.
 
-  To use the package, add the following line to your document preamble:
+  To use the \aTableau package, add the following line to your document preamble:
 
   \indexcmd{usepackage}
   \begin{quote}
@@ -4022,9 +4022,8 @@
   \section{Examples from the literature}
 
   This section shows how to draw some tableaux that appear in the
-  literature. All of these diagrams predate this package. The aim of
-  this section is to show how these pictures can be drawn using this
-  package.
+  literature. The aim of this section is to show how these pictures can
+  be drawn using the \aTableau package.
 
   Diagrams like the following are common. Note the use of a ribbon to
   add the $\alpha$ in row~$6$ and column~$8$.
@@ -4345,22 +4344,25 @@
        aTableau/ribbonBox        & Boxes on ribbons \\
        aTableau/snobBox          & Boxes on snobs \\
        aTableau/pathStyle        & Paths \\
-       aTableau/ribbonStyle      & Ribbons \\
-       aTableau/snobStyle        & Snobs \\
-       aTableau/labelStyle       & Tableau labels \\
-       aTableau/tableauStarStyle & Star style for tableaux \\
-       aTableau/clearBoxes       & Erase material. Used by \option{dotted rows} and \option{dotted cols}\\
-       aTableau/dottedLine       & Adds dotted lines. Used by \option{dotted rows} and \option{dotted cols}\\
-       aTableau/separatorSymbol  & Separators in multitableau\\
-       aTableau/separatorLine    & Separator lines in multitableau\\
-       aTableau/leftDelimiter    & Left delimiter in multitableau\\
-       aTableau/rightDelimiter   & Right delimiter in multitableau\\
-       aTableau/beadStyle        & Abacus beads\\
-       aTableau/runnerStyle      & Abacus runners\\
-       aTableau/runnerLabelStyle & Style of abacus runner labels\\
        aTableau/abacusEnds       & Tops and bottoms of abacuses\\
        aTableau/abacusStarStyle  & Abacus stars \\
-       aTableau/tickStyle        & Abacus ticks \\
+       aTableau/clearBoxes       & Erase material. Used by \option{dotted rows} and \option{dotted cols}\\
+       aTableau/dottedLine       & Adds dotted lines. Used by \option{dotted rows} and \option{dotted cols}\\
+       aTableau/labelStyle       & Tableau labels \\
+       aTableau/leftDelimiter    & Left delimiter in multitableau\\
+       aTableau/ribbonStyle      & Ribbons \\
+       aTableau/rightDelimiter   & Right delimiter in multitableau\\
+       aTableau/runnerLabelStyle & Style of abacus runner labels\\
+       aTableau/separatorLine    & Separator lines in multitableau\\
+       aTableau/separatorSymbol  & Separators in multitableau\\
+       aTableau/snobStyle        & Snobs \\
+       aTableau/standardBead     & Standard abacus beads\\
+       aTableau/standardRunner   & Standard abacus runners\\
+       aTableau/standardTick     & Standard abacus ticks \\
+       aTableau/tableauStarStyle & Star style for tableaux \\
+       aTableau/traditionalBead  & Traditional abacus beads\\
+       aTableau/traditionalRunner& Traditional abacus runners\\
+       aTableau/traditionalTick  & Traditional abacus ticks \\
        \bottomrule
     \end{xltabular}
   \end{center}
@@ -4375,7 +4377,7 @@
   % --------------------------------------------------------------
   \section{Feature requests and bug reports}
 
-  Please make any feature requests and bug reports on the package github
+  Please make any feature requests and bug reports on the \aTableau github
   page
   \begin{center}
     \href{https://github.com/AndrewMathas/aTableau/}{github.com/AndrewMathas/aTableau/}.
@@ -4386,14 +4388,14 @@
   example}, which is the smallest possible amount of \LaTeX\ code that
   demonstrates the problem and compiles, unless you are reporting a
   problem that gives a compilation error in which case your example
-  should give the error. This is necessary because if I cannot reproduce
-  your problem, then it is unlikely that I will be able to fix it.
+  should give the error. This is necessary because if we cannot reproduce
+  your problem, then it is unlikely that we will be able to fix it.
 
 
   % --------------------------------------------------------------
   \subsection*{Acknowledgements}
 
-  Several features in the package have benefited from discussions on
+  Several features in \aTableau have benefited from discussions on
   \url{tex.stackexchange}. In particular, I thank
     Max Chernoff,
     Lars Madsen,
