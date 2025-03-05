@@ -1,6 +1,6 @@
 % ---------------------------------------------------------------------------
 % atableau - Andrew Mathas (C) 2022-2025
-% Modified: 08:28 Wednesday, 05 March 2025
+% Modified: 13:45 Wednesday, 05 March 2025
 % ---------------------------------------------------------------------------
 %
 % A latex package for symmetric group combinatorics:
@@ -260,6 +260,8 @@
 \definecolor{aTableauSkew}      {HTML} {818589}
 \definecolor{aTableauSkewFill}  {HTML} {F8F8F8}
 \definecolor{aTableauStarStyle} {HTML} {E6F7FF}
+\definecolor{aTableauRunner}    {HTML} {C3835C}
+\definecolor{aTableauBead}      {HTML} {B49473}
 
 % ---------------------------------------------------------------------------
 % TikZ styling of aTableau components
@@ -454,13 +456,13 @@
         minimum~width  = \fp_to_decimal:N \l__atableau_bead_size_fp cm,
         shape          = \l__atableau_bead_shape_tl,
         draw=none,
-    }
+    },
     % styles for traditional abacuses
     traditionalBead/.style = {
         shape = rounded~rectangle,
         shading=ball,
-        ball color=bead,
-        draw = bead,
+        ball~color=aTableauBead,
+        draw = aTableauBead,
     },
     traditionalRunner/.style = {
         draw=runner,
@@ -468,7 +470,7 @@
         double distance=4mm,
     },
     traditionalTick/.style = {
-        line width = 1pt,
+        line~width = 1pt,
         draw = red,%bead,
     },
 }
@@ -2446,7 +2448,7 @@
         --(\fp_use:c{l__atableau_x#2_fp},\fp_use:c{l__atableau_y#2_fp});
 }
 
-\cs_new_protected:Npn \__atableau_abacus_bead_traditional:nn #1 #2
+\cs_new_protected:Npn \__atableau_abacus_bead_traditional:nnn #1 #2 #3
 {
     \draw[aTableau/traditionalBead] (\fp_use:c{l__atableau_x#2_fp},\fp_use:c{l__atableau_y#2_fp})(3,1.5)--++(0.4,0) to[out=45,in=315]++(0.0,0.46)--++(-0.8,0)to[out=215,in=135]++(0,-0.46)--++(0.4,0);
 }
@@ -2455,7 +2457,7 @@
 {
 }
 
-\cs_new_protected:Npn \__atableau_abacus_tick_traditional:nnn #1 #2
+\cs_new_protected:Npn \__atableau_abacus_tick_traditional:nn #1 #2
 {
 }
 
@@ -3246,6 +3248,7 @@
 
     traditional .code:n = {
         \bool_set_eq:Nc \l__atableau_traditional_bool { c_#1_bool }
+        \typeout{setting~standard/traditional:~#1.}
         \bool_if:NTF \l__atableau_traditional_bool
         {
             \cs_set_eq:NN \__atableau_abacus_bead:nnn  \__atableau_abacus_bead_traditional:nnn
