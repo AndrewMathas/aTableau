@@ -1,6 +1,6 @@
 % ---------------------------------------------------------------------------
 % atableau - Andrew Mathas (C) 2022-2025
-% Modified: 17:15 Thursday, 06 March 2025
+% Modified: 18:21 Thursday, 06 March 2025
 % ---------------------------------------------------------------------------
 %
 % A latex package for symmetric group combinatorics:
@@ -219,6 +219,7 @@
 \tl_new:N \l__atableau_capture_style_tl   % contains captured style
 \tl_new:N \l__atableau_capture_txt_tl     % contains captured text
 \tl_new:N \l__atableau_cartan_tl          % the Cartan type
+\tl_new:N \l__atableau_convention_tl      % the current (abacus) convention
 \tl_new:N \l__atableau_empty_tl           % symbol for empty tableau/diagram in a multi tableau/diagram
 \tl_new:N \l__atableau_entries_tl         % custom entries in tableau
 \tl_new:N \l__atableau_inner_tl           % colour of tableau inner walls
@@ -485,6 +486,8 @@
     {
         \msg_error:nnx {aTableau} {unrecognised-style} {#1/#2}
     }
+    % record the convention
+    \tl_set:Nn \l__atableau_convention_tl {#2}
 }
 
 \cs_new:Nn \__atableau_set_style_tableau_english:
@@ -680,6 +683,7 @@
 \cs_generate_variant:Nn \seq_set_split:Nnn {cnn}
 
 \cs_generate_variant:Nn \__atableau_add_ribbon:n {V}
+\cs_generate_variant:Nn \__atableau_set_style:nn {nV}
 \cs_generate_variant:Nn \__atableau_count_row:n {x}
 \cs_generate_variant:Nn \__atableau_put_tikz_node:nnnnn {nnVnV, noVnV, noVno}
 \cs_generate_variant:Nn \__atableau_tikz_node:nnnn {nVno}
@@ -3307,11 +3311,13 @@
         \typeout{setting~standard/traditional:~#1.}
         \bool_if:NTF \l__atableau_traditional_bool
         {
+            \__atableau_set_style:nV {traditional} \l__atableau_convention_tl
             \cs_set_eq:NN \__atableau_abacus_bead:nnn  \__atableau_abacus_bead_traditional:nnn
             \cs_set_eq:NN \__atableau_abacus_runner:nn \__atableau_abacus_runner_traditional:nn
             \cs_set_eq:NN \__atableau_abacus_tick:nn   \__atableau_abacus_tick_traditional:nn
         }
         {
+            \__atableau_set_style:nV {abacus} \l__atableau_convention_tl
             \cs_set_eq:NN \__atableau_abacus_bead:nnn  \__atableau_abacus_bead_standard:nnn
             \cs_set_eq:NN \__atableau_abacus_runner:nn \__atableau_abacus_runner_standard:nn
             \cs_set_eq:NN \__atableau_abacus_tick:nn   \__atableau_abacus_tick_standard:nn
