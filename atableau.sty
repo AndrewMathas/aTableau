@@ -1,6 +1,6 @@
 % ---------------------------------------------------------------------------
 % atableau - Andrew Mathas (C) 2022-2025
-% Modified: 09:37 Thursday, 06 March 2025
+% Modified: 17:15 Thursday, 06 March 2025
 % ---------------------------------------------------------------------------
 %
 % A latex package for symmetric group combinatorics:
@@ -412,7 +412,29 @@
     % -----------------------------------------------------------------------
     % abacus beads and runners
     % -----------------------------------------------------------------------
-    % abacus beads
+    % style for the top and bottom of the abacus
+    abacusEnds/.style = {
+        aTableau/standardRunner,
+    },
+    % abacus star style
+    abacusStarStyle/.style = {
+        text = aTableauMain,
+        ball~color = aTableauStarStyle,
+    },
+    runnerLabelStyle/.style = {
+        aTableau/node,
+        text = aTableauInner,
+        font = \scriptsize
+    },
+    % -----------------------------------------------------------------------
+    % the named coordinate for an abacus tick
+    namedTick/.style = {
+        minimum~height = \fp_to_decimal:N \l__atableau_bead_size_fp cm,
+        minimum~width  = \fp_to_decimal:N \l__atableau_bead_size_fp cm,
+        draw=none,
+    },
+    % styles for standard abacuses
+    % -----------------------------------------------------------------------
     standardBead/.style = {
         ball~color     = \l__atableau_bead_tl,
         font           = \l__atableau_bead_font_tl,
@@ -424,51 +446,29 @@
         anchor         = center,
         inner~sep      = 0pt,
     },
-    % abacus runners
     standardRunner/.style = {
         line~cap = rect,
         very~thick,
         draw = \l__atableau_runner_tl,
     },
-    runnerLabelStyle/.style = {
-        aTableau/node,
-        text = aTableauInner,
-        font = \scriptsize
-    },
-    % style for the top and bottom of the abacus
-    abacusEnds/.style = {
-        aTableau/standardRunner,
-    },
-    % abacus star style
-    abacusStarStyle/.style = {
-        text = aTableauMain,
-        ball~color = aTableauStarStyle,
-    },
-    % abacus ticks
     standardTick/.style = {
         draw = \l__atableau_tick_tl,
         semithick,
     },
-    % -----------------------------------------------------------------------
-    % the named coordinate for an abacus tick
-    namedTick/.style = {
-        minimum~height = \fp_to_decimal:N \l__atableau_bead_size_fp cm,
-        minimum~width  = \fp_to_decimal:N \l__atableau_bead_size_fp cm,
-        shape          = \l__atableau_bead_shape_tl,
-        draw=none,
-    },
     % styles for traditional abacuses
+    % -----------------------------------------------------------------------
     traditionalBead/.style = {
+        aTableau/standardBead,
+        minimum~width  = \fp_eval:n{2*\l__atableau_bead_size_fp}cm,
         shape = rounded~rectangle,
-        shading=ball,
         ball~color=aTableauBead,
         draw = aTableauBead,
     },
     traditionalRunner/.style = {
       draw=runner,
-      outer color = runner!90,
-      inner color = runner!20,
-      line width=1pt,
+      outer~color = aTableauRunner!90,
+      inner~color = aTableauRunner!20,
+      line~width=1pt,
     },
     traditionalTick/.style = {
         line~width = 1pt,
@@ -481,94 +481,145 @@
 % sets the basic styles for the tableaux and abacus commands
 \cs_new:Npn \__atableau_set_style:nn #1 #2
 {
-    \str_case:enF { #1/#2 }
-    {
-      {tableau/english}
-        {
-          \fp_set:Nn \l__atableau_tab_col_dx_fp {1}
-          \fp_set:Nn \l__atableau_tab_col_dy_fp {0}
-          \fp_set:Nn \l__atableau_tab_row_dx_fp {0}
-          \fp_set:Nn \l__atableau_tab_row_dy_fp {-1}
-          \fp_set:Nn \l__atableau_box_ht_fp {\l__atableau_yscale_fp*0.5}
-          \fp_set:Nn \l__atableau_box_wd_fp {\l__atableau_xscale_fp*0.5}
-          \tl_set:Nn \l__atableau_box_shape_tl {rectangle}
-        }
-      {tableau/french}
-        {
-          \fp_set:Nn \l__atableau_tab_col_dx_fp {1}
-          \fp_set:Nn \l__atableau_tab_col_dy_fp {0}
-          \fp_set:Nn \l__atableau_tab_row_dx_fp {0}
-          \fp_set:Nn \l__atableau_tab_row_dy_fp {1}
-          \fp_set:Nn \l__atableau_box_ht_fp {\l__atableau_yscale_fp*0.5}
-          \fp_set:Nn \l__atableau_box_wd_fp {\l__atableau_xscale_fp*0.5}
-          \tl_set:Nn \l__atableau_box_shape_tl {rectangle}
-        }
-      {tableau/australian}
-        {
-          \fp_set:Nn \l__atableau_tab_col_dx_fp {0.5}
-          \fp_set:Nn \l__atableau_tab_col_dy_fp {-0.5}
-          \fp_set:Nn \l__atableau_tab_row_dx_fp {-0.5}
-          \fp_set:Nn \l__atableau_tab_row_dy_fp {-0.5}
-          \fp_set:Nn \l__atableau_box_ht_fp {\l__atableau_yscale_fp*0.7012} % 1/sqrt(2)
-          \fp_set:Nn \l__atableau_box_wd_fp {\l__atableau_xscale_fp*0.7012}
-          \tl_set:Nn \l__atableau_box_shape_tl {diamond}
-        }
-      {tableau/ukrainian}
-        {
-          \fp_set:Nn \l__atableau_tab_col_dx_fp {0.5}
-          \fp_set:Nn \l__atableau_tab_col_dy_fp {0.5}
-          \fp_set:Nn \l__atableau_tab_row_dx_fp {-0.5}
-          \fp_set:Nn \l__atableau_tab_row_dy_fp {0.5}
-          \fp_set:Nn \l__atableau_box_ht_fp {\l__atableau_yscale_fp*0.7012}
-          \fp_set:Nn \l__atableau_box_wd_fp {\l__atableau_xscale_fp*0.7012}
-          \tl_set:Nn \l__atableau_box_shape_tl {diamond}
-        }
-      {abacus/south}
-        {
-          \fp_set:Nn \l__atableau_ab_col_dx_fp {1}
-          \fp_set:Nn \l__atableau_ab_col_dy_fp {0}
-          \fp_set:Nn \l__atableau_ab_row_dx_fp {0}
-          \fp_set:Nn \l__atableau_ab_row_dy_fp {-1}
-          \fp_set:Nn \l__atableau_abacus_ht_fp {\l__atableau_yscale_fp*0.5}
-          \fp_set:Nn \l__atableau_abacus_wd_fp {\l__atableau_xscale_fp*0.5}
-          \tl_set:Nn \l__atableau_bead_shape_tl  {circle}
-        }
-      {abacus/north}
-        {
-          \fp_set:Nn \l__atableau_ab_col_dx_fp {1}
-          \fp_set:Nn \l__atableau_ab_col_dy_fp {0}
-          \fp_set:Nn \l__atableau_ab_row_dx_fp {0}
-          \fp_set:Nn \l__atableau_ab_row_dy_fp {1}
-          \tl_set:Nn \l__atableau_bead_shape_tl  {circle}
-          \fp_set:Nn \l__atableau_abacus_wd_fp {\l__atableau_xscale_fp*0.5}
-          \fp_set:Nn \l__atableau_abacus_ht_fp {\l__atableau_yscale_fp*0.5}
-        }
-      {abacus/east}
-        {
-          \fp_set:Nn \l__atableau_ab_col_dx_fp {0}
-          \fp_set:Nn \l__atableau_ab_col_dy_fp {-1}
-          \fp_set:Nn \l__atableau_ab_row_dx_fp {1}
-          \fp_set:Nn \l__atableau_ab_row_dy_fp {0}
-          \tl_set:Nn \l__atableau_bead_shape_tl  {circle}
-          \fp_set:Nn \l__atableau_abacus_wd_fp {\l__atableau_xscale_fp*0.5}
-          \fp_set:Nn \l__atableau_abacus_ht_fp {\l__atableau_yscale_fp*0.5}
-      }
-      {abacus/west}
-        {
-          \fp_set:Nn \l__atableau_ab_col_dx_fp {0}
-          \fp_set:Nn \l__atableau_ab_col_dy_fp {1}
-          \fp_set:Nn \l__atableau_ab_row_dx_fp {-1}
-          \fp_set:Nn \l__atableau_ab_row_dy_fp {0}
-          \tl_set:Nn \l__atableau_bead_shape_tl  {circle}
-          \fp_set:Nn \l__atableau_abacus_wd_fp {\l__atableau_xscale_fp*0.5}
-          \fp_set:Nn \l__atableau_abacus_ht_fp {\l__atableau_yscale_fp*0.5}
-        }
-    }
+    \cs_if_exist_use:cF {__atableau_set_style_#1_#2:}
     {
         \msg_error:nnx {aTableau} {unrecognised-style} {#1/#2}
     }
 }
 
+\cs_new:Nn \__atableau_set_style_tableau_english:
+{
+    \fp_set:Nn \l__atableau_tab_col_dx_fp {1}
+    \fp_set:Nn \l__atableau_tab_col_dy_fp {0}
+    \fp_set:Nn \l__atableau_tab_row_dx_fp {0}
+    \fp_set:Nn \l__atableau_tab_row_dy_fp {-1}
+    \fp_set:Nn \l__atableau_box_ht_fp {\l__atableau_yscale_fp*0.5}
+    \fp_set:Nn \l__atableau_box_wd_fp {\l__atableau_xscale_fp*0.5}
+    \tl_set:Nn \l__atableau_box_shape_tl {rectangle}
+}
+
+\cs_new:Nn \__atableau_set_style_tableau_french:
+{
+    \fp_set:Nn \l__atableau_tab_col_dx_fp {1}
+    \fp_set:Nn \l__atableau_tab_col_dy_fp {0}
+    \fp_set:Nn \l__atableau_tab_row_dx_fp {0}
+    \fp_set:Nn \l__atableau_tab_row_dy_fp {1}
+    \fp_set:Nn \l__atableau_box_ht_fp {\l__atableau_yscale_fp*0.5}
+    \fp_set:Nn \l__atableau_box_wd_fp {\l__atableau_xscale_fp*0.5}
+    \tl_set:Nn \l__atableau_box_shape_tl {rectangle}
+}
+
+\cs_new:Nn \__atableau_set_style_tableau_australian:
+{
+    \fp_set:Nn \l__atableau_tab_col_dx_fp {0.5}
+    \fp_set:Nn \l__atableau_tab_col_dy_fp {-0.5}
+    \fp_set:Nn \l__atableau_tab_row_dx_fp {-0.5}
+    \fp_set:Nn \l__atableau_tab_row_dy_fp {-0.5}
+    \fp_set:Nn \l__atableau_box_ht_fp {\l__atableau_yscale_fp*0.7012} % 1/sqrt(2)
+    \fp_set:Nn \l__atableau_box_wd_fp {\l__atableau_xscale_fp*0.7012}
+    \tl_set:Nn \l__atableau_box_shape_tl {diamond}
+}
+
+\cs_new:Nn \__atableau_set_style_tableau_ukrainian:
+{
+    \fp_set:Nn \l__atableau_tab_col_dx_fp {0.5}
+    \fp_set:Nn \l__atableau_tab_col_dy_fp {0.5}
+    \fp_set:Nn \l__atableau_tab_row_dx_fp {-0.5}
+    \fp_set:Nn \l__atableau_tab_row_dy_fp {0.5}
+    \fp_set:Nn \l__atableau_box_ht_fp {\l__atableau_yscale_fp*0.7012}
+    \fp_set:Nn \l__atableau_box_wd_fp {\l__atableau_xscale_fp*0.7012}
+    \tl_set:Nn \l__atableau_box_shape_tl {diamond}
+}
+
+\cs_new:Nn \__atableau_set_style_abacus_south:
+{
+    \fp_set:Nn \l__atableau_ab_col_dx_fp {1}
+    \fp_set:Nn \l__atableau_ab_col_dy_fp {0}
+    \fp_set:Nn \l__atableau_ab_row_dx_fp {0}
+    \fp_set:Nn \l__atableau_ab_row_dy_fp {-1}
+    \fp_set:Nn \l__atableau_abacus_ht_fp {\l__atableau_yscale_fp*0.5}
+    \fp_set:Nn \l__atableau_abacus_wd_fp {\l__atableau_xscale_fp*0.5}
+    \tl_set:Nn \l__atableau_bead_shape_tl  {circle}
+}
+
+\cs_new:Nn \__atableau_set_style_abacus_north:
+{
+    \fp_set:Nn \l__atableau_ab_col_dx_fp {1}
+    \fp_set:Nn \l__atableau_ab_col_dy_fp {0}
+    \fp_set:Nn \l__atableau_ab_row_dx_fp {0}
+    \fp_set:Nn \l__atableau_ab_row_dy_fp {1}
+    \tl_set:Nn \l__atableau_bead_shape_tl  {circle}
+    \fp_set:Nn \l__atableau_abacus_wd_fp {\l__atableau_xscale_fp*0.5}
+    \fp_set:Nn \l__atableau_abacus_ht_fp {\l__atableau_yscale_fp*0.5}
+}
+
+\cs_new:Nn \__atableau_set_style_abacus_east:
+{
+    \fp_set:Nn \l__atableau_ab_col_dx_fp {0}
+    \fp_set:Nn \l__atableau_ab_col_dy_fp {-1}
+    \fp_set:Nn \l__atableau_ab_row_dx_fp {1}
+    \fp_set:Nn \l__atableau_ab_row_dy_fp {0}
+    \tl_set:Nn \l__atableau_bead_shape_tl  {circle}
+    \fp_set:Nn \l__atableau_abacus_wd_fp {\l__atableau_xscale_fp*0.5}
+    \fp_set:Nn \l__atableau_abacus_ht_fp {\l__atableau_yscale_fp*0.5}
+}
+
+\cs_new:Nn \__atableau_set_style_abacus_west:
+{
+    \fp_set:Nn \l__atableau_ab_col_dx_fp {0}
+    \fp_set:Nn \l__atableau_ab_col_dy_fp {1}
+    \fp_set:Nn \l__atableau_ab_row_dx_fp {-1}
+    \fp_set:Nn \l__atableau_ab_row_dy_fp {0}
+    \tl_set:Nn \l__atableau_bead_shape_tl  {circle}
+    \fp_set:Nn \l__atableau_abacus_wd_fp {\l__atableau_xscale_fp*0.5}
+    \fp_set:Nn \l__atableau_abacus_ht_fp {\l__atableau_yscale_fp*0.5}
+}
+
+\cs_new:Nn \__atableau_set_style_traditional_south:
+{
+    \fp_set:Nn \l__atableau_ab_col_dx_fp {1}
+    \fp_set:Nn \l__atableau_ab_col_dy_fp {0}
+    \fp_set:Nn \l__atableau_ab_row_dx_fp {0}
+    \fp_set:Nn \l__atableau_ab_row_dy_fp {-1}
+    \fp_set:Nn \l__atableau_abacus_ht_fp {\l__atableau_yscale_fp*0.5}
+    \fp_set:Nn \l__atableau_abacus_wd_fp {\l__atableau_xscale_fp}
+    \tl_set:Nn \l__atableau_bead_shape_tl  {rounded~rectangle}
+}
+
+\cs_new:Nn \__atableau_set_style_traditional_north:
+{
+    \fp_set:Nn \l__atableau_ab_col_dx_fp {1}
+    \fp_set:Nn \l__atableau_ab_col_dy_fp {0}
+    \fp_set:Nn \l__atableau_ab_row_dx_fp {0}
+    \fp_set:Nn \l__atableau_ab_row_dy_fp {1}
+    \tl_set:Nn \l__atableau_bead_shape_tl  {rounded~rectangle}
+    \fp_set:Nn \l__atableau_abacus_wd_fp {\l__atableau_xscale_fp*0.5}
+    \fp_set:Nn \l__atableau_abacus_ht_fp {\l__atableau_yscale_fp}
+}
+
+\cs_new:Nn \__atableau_set_style_traditional_east:
+{
+    \fp_set:Nn \l__atableau_ab_col_dx_fp {0}
+    \fp_set:Nn \l__atableau_ab_col_dy_fp {-1}
+    \fp_set:Nn \l__atableau_ab_row_dx_fp {1}
+    \fp_set:Nn \l__atableau_ab_row_dy_fp {0}
+    \tl_set:Nn \l__atableau_bead_shape_tl  {rounded~rectangle}
+    \fp_set:Nn \l__atableau_abacus_wd_fp {\l__atableau_xscale_fp*0.5}
+    \fp_set:Nn \l__atableau_abacus_ht_fp {\l__atableau_yscale_fp}
+}
+
+\cs_new:Nn \__atableau_set_style_traditional_west:
+{
+    \fp_set:Nn \l__atableau_ab_col_dx_fp {0}
+    \fp_set:Nn \l__atableau_ab_col_dy_fp {1}
+    \fp_set:Nn \l__atableau_ab_row_dx_fp {-1}
+    \fp_set:Nn \l__atableau_ab_row_dy_fp {0}
+    \tl_set:Nn \l__atableau_bead_shape_tl  {rounded~rectangle}
+    \fp_set:Nn \l__atableau_abacus_wd_fp {\l__atableau_xscale_fp*0.5}
+    \fp_set:Nn \l__atableau_abacus_ht_fp {\l__atableau_yscale_fp}
+}
+
+% ---------------------------------------------------------------------------
 % usage: \__atableau_set_xscale:n {x-scale} : rescale the x-dimension
 \cs_new_protected:Npn \__atableau_set_xscale:n #1
 {
@@ -2433,13 +2484,12 @@
 
 \cs_new_protected:Npn \__atableau_abacus_bead_standard:nnn #1 #2 #3
 {
-    \node[aTableau/standardBead, #1] at (\fp_use:c{l__atableau_x#2_fp},\fp_use:c{l__atableau_y#2_fp})
-        {\__atableau_entry:n {#3}};
+    \node[aTableau/standardBead, #1] at (\fp_use:c{l__atableau_x#2_fp},\fp_use:c{l__atableau_y#2_fp}) {\__atableau_entry:n {#3}};
 }
 
 \cs_new_protected:Npn \__atableau_abacus_bead_traditional:nnn #1 #2 #3
 {
-    \draw[aTableau/traditionalBead] (\fp_use:c{l__atableau_x#2_fp},\fp_use:c{l__atableau_y#2_fp});
+    \node[aTableau/traditionalBead] at (\fp_use:c{l__atableau_x#2_fp},\fp_use:c{l__atableau_y#2_fp}) {\__atableau_entry:n {#3}};
 }
 
 \cs_new_protected:Npn \__atableau_abacus_runner_standard:nn #1 #2
@@ -3268,8 +3318,8 @@
         }
 
     },
-    traditional .default:n = false,
-    traditional .initial:n = true,
+    traditional .default:n = true,
+    traditional .initial:n = false,
 }
 
 % ---------------------------------------------------------------------------
