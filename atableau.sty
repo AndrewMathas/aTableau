@@ -1,6 +1,6 @@
 % ---------------------------------------------------------------------------
 % atableau - Andrew Mathas (C) 2022-2025
-% Modified: 18:21 Thursday, 06 March 2025
+% Modified: 15:44 Friday, 07 March 2025
 % ---------------------------------------------------------------------------
 %
 % A latex package for symmetric group combinatorics:
@@ -134,10 +134,10 @@
 \bool_new:N \l__atableau_tabloid_bool     % true if a tabloid
 \bool_new:N \l__atableau_traditional_bool % true for traditional abacuses
 
-\fp_new:N \l__atableau_ab_col_dx_fp       % change in x-coordinate between columns in an abacus
-\fp_new:N \l__atableau_ab_col_dy_fp       % change in y-coordinate between columns in an abacus
-\fp_new:N \l__atableau_ab_row_dx_fp       % change in x-coordinate between rows in an abacus
-\fp_new:N \l__atableau_ab_row_dy_fp       % change in y-coordinate between rows in an abacus
+\fp_new:N \l__atableau_abacus_col_dx_fp   % change in x-coordinate between columns in an abacus
+\fp_new:N \l__atableau_abacus_col_dy_fp   % change in y-coordinate between columns in an abacus
+\fp_new:N \l__atableau_abacus_row_dx_fp   % change in x-coordinate between rows in an abacus
+\fp_new:N \l__atableau_abacus_row_dy_fp   % change in y-coordinate between rows in an abacus
 \fp_new:N \l__atableau_abacus_ht_fp       % height of the tableaux nodes/separation between abacus beads
 \fp_new:N \l__atableau_abacus_wd_fp       % width of the tableaux nodes/separation between abacus runners
 \fp_new:N \l__atableau_bead_size_fp       % bead radius
@@ -536,10 +536,10 @@
 
 \cs_new:Nn \__atableau_set_style_abacus_south:
 {
-    \fp_set:Nn \l__atableau_ab_col_dx_fp {1}
-    \fp_set:Nn \l__atableau_ab_col_dy_fp {0}
-    \fp_set:Nn \l__atableau_ab_row_dx_fp {0}
-    \fp_set:Nn \l__atableau_ab_row_dy_fp {-1}
+    \fp_set:Nn \l__atableau_abacus_col_dx_fp {1}
+    \fp_set:Nn \l__atableau_abacus_col_dy_fp {0}
+    \fp_set:Nn \l__atableau_abacus_row_dx_fp {0}
+    \fp_set:Nn \l__atableau_abacus_row_dy_fp {-1}
     \fp_set:Nn \l__atableau_abacus_ht_fp {\l__atableau_yscale_fp*0.5}
     \fp_set:Nn \l__atableau_abacus_wd_fp {\l__atableau_xscale_fp*0.5}
     \tl_set:Nn \l__atableau_bead_shape_tl  {circle}
@@ -547,10 +547,10 @@
 
 \cs_new:Nn \__atableau_set_style_abacus_north:
 {
-    \fp_set:Nn \l__atableau_ab_col_dx_fp {1}
-    \fp_set:Nn \l__atableau_ab_col_dy_fp {0}
-    \fp_set:Nn \l__atableau_ab_row_dx_fp {0}
-    \fp_set:Nn \l__atableau_ab_row_dy_fp {1}
+    \fp_set:Nn \l__atableau_abacus_col_dx_fp {1}
+    \fp_set:Nn \l__atableau_abacus_col_dy_fp {0}
+    \fp_set:Nn \l__atableau_abacus_row_dx_fp {0}
+    \fp_set:Nn \l__atableau_abacus_row_dy_fp {1}
     \tl_set:Nn \l__atableau_bead_shape_tl  {circle}
     \fp_set:Nn \l__atableau_abacus_wd_fp {\l__atableau_xscale_fp*0.5}
     \fp_set:Nn \l__atableau_abacus_ht_fp {\l__atableau_yscale_fp*0.5}
@@ -558,10 +558,10 @@
 
 \cs_new:Nn \__atableau_set_style_abacus_east:
 {
-    \fp_set:Nn \l__atableau_ab_col_dx_fp {0}
-    \fp_set:Nn \l__atableau_ab_col_dy_fp {-1}
-    \fp_set:Nn \l__atableau_ab_row_dx_fp {1}
-    \fp_set:Nn \l__atableau_ab_row_dy_fp {0}
+    \fp_set:Nn \l__atableau_abacus_col_dx_fp {0}
+    \fp_set:Nn \l__atableau_abacus_col_dy_fp {-1}
+    \fp_set:Nn \l__atableau_abacus_row_dx_fp {1}
+    \fp_set:Nn \l__atableau_abacus_row_dy_fp {0}
     \tl_set:Nn \l__atableau_bead_shape_tl  {circle}
     \fp_set:Nn \l__atableau_abacus_wd_fp {\l__atableau_xscale_fp*0.5}
     \fp_set:Nn \l__atableau_abacus_ht_fp {\l__atableau_yscale_fp*0.5}
@@ -569,10 +569,10 @@
 
 \cs_new:Nn \__atableau_set_style_abacus_west:
 {
-    \fp_set:Nn \l__atableau_ab_col_dx_fp {0}
-    \fp_set:Nn \l__atableau_ab_col_dy_fp {1}
-    \fp_set:Nn \l__atableau_ab_row_dx_fp {-1}
-    \fp_set:Nn \l__atableau_ab_row_dy_fp {0}
+    \fp_set:Nn \l__atableau_abacus_col_dx_fp {0}
+    \fp_set:Nn \l__atableau_abacus_col_dy_fp {1}
+    \fp_set:Nn \l__atableau_abacus_row_dx_fp {-1}
+    \fp_set:Nn \l__atableau_abacus_row_dy_fp {0}
     \tl_set:Nn \l__atableau_bead_shape_tl  {circle}
     \fp_set:Nn \l__atableau_abacus_wd_fp {\l__atableau_xscale_fp*0.5}
     \fp_set:Nn \l__atableau_abacus_ht_fp {\l__atableau_yscale_fp*0.5}
@@ -580,10 +580,10 @@
 
 \cs_new:Nn \__atableau_set_style_traditional_south:
 {
-    \fp_set:Nn \l__atableau_ab_col_dx_fp {1}
-    \fp_set:Nn \l__atableau_ab_col_dy_fp {0}
-    \fp_set:Nn \l__atableau_ab_row_dx_fp {0}
-    \fp_set:Nn \l__atableau_ab_row_dy_fp {-1}
+    \fp_set:Nn \l__atableau_abacus_col_dx_fp {1}
+    \fp_set:Nn \l__atableau_abacus_col_dy_fp {0}
+    \fp_set:Nn \l__atableau_abacus_row_dx_fp {0}
+    \fp_set:Nn \l__atableau_abacus_row_dy_fp {-1}
     \fp_set:Nn \l__atableau_abacus_ht_fp {\l__atableau_yscale_fp*0.5}
     \fp_set:Nn \l__atableau_abacus_wd_fp {\l__atableau_xscale_fp}
     \tl_set:Nn \l__atableau_bead_shape_tl  {rounded~rectangle}
@@ -591,10 +591,10 @@
 
 \cs_new:Nn \__atableau_set_style_traditional_north:
 {
-    \fp_set:Nn \l__atableau_ab_col_dx_fp {1}
-    \fp_set:Nn \l__atableau_ab_col_dy_fp {0}
-    \fp_set:Nn \l__atableau_ab_row_dx_fp {0}
-    \fp_set:Nn \l__atableau_ab_row_dy_fp {1}
+    \fp_set:Nn \l__atableau_abacus_col_dx_fp {1}
+    \fp_set:Nn \l__atableau_abacus_col_dy_fp {0}
+    \fp_set:Nn \l__atableau_abacus_row_dx_fp {0}
+    \fp_set:Nn \l__atableau_abacus_row_dy_fp {1}
     \tl_set:Nn \l__atableau_bead_shape_tl  {rounded~rectangle}
     \fp_set:Nn \l__atableau_abacus_wd_fp {\l__atableau_xscale_fp*0.5}
     \fp_set:Nn \l__atableau_abacus_ht_fp {\l__atableau_yscale_fp}
@@ -602,10 +602,10 @@
 
 \cs_new:Nn \__atableau_set_style_traditional_east:
 {
-    \fp_set:Nn \l__atableau_ab_col_dx_fp {0}
-    \fp_set:Nn \l__atableau_ab_col_dy_fp {-1}
-    \fp_set:Nn \l__atableau_ab_row_dx_fp {1}
-    \fp_set:Nn \l__atableau_ab_row_dy_fp {0}
+    \fp_set:Nn \l__atableau_abacus_col_dx_fp {0}
+    \fp_set:Nn \l__atableau_abacus_col_dy_fp {-1}
+    \fp_set:Nn \l__atableau_abacus_row_dx_fp {1}
+    \fp_set:Nn \l__atableau_abacus_row_dy_fp {0}
     \tl_set:Nn \l__atableau_bead_shape_tl  {rounded~rectangle}
     \fp_set:Nn \l__atableau_abacus_wd_fp {\l__atableau_xscale_fp*0.5}
     \fp_set:Nn \l__atableau_abacus_ht_fp {\l__atableau_yscale_fp}
@@ -613,10 +613,10 @@
 
 \cs_new:Nn \__atableau_set_style_traditional_west:
 {
-    \fp_set:Nn \l__atableau_ab_col_dx_fp {0}
-    \fp_set:Nn \l__atableau_ab_col_dy_fp {1}
-    \fp_set:Nn \l__atableau_ab_row_dx_fp {-1}
-    \fp_set:Nn \l__atableau_ab_row_dy_fp {0}
+    \fp_set:Nn \l__atableau_abacus_col_dx_fp {0}
+    \fp_set:Nn \l__atableau_abacus_col_dy_fp {1}
+    \fp_set:Nn \l__atableau_abacus_row_dx_fp {-1}
+    \fp_set:Nn \l__atableau_abacus_row_dy_fp {0}
     \tl_set:Nn \l__atableau_bead_shape_tl  {rounded~rectangle}
     \fp_set:Nn \l__atableau_abacus_wd_fp {\l__atableau_xscale_fp*0.5}
     \fp_set:Nn \l__atableau_abacus_ht_fp {\l__atableau_yscale_fp}
@@ -1633,8 +1633,8 @@
 \cs_new_protected:Npn \__atableau_set_bead_coordinates:nnn #1 #2 #3
 {
     \tl_set:Nx \l__atableau_name_tl {\l__atableau_prefix_tl-\fp_to_int:n{#2-1}-\fp_to_int:n{#3}}
-    \fp_set:cn {l__atableau_x#1_fp} {\l__atableau_x_fp+(#2*\l__atableau_ab_row_dx_fp+#3*\l__atableau_ab_col_dx_fp)*\l__atableau_abacus_wd_fp }
-    \fp_set:cn {l__atableau_y#1_fp} {\l__atableau_y_fp+(#2*\l__atableau_ab_row_dy_fp+#3*\l__atableau_ab_col_dy_fp)*\l__atableau_abacus_ht_fp }
+    \fp_set:cn {l__atableau_x#1_fp} {\l__atableau_x_fp+(#2*\l__atableau_abacus_row_dx_fp+#3*\l__atableau_abacus_col_dx_fp)*\l__atableau_abacus_wd_fp }
+    \fp_set:cn {l__atableau_y#1_fp} {\l__atableau_y_fp+(#2*\l__atableau_abacus_row_dy_fp+#3*\l__atableau_abacus_col_dy_fp)*\l__atableau_abacus_ht_fp }
 }
 
 % ---------------------------------------------------------------------------
@@ -2399,10 +2399,10 @@
                 \__atableau_set_bead_coordinates:non {a} {#2} {0}
                 \__atableau_set_bead_coordinates:noo {b} {#2} { \int_eval:n {\l__atableau_cols_int-1} }
                 \draw[aTableau/abacusEnds]
-                  (\fp_eval:n{\l__atableau_xa_fp-\l__atableau_ab_col_dx_fp*\l__atableau_abacus_wd_fp/2},
-                   \fp_eval:n{\l__atableau_ya_fp-\l__atableau_ab_col_dy_fp*\l__atableau_abacus_ht_fp/2})
-                   -- (\fp_eval:n{\l__atableau_xb_fp+\l__atableau_ab_col_dx_fp*\l__atableau_abacus_wd_fp/2},
-                       \fp_eval:n{\l__atableau_yb_fp+\l__atableau_ab_col_dy_fp*\l__atableau_abacus_ht_fp/2});
+                  (\fp_eval:n{\l__atableau_xa_fp-\l__atableau_abacus_col_dx_fp*\l__atableau_abacus_wd_fp/2},
+                   \fp_eval:n{\l__atableau_ya_fp-\l__atableau_abacus_col_dy_fp*\l__atableau_abacus_ht_fp/2})
+                   -- (\fp_eval:n{\l__atableau_xb_fp+\l__atableau_abacus_col_dx_fp*\l__atableau_abacus_wd_fp/2},
+                       \fp_eval:n{\l__atableau_yb_fp+\l__atableau_abacus_col_dy_fp*\l__atableau_abacus_ht_fp/2});
 
                 % set default "row height" of the runner labels for use below
                 \fp_set:Nn \l_tmpa_fp {-0.4}
@@ -2496,17 +2496,21 @@
     \node[aTableau/traditionalBead] at (\fp_use:c{l__atableau_x#2_fp},\fp_use:c{l__atableau_y#2_fp}) {\__atableau_entry:n {#3}};
 }
 
-\cs_new_protected:Npn \__atableau_abacus_runner_standard:nn #1 #2
+\cs_new_protected:Npn \__atableau_abacus_runner_standard:n #1
 {
-    \draw[aTableau/standardRunner] (\fp_use:c{l__atableau_x#1_fp},\fp_use:c{l__atableau_y#1_fp})
-        --(\fp_use:c{l__atableau_x#2_fp},\fp_use:c{l__atableau_y#2_fp});
+    \draw[aTableau/standardRunner] (\fp_use:c{l__atableau_x#1_fp},\fp_use:c{l__atableau_y#1_fp})--++(\fp_use:N \l__atableau_xl_fp,\fp_use:N \l__atableau_yl_fp);
 }
 
-\cs_new_protected:Npn \__atableau_abacus_runner_traditional:nn #1 #2
+\cs_new_protected:Npn \__atableau_abacus_runner_traditional:n #1
 {
-    \draw[aTableau/traditionalRunner]
+
+    \shadedraw[aTableau/traditionalRunner]
         (\fp_use:c{l__atableau_x#1_fp},\fp_use:c{l__atableau_y#1_fp})
-        --(\fp_use:c{l__atableau_x#2_fp},\fp_use:c{l__atableau_y#2_fp});
+          --++(\fp_use:N \l__atableau_xb_fp, \fp_use:N \l__atableau_yb_fp)
+          --++(\fp_use:N \l__atableau_xl_fp,\fp_use:N \l__atableau_yl_fp)
+          --++(\fp_eval:n{-2*\l__atableau_xb_fp},\fp_eval:n{-2*\l__atableau_yb_fp})
+          --++(\fp_eval:n {-\l__atableau_xl_fp},\fp_eval:n {-\l__atableau_yl_fp})
+          --cycle;
 }
 
 \cs_new_protected:Npn \__atableau_abacus_tick_standard:nn #1 #2
@@ -2522,7 +2526,7 @@
 }
 
 \cs_set_eq:NN \__atableau_abacus_bead:nnn  \__atableau_abacus_bead_standard:nnn
-\cs_set_eq:NN \__atableau_abacus_runner:nn \__atableau_abacus_runner_standard:nn
+\cs_set_eq:NN \__atableau_abacus_runner:n \__atableau_abacus_runner_standard:n
 \cs_set_eq:NN \__atableau_abacus_tick:nn   \__atableau_abacus_tick_standard:nn
 
 \cs_generate_variant:Nn \__atableau_abacus_bead:nnn {enV}
@@ -2575,6 +2579,14 @@
 
     % draw the abacus runners
     \int_zero:N \l__atableau_col_int
+    % compute the change in x and y coordinates when we move to the end of the runner,
+    % which we store as (xl_fp, yl_fp) for use in \__atableau_abacus_runner:n
+    \int_set:Nn \l_tmpa_int {\l__atableau_rows_int+1}
+    \fp_set:Nn \l__atableau_xl_fp { \l_tmpa_int*\l__atableau_abacus_row_dx_fp*\l__atableau_abacus_wd_fp }
+    \fp_set:Nn \l__atableau_yl_fp { \l_tmpa_int*\l__atableau_abacus_row_dy_fp*\l__atableau_abacus_ht_fp }
+    % similarly, set (xb_fp, yb_fp) to the half the tick length
+    \fp_set:Nn \l__atableau_xb_fp {\l__atableau_tick_length_fp*\l__atableau_abacus_col_dx_fp/2}
+    \fp_set:Nn \l__atableau_yb_fp {\l__atableau_tick_length_fp*\l__atableau_abacus_col_dy_fp/2}
     \int_step_inline:nn {\l__atableau_cols_int}
     {
         \int_set:Nn \l_tmpa_int {##1-1} % save recalculating this many times
@@ -2583,25 +2595,19 @@
         {
             % draw the abacus runners from (xa,ya) to (xb,yb)
             \__atableau_set_bead_coordinates:nnV {a} { 0 } \l_tmpa_int
-            \__atableau_set_bead_coordinates:noV {b} { \int_eval:n{\l__atableau_rows_int+1} } \l_tmpa_int
-            \__atableau_abacus_runner:nn {a} {b}
-            %\draw[aTableau/standardRunner] (\fp_use:N\l__atableau_xa_fp,\fp_use:N\l__atableau_ya_fp)--(\fp_use:N\l__atableau_xb_fp,\fp_use:N\l__atableau_yb_fp);
+            \__atableau_abacus_runner:n {a}
 
             % draw ticks
             \int_step_inline:nn {\l__atableau_rows_int}
             {
-                \__atableau_set_bead_coordinates:noV {l} { ####1 } \l_tmpa_int
+                \__atableau_set_bead_coordinates:noV {a} { ####1 } \l_tmpa_int
                 % add a named node
-                \node[aTableau/namedTick] (\l__atableau_name_tl) at (\fp_use:N\l__atableau_xl_fp,\fp_use:N\l__atableau_yl_fp){};
-                % add and subtract (half) tick width
-                \fp_set:Nn \l__atableau_xa_fp {\l__atableau_xl_fp+\l__atableau_tick_length_fp*\l__atableau_ab_col_dx_fp}
-                \fp_set:Nn \l__atableau_ya_fp {\l__atableau_yl_fp+\l__atableau_tick_length_fp*\l__atableau_ab_col_dy_fp}
-                \fp_set:Nn \l__atableau_xb_fp {\l__atableau_xl_fp-\l__atableau_tick_length_fp*\l__atableau_ab_col_dx_fp}
-                \fp_set:Nn \l__atableau_yb_fp {\l__atableau_yl_fp-\l__atableau_tick_length_fp*\l__atableau_ab_col_dy_fp}
-
-                \__atableau_abacus_tick:nn {a} {b}
-                %\draw[aTableau/standardTick] (\fp_use:N\l__atableau_xa_fp,\fp_use:N\l__atableau_ya_fp)
-                %    --(\fp_use:N\l__atableau_xb_fp,\fp_use:N\l__atableau_yb_fp);
+                \node[aTableau/namedTick] (\l__atableau_name_tl) at (\fp_use:N\l__atableau_xa_fp,\fp_use:N\l__atableau_ya_fp){};
+                % draw the tick
+                %\__atableau_abacus_tick:n {a}
+                \draw[aTableau/standardTick]
+                    (\fp_eval:n{\l__atableau_xa_fp+\l__atableau_xb_fp},\fp_eval:n{\l__atableau_ya_fp+\l__atableau_yb_fp})
+                    --(\fp_eval:n{\l__atableau_xa_fp-\l__atableau_xb_fp},\fp_eval:n{\l__atableau_ya_fp-\l__atableau_yb_fp});
             }
         }
     }
@@ -2702,8 +2708,8 @@
 \cs_new_protected:Nn \__atableau_remove_dotted_abacus_cols:
 {
     % shift in row-direction
-    \fp_set:Nn \l_tmpa_fp {\l__atableau_ab_row_dx_fp*\l__atableau_abacus_wd_fp}
-    \fp_set:Nn \l_tmpb_fp {\l__atableau_ab_row_dy_fp*\l__atableau_abacus_ht_fp}
+    \fp_set:Nn \l_tmpa_fp {\l__atableau_abacus_row_dx_fp*\l__atableau_abacus_wd_fp}
+    \fp_set:Nn \l_tmpb_fp {\l__atableau_abacus_row_dy_fp*\l__atableau_abacus_ht_fp}
 
     % take a copy of \l__atableau_dotted_cols_seq so that the pop_left's below
     % do not destroy it
@@ -2730,10 +2736,10 @@
         \__atableau_set_bead_coordinates:nnV {l} { 0 } \l__atableau_col_int
 
         % set (xa,ya) and (xb,yb) to the "left" and "right" hand coordinates that we want remove
-        \fp_set:Nn \l__atableau_xa_fp {\l__atableau_xl_fp-0.35*\l__atableau_ab_col_dx_fp*\l__atableau_abacus_wd_fp}
-        \fp_set:Nn \l__atableau_ya_fp {\l__atableau_yl_fp-0.35*\l__atableau_ab_col_dy_fp*\l__atableau_abacus_ht_fp}
-        \fp_set:Nn \l__atableau_xb_fp {\l__atableau_xl_fp+(\l__atableau_c_int-\l__atableau_col_int-0.65)*\l__atableau_ab_col_dx_fp*\l__atableau_abacus_wd_fp}
-        \fp_set:Nn \l__atableau_yb_fp {\l__atableau_yl_fp+(\l__atableau_c_int-\l__atableau_col_int-0.65)*\l__atableau_ab_col_dy_fp*\l__atableau_abacus_ht_fp}
+        \fp_set:Nn \l__atableau_xa_fp {\l__atableau_xl_fp-0.35*\l__atableau_abacus_col_dx_fp*\l__atableau_abacus_wd_fp}
+        \fp_set:Nn \l__atableau_ya_fp {\l__atableau_yl_fp-0.35*\l__atableau_abacus_col_dy_fp*\l__atableau_abacus_ht_fp}
+        \fp_set:Nn \l__atableau_xb_fp {\l__atableau_xl_fp+(\l__atableau_c_int-\l__atableau_col_int-0.65)*\l__atableau_abacus_col_dx_fp*\l__atableau_abacus_wd_fp}
+        \fp_set:Nn \l__atableau_yb_fp {\l__atableau_yl_fp+(\l__atableau_c_int-\l__atableau_col_int-0.65)*\l__atableau_abacus_col_dy_fp*\l__atableau_abacus_ht_fp}
 
         % blank out any line at the top of the abacus and replace it with dots
         \tl_if_in:nVT {-_} \l__atableau_abacus_top_tl
@@ -2786,8 +2792,8 @@
 \cs_new_protected:Nn \__atableau_remove_dotted_abacus_rows:
 {
       % shift in column-direction
-      \fp_set:Nn \l_tmpa_fp {\l__atableau_ab_col_dx_fp*\l__atableau_abacus_wd_fp}
-      \fp_set:Nn \l_tmpb_fp {\l__atableau_ab_col_dy_fp*\l__atableau_abacus_ht_fp}
+      \fp_set:Nn \l_tmpa_fp {\l__atableau_abacus_col_dx_fp*\l__atableau_abacus_wd_fp}
+      \fp_set:Nn \l_tmpb_fp {\l__atableau_abacus_col_dy_fp*\l__atableau_abacus_ht_fp}
 
       % take a copy of \l__atableau_dotted_rows_seq so that the pop_left's below
       % do not destroy it
@@ -2814,10 +2820,10 @@
           \__atableau_set_bead_coordinates:non {l} { \int_eval:n{\l__atableau_row_int+1} } { 0 }
 
           % set (xa,ya) and (xb,yb) to the "left" and "right" hand coordinates that we want remove
-          \fp_set:Nn \l__atableau_xa_fp {\l__atableau_xl_fp-0.35*\l__atableau_ab_row_dx_fp*\l__atableau_abacus_wd_fp}
-          \fp_set:Nn \l__atableau_ya_fp {\l__atableau_yl_fp-0.35*\l__atableau_ab_row_dy_fp*\l__atableau_abacus_ht_fp}
-          \fp_set:Nn \l__atableau_xb_fp {\l__atableau_xl_fp+(\l__atableau_r_int-\l__atableau_row_int-0.65)*\l__atableau_ab_row_dx_fp*\l__atableau_abacus_wd_fp}
-          \fp_set:Nn \l__atableau_yb_fp {\l__atableau_yl_fp+(\l__atableau_r_int-\l__atableau_row_int-0.65)*\l__atableau_ab_row_dy_fp*\l__atableau_abacus_ht_fp}
+          \fp_set:Nn \l__atableau_xa_fp {\l__atableau_xl_fp-0.35*\l__atableau_abacus_row_dx_fp*\l__atableau_abacus_wd_fp}
+          \fp_set:Nn \l__atableau_ya_fp {\l__atableau_yl_fp-0.35*\l__atableau_abacus_row_dy_fp*\l__atableau_abacus_ht_fp}
+          \fp_set:Nn \l__atableau_xb_fp {\l__atableau_xl_fp+(\l__atableau_r_int-\l__atableau_row_int-0.65)*\l__atableau_abacus_row_dx_fp*\l__atableau_abacus_wd_fp}
+          \fp_set:Nn \l__atableau_yb_fp {\l__atableau_yl_fp+(\l__atableau_r_int-\l__atableau_row_int-0.65)*\l__atableau_abacus_row_dy_fp*\l__atableau_abacus_ht_fp}
 
           \draw[aTableau/clearBoxes]
               (\fp_eval:n{\l__atableau_xa_fp-0.12*\l_tmpa_fp}, \fp_eval:n{\l__atableau_ya_fp-0.12*\l_tmpb_fp})
@@ -3313,13 +3319,13 @@
         {
             \__atableau_set_style:nV {traditional} \l__atableau_convention_tl
             \cs_set_eq:NN \__atableau_abacus_bead:nnn  \__atableau_abacus_bead_traditional:nnn
-            \cs_set_eq:NN \__atableau_abacus_runner:nn \__atableau_abacus_runner_traditional:nn
+            \cs_set_eq:NN \__atableau_abacus_runner:n \__atableau_abacus_runner_traditional:n
             \cs_set_eq:NN \__atableau_abacus_tick:nn   \__atableau_abacus_tick_traditional:nn
         }
         {
             \__atableau_set_style:nV {abacus} \l__atableau_convention_tl
             \cs_set_eq:NN \__atableau_abacus_bead:nnn  \__atableau_abacus_bead_standard:nnn
-            \cs_set_eq:NN \__atableau_abacus_runner:nn \__atableau_abacus_runner_standard:nn
+            \cs_set_eq:NN \__atableau_abacus_runner:n \__atableau_abacus_runner_standard:n
             \cs_set_eq:NN \__atableau_abacus_tick:nn   \__atableau_abacus_tick_standard:nn
         }
 
