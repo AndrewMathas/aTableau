@@ -1,6 +1,6 @@
 % ----------------------------------------------------------------------
 % atableau - Andrew Mathas (C) 2022-2025
-% Modified: 09:58 Thursday, 06 March 2025
+% Modified: 12:44 Monday, 10 March 2025
 % ----------------------------------------------------------------------
 \documentclass{amsart}
 \usepackage[svgnames,table]{xcolor}
@@ -3637,12 +3637,12 @@
     \rowcolors{2}{LightSkyBlue!10}{}
     \begin{tabular}{Oll} \toprule
       \multicolumn1l{\textsf{Character}} & \textsf{Symbol} & \textsf{Meaning} \\ \midrule
-      $-$    & dash         & Adds a line that extends slightly past the first and last runners\\
-      \_\!\_ & underscore   &  Adds a line between the first and last runners\\
-      .      & dot          & Add dots to the end of each runner\\
-      *      & asterisk     & Add dots and an arrow to the end of each runner\\
-      $|$    & pipe         & Runners do not have any additional decoration\\
-      $>$    & greater than & Add arrows to the end of each runner\\
+      $-$    & dash         & Draw a line that extends slightly past the first and last runners\\
+      \_\!\_ & underscore   & Draw a line between the first and last runners\\
+      .      & dot          & Draw dots at the end of the runners\\
+      *      & asterisk     & Draw dots and arrows at the end of the runners\\
+      $|$    & pipe         & No additional decoration\\
+      $>$    & greater than & Draw arrows and the end of the runners\\
       \bottomrule
     \end{tabular}
   \end{quote}
@@ -3655,10 +3655,10 @@
 
   \begin{Example}
   \aTabset{align=top}
-  \Abacus[abacus ends=-|]{3}{2,1^2,0^3}\qquad\Abacus[abacus ends=-_]{3}{2,1^2,0^3}\qquad
-  \Abacus[abacus ends=_.]{3}{2,1^2,0^3}\qquad\Abacus[abacus ends=>>]{3}{2,1^2,0^3}\qquad
-  \Abacus[abacus ends=>|]{3}{2,1^2,0^3}\qquad\Abacus[abacus ends=_-]{3}{2,1^2,0^3}\qquad
-  \Abacus[abacus ends=>-]{3}{2,1^2,0^3}\qquad\Abacus[abacus ends=-*]{3}{2,1^2,0^3}
+  \Abacus[abacus ends=-|]{3}{2,1^2,0^3}\quad\Abacus[abacus ends=-_]{3}{2,1^2,0^3}\quad
+  \Abacus[abacus ends=_.]{3}{2,1^2,0^3}\quad\Abacus[abacus ends=>>]{3}{2,1^2,0^3}\quad
+  \Abacus[abacus ends=>|]{3}{2,1^2,0^3}\quad\Abacus[abacus ends=_-]{3}{2,1^2,0^3}\quad
+  \Abacus[abacus ends=>-]{3}{2,1^2,0^3}\quad\Abacus[abacus ends=-*]{3}{2,1^2,0^3}
   \end{Example}
 
  As one more example, \emph{beta numbers} can be displayed on a single,
