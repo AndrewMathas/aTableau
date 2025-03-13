@@ -1,6 +1,6 @@
 % ---------------------------------------------------------------------------
 % atableau - Andrew Mathas (C) 2022-2025
-% Modified: 08:34 Thursday, 13 March 2025
+% Modified: 09:24 Friday, 14 March 2025
 % ---------------------------------------------------------------------------
 %
 % A latex package for symmetric group combinatorics:
@@ -485,7 +485,7 @@
 }
 
 % ---------------------------------------------------------------------------
-% tableau styles - called automatically from settings
+% tableau styles - called from settings
 
 \cs_new:Nn \__atableau_set_tableau_style_english:
 {
@@ -532,39 +532,36 @@
 }
 
 % ---------------------------------------------------------------------------
-% abacus styles - called automatically from settings
+% abacus styles - called from settings
 
 \cs_new:Nn \__atableau_set_abacus_convention_standard:
 {
-\typeout{setting~standards}
-    \fp_set:Nn \l__atableau_abacus_ht_fp {\l__atableau_yscale_fp*0.5}
-    \fp_set:Nn \l__atableau_abacus_wd_fp {\l__atableau_xscale_fp*0.5}
-    \fp_set:Nn \l__atableau_bead_height_fp {0.4\l__atableau_abacus_ht_fp }
-    \fp_set:Nn \l__atableau_bead_width_fp  {0.4\l__atableau_abacus_wd_fp }
-    \fp_set:Nn \l__atableau_tick_length_fp {0.1*\l__atableau_xscale_fp}
+    \fp_set:Nn \l__atableau_abacus_ht_fp   {\l__atableau_yscale_fp*0.42}
+    \fp_set:Nn \l__atableau_abacus_wd_fp   {\l__atableau_xscale_fp*0.42}
+    \fp_set:Nn \l__atableau_bead_height_fp {\l__atableau_yscale_fp*0.4}
+    \fp_set:Nn \l__atableau_bead_width_fp  {\l__atableau_xscale_fp*0.4}
+    \fp_set:Nn \l__atableau_tick_length_fp {\l__atableau_xscale_fp*0.1}
     \tl_set:Nn \l__atableau_bead_shape_tl  {circle}
+    \tl_set:Nn \l__atableau_tick_tl        {aTableauInner}
     \tl_set:Nn \l__atableau_runner_tl      {aTableauInner}
     \cs_set_eq:NN \__atableau_abacus_runner:nnn \__atableau_standard_runner:nnn
 }
 
 \cs_new:Nn \__atableau_set_abacus_convention_traditional:
 {
-\typeout{before:~ht=\fp_use:N\l__atableau_abacus_ht_fp}
-    \fp_set:Nn \l__atableau_abacus_ht_fp   {0.5\l__atableau_yscale_fp}
-\typeout{after~ht=\fp_use:N\l__atableau_abacus_ht_fp}
-\typeout{before:~wd=\fp_use:N\l__atableau_abacus_wd_fp}
+    \fp_set:Nn \l__atableau_abacus_ht_fp   {\l__atableau_yscale_fp*0.5}
     \fp_set:Nn \l__atableau_abacus_wd_fp   {\l__atableau_xscale_fp}
-\typeout{after~wd=\fp_use:N\l__atableau_abacus_wd_fp}
-    \fp_set:Nn \l__atableau_bead_height_fp {0.95\l__atableau_abacus_ht_fp }
-    \fp_set:Nn \l__atableau_bead_width_fp  {0.95\l__atableau_abacus_wd_fp }
-    \fp_set:Nn \l__atableau_tick_length_fp {0.1*\l__atableau_xscale_fp}
+    \fp_set:Nn \l__atableau_bead_height_fp {\l__atableau_abacus_ht_fp*0.97 }
+    \fp_set:Nn \l__atableau_bead_width_fp  {\l__atableau_abacus_wd_fp*0.97 }
+    \fp_set:Nn \l__atableau_tick_length_fp {\l__atableau_xscale_fp*0.15}
     \tl_set:Nn \l__atableau_bead_shape_tl  {rounded~rectangle}
+    \tl_set:Nn \l__atableau_tick_tl        {aTableauRunner}
     \tl_set:Nn \l__atableau_runner_tl      {aTableauRunner}
     \cs_set_eq:NN \__atableau_abacus_runner:nnn \__atableau_traditional_runner:nnn
 }
 
 % ---------------------------------------------------------------------------
-% abacus styles - called automatically from settings
+% abacus styles - called from settings
 
 \cs_new:Nn \__atableau_set_abacus_style_south:
 {
@@ -2364,12 +2361,11 @@
 {
 \typeout{trad~runner:~#1~(\fp_use:c{l__atableau_x#2_fp},\fp_use:c{l__atableau_y#2_fp})++(\fp_use:c{l__atableau_x#3_fp},\fp_use:c{l__atableau_y#3_fp})}
     \shadedraw[aTableau/#1]
-        (\fp_use:c{l__atableau_x#2_fp},\fp_use:c{l__atableau_y#2_fp})
-          --++(\fp_eval:n {\l__atableau_tick_length_fp*\l__atableau_abacus_col_dx_fp},\fp_eval:n {\l__atableau_tick_length_fp*\l__atableau_abacus_col_dy_fp})
-          --++(\fp_use:c{l__atableau_x#3_fp},\fp_use:c{l__atableau_y#3_fp})
-          --++(\fp_eval:n {-2*\l__atableau_tick_length_fp*\l__atableau_abacus_col_dx_fp},\fp_eval:n {-2*\l__atableau_tick_length_fp*\l__atableau_abacus_col_dy_fp})
-          --++(-\fp_use:c{l__atableau_x#3_fp},-\fp_use:c{l__atableau_y#3_fp})
-          --cycle;
+        (\fp_eval:n {\fp_use:c{l__atableau_x#2_fp}+\l__atableau_tick_length_fp*\l__atableau_abacus_col_dx_fp},
+             \fp_eval:n {\fp_use:c{l__atableau_y#2_fp}+\l__atableau_tick_length_fp*\l__atableau_abacus_col_dy_fp})
+        rectangle
+        +(\fp_eval:n {\fp_use:c{l__atableau_x#3_fp}-2*\l__atableau_tick_length_fp*\l__atableau_abacus_col_dx_fp},
+          \fp_eval:n {\fp_use:c{l__atableau_y#3_fp}-2*\l__atableau_tick_length_fp*\l__atableau_abacus_col_dy_fp});
 }
 
 % by default, abacuses use standard beads and runners
@@ -2555,7 +2551,6 @@
                 % add a named node
                 \node[aTableau/namedTick] (\l__atableau_name_tl) at (\fp_use:N\l__atableau_xa_fp,\fp_use:N\l__atableau_ya_fp){};
                 % draw the tick
-                %\__atableau_abacus_tick:n {a}
                 \draw[aTableau/abacusTick]
                     (\fp_eval:n{\l__atableau_xa_fp+\l__atableau_xb_fp},\fp_eval:n{\l__atableau_ya_fp+\l__atableau_yb_fp})
                     --(\fp_eval:n{\l__atableau_xa_fp-\l__atableau_xb_fp},\fp_eval:n{\l__atableau_ya_fp-\l__atableau_yb_fp});
@@ -2967,7 +2962,7 @@
     border~style .value_required:n = true,
 
     % node height and width
-    ox~height .fp_set:N = \l__atableau_box_ht_fp,
+    box~height .fp_set:N = \l__atableau_box_ht_fp,
     box~height .value_required:n = true,
     box~height .initial:n = 0.5,
 
@@ -3181,10 +3176,17 @@
     % abacus keys
 
     south .code:n = \__atableau_set_abacus_style_south:,
-    east  .code:n = \__atableau_set_abacus_style_east:,
-    north .code:n = \__atableau_set_abacus_style_north:,
-    west  .code:n = \__atableau_set_abacus_style_west:,
+    south .value_required:n = false,
     south .initial:n =, % use south by default
+
+    east  .code:n = \__atableau_set_abacus_style_east:,
+    east .value_required:n = false,
+
+    north .code:n = \__atableau_set_abacus_style_north:,
+    north .value_required:n = false,
+
+    west  .code:n = \__atableau_set_abacus_style_west:,
+    west .value_required:n = false,
 
     % abacus style
     abacus~ends .code:n = { \__atableau_set_abacus_ends:nn #1 },
@@ -3209,10 +3211,15 @@
         \fp_set:Nn \l__atableau_bead_height_fp {#1}
         \fp_set:Nn \l__atableau_bead_width_fp {#1}
     },
-    bead~size .initial:n = 0.4,
+    bead~size .value_required:n = true,
 
     bead~height .fp_set:N = \l__atableau_bead_height_fp,
+    bead~height .value_required:n = true,
+    bead~height .initial:n = 0.4,
+
     bead~width .fp_set:N = \l__atableau_bead_width_fp,
+    bead~width .value_required:n = true,
+    bead~width .initial:n = 0.4,
 
     bead~sep .fp_set:N = \l__atableau_abacus_ht_fp, % bead separation
     bead~sep .value_required:n = true,
@@ -3273,6 +3280,7 @@
         { \__atableau_set_abacus_convention_traditional: }
         { \__atableau_set_abacus_convention_standard: }
     },
+    traditional .value_required:n = false,
     traditional .default:n = true,
     traditional .initial:n = false,
 }
