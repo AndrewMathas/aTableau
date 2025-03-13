@@ -48,6 +48,8 @@
 
 
   \begin{tikzpicture}[scale=0.5]
+     \shadedraw[runner](12,0) rectangle ++(6,-0.4);
+     \shadedraw[runner](12,2) rectangle ++(0.4,12);
      \foreach \run in {0,...,5}
      {
         \shadedraw[runner](\run,0)--++(0.2,0)--++(0,6)--++(-0.4,0)--++(0,-6)--++(0.2,0);
