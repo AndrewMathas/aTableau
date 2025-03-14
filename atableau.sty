@@ -1,6 +1,6 @@
 % ---------------------------------------------------------------------------
 % atableau - Andrew Mathas (C) 2022-2025
-% Modified: 09:24 Friday, 14 March 2025
+% Modified: 16:12 Friday, 14 March 2025
 % ---------------------------------------------------------------------------
 %
 % A latex package for symmetric group combinatorics:
@@ -126,7 +126,7 @@
 \bool_new:N \l__atableau_border_bool      % true if drawing tableau border
 \bool_new:N \l__atableau_boxes_bool       % true if drawing inner tableau walls
 \bool_new:N \l__atableau_conjugate_bool   % true if drawing conjugate tableau/diagram
-\bool_new:N \l__atableau_frame_bool       % true if drawing framed abacus runners
+\bool_new:N \l__atableau_framed_bool      % true if drawing framed abacus runners
 \bool_new:N \l__atableau_separators_bool  % true if drawing separators for multishapes
 \bool_new:N \l__atableau_shifted_bool     % true if a shifted tableau
 \bool_new:N \l__atableau_skew_border_bool % true if drawing skew border
@@ -544,6 +544,7 @@
     \tl_set:Nn \l__atableau_bead_shape_tl  {circle}
     \tl_set:Nn \l__atableau_tick_tl        {aTableauInner}
     \tl_set:Nn \l__atableau_runner_tl      {aTableauInner}
+    \cs_set_eq:NN \__atableau_abacus_end:nnn \__atableau_standard_end:nnn
     \cs_set_eq:NN \__atableau_abacus_runner:nnn \__atableau_standard_runner:nnn
 }
 
@@ -557,6 +558,7 @@
     \tl_set:Nn \l__atableau_bead_shape_tl  {rounded~rectangle}
     \tl_set:Nn \l__atableau_tick_tl        {aTableauRunner}
     \tl_set:Nn \l__atableau_runner_tl      {aTableauRunner}
+    \cs_set_eq:NN \__atableau_abacus_end:nnn \__atableau_traditional_end:nnn
     \cs_set_eq:NN \__atableau_abacus_runner:nnn \__atableau_traditional_runner:nnn
 }
 
@@ -2350,6 +2352,25 @@
 
 % usage: \__atableau_standard_runner:nnn {style} {initial coordinate} {offset}
 % Draw a line for an abacus runner using the initial coordinate (x#2_fp, y#2_fp) -- +(x#3_fp,y#3_fp)
+\cs_new_protected:Npn \__atableau_standard_end:nnn #1 #2 #3
+{
+    \draw[aTableau/#1] (\fp_use:c {l__atableau_x#2_fp},\fp_use:c {l__atableau_y#2_fp})--+(\fp_use:c {l__atableau_x#3_fp}, \fp_use:c {l__atableau_y#3_fp});
+}
+
+% usage: \__atableau_traditional_runner:nnn {style} {initial coordinate} {offset}
+% Draw a rod for an abacus runner using the initial coordinate (x#2_fp, y#2_fp) -- +(x#3_fp,y#3_fp)
+\cs_new_protected:Npn \__atableau_traditional_end:nnn #1 #2 #3
+{
+    \shadedraw[aTableau/#1]
+        (\fp_eval:n {\fp_use:c{l__atableau_x#2_fp}+\l__atableau_tick_length_fp*\l__atableau_abacus_row_dx_fp},
+             \fp_eval:n {\fp_use:c{l__atableau_y#2_fp}+\l__atableau_tick_length_fp*\l__atableau_abacus_row_dy_fp})
+        rectangle
+        +(\fp_eval:n {\fp_use:c{l__atableau_x#3_fp}-2*\l__atableau_tick_length_fp*\l__atableau_abacus_row_dx_fp},
+          \fp_eval:n {\fp_use:c{l__atableau_y#3_fp}-2*\l__atableau_tick_length_fp*\l__atableau_abacus_row_dy_fp});
+}
+
+% usage: \__atableau_standard_runner:nnn {style} {initial coordinate} {offset}
+% Draw a line for an abacus runner using the initial coordinate (x#2_fp, y#2_fp) -- +(x#3_fp,y#3_fp)
 \cs_new_protected:Npn \__atableau_standard_runner:nnn #1 #2 #3
 {
     \draw[aTableau/#1] (\fp_use:c {l__atableau_x#2_fp},\fp_use:c {l__atableau_y#2_fp})--+(\fp_use:c {l__atableau_x#3_fp}, \fp_use:c {l__atableau_y#3_fp});
@@ -2359,7 +2380,6 @@
 % Draw a rod for an abacus runner using the initial coordinate (x#2_fp, y#2_fp) -- +(x#3_fp,y#3_fp)
 \cs_new_protected:Npn \__atableau_traditional_runner:nnn #1 #2 #3
 {
-\typeout{trad~runner:~#1~(\fp_use:c{l__atableau_x#2_fp},\fp_use:c{l__atableau_y#2_fp})++(\fp_use:c{l__atableau_x#3_fp},\fp_use:c{l__atableau_y#3_fp})}
     \shadedraw[aTableau/#1]
         (\fp_eval:n {\fp_use:c{l__atableau_x#2_fp}+\l__atableau_tick_length_fp*\l__atableau_abacus_col_dx_fp},
              \fp_eval:n {\fp_use:c{l__atableau_y#2_fp}+\l__atableau_tick_length_fp*\l__atableau_abacus_col_dy_fp})
@@ -2367,9 +2387,6 @@
         +(\fp_eval:n {\fp_use:c{l__atableau_x#3_fp}-2*\l__atableau_tick_length_fp*\l__atableau_abacus_col_dx_fp},
           \fp_eval:n {\fp_use:c{l__atableau_y#3_fp}-2*\l__atableau_tick_length_fp*\l__atableau_abacus_col_dy_fp});
 }
-
-% by default, abacuses use standard beads and runners
-\cs_set_eq:NN \__atableau_abacus_runner:nnn \__atableau_standard_runner:nnn
 
 % usage: \__atableau_draw_abacus_end:nnn {abacus_top/abacus_bottom} % {0/row index} {±1}
 % Draw the top/bottom on the abacus. Here #1 is either
@@ -2384,11 +2401,9 @@
                 \__atableau_set_bead_coordinates:non {a} {#2} {0}
                 \fp_add:Nn \l__atableau_xa_fp {-\l__atableau_abacus_col_dx_fp*\l__atableau_abacus_wd_fp/2}
                 \fp_add:Nn \l__atableau_ya_fp {-\l__atableau_abacus_col_dy_fp*\l__atableau_abacus_ht_fp/2}
-                \typeout{xscale=\fp_use:N\l__atableau_xscale_fp,~yscale=\fp_use:N\l__atableau_yscale_fp.}
-            \typeout{cols=\int_use:N\l__atableau_cols_int,~col_dx=\fp_use:N\l__atableau_abacus_col_dx_fp,~wd=\fp_use:N\l__atableau_abacus_wd_fp,~col_dy=\fp_use:N\l__atableau_abacus_col_dy_fp,~ht=\fp_use:N\l__atableau_abacus_ht_fp.}
                 \fp_set:Nn \l__atableau_xb_fp {\l__atableau_cols_int*\l__atableau_abacus_col_dx_fp*\l__atableau_abacus_wd_fp}
                 \fp_set:Nn \l__atableau_yb_fp {\l__atableau_cols_int*\l__atableau_abacus_col_dy_fp*\l__atableau_abacus_ht_fp}
-                \__atableau_abacus_runner:nnn {abacusEnds} {a} {b}
+                \__atableau_abacus_end:nnn {abacusEnds} {a} {b}
                 %\draw[aTableau/abacusEnds]
                 %  (\fp_eval:n{\l__atableau_xa_fp-\l__atableau_abacus_col_dx_fp*\l__atableau_abacus_wd_fp/2},
                 %   \fp_eval:n{\l__atableau_ya_fp-\l__atableau_abacus_col_dy_fp*\l__atableau_abacus_ht_fp/2})
@@ -3239,6 +3254,10 @@
     beta~numbers .bool_set:N = \l__atableau_beta_numbers_bool,
     beta~numbers .default:n = false,
     beta~numbers .initial:n = false,
+
+    framed .bool_set:N \l__atableau_framed_bool,
+    framed .default:n = true,
+    framed .initial:n = false,
 
     no~shade .code:n = { \__atableau_tikzset_append:nn {abacusBead} {no~shade} },
     no~shade .value_required:n = false,
