@@ -69,11 +69,19 @@
     \node[nbead] at (4,1.5){};
   \end{tikzpicture}
 
-  \Abacus[traditional=false,styles={b={ball color=blue},r={ball color=red},w={ball color=white}},abacus ends=--,scale=1.4]{3}{[b]9,[w]8,[r]8,[b]6,[b]6,[r]2,[b]1} \qquad
+  \newpage
+
+  \Abacus[styles={b={ball color=blue},r={ball color=red},w={ball color=white}},abacus ends=--,scale=1.4]{3}{[b]9,[w]8,[r]8,[b]6,[b]6,[r]2,[b]1} \qquad
   \Abacus{2}{5_5, 4_4, 3_3, 2_2,0_0} \qquad
   \Abacus[styles={R={ball color=red, text=yellow}}]{3}{*5^2_5, [R]4^3_4, 3, 2_2,*0^2_{oo}} \qquad
   \Abacus{4}{8^2_-,7_+,5_a,4^2_b,1_\times^3,1_d}
 
+  framed:
+  \Abacus[framed, traditional]{4}{8^2_-,7_+,5_a,4^2_b,1_\times^3,1_d}
+
+    \Abacus[traditional]{3}{6,4,3,1,0} \qquad
+    \Abacus[traditional, runner=brown, bead=blue]
+      {3}{6,4,3,[ball color=red]0^2}
 
   \Abacus[traditional, styles={b={ball color=blue},r={ball color=red},w={ball color=white}},abacus ends=--,scale=1.4]{3}{[b]9,[w]8,[r]8,[b]6,[b]6,[r]2,[b]1} \qquad
   \Abacus[traditional]{2}{5_5, 4_4, 3_3, 2_2,0_0} \qquad

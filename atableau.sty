@@ -1,6 +1,6 @@
 % ---------------------------------------------------------------------------
 % atableau - Andrew Mathas (C) 2022-2025
-% Modified: 16:12 Friday, 14 March 2025
+% Modified: 09:24 Tuesday, 18 March 2025
 % ---------------------------------------------------------------------------
 %
 % A latex package for symmetric group combinatorics:
@@ -29,12 +29,16 @@
 % ---------------------------------------------------------------------------
 % load TikZ early to avoid \ExplSyntaxOn...\ExplSyntaxOff wrappers
 \RequirePackage{tikz}
-\usetikzlibrary{shapes.geometric,matrix}
+\usetikzlibrary{shapes.geometric,shapes.misc,matrix}
 
 % ---------------------------------------------------------------------------
 % Correct for negative signs in contents being too long to fit in a tableau
-\RequirePackage{amsfonts} %% <- also included by amssymb
-\DeclareMathSymbol{\shortminus}{\mathbin}{AMSa}{"39}
+\ifcsname shortminus\endcsname
+  % don't overwrite an existing \shortminus command
+\else
+  \RequirePackage{amsfonts}
+  \DeclareMathSymbol{\shortminus}{\mathbin}{AMSa}{"39}
+\fi
 
 % ---------------------------------------------------------------------------
 \providecommand\DeclareRelease[3]{}
@@ -133,6 +137,8 @@
 \bool_new:N \l__atableau_skew_boxes_bool  % true if drawing skew boxes
 \bool_new:N \l__atableau_tabloid_bool     % true if a tabloid
 
+\fp_new:N \l__atableau_abacus_top_fp      % row index of the top of the abacus
+\fp_new:N \l__atableau_abacus_bottom_fp   % row index of the bottom of the abacus
 \fp_new:N \l__atableau_abacus_col_dx_fp   % change in x-coordinate between columns in an abacus
 \fp_new:N \l__atableau_abacus_col_dy_fp   % change in y-coordinate between columns in an abacus
 \fp_new:N \l__atableau_abacus_row_dx_fp   % change in x-coordinate between rows in an abacus
@@ -485,7 +491,7 @@
 }
 
 % ---------------------------------------------------------------------------
-% tableau styles - called from settings
+% tableau styles: english, french, australian and ukrainian - called from settings
 
 \cs_new:Nn \__atableau_set_tableau_style_english:
 {
@@ -532,7 +538,7 @@
 }
 
 % ---------------------------------------------------------------------------
-% abacus styles - called from settings
+% abacus conventions standard and traditional - called from settings
 
 \cs_new:Nn \__atableau_set_abacus_convention_standard:
 {
@@ -563,7 +569,7 @@
 }
 
 % ---------------------------------------------------------------------------
-% abacus styles - called from settings
+% abacus styles north, south, east and west - called from settings
 
 \cs_new:Nn \__atableau_set_abacus_style_south:
 {
@@ -648,7 +654,7 @@
 \cs_generate_variant:Nn \__atableau_draw_tableau:n {V}
 \cs_generate_variant:Nn \__atableau_entry:n {x}
 \cs_generate_variant:Nn \__atableau_put_tikz_node:nnnnn {nnVnV, noVnV, noVno}
-\cs_generate_variant:Nn \__atableau_set_bead_coordinates:nnn {nVV, nnV, noo, non, noV}
+\cs_generate_variant:Nn \__atableau_set_bead_coordinates:nnn {nVV, nnV, noo, non, noV, nno}
 \cs_generate_variant:Nn \__atableau_set_box_coordinates:nnn {nVV, nVn, noo }
 \cs_generate_variant:Nn \__atableau_set_partition:nn {no}
 \cs_generate_variant:Nn \__atableau_set_style:nn {Vn, nV}
@@ -779,11 +785,11 @@
 {
     \peek_remove_spaces:n { % ignore spaces
       \peek_charcode:NTF [
-        { \use:c{__atableau_#1} }
+        { \use:c{__atableau_#1} } % read custom style
         {
           \peek_charcode_remove:NTF *
-            { \use:c{__atableau_#1} [\l__atableau_starstyle_tl] }
-            { \use:c{__atableau_#1} [] }
+            { \use:c{__atableau_#1} [\l__atableau_starstyle_tl] } % add star style
+            { \use:c{__atableau_#1} [] }% no style
         }
     }
 }
@@ -889,7 +895,7 @@
 % list of integers, or as a comma separated list of integers with exponents
 % giving the multiplicity of each part. For example, 4,3,3,3,2 and 4,3^3,2
 % are both supported.
-% TODO: ?? Remove the hack below and rewrite using quarks
+% TODO: ?? Remove the hack below using \seq_set_split:Nnn and rewrite using quarks
 \cs_new_protected:Npn \__atableau_set_partition:nn #1 #2
 {
   \seq_clear:c {l__atableau_#1_seq}
@@ -2555,7 +2561,7 @@
         % skip the runners in dotted_cols_seq
         \seq_if_in:NVF \l__atableau_dotted_cols_seq \l_tmpa_int
         {
-            % draw the abacus runners from (xa,ya) to ++(xb,yb)
+            % draw the abacus runners from (xa,ya) to +(xl,yl)
             \__atableau_set_bead_coordinates:nnV {a} { 0 } \l_tmpa_int
             \__atableau_abacus_runner:nnn {abacusRunner} {a} {l}
 
@@ -2571,6 +2577,17 @@
                     --(\fp_eval:n{\l__atableau_xa_fp-\l__atableau_xb_fp},\fp_eval:n{\l__atableau_ya_fp-\l__atableau_yb_fp});
             }
         }
+    }
+
+    % draw extra runners at the end when framed is true
+    \bool_if:NT \l__atableau_framed_bool
+    {
+        \__atableau_set_bead_coordinates:nnn {a} { 0 } {-0.7}
+        \__atableau_abacus_runner:nnn {abacusRunner,blue} {a} {l}
+        \node[blue] at (\fp_use:N\l__atableau_xa_fp,\fp_use:N\l__atableau_ya_fp){$\bullet$};
+        \__atableau_set_bead_coordinates:nnn {a} { 0 } {\l__atableau_cols_int+1}
+        \__atableau_abacus_runner:nnn {abacusRunner,red} {a} {l}
+        \node[red] at (\fp_use:N\l__atableau_xa_fp,\fp_use:N\l__atableau_ya_fp){$\bullet$};
     }
 
     % set e when entries=residues
@@ -3214,6 +3231,14 @@
     abacus~star~style .code:n = { \__atableau_tikzset_append:nn {abacusStarStyle} {#1} },
     abacus~star~style .value_required:n = true,
 
+    abacus~top .fp_set:N = \l__atableau_abacus_top_fp,
+    abacus~top .value_required:n = true,
+    abacus~top .initial:n = 0.4 ,
+
+    abacus~bottom .fp_set:N = \l__atableau_abacus_bottom_fp,
+    abacus~bottom .value_required:n = true,
+    abacus~bottom .initial:n = 0.4 ,
+
     bead .tl_set:N = \l__atableau_bead_tl, % bead colour
     bead .value_required:n = true,
     bead .initial:n = aTableauMain,
@@ -3255,7 +3280,7 @@
     beta~numbers .default:n = false,
     beta~numbers .initial:n = false,
 
-    framed .bool_set:N \l__atableau_framed_bool,
+    framed .bool_set:N = \l__atableau_framed_bool,
     framed .default:n = true,
     framed .initial:n = false,
 

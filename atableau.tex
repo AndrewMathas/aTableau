@@ -1,6 +1,6 @@
 % ----------------------------------------------------------------------
 % atableau - Andrew Mathas (C) 2022-2025
-% Modified: 13:05 Tuesday, 11 March 2025
+% Modified: 13:11 Monday, 17 March 2025
 % ----------------------------------------------------------------------
 \documentclass{amsart}
 \usepackage[svgnames,table]{xcolor}
@@ -267,7 +267,8 @@
 \def\l@subsubsection{\@tocline{2}{0pt}{3.5pc}{3pc}{}}
 \makeatother
 
-\newenvironment{warning}{\list{\textcolor{red}{\textdbend}\quad}{\leftmargin=3em}\item}{\endlist}
+% warning environment to alert the reader to tricky points
+\newenvironment{warning}{\list{\raisebox{-2ex}{\textcolor{red}{\textdbend}}\quad}{\leftmargin=3em}\item}{\endlist}
 
 % ---------------------------------------------------------------------------
 \usepackage[skins]{tcolorbox}
@@ -2975,8 +2976,8 @@
   column index and label, respectively, using the two lists of
   \keyword{\r}\!/\!\keyword{\c}\!/\!\keyword{\l} triples given above.
 
-  \option[draw=\aTableauColour{Inner}, thin]{ribbon style=style}{\TikZ-styling}
-  \option*[]{ribbon box style=style}{\TikZ-styling}
+  \option[draw=\aTableauColour{Inner}, thin]{ribbon style=style}[\TikZ-styling]
+  \option*[]{ribbon box style=style}[\TikZ-styling]
 
   Use the \option{ribbon style} and \option{ribbon box} keys to
   append to the default styling of the ribbons, and the boxes in the
@@ -2998,7 +2999,7 @@
   outline around a box then this has precedence over any outline added
   by \option{ribbon style} since \option{ribbon box} is applied last.
 
-  \option[]{ribbon box=text}{default box contents}
+  \option[]{ribbon box=text}[default box contents]
 
   You can add content to the boxes in a ribbon using subscripts in
   the ribbon specifications. Alternatively, you can use
@@ -3387,7 +3388,7 @@
   \Multidiagram[separation=0.8]{3,2 | 2^2}
   \end{example}
 
-  \option[]{skew=partitions}{a $|$-separated list of partitions}
+  \option[]{skew=partitions}[a $|$-separated list of partitions]
 
   Skew multishapes can be drawn using the \option{skew} option to
   specify a $|$-separated list of inner shapes.
@@ -3695,6 +3696,16 @@
     {3}{5,*4_b,*1^2,0^4}
   \end{example}
 
+  \option[0.1]{abacus top}[a decimal number]
+  \option*[0.1]{abacus bottom}[a decimal number]
+
+  The \option{abacus top} key controls the distance between the ``top''
+  end of the abacus runners and the first row of beads, and
+  \option{abacus bottom} controls the distance between the ``bottom'' of
+  the abacus runners and the last row of beads  on the abacus. Both of
+  these keys gives give the ``row index'' for the ends of the runners.
+
+
   \option[\aTableauColour{Main}]{bead=colour}[a \LaTeX colour]
 
   The \option{bead} key sets  the bead colour.
@@ -3747,6 +3758,11 @@
   \option{scale}<abacus>, \option{xscale}<abacus> and
   \option{yscale}<abacus>. Changing these keys globally affects both
   abacuses and tableaux.
+
+  The default values for all of these settings change when you use the
+  \option{traditional} abacus style. In addition, there are
+  \option{bead height} and \option{bead width} keys that are used with
+  the traditional style.
 
   \option[]{bead style=style}[\TikZ-styling]
 
@@ -3909,7 +3925,7 @@
 
   \end{itemize}
 
-  \option[A]{name=text}{text}
+  \option[A]{name=text}[text]
 
   Just like the tableaux commands, the \keyword{abacus} command defines
   named coordinates for all of the \emph{beads} and \emph{ticks} on the
@@ -3930,7 +3946,7 @@
     }]{3}{4^3,1^2}
   \end{Example}
 
-  \option[]{no shade}[]
+  \option[]{no shade}
 
   The abacus balls are drawn with the \TikZ style
   \keyword{shading=ball}.  As noted in \autoref{Ex:NoShade}, you can
@@ -3951,6 +3967,11 @@
   \keyword{\Abacus} key, you can use it inside \option{bead style} as a
   \TikZ-style. (We include the \option{no shade} option partly for
   convenience and partly to advertise how to use it.)
+
+  \begin{warning}
+    The \option{no shade} key is \textit{not} a boolean key. In
+    particular, there is no inverse key \textcolor{aTableauInner}{shade}.
+  \end{warning}
 
   \option[]{rows=row index}[non-negative integer]<abacus>
 
@@ -3985,7 +4006,7 @@
     \Abacus[runner style={dashed}]{3}{3,2^2} \quad
   \end{example}
 
-  \option[]{runner labels=labels}{list of labels for the abacus runners}
+  \option[]{runner labels=labels}[list of labels for the abacus runners]
   \option*[font=\textbackslash scriptsize, text=\aTableauColour{Inner}]{runner label style=style}[\TikZ-styling]
 
   The \option{runner labels} key adds labels to the each runner. An
@@ -4017,6 +4038,23 @@
     \Abacus[tick style={ultra thick,orange}]{3}{6,4,3,1,0} \qquad
     \Abacus[tick length=0.3]{3}{6,4,3,1,0} \qquad
   \end{example}
+
+  \option[false]{traditional}[true/false]
+
+  When using the \option{traditional} option, the \keyword{\Abacus}
+  commands draw an abacus that looks more like  a traditional Chinese
+  abacus, where the runners are drawn as rode and the beads are wider.
+
+  \begin{example}
+    \Abacus[traditional, scale=0.6]{3}{6,4,3,1,0} \qquad
+    \Abacus[traditional, runner=brown, bead=blue]
+      {3}{6,4,3,[ball color=red]0^2}
+  \end{example}
+
+  Traditional abacuses occupy more space, but they are more visually
+  appealing. Not all of the abacus options have been tested on
+  traditional abacuses, so please
+  \href{https://github.com/AndrewMathas/aTableau/}{report any problems}.
 
   % --------------------------------------------------------------
   \section{Examples from the literature}
@@ -4074,9 +4112,9 @@
   \begin{example}
   \newcommand\Symb[2]{\genfrac{}{}{0pt}{}{#1}{#2}}
   \Tableau[ukrainian, box font=\scriptsize,
-     tikz after = {\draw[ultra thick, red]
-        (A-2-3.east)--(A-2-2.south)--(A-3-2.west)
-                    --(A-3-3.north)--cycle;
+   tikz after = {\draw[ultra thick, red]
+     (A-2-3.east)--(A-2-2.south)--(A-3-2.west)
+                 --(A-3-3.north)--cycle;
   }]{
      {\Symb11}{\Symb11}{\Symb11}{\Symb0s},
      {\Symb11}{\Symb11}{\Symb11}{\Symb0s},
@@ -4092,7 +4130,7 @@
   \TikZ, which are a good way to add repeating features to a
   \keyword{tikzpicture}. In the code below, \emph{pics} are used to add
   the up and down strings to this drawing, taking as input the string
-  colour, the starting box, the list of the boxes the strings goes
+  colour, the starting box, the list of the boxes that the string goes
   through, and the final box.  At the risk of further obfuscation, this
   could be done a little more efficiently. From the \aTableau
   perspective, the most interesting feature of this picture is that it
@@ -4171,7 +4209,9 @@
   \end{center}
 
   In addition, the \keyword{\aTabset} command is provided for setting
-  can default \aTableau values for the \aTableau options.
+  can default \aTableau values for the \aTableau options (and the
+  \keyword{\shortminus} command for shorter minus signs, which are used
+  for contents in tableaux).
 
   For easier reference, here is the complete list of \aTableau keys,
   together with a quick explanation of what they do. The last two
@@ -4193,6 +4233,8 @@
     \endhead
     \option{abacus ends}       & Set the top and bottom of the abacus                & \No  & \Yes\\
     \option{abacus ends style} & Set the style of the top and bottom of the abacus   & \No  & \Yes\\
+    \option{abacus bottom}     & Set the offset for the bottom of the abacus         & \No  & \Yes\\
+    \option{abacus top}        & Set the offset for the top of the abacus            & \No  & \Yes\\
     \option{align}             & Set baseline alignment of \aTableau diagram         & \Yes & \Yes[abacus]\\
     \option{australian}        & Use the Australian convention for tableaux          & \Yes & \No \\
     \option{bead}              & Set the colour of the abacus beads                  & \No  & \Yes \\
@@ -4220,6 +4262,7 @@
     \option{dotted rows}       & Specify rows to replace with dots                   & \Yes & \Yes[abacus] \\
     \option{english}           & Use the English convention for tableaux             & \Yes & \No \\
     \option{entries}           & Add entries to tableaux and abacuses                & \Yes & \Yes[abacus] \\
+    \option{framed}            & Draw a frame around the abacus                      & \No  & \Yes \\
     \option{french}            & Use the French convention for tableaux              & \Yes & \No \\
     \option{halign}            & Horizontal alignment of box entries and bead labels & \Yes & \Yes[abacus] \\
     \option{inner style}       & Set style of inner tableau wall                     & \Yes & \No \\
@@ -4273,6 +4316,7 @@
     \option{tikz after}        & \TikZ-code injected after \aTableau picture         & \Yes & \Yes[abacus] \\
     \option{tikz before}       & \TikZ-code injected before \aTableau picture        & \Yes & \Yes[abacus] \\
     \option{tikzpicture}       & Sets tikzpicture environment keys                   & \Yes & \No \\
+    \option{traditional}       & Use a traditional abacus style                      & \No  & \Yes \\
     \option{ukrainian}         & Use the Ukrainian convention for tableaux           & \Yes & \No \\
     \option{valign}            & Set vertical alignment                              & \Yes & \Yes[abacus] \\
     \option{west}              & Make abacus grow in the westerly direction          & \Yes & \No \\
@@ -4385,9 +4429,8 @@
   example}, which is the smallest possible amount of \LaTeX\ code that
   demonstrates the problem and compiles, unless you are reporting a
   problem that gives a compilation error in which case your example
-  should give the error. This is necessary because if we cannot reproduce
-  your problem, then it is unlikely that we will be able to fix it.
-
+  should give the error. This is necessary because it is very difficult
+  to fix a problem if we cannot reproduce it.
 
   % --------------------------------------------------------------
   \subsection*{Acknowledgements}
