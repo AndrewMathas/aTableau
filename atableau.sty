@@ -1,9 +1,9 @@
 % ---------------------------------------------------------------------------
-% atableau - Andrew Mathas (C) 2022-2025
-% Modified: 09:24 Tuesday, 18 March 2025
+% aTableau - Andrew Mathas (C) 2022-2025
+% Modified: 16:05 Tuesday, 18 March 2025
 % ---------------------------------------------------------------------------
 %
-% A latex package for symmetric group combinatorics:
+% A LaTeX package for symmetric group combinatorics:
 %   - abacuses
 %   - multitableau
 %   - ribbon tableau
@@ -23,7 +23,7 @@
 
 % ---------------------------------------------------------------------------
 % aTableau package date and version
-\def\atableau@version{2.1.0}
+\def\atableau@version{2.2.0}
 \def\atableau@release{2025-01-24}
 
 % ---------------------------------------------------------------------------
@@ -34,7 +34,7 @@
 % ---------------------------------------------------------------------------
 % Correct for negative signs in contents being too long to fit in a tableau
 \ifcsname shortminus\endcsname
-  % don't overwrite an existing \shortminus command
+  % define the \shortminus command only if it does not already exist
 \else
   \RequirePackage{amsfonts}
   \DeclareMathSymbol{\shortminus}{\mathbin}{AMSa}{"39}
@@ -94,10 +94,6 @@
 \msg_new:nnnn { aTableau } { unrecognised-entries }
   { Unrecognised~entries~value:~'#1' }
   { The~possible~diagram~values~for~entries~are:~contents,~first,~hooks,~last,~and~residues}
-
-\msg_new:nnnn { aTableau } { unrecognised-style }
-  { Unrecognised~style:~'#1' }
-  { The~available~tableau~styles~are~australian,~english,~french~and~ukrainian~and~the~available~abacus~styles~are~north,~south,~east~and~west~}
 
 \msg_new:nnnn { aTableau } { unknown-abacus-ends }
   { Unrecognised~abacus~ends~setting:~'#1' }
@@ -650,7 +646,7 @@
 \cs_generate_variant:Nn \__atableau_abacus_bead:nnn {enV}
 \cs_generate_variant:Nn \__atableau_add_ribbon:n {V}
 \cs_generate_variant:Nn \__atableau_count_row:n {x}
-\cs_generate_variant:Nn \__atableau_draw_abacus_end:nnn {noo}
+\cs_generate_variant:Nn \__atableau_draw_abacus_end:nnn {noo, nVn}
 \cs_generate_variant:Nn \__atableau_draw_tableau:n {V}
 \cs_generate_variant:Nn \__atableau_entry:n {x}
 \cs_generate_variant:Nn \__atableau_put_tikz_node:nnnnn {nnVnV, noVnV, noVno}
@@ -2394,9 +2390,11 @@
           \fp_eval:n {\fp_use:c{l__atableau_y#3_fp}-2*\l__atableau_tick_length_fp*\l__atableau_abacus_col_dy_fp});
 }
 
-% usage: \__atableau_draw_abacus_end:nnn {abacus_top/abacus_bottom} % {0/row index} {±1}
-% Draw the top/bottom on the abacus. Here #1 is either
-% \l__atableau_abacus_top_tl  or \l__atableau_abacus_bottom_tl and #2 is
+% usage: \__atableau_draw_abacus_end:nnn {abacus_top/abacus_bottom} {row index} {±1}
+% Draw the top/bottom on the abacus. Here:
+%   - #1 is either % \l__atableau_abacus_top_tl  or \l__atableau_abacus_bottom_tl
+%   - #2 is the row index for the line we will draw
+%   - #3, which is ±1, determines whether arrows go up or down
 % either 0, for top, or the row index of the last row, for bottom
 \cs_new_protected:Npn \__atableau_draw_abacus_end:nnn #1 #2 #3
 {
@@ -2656,8 +2654,7 @@
     }
 
     % draw the top ends of the abacus -- and set \l_tmpa_fp for the runner labels
-    \__atableau_draw_abacus_end:nnn \l__atableau_abacus_top_tl {0.4} {-1}
-    \int_zero:N \l__atableau_c_int
+    \__atableau_draw_abacus_end:nVn \l__atableau_abacus_top_tl \l__atableau_abacus_top_fp {-1}
 
     % add the runner labels using the "row height" \l_tmpa_fp
     \int_zero:N \l__atableau_c_int
@@ -2672,7 +2669,9 @@
     }
 
     % draw the bottom ends of the abacus
-    \__atableau_draw_abacus_end:noo \l__atableau_abacus_bottom_tl  {\int_eval:n {\l__atableau_rows_int+1}} {\int_eval:n {\l__atableau_rows_int+2}}
+    \__atableau_draw_abacus_end:noo \l__atableau_abacus_bottom_tl
+        {\fp_eval:n {\l__atableau_rows_int+1+\l__atableau_abacus_bottom_fp}}
+        {\int_eval:n {\l__atableau_rows_int+2}}
 
     % remove dotted rows and columns
     \seq_if_empty:NF \l__atableau_dotted_rows_seq \__atableau_remove_dotted_abacus_rows:
