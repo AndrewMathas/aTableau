@@ -1,6 +1,6 @@
 % ---------------------------------------------------------------------------
 % aTableau - Andrew Mathas (C) 2022-2025
-% Modified: 14:33 Wednesday, 19 March 2025
+% Modified: 09:02 Thursday, 20 March 2025
 % ---------------------------------------------------------------------------
 %
 % A LaTeX package for symmetric group combinatorics:
@@ -133,18 +133,20 @@
 \bool_new:N \l__atableau_skew_boxes_bool  % true if drawing skew boxes
 \bool_new:N \l__atableau_tabloid_bool     % true if a tabloid
 
-\fp_new:N \l__atableau_abacus_top_fp      % row index of the top of the abacus
 \fp_new:N \l__atableau_abacus_bottom_fp   % row index of the bottom of the abacus
 \fp_new:N \l__atableau_abacus_col_dx_fp   % change in x-coordinate between columns in an abacus
 \fp_new:N \l__atableau_abacus_col_dy_fp   % change in y-coordinate between columns in an abacus
+\fp_new:N \l__atableau_abacus_ht_fp       % height of the tableaux nodes/separation between abacus beads
 \fp_new:N \l__atableau_abacus_row_dx_fp   % change in x-coordinate between rows in an abacus
 \fp_new:N \l__atableau_abacus_row_dy_fp   % change in y-coordinate between rows in an abacus
-\fp_new:N \l__atableau_abacus_ht_fp       % height of the tableaux nodes/separation between abacus beads
+\fp_new:N \l__atableau_abacus_top_fp      % row index of the top of the abacus
 \fp_new:N \l__atableau_abacus_wd_fp       % width of the tableaux nodes/separation between abacus runners
 \fp_new:N \l__atableau_bead_height_fp     % abacus bead height
 \fp_new:N \l__atableau_bead_width_fp      % abacus bead width
+\fp_new:N \l__atableau_beam_height_fp     % width of abacus rods/runners when using traditional style
 \fp_new:N \l__atableau_box_ht_fp          % height of a tableau box
 \fp_new:N \l__atableau_box_wd_fp          % width of a tableau box
+\fp_new:N \l__atableau_rod_width_fp       % width of abacus rods/runners when using traditional style
 \fp_new:N \l__atableau_rows_fp            % number of rows in abacus/tableau
 \fp_new:N \l__atableau_separation_fp      % distance between multitableau
 \fp_new:N \l__atableau_script_fp          % scaling when used as a subscript
@@ -475,6 +477,8 @@
     \fp_set:Nn \l__atableau_box_wd_fp      {#1*\l__atableau_box_wd_fp}
     \fp_set:Nn \l__atableau_separation_fp  {#1*\l__atableau_separation_fp }
     \fp_set:Nn \l__atableau_tick_length_fp {#1*\l__atableau_tick_length_fp }
+    \fp_set:Nn \l__atableau_beam_height_fp {#1*\l__atableau_beam_height_fp }
+    \fp_set:Nn \l__atableau_rod_width_fp   {#1*\l__atableau_rod_width_fp }
 }
 
 % usage: \__atableau_set_yscale:n {y-scale} : rescale the y-dimension
@@ -543,12 +547,11 @@
     \fp_set:Nn \l__atableau_bead_height_fp   {\l__atableau_yscale_fp*0.4}
     \fp_set:Nn \l__atableau_bead_width_fp    {\l__atableau_xscale_fp*0.4}
     \fp_set:Nn \l__atableau_tick_length_fp   {\l__atableau_xscale_fp*0.1}
-    \fp_set:Nn \l__atableau_abacus_top_fp    {0.3}
-    \fp_set:Nn \l__atableau_abacus_bottom_fp {0.4}
     \tl_set:Nn \l__atableau_bead_shape_tl    {circle}
     \tl_set:Nn \l__atableau_tick_tl          {aTableauInner}
     \tl_set:Nn \l__atableau_runner_tl        {aTableauInner}
-    \cs_set_eq:NN \__atableau_abacus_end:nnn \__atableau_standard_end:nnn
+    \fp_set:Nn \l__atableau_tick_length_fp   {\l__atableau_xscale_fp*0.1}
+    \cs_set_eq:NN \__atableau_abacus_end:nnnn \__atableau_standard_end:nnnn
     \cs_set_eq:NN \__atableau_abacus_runner:nnn \__atableau_standard_runner:nnn
 }
 
@@ -558,13 +561,11 @@
     \fp_set:Nn \l__atableau_abacus_wd_fp     {\l__atableau_xscale_fp}
     \fp_set:Nn \l__atableau_bead_height_fp   {\l__atableau_abacus_ht_fp*0.97 }
     \fp_set:Nn \l__atableau_bead_width_fp    {\l__atableau_abacus_wd_fp*0.97 }
-    \fp_set:Nn \l__atableau_tick_length_fp   {\l__atableau_xscale_fp*0.15}
-    \fp_set:Nn \l__atableau_abacus_top_fp    {0.1}
-    \fp_set:Nn \l__atableau_abacus_bottom_fp {0.5}
     \tl_set:Nn \l__atableau_bead_shape_tl    {rounded~rectangle}
     \tl_set:Nn \l__atableau_tick_tl          {aTableauRunner}
     \tl_set:Nn \l__atableau_runner_tl        {aTableauRunner}
-    \cs_set_eq:NN \__atableau_abacus_end:nnn \__atableau_traditional_end:nnn
+    \fp_set_eq:NN \l__atableau_tick_length_fp  \l__atableau_rod_width_fp
+    \cs_set_eq:NN \__atableau_abacus_end:nnnn \__atableau_traditional_end:nnnn
     \cs_set_eq:NN \__atableau_abacus_runner:nnn \__atableau_traditional_runner:nnn
 }
 
@@ -650,7 +651,7 @@
 \cs_generate_variant:Nn \__atableau_abacus_bead:nnn {enV}
 \cs_generate_variant:Nn \__atableau_add_ribbon:n {V}
 \cs_generate_variant:Nn \__atableau_count_row:n {x}
-\cs_generate_variant:Nn \__atableau_draw_abacus_end:nnn {noo, nVn}
+\cs_generate_variant:Nn \__atableau_draw_abacus_end:nnn {non, nVn}
 \cs_generate_variant:Nn \__atableau_draw_tableau:n {V}
 \cs_generate_variant:Nn \__atableau_entry:n {x}
 \cs_generate_variant:Nn \__atableau_put_tikz_node:nnnnn {nnVnV, noVnV, noVno}
@@ -1596,7 +1597,6 @@
 \cs_new_protected:Npn \__atableau_set_bead_coordinates:nnn #1 #2 #3
 {
     \tl_set:Nx \l__atableau_name_tl {\l__atableau_prefix_tl-\fp_to_int:n{#2-1}-\fp_to_int:n{#3}}
-\typeout{Bead~coordinates:~\l__atableau_name_tl}
     \fp_set:cn {l__atableau_x#1_fp} {\l__atableau_x_fp+(#2*\l__atableau_abacus_row_dx_fp+#3*\l__atableau_abacus_col_dx_fp)*\l__atableau_abacus_wd_fp }
     \fp_set:cn {l__atableau_y#1_fp} {\l__atableau_y_fp+(#2*\l__atableau_abacus_row_dy_fp+#3*\l__atableau_abacus_col_dy_fp)*\l__atableau_abacus_ht_fp }
 }
@@ -2359,21 +2359,20 @@
 
 % usage: \__atableau_standard_runner:nnn {style} {initial coordinate} {offset}
 % Draw a line for an abacus runner using the initial coordinate (x#2_fp, y#2_fp) -- +(x#3_fp,y#3_fp)
-\cs_new_protected:Npn \__atableau_standard_end:nnn #1 #2 #3
+\cs_new_protected:Npn \__atableau_standard_end:nnnn #1 #2 #3 #4
 {
     \draw[aTableau/#1] (\fp_use:c {l__atableau_x#2_fp},\fp_use:c {l__atableau_y#2_fp})--+(\fp_use:c {l__atableau_x#3_fp}, \fp_use:c {l__atableau_y#3_fp});
 }
 
 % usage: \__atableau_traditional_runner:nnn {style} {initial coordinate} {offset}
 % Draw a rod for an abacus runner using the initial coordinate (x#2_fp, y#2_fp) -- +(x#3_fp,y#3_fp)
-\cs_new_protected:Npn \__atableau_traditional_end:nnn #1 #2 #3
+\cs_new_protected:Npn \__atableau_traditional_end:nnnn #1 #2 #3 #4
 {
     \shadedraw[aTableau/#1]
-        (\fp_eval:n {\fp_use:c{l__atableau_x#2_fp}+\l__atableau_tick_length_fp*\l__atableau_abacus_row_dx_fp},
-             \fp_eval:n {\fp_use:c{l__atableau_y#2_fp}+\l__atableau_tick_length_fp*\l__atableau_abacus_row_dy_fp})
+        (\fp_use:c{l__atableau_x#2_fp}, \fp_use:c{l__atableau_y#2_fp})
         rectangle
-        +(\fp_eval:n {\fp_use:c{l__atableau_x#3_fp}-2*\l__atableau_tick_length_fp*\l__atableau_abacus_row_dx_fp},
-          \fp_eval:n {\fp_use:c{l__atableau_y#3_fp}-2*\l__atableau_tick_length_fp*\l__atableau_abacus_row_dy_fp});
+        +(\fp_eval:n {\fp_use:c{l__atableau_x#3_fp}+2*#4*\l__atableau_beam_height_fp*\l__atableau_abacus_row_dx_fp},
+          \fp_eval:n {\fp_use:c{l__atableau_y#3_fp}+2*#4*\l__atableau_beam_height_fp*\l__atableau_abacus_row_dy_fp});
 }
 
 % usage: \__atableau_standard_runner:nnn {style} {initial coordinate} {offset}
@@ -2388,11 +2387,11 @@
 \cs_new_protected:Npn \__atableau_traditional_runner:nnn #1 #2 #3
 {
     \shadedraw[aTableau/#1]
-        (\fp_eval:n {\fp_use:c{l__atableau_x#2_fp}+\l__atableau_tick_length_fp*\l__atableau_abacus_col_dx_fp},
-             \fp_eval:n {\fp_use:c{l__atableau_y#2_fp}+\l__atableau_tick_length_fp*\l__atableau_abacus_col_dy_fp})
+        (\fp_eval:n {\fp_use:c{l__atableau_x#2_fp}+\l__atableau_rod_width_fp*\l__atableau_abacus_col_dx_fp},
+             \fp_eval:n {\fp_use:c{l__atableau_y#2_fp}+\l__atableau_rod_width_fp*\l__atableau_abacus_col_dy_fp})
         rectangle
-        +(\fp_eval:n {\fp_use:c{l__atableau_x#3_fp}-2*\l__atableau_tick_length_fp*\l__atableau_abacus_col_dx_fp},
-          \fp_eval:n {\fp_use:c{l__atableau_y#3_fp}-2*\l__atableau_tick_length_fp*\l__atableau_abacus_col_dy_fp});
+        +(\fp_eval:n {\fp_use:c{l__atableau_x#3_fp}-2*\l__atableau_rod_width_fp*\l__atableau_abacus_col_dx_fp},
+          \fp_eval:n {\fp_use:c{l__atableau_y#3_fp}-2*\l__atableau_rod_width_fp*\l__atableau_abacus_col_dy_fp});
 }
 
 % usage: \__atableau_draw_abacus_end:nnn {abacus_top/abacus_bottom} {row index} {±1}
@@ -2413,7 +2412,7 @@
                 \fp_add:Nn \l__atableau_ya_fp {-\l__atableau_abacus_col_dy_fp*\l__atableau_abacus_ht_fp/2}
                 \fp_set:Nn \l__atableau_xb_fp {\l__atableau_cols_int*\l__atableau_abacus_col_dx_fp*\l__atableau_abacus_wd_fp}
                 \fp_set:Nn \l__atableau_yb_fp {\l__atableau_cols_int*\l__atableau_abacus_col_dy_fp*\l__atableau_abacus_ht_fp}
-                \__atableau_abacus_end:nnn {abacusEnds} {a} {b}
+                \__atableau_abacus_end:nnnn {abacusEnds} {a} {b} {#3}
                 %\draw[aTableau/abacusEnds]
                 %  (\fp_eval:n{\l__atableau_xa_fp-\l__atableau_abacus_col_dx_fp*\l__atableau_abacus_wd_fp/2},
                 %   \fp_eval:n{\l__atableau_ya_fp-\l__atableau_abacus_col_dy_fp*\l__atableau_abacus_ht_fp/2})
@@ -2429,7 +2428,7 @@
                 \__atableau_set_bead_coordinates:non {a} {#2} {0}
                 \fp_set:Nn \l__atableau_xb_fp {(\l__atableau_cols_int-1)*\l__atableau_abacus_col_dx_fp*\l__atableau_abacus_wd_fp}
                 \fp_set:Nn \l__atableau_yb_fp {(\l__atableau_cols_int-1)*\l__atableau_abacus_col_dy_fp*\l__atableau_abacus_ht_fp}
-                \__atableau_abacus_end:nnn {abacusEnds} {a} {b}
+                \__atableau_abacus_end:nnnn {abacusEnds} {a} {b} {#3}
                 %\draw[aTableau/abacusEnds] (\fp_use:N\l__atableau_xa_fp, \fp_use:N\l__atableau_ya_fp)
                 %   -- (\fp_use:N\l__atableau_xb_fp, \fp_use:N\l__atableau_yb_fp);
 
@@ -2447,7 +2446,7 @@
                         \__atableau_set_bead_coordinates:noo {a} { #2 } { \int_eval:n{##1-1} }
                         \fp_set:Nn \l__atableau_xb_fp {#3*\l__atableau_abacus_row_dx_fp*\l__atableau_abacus_wd_fp}
                         \fp_set:Nn \l__atableau_yb_fp {#3*\l__atableau_abacus_row_dy_fp*\l__atableau_abacus_ht_fp}
-                        \__atableau_abacus_end:nnn {abacusEnds,dotted} {a} {b}
+                        \__atableau_abacus_end:nnnn {abacusEnds,dotted} {a} {b} {#3}
                         %\draw[aTableau/abacusEnds, dotted] (\fp_use:N\l__atableau_xa_fp,\fp_use:N\l__atableau_ya_fp)--(\fp_use:N\l__atableau_xb_fp,\fp_use:N\l__atableau_yb_fp);
                     }
                 }
@@ -2561,8 +2560,8 @@
     \fp_set:Nn \l__atableau_xl_fp { \l_tmpa_fp*\l__atableau_abacus_row_dx_fp*\l__atableau_abacus_wd_fp }
     \fp_set:Nn \l__atableau_yl_fp { \l_tmpa_fp*\l__atableau_abacus_row_dy_fp*\l__atableau_abacus_ht_fp }
     % similarly, set (xb_fp, yb_fp) to the half the tick length
-    \fp_set:Nn \l__atableau_xb_fp {\l__atableau_tick_length_fp*\l__atableau_abacus_col_dx_fp}
-    \fp_set:Nn \l__atableau_yb_fp {\l__atableau_tick_length_fp*\l__atableau_abacus_col_dy_fp}
+    \fp_set:Nn \l__atableau_xb_fp {\l__atableau_rod_width_fp*\l__atableau_abacus_col_dx_fp}
+    \fp_set:Nn \l__atableau_yb_fp {\l__atableau_rod_width_fp*\l__atableau_abacus_col_dy_fp}
     \int_step_inline:nn {\l__atableau_cols_int}
     {
         \int_set:Nn \l_tmpa_int {##1-1} % save recalculating this many times
@@ -2662,8 +2661,8 @@
     }
 
     % draw the top ends of the abacus -- and set \l_tmpa_fp for the runner labels
-    \typeout{TOP}
-    \__atableau_draw_abacus_end:nVn \l__atableau_abacus_top_tl \l__atableau_abacus_top_fp {-1}
+    \typeout{TOP:~\fp_use:N\l__atableau_abacus_top_fp}
+    \__atableau_draw_abacus_end:nVn \l__atableau_abacus_top_tl \l__atableau_abacus_top_fp {1}
 
     % add the runner labels using the "row height" \l_tmpa_fp
     \int_zero:N \l__atableau_c_int
@@ -2678,10 +2677,10 @@
     }
 
     % draw the bottom ends of the abacus
-    \typeout{BOTTOM}
-    \__atableau_draw_abacus_end:noo \l__atableau_abacus_bottom_tl
+    \typeout{BOTTOM:~\fp_use:N\l__atableau_abacus_bottom_fp}
+    \__atableau_draw_abacus_end:non \l__atableau_abacus_bottom_tl
         {\fp_eval:n {\l__atableau_rows_int+\l__atableau_abacus_bottom_fp}}
-        {\int_eval:n {\l__atableau_rows_int+2}}
+        {-1}
 
     % remove dotted rows and columns
     \seq_if_empty:NF \l__atableau_dotted_rows_seq \__atableau_remove_dotted_abacus_rows:
@@ -3237,14 +3236,16 @@
     abacus~ends~style .code:n = { \__atableau_tikzset_append:nn {abacusEnds} {#1} },
     abacus~ends~style .value_required:n = true,
 
-    abacus~star~style .code:n = { \__atableau_tikzset_append:nn {abacusStarStyle} {#1} },
-    abacus~star~style .value_required:n = true,
+    abacus~bottom .fp_set:N = \l__atableau_abacus_bottom_fp,
+    abacus~bottom .value_required:n = true,
+    abacus~top .initial:n = 0.7,
 
     abacus~top .fp_set:N = \l__atableau_abacus_top_fp,
     abacus~top .value_required:n = true,
+    abacus~top .initial:n = 0.3,
 
-    abacus~bottom .fp_set:N = \l__atableau_abacus_bottom_fp,
-    abacus~bottom .value_required:n = true,
+    abacus~star~style .code:n = { \__atableau_tikzset_append:nn {abacusStarStyle} {#1} },
+    abacus~star~style .value_required:n = true,
 
     bead .tl_set:N = \l__atableau_bead_tl, % bead colour
     bead .value_required:n = true,
@@ -3283,6 +3284,10 @@
     bead~text .value_required:n = true,
     bead~text .initial:n = white,
 
+    beam~width .fp_set:N = \l__atableau_beam_height_fp, % beam width
+    beam~width .value_required:n = true,
+    beam~width .initial:n = 0.2,
+
     beta~numbers .bool_set:N = \l__atableau_beta_numbers_bool,
     beta~numbers .default:n = false,
     beta~numbers .initial:n = false,
@@ -3293,6 +3298,10 @@
 
     no~shade .code:n = { \__atableau_tikzset_append:nn {abacusBead} {no~shade} },
     no~shade .value_required:n = false,
+
+    rod~width .code:n = { \fp_set:Nn \l__atableau_rod_width_fp {#1/2} }, % (half) rod width
+    rod~width .value_required:n = true,
+    rod~width .initial:n = 0.3,
 
     runner .tl_set:N = \l__atableau_runner_tl, % runner colour
     runner .value_required:n = true,
