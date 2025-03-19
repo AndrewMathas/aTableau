@@ -1,6 +1,6 @@
 % ---------------------------------------------------------------------------
 % aTableau - Andrew Mathas (C) 2022-2025
-% Modified: 10:30 Wednesday, 19 March 2025
+% Modified: 14:33 Wednesday, 19 March 2025
 % ---------------------------------------------------------------------------
 %
 % A LaTeX package for symmetric group combinatorics:
@@ -24,12 +24,16 @@
 % ---------------------------------------------------------------------------
 % aTableau package date and version
 \def\atableau@version{2.2.0}
-\def\atableau@release{2025-01-24}
+\def\atableau@release{2025-03-24}
 
 % ---------------------------------------------------------------------------
 % load TikZ early to avoid \ExplSyntaxOn...\ExplSyntaxOff wrappers
 \RequirePackage{tikz}
-\usetikzlibrary{shapes.geometric,shapes.misc,matrix}
+\usetikzlibrary{
+    shapes.geometric, % for diamonds in Ukrainian/Australian tableaux
+    shapes.misc,      % for 'rounded rectangle' in traditional abacuses
+    matrix,           % for delimiters in multitableaux
+}
 
 % ---------------------------------------------------------------------------
 % Correct for negative signs in contents being too long to fit in a tableau
@@ -110,10 +114,6 @@
 \msg_new:nnnn { aTableau } { unknown-halign }
   { Unrecognised~halign~option:~'#1' }
   { The~supported~halign~options~are~centre,~left,~and~right }
-
-\msg_new:nnnn { aTableau } { unknown-top }
-  { Unrecognised~format~for~abacus~top;~'#1' }
-  { The~supported~formats~are:~blank,~dots,~and~frame}
 
 \msg_new:nnnn { aTableau } { unknown-valign }
   { Unrecognised~valign~option:~#1 }
@@ -2445,8 +2445,10 @@
                     {
                         % draw the abacus runners from (xa,ya) to (xb,yb)
                         \__atableau_set_bead_coordinates:noo {a} { #2 } { \int_eval:n{##1-1} }
-                        \__atableau_set_bead_coordinates:noo {b} { #3 } { \int_eval:n{##1-1} }
-                        \draw[aTableau/abacusEnds, dotted] (\fp_use:N\l__atableau_xa_fp,\fp_use:N\l__atableau_ya_fp)--(\fp_use:N\l__atableau_xb_fp,\fp_use:N\l__atableau_yb_fp);
+                        \fp_set:Nn \l__atableau_xb_fp {#3*\l__atableau_abacus_row_dx_fp*\l__atableau_abacus_wd_fp}
+                        \fp_set:Nn \l__atableau_yb_fp {#3*\l__atableau_abacus_row_dy_fp*\l__atableau_abacus_ht_fp}
+                        \__atableau_abacus_end:nnn {abacusEnds,dotted} {a} {b}
+                        %\draw[aTableau/abacusEnds, dotted] (\fp_use:N\l__atableau_xa_fp,\fp_use:N\l__atableau_ya_fp)--(\fp_use:N\l__atableau_xb_fp,\fp_use:N\l__atableau_yb_fp);
                     }
                 }
                 % set default "row height" of the runner labels for use below
@@ -2588,13 +2590,10 @@
     % draw extra runners at the end when framed is true
     \bool_if:NT \l__atableau_framed_bool
     {
-    \typeout{top=\fp_use:N\l__atableau_abacus_top_fp}
-        \__atableau_set_bead_coordinates:nVn {a} \l__atableau_abacus_top_fp {-0.7}
-        \__atableau_abacus_runner:nnn {abacusRunner,blue} {a} {l}
-        \node[blue] at (\fp_use:N\l__atableau_xa_fp,\fp_use:N\l__atableau_ya_fp){$\bullet$};
-        \__atableau_set_bead_coordinates:nVo {a} \l__atableau_abacus_top_fp {\fp_eval:n {\l__atableau_cols_int-0.3}}
-        \__atableau_abacus_runner:nnn {abacusRunner,red} {a} {l}
-        \node[red] at (\fp_use:N\l__atableau_xa_fp,\fp_use:N\l__atableau_ya_fp){$\bullet$};
+        \__atableau_set_bead_coordinates:non {a} {\fp_eval:n {\l__atableau_abacus_top_fp-0.3}} {-0.7}
+        \__atableau_abacus_runner:nnn {abacusRunner} {a} {l}
+        \__atableau_set_bead_coordinates:noo {a} {\fp_eval:n {\l__atableau_abacus_top_fp-0.3}} {\fp_eval:n {\l__atableau_cols_int-0.3}}
+        \__atableau_abacus_runner:nnn {abacusRunner} {a} {l}
     }
 
     % set e when entries=residues
