@@ -1,6 +1,6 @@
 % ---------------------------------------------------------------------------
 % aTableau - Andrew Mathas (C) 2022-2025
-% Modified: 09:02 Thursday, 20 March 2025
+% Modified: 09:10 Friday, 21 March 2025
 % ---------------------------------------------------------------------------
 %
 % A LaTeX package for symmetric group combinatorics:
@@ -2368,11 +2368,11 @@
 % Draw a rod for an abacus runner using the initial coordinate (x#2_fp, y#2_fp) -- +(x#3_fp,y#3_fp)
 \cs_new_protected:Npn \__atableau_traditional_end:nnnn #1 #2 #3 #4
 {
-    \shadedraw[aTableau/#1]
+    \draw[aTableau/#1]
         (\fp_use:c{l__atableau_x#2_fp}, \fp_use:c{l__atableau_y#2_fp})
         rectangle
-        +(\fp_eval:n {\fp_use:c{l__atableau_x#3_fp}+2*#4*\l__atableau_beam_height_fp*\l__atableau_abacus_row_dx_fp},
-          \fp_eval:n {\fp_use:c{l__atableau_y#3_fp}+2*#4*\l__atableau_beam_height_fp*\l__atableau_abacus_row_dy_fp});
+        +(\fp_eval:n {\fp_use:c{l__atableau_x#3_fp}-#4*\l__atableau_beam_height_fp*\l__atableau_abacus_row_dx_fp},
+          \fp_eval:n {\fp_use:c{l__atableau_y#3_fp}-#4*\l__atableau_beam_height_fp*\l__atableau_abacus_row_dy_fp});
 }
 
 % usage: \__atableau_standard_runner:nnn {style} {initial coordinate} {offset}
@@ -3238,11 +3238,11 @@
 
     abacus~bottom .fp_set:N = \l__atableau_abacus_bottom_fp,
     abacus~bottom .value_required:n = true,
-    abacus~top .initial:n = 0.7,
+    abacus~bottom .initial:n = 0.6,
 
     abacus~top .fp_set:N = \l__atableau_abacus_top_fp,
     abacus~top .value_required:n = true,
-    abacus~top .initial:n = 0.3,
+    abacus~top .initial:n = 0.4,
 
     abacus~star~style .code:n = { \__atableau_tikzset_append:nn {abacusStarStyle} {#1} },
     abacus~star~style .value_required:n = true,
@@ -3284,9 +3284,9 @@
     bead~text .value_required:n = true,
     bead~text .initial:n = white,
 
-    beam~width .fp_set:N = \l__atableau_beam_height_fp, % beam width
-    beam~width .value_required:n = true,
-    beam~width .initial:n = 0.2,
+    beam~height .fp_set:N = \l__atableau_beam_height_fp, % beam width
+    beam~height .value_required:n = true,
+    beam~height .initial:n = 0.2,
 
     beta~numbers .bool_set:N = \l__atableau_beta_numbers_bool,
     beta~numbers .default:n = false,
