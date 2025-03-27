@@ -1,6 +1,6 @@
 % ---------------------------------------------------------------------------
 % aTableau - Andrew Mathas (C) 2022-2025
-% Modified: 09:10 Friday, 21 March 2025
+% Modified: 23:44 Thursday, 27 March 2025
 % ---------------------------------------------------------------------------
 %
 % A LaTeX package for symmetric group combinatorics:
@@ -2153,6 +2153,20 @@
             \fp_sub:Nn \l__atableau_yb_fp {\l__atableau_tab_col_dy_fp*\l__atableau_box_ht_fp}
             \tl_put_right:Nx \l__atableau_ribbon_path_tl { --(\fp_use:N\l__atableau_xb_fp,\fp_use:N\l__atableau_yb_fp) }
           }
+      {C} { % move forward one column
+            \int_incr:N \l__atableau_col_int
+
+            % Move (xa,ya) back one column add it to the ribbon on the left
+            \fp_add:Nn \l__atableau_xa_fp {\l__atableau_tab_col_dx_fp*\l__atableau_box_wd_fp}
+            \fp_add:Nn \l__atableau_ya_fp {\l__atableau_tab_col_dy_fp*\l__atableau_box_ht_fp}
+            \tl_put_left:Nx \l__atableau_ribbon_path_tl { (\fp_use:N\l__atableau_xa_fp,\fp_use:N\l__atableau_ya_fp)-- }
+
+            % Move (xb,xb) back one column add it to the ribbon on the right
+            \fp_add:Nn \l__atableau_xb_fp {\l__atableau_tab_col_dx_fp*\l__atableau_box_wd_fp}
+            \fp_add:Nn \l__atableau_yb_fp {\l__atableau_tab_col_dy_fp*\l__atableau_box_ht_fp}
+            \tl_put_right:Nx \l__atableau_ribbon_path_tl { --(\fp_use:N\l__atableau_xb_fp,\fp_use:N\l__atableau_yb_fp) }
+          }
+
       {r} { % move forward one row
             \int_incr:N \l__atableau_row_int
 
@@ -2166,6 +2180,21 @@
             \fp_add:Nn \l__atableau_yb_fp {\l__atableau_tab_row_dy_fp*\l__atableau_box_ht_fp}
             \tl_put_right:Nx \l__atableau_ribbon_path_tl { --(\fp_use:N\l__atableau_xb_fp,\fp_use:N\l__atableau_yb_fp) }
           }
+
+      {R} { % move forward one row
+            \int_decr:N \l__atableau_row_int
+
+            % Move (xa,ya) forward one row add it to the ribbon on the left
+            \fp_sub:Nn \l__atableau_xa_fp {\l__atableau_tab_row_dx_fp*\l__atableau_box_wd_fp}
+            \fp_sub:Nn \l__atableau_ya_fp {\l__atableau_tab_row_dy_fp*\l__atableau_box_ht_fp}
+            \tl_put_left:Nx \l__atableau_ribbon_path_tl { (\fp_use:N\l__atableau_xa_fp,\fp_use:N\l__atableau_ya_fp)-- }
+
+            % Move (xb,xb) forward one row add it to the ribbon on the right
+            \fp_sub:Nn \l__atableau_xb_fp {\l__atableau_tab_row_dx_fp*\l__atableau_box_wd_fp}
+            \fp_sub:Nn \l__atableau_yb_fp {\l__atableau_tab_row_dy_fp*\l__atableau_box_ht_fp}
+            \tl_put_right:Nx \l__atableau_ribbon_path_tl { --(\fp_use:N\l__atableau_xb_fp,\fp_use:N\l__atableau_yb_fp) }
+          }
+
     }
     {
        \msg_error:nnx {aTableau} {invalid-ribbon-specification} {#1}
