@@ -14,7 +14,7 @@ then
 fi
 
 # create the tar file for ctan
-$CTANIFY --no-tds atableau.{ini,sty,pdf,tex} README.md LICENSE
+$CTANIFY --no-tds atableau.{ini,sty,pdf,tex} {CHANGES,README,ToDo}.md LICENSE
 
 # remind user to check version number and the copyright and release dates
 echo "Check version, release date and the copyright years in atableau.sty"
