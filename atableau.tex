@@ -1,6 +1,6 @@
 % ----------------------------------------------------------------------
 % atableau - Andrew Mathas (C) 2022-2025
-% Modified: 10:46 Friday, 21 March 2025
+% Modified: 09:24 Tuesday, 01 April 2025
 % ----------------------------------------------------------------------
 \documentclass{amsart}
 \usepackage[svgnames,table]{xcolor}
@@ -696,7 +696,7 @@
   \cite{Mathas:ULect,Macdonald} if you need them. For more advanced
   usage, such as adding styling, I recommend skimming through the
   manual, and looking at the many examples.  \autoref{S:keys} gives
-  quick summary of all \aTableau commands and their options.
+  a summary of the \aTableau commands and their options.
 
   The \aTableau commands are intended to be easy to use and easy to
   customise. For example, partitions can be entered either as a (weakly
@@ -723,7 +723,7 @@
                      & \keyword{\Tableau[ukrainian]{1234,567,89{10},{11}{12}}}
                      & \Tableau[ukrainian]{1234,567,89{10},{11}{12}}\\[10mm]
           Australian
-          \footnote{I have not seen a name for this convention in the literature. Calling this the \textit{Australian convention} seems apt.}
+          \footnote{I have not seen a name for this convention in the literature. Calling it the \textit{Australian convention} seems apt.}
                      & \keyword{\Tableau[australian]{1234,567,89{10},{11}{12}}}
                      & \Tableau[australian]{1234,567,89{10},{11}{12}} \\[10mm]
           \bottomrule
@@ -2777,7 +2777,7 @@
   A \emph{ribbon} in a tableau, or a diagram, is a connected strip of
   boxes~$R$ that are totally ordered by their contents. (Recall from
   \autoref{SS:entries} that the content of the box in row~$a$ and
-  column~$b$ is $b-a$.) In particular, a ribbon does not contain a
+  column~$b$ is~$b-a$.) In particular, a ribbon does not contain a
   \Diagram[scale=0.3, border=false, align=bottom]{2^2}-square, and if
   $(a,b)\in R$ then at most one of $(a+1,b)$ and $(a,b-1)$ belongs
   to~$R$.  The \emph{head} of a ribbon~$R$ is the unique node of maximal
@@ -2820,10 +2820,11 @@
   \RibbonTableau{16ccccc}
   \end{example}
 
-  The border of a ribbon tableau is the smallest (skew) partition that
-  contains all of its ribbons.  In the last example, the \option{no
-  border} key is used to disable the ribbon tableau border to highlight
-  ribbon, which is the full diagram for these two tableaux.
+  By default, the border of a ribbon tableau is the smallest (skew)
+  partition that contains all of its ribbons (the border can be
+  specified with the \option{shape} key).  In the last example, the
+  \option{no border} key is used to disable the ribbon tableau border to
+  highlight ribbon, which is the full diagram for these two tableaux.
 
   The following diagram shows a see-sawing ribbon with head in row~$1$
   and column~10, and tail in row~$5$ and column~$1$.
@@ -3042,6 +3043,19 @@
   \option{path box style}, \option{snob style}, \option{snob box} and
   \option{snob box style} that work in exactly the same way. Most of the
   \keyword{\Tableau} keys work as expected for ribbon tableaux.
+
+
+  \option[]{shape=partition}[a partition]
+
+  By default, the border of a ribbon tableau is automatically calculated
+  to be the smallest partition that contains all of the ribbons. Use the
+  \option{shape} key to set the border of the ribbon tableau.
+
+  \begin{example}
+      \RibbonTableau[shape={8^2,6^2}]{26crcc}
+  \end{example}
+
+  As shown, partitions can be given using exponential notation.
 
   % --------------------------------------------------------------
   \subsection{Multidiagrams and multitableaux}\label{S:Multitableau}
@@ -3276,6 +3290,7 @@
   \end{itemize}
 
   \option[]{label=labels}[a $|$-separated list of labels]
+  \index{multidiagram!label}
 
   Use \option{label} to add labels to the component diagrams.
 
@@ -3283,11 +3298,11 @@
     \Multitableau[label={1|2}]{123,45,67|{12}{14}}
   \end{example}
 
-  No extra space is allowed for the labels, so use the
+  No extra space is allowed for the labels. Use the
   \option{separation} key, or \option{xoffsets} and \option{yoffsets},
   to adjust for wide labels.
 
-  \option[A]{name=text}[character]<multi>
+  \option[A]{name=text}[a character]<multi>
 
   The \option{name} option is used to change the default prefix for the
   box node names. In a tableau, or diagram, the box names depend on the
@@ -3576,6 +3591,28 @@
   \index{text entries!abacus}
 
   % --------------------------------------------------------------
+  \subsection{Abacuses and quotients}\label{SS:quotients}
+  \index{quotient}
+  \index{beta numbers!quotient}
+  \index{abacus!quotient}
+
+  Rather than specifying a partition, or beta numbers, it is also
+  possible to give a $|$-separated list partitions, or beta numbers, for
+  the corresponding quotient partition, which give the partitions
+  obtained by reading the beta numbers down each runner. The quotients
+  can either as partitions, or as beta numbers when using the
+  \option{beta numbers} key. The syntax is exactly the same as described in the
+  previous section except that the different components of the quotient
+  are separated by a pipe symbol~$|$. The number of components in the
+  quotients must be less than or equal to the number of runners.  Any
+  omitted components in quotient are assumed to be empty.
+
+  \begin{example}
+    \Abacus{4}{1||2,1} \qquad
+    \Abacus[beta numbers]{4}{[ball color=red]1||2,1}
+  \end{example}
+
+  % --------------------------------------------------------------
   \subsection{Abacus coordinates}\label{SS:abcoordinates}
   \index{xy@$(x,y)$}
   \index{Cartesian coordinates!abacus}
@@ -3782,10 +3819,8 @@
   distance between consecutive runners is \qty{0.42}{cm}.
 
   \begin{example}
-  \Abacus[bead size=0.6,
-          bead sep=0.65,
-          runner sep=0.65]
-  {3}{3_3,2^2,1^3}
+  \Abacus[bead size=0.6, bead sep=0.65, runner sep=0.65]
+    {3}{3_3,2^2,1^3}
   \end{example}
 
   As with tableaux, you can also change the size of the abacuses using
@@ -4007,6 +4042,7 @@
     The \option{no shade} key is \textit{not} a boolean key. In
     particular, there is no inverse key \textcolor{aTableauInner}{shade}.
   \end{warning}
+
 
   \option[]{rows=row index}[non-negative integer]<abacus>
 
@@ -4349,6 +4385,7 @@
     \option{separator colour}  & Set separator colour for a multitableau             & \Yes & \No \\
     \option{separator}         & Set separator colour in a multitableau              & \Yes & \No \\
     \option*{separators}       & Enable separators in a multitableau                 & \Yes & \No \\
+    \option{shape}             & Specify shape of ribbon tableau                     & \Yes & \No \\
     \option{shifted}           & True for a shifted tableau                          & \Yes & \No \\
     \option{skew}              & Set inner skew shape                                & \Yes & \No \\
     \option*{skew border}      & Set skew border colour                              & \Yes & \No \\
@@ -4370,7 +4407,7 @@
     \option{tikz after}        & \TikZ-code injected after \aTableau picture         & \Yes & \Yes[abacus] \\
     \option{tikz before}       & \TikZ-code injected before \aTableau picture        & \Yes & \Yes[abacus] \\
     \option{tikzpicture}       & Sets tikzpicture environment keys                   & \Yes & \No \\
-    \option{traditional}       & Use a traditional abacus style                      & \No  & \Yes \\
+    \option{traditional}       & Use the traditional abacus style                    & \No  & \Yes \\
     \option{ukrainian}         & Use the Ukrainian convention for tableaux           & \Yes & \No \\
     \option{valign}            & Set vertical alignment                              & \Yes & \Yes[abacus] \\
     \option{west}              & Make abacus grow in the westerly direction          & \Yes & \No \\

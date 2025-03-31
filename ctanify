@@ -14,10 +14,10 @@ then
 fi
 
 # create the tar file for ctan
-$CTANIFY --no-tds atableau.{ini,sty,pdf,tex} {CHANGES,README,ToDo}.md LICENSE
+$CTANIFY --no-tds atableau.{ini,sty,pdf,tex} {CHANGES,README,TODO}.md LICENSE
 
 # remind user to check version number and the copyright and release dates
 echo "Check version, release date and the copyright years in atableau.sty"
-ag "@version" atableau.sty | ag def
-ag "@release" atableau.sty | ag def
-ag "2022" atableau.sty     | ag C
+ag --nonumbers "@(release|version)" atableau.sty  | ag def
+ag --nonumbers "copyright" atableau.sty
+ag --nonumbers "(version|date|copyright)\s=" atableau.ini

@@ -1,15 +1,14 @@
-![version](https://img.shields.io/github/v/tag/AndrewMathas/aTableau?color=success&label=version)
+![version](https://img.shields.io/github/v/tag/AndrewMathas/aTableau?color=success&label=aTableau)
 
 # aTableau - ToDo list
 
-## Bugs:
+### Bugs:
 
-  - check the beta number key for abacuses
   - check the entries=betas key
+  - check coordinate placement of abacuses. It is now slightly off because of the change in the height of the abacus bar
 
-## Things we could do
-  
-  - add a quotient={...|...|...} key for abacuses
+### Things we could do
+
   - allow R and C in ribbon tableau specifications
   - add a shape=... key to specify the shape of a ribbon tableau
   - allow abacuses similar to those in suanpan-l3 

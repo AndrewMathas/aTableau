@@ -1,6 +1,6 @@
 % ---------------------------------------------------------------------------
 % aTableau - Andrew Mathas (C) 2022-2025
-% Modified: 16:41 Sunday, 30 March 2025
+% Modified: 09:13 Tuesday, 01 April 2025
 % ---------------------------------------------------------------------------
 %
 % A LaTeX package for symmetric group combinatorics:
@@ -90,6 +90,10 @@
 \msg_new:nnnn { aTableau } { invalid-ribbon-specification }
   { Invalid~ribbon~specification~'#1':~expecting~r~or~c. }
   { Ribbon~specifications~must~be~for~the~form:~[optional~style]<row><col>~sequences~of~r's and~c's~with~style}
+
+\msg_new:nnnn { aTableau } { quotient-components }
+  { The~quotient~has~too~many~components:~#1 }
+  { When~specifying~a~partition~by~its~quotient~in~an~abacus,~the~number~of~components~in~the~quotients~can~be~at~most~the~number~of~runners~in~the~abacus }
 
 \msg_new:nnnn { aTableau } { unrecognised-abacus-label }
   { Unrecognised~abacus~label~'#1'. }
@@ -642,6 +646,7 @@
 % command variants
 
 \cs_generate_variant:Nn \fp_add:Nn {NV}
+\cs_generate_variant:Nn \int_compare:nNnT {oNnT}
 \cs_generate_variant:Nn \int_set:Nn {No}
 \cs_generate_variant:Nn \seq_put_right:Nn {Nx}
 \cs_generate_variant:Nn \seq_set_item:Nnn {NVx, Nnx, Nox}
@@ -823,13 +828,44 @@
 \cs_new_protected:Npn \__atableau_peek_beads:nw #1
 {
     \peek_remove_spaces:n { % ignore spaces
-      \peek_charcode_remove:NTF _
-        { \__atableau_record_bead:nn {txt} {}}
+        \peek_charcode_remove:NTF _
+        { \__atableau_record_bead:nn {txt} {} }
         {
           \peek_charcode_remove:NTF ^ { \__atableau_record_bead:nn {exp} {}}
                                       { \__atableau_record_bead:nn {#1} }
         }
     }
+}
+
+% usage: \__atableau_add_to_abacus_shape_part:
+% Add the beta number for part of a partition to the abacus shape \l__atableau_shape_seq
+\cs_new_protected:Nn \__atableau_add_to_abacus_shape_part:
+{
+    \seq_put_right:Nx \l__atableau_shape_seq { \int_eval:n {\l__atableau_capture_part_tl+\l__atableau_r_int} }
+    \int_incr:N \l__atableau_r_int
+}
+
+% usage: \__atableau_add_to_abacus_shape_beta:
+% Add the beta number for partition to the abacus shape \l__atableau_shape_seq
+\cs_new_protected:Nn \__atableau_add_to_abacus_shape_beta:
+{
+    \seq_put_right:NV \l__atableau_shape_seq \l__atableau_capture_part_tl
+}
+
+% usage: \__atableau_add_to_abacus_quotient_part:
+% Add the beta number for part of a quotient to the abacus shape \l__atableau_shape_seq
+\cs_new_protected:Nn \__atableau_add_to_abacus_quotient_part:
+{
+    \seq_put_right:Nx \l__atableau_shape_seq  { \int_eval:n {\l__atableau_c_int+\l__atableau_cols_int*(\l__atableau_capture_part_tl+\l__atableau_r_int)} }
+\typeout{c=\int_use:N\l__atableau_c_int,~part=\l__atableau_capture_part_tl,~cols=\int_use:N\l__atableau_cols_int,~r=\int_use:N\l__atableau_r_int~->~\seq_item:Nn \l__atableau_shape_seq {-1}}
+    \int_incr:N \l__atableau_r_int
+}
+
+% usage: \__atableau_add_to_abacus_quotient_beta:
+% Convert a beta number in the quotient to a beta number for the partition and add to the abacus shape \l__atableau_shape_seq
+\cs_new_protected:Nn \__atableau_add_to_abacus_quotient_beta:
+{
+    \seq_put_right:Nx \l__atableau_shape_seq  { \int_eval:n {\l__atableau_c_int+\l__atableau_cols_int*\l__atableau_capture_part_tl} }
 }
 
 % usage: \__atableau_record_bead:nn {place} {contents}
@@ -838,12 +874,13 @@
 {
     \quark_if_recursion_tail_stop_do:nn {#2}
     {
-        % the data in the sequences \l__atableau_capture_exp_tl times
+        % add the data to the sequences \l__atableau_capture_exp_tl times
         \tl_if_empty:NT \l__atableau_capture_exp_tl { \tl_set:Nn \l__atableau_capture_exp_tl {1}}
         \int_step_inline:nn { \l__atableau_capture_exp_tl }
         {
             \int_incr:N \l__atableau_beads_int
-            \seq_put_right:NV \l__atableau_shape_seq  \l__atableau_capture_part_tl
+    \typeout{part=\l__atableau_capture_part_tl,~txt=\l__atableau_capture_txt_tl,~style="\l__atableau_capture_style_tl"}
+            \__atableau_add_to_abacus_shape: % add \l__atableau_capture_part_tl to \l__atableau_paths_seq
             \seq_put_right:NV \l__atableau_texts_seq  \l__atableau_capture_txt_tl
             \seq_put_right:NV \l__atableau_styles_seq \l__atableau_capture_style_tl
         }
@@ -2004,9 +2041,17 @@
     % set the star style
     \tl_set:Nn \l__atableau_starstyle_tl {aTableau/tableauStarStyle}
 
-    % record the shape as we draw the border
-    \seq_clear:N \l__atableau_shape_seq
-    \cs_set_eq:NN \__atableau_update_shape: \__atableau_update_ribbon_tableau_shape:
+    \seq_if_empty:NTF \l__atableau_shape_seq
+    {
+    \typeout{No~shape!}
+        % record the shape as we draw the border
+        \cs_set_eq:NN \__atableau_update_shape: \__atableau_update_ribbon_tableau_shape:
+    }
+    {
+    \typeout{~shape=(\seq_use:Nn\l__atableau_shape_seq {,})}
+        % shape already set
+        \cs_set_eq:NN \__atableau_update_shape: \prg_do_nothing:
+    }
 
     % draw the ribbon tableau by drawing each of the ribbons
     \tl_set:Nn \l__atableau_ribbon_type_tl {ribbon} % change ribbon type to ribbon
@@ -2562,23 +2607,71 @@
     % where m is a part of the partition \l__atableau_shape_seq and r is
     % its' exponent. First, clear all of the sequences and zero the bead
     % counter
-    \seq_clear:N \l__atableau_shape_seq  % will record the partition
-    \seq_clear:N \l__atableau_styles_seq % will record the bead style
-    \seq_clear:N \l__atableau_texts_seq  % will record the bead text
-    \int_zero:N  \l__atableau_beads_int  % will record the number of beads
+    \seq_clear:N \l__atableau_shape_seq  % the beta numbers for the partition
+    \seq_clear:N \l__atableau_styles_seq % the bead style
+    \seq_clear:N \l__atableau_texts_seq  % the bead text
+    \int_zero:N  \l__atableau_beads_int  % the number of beads
+    \int_zero:N  \l__atableau_row_int    % the maximum beta number
 
-    % determine the partition/beta numbers
-    \clist_map_inline:nn {#2}
-    {
-        \__atableau_peek_style:nw {record_style:nn} ##1  \q_recursion_tail \q_recursion_stop
+    % Read the partition/beta numbers and the style settings The beta numbers
+    % for the abacus will be stored in \l__atableau_shape_seq
+\typeout{beta~numbers:~\bool_to_str:N \l__atableau_beta_numbers_bool}
+    \tl_if_in:nnTF {#2} {|}
+    {   % the quotient is given as a |-separated list, which we need to unpack
+        % specify how to convert the quotient to beta numbers
+        \bool_if:NTF \l__atableau_beta_numbers_bool
+        { \cs_set_eq:NN \__atableau_add_to_abacus_shape: \__atableau_add_to_abacus_quotient_beta: }
+        { \cs_set_eq:NN \__atableau_add_to_abacus_shape: \__atableau_add_to_abacus_quotient_part: }
+
+        % store the components in \l__atableau_component_seq
+        \seq_set_split:Nnn \l__atableau_component_seq {|} {#2}
+
+        % check that we do not have too many components
+        \int_compare:oNnT { \seq_count:N \l__atableau_component_seq } > {\l__atableau_cols_int}
+        {
+            \msg_error:nnx {aTableau} { quotient-components } { \seq_count:N \l__atableau_component_seq > #1  }
+        }
+
+        \int_zero:N \l__atableau_c_int % offset for each runner
+        \seq_map_inline:Nn \l__atableau_component_seq
+        {
+            \clist_set:Nn \l_tmpa_clist {##1}
+            \clist_reverse:N \l_tmpa_clist % reverse ##1 so that _r_int counts up
+            \int_zero:N \l__atableau_r_int
+            \typeout{clist=(\clist_use:Nn \l_tmpa_clist {,}),~len=\int_use:N\l__atableau_r_int}
+            \clist_map_inline:Nn \l_tmpa_clist
+            {
+                \__atableau_peek_style:nw {record_style:nn} ####1  \q_recursion_tail \q_recursion_stop
+            }
+            \int_incr:N \l__atableau_c_int % increment runner offset
+            % check that the maximium beta number has not changed
+            \tl_set:No \l_tmpa_tl { \seq_item:Nn \l__atableau_shape_seq {-1} }
+            \int_compare:oNnT { \l_tmpa_tl } > { \l__atableau_row_int }
+            {
+                \int_set:Nn \l__atableau_row_int { \l_tmpa_tl}
+            }
+        }
     }
-
-    % unless they have been set, determine the number of abacus rows
+    {
+        % specify how to convert the specifications to beta numbers
+        \bool_if:NTF \l__atableau_beta_numbers_bool
+        { \cs_set_eq:NN \__atableau_add_to_abacus_shape: \__atableau_add_to_abacus_shape_beta: }
+        { \cs_set_eq:NN \__atableau_add_to_abacus_shape: \__atableau_add_to_abacus_shape_part: }
+        \clist_set:Nn \l_tmpa_clist {#2}
+        \clist_reverse:N \l_tmpa_clist % reverse ##1 so that _r_int counts up
+        \int_zero:N \l__atableau_r_int
+        \clist_map_inline:Nn \l_tmpa_clist
+        {
+            \__atableau_peek_style:nw {record_style:nn} ##1  \q_recursion_tail \q_recursion_stop
+        }
+        % set the maximum beta nunber
+        \int_set:No \l__atableau_row_int { \seq_item:Nn \l__atableau_shape_seq {-1}}
+    }
+    \typeout{IN=(#2)~->~part=(\seq_use:Nn\l__atableau_shape_seq {,})}
+    % unless it has already been set, determine the number of abacus rows
     \int_compare:nNnT {\l__atableau_rows_int} = {0}
     {
-        \bool_if:NTF \l__atableau_beta_numbers_bool
-        { \int_set:Nn \l__atableau_rows_int { 1+\int_div_truncate:nn { 0\seq_item:Nn \l__atableau_shape_seq 1} {#1} } }
-        { \int_set:Nn \l__atableau_rows_int { 1+\int_div_truncate:nn {\l__atableau_beads_int-1 + 0\seq_item:Nn \l__atableau_shape_seq 1} {#1} } }
+        \int_set:Nn \l__atableau_rows_int { 1+\int_div_truncate:nn {\l__atableau_row_int} {#1} }
     }
 
     % draw the abacus runners
@@ -2644,14 +2737,7 @@
     \int_step_inline:nn { \l__atableau_beads_int } % finally, add the beads, with labels and styles
     {
 
-        % determine the row and column indices for the bead
-        \bool_if:NTF \l__atableau_beta_numbers_bool
-        {
-            \int_set:No \l_tmpa_int { \seq_item:Nn \l__atableau_shape_seq {##1} } % beta number
-        }
-        {
-            \int_set:No \l_tmpa_int { \l__atableau_beads_int - ##1 + \seq_item:Nn \l__atableau_shape_seq {##1} } % part -> beta number
-        }
+        \int_set:No \l_tmpa_int { \seq_item:Nn \l__atableau_shape_seq {##1} } % beta number
         \int_set:Nn \l__atableau_row_int { \int_div_truncate:nn {\l_tmpa_int} {\l__atableau_cols_int} }
         \int_set:Nn \l__atableau_col_int { \int_mod:nn {\l_tmpa_int} {\l__atableau_cols_int} }
 
@@ -2665,19 +2751,24 @@
             {
                 \str_case:VnF \l__atableau_show_tl
                 {
-                  {beads}    {   \tl_set:No \l_tmpa_tl { \int_use:N\l_tmpa_int }                     }
-                  {residues} {
-                                 \int_set:Nn \l_tmpb_int { \l__atableau_charge_int+\l_tmpa_int-\l__atableau_beads_int }
-                                 \tl_set:No \l_tmpa_tl { \__atableau_residue:nn {\l_tmpb_int} {\l__atableau_e_int} }
-                             }
-                  {rows }    {
-                                 \int_set:Nn \l_tmpb_int { \l_tmpa_int-\l__atableau_beads_int+##1 }
-                                 \int_compare:nNnTF {\l_tmpb_int} > {0}
-                                 { \tl_set:No \l_tmpa_tl { ##1 } }
-                                 { \tl_set:No \l_tmpa_tl { {-} } }
-                              }
-                  {shape}    {   \tl_set:No \l_tmpa_tl { \seq_item:Nn \l__atableau_shape_seq {##1} } }
-                  {}         {   \tl_set:No \l_tmpa_tl { \seq_item:Nn \l__atableau_texts_seq {##1} } }
+                  {beads}
+                     {   \tl_set:No \l_tmpa_tl { \int_use:N\l_tmpa_int }  }
+                  {residues}
+                     {
+                         \int_set:Nn \l_tmpb_int { \l__atableau_charge_int+\l_tmpa_int-\l__atableau_beads_int }
+                         \tl_set:No \l_tmpa_tl { \__atableau_residue:nn {\l_tmpb_int} {\l__atableau_e_int} }
+                     }
+                  {rows }
+                     {
+                         \int_set:Nn \l_tmpb_int { \l_tmpa_int-\l__atableau_beads_int+##1 }
+                         \int_compare:nNnTF {\l_tmpb_int} > {0}
+                         { \tl_set:No \l_tmpa_tl { ##1 } }
+                         { \tl_set:No \l_tmpa_tl { {-} } }
+                     }
+                  {shape}
+                    {   \tl_set:No \l_tmpa_tl { \seq_item:Nn \l__atableau_shape_seq {##1} } }
+                  {    }
+                    {   \tl_set:No \l_tmpa_tl { \seq_item:Nn \l__atableau_texts_seq {##1} } }
                 }
                 {
                     \msg_error:nnx {aTableau} {unrecognised-abacus-label} {  \l__atableau_show_tl }
@@ -3132,6 +3223,8 @@
     ribbon~box~style .value_required:n = true,
     ribbon~box~style .initial:n =,
 
+    shape .code:n = { \__atableau_set_partition:nn {shape} {#1} },
+
     % -- snobs ---------------------------------------
     snobs .code:n = { \__atableau_set_multiseq_key:nn {snobs} {#1} },
     snobs .initial:n = ,
@@ -3318,7 +3411,7 @@
     beam~height .initial:n = 0.2,
 
     beta~numbers .bool_set:N = \l__atableau_beta_numbers_bool,
-    beta~numbers .default:n = false,
+    beta~numbers .default:n = true,
     beta~numbers .initial:n = false,
 
     framed .bool_set:N = \l__atableau_framed_bool,
@@ -3552,7 +3645,7 @@
 %       LICENSE
 %       README.md
 %       CHANGES.md
-%       ToDo.md
+%       TODO.md
 %
 % ---------------------------------------------------------------------------
 
