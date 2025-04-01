@@ -1,6 +1,6 @@
 % ----------------------------------------------------------------------
 % atableau - Andrew Mathas (C) 2022-2025
-% Modified: 09:24 Tuesday, 01 April 2025
+% Modified: 18:42 Tuesday, 01 April 2025
 % ----------------------------------------------------------------------
 \documentclass{amsart}
 \usepackage[svgnames,table]{xcolor}
@@ -179,6 +179,36 @@
 {
     \tl_set:Nn \l_index_tl  {#1}
     \l_addto_index:Vo \l_index_tl { \str_lower_case:n\l_index_tl }
+}
+
+% ---------------------------------------------------------------------------
+% displaying a colour theme
+\NewDocumentCommand\ColourTheme{ m }
+{
+  \bgroup
+    \aTabset{colour~theme=#1}
+    \rowcolors{2}{LightSkyBlue!10}{}
+    \begin{center}
+      \begin{tabular}{lll}\toprule
+        \heading{Colour} & \heading{Name} & \heading{HTML}\\
+         \midrule
+         \aTableauColour{Inner}     & aTableauInner     & \prop_item:Nn \l__atableau_colour_theme_prop {#1_Inner}\\
+         \aTableauColour{Main}      & aTableauMain      & \prop_item:Nn \l__atableau_colour_theme_prop { #1_Main} \\
+         \aTableauColour{SkewFill}  & aTableauSkewFill  & \prop_item:Nn \l__atableau_colour_theme_prop { #1_SkewFill}\\
+         \aTableauColour{Skew}      & aTableauSkew      & \prop_item:Nn \l__atableau_colour_theme_prop { #1_Skew} \\
+         \aTableauColour{StarStyle} & aTableauStarStyle & \prop_item:Nn \l__atableau_colour_theme_prop { #1_StarStyle}\\
+         \bottomrule
+      \end{tabular}
+    \end{center}
+
+    \begin{Example}[listing~only]
+    \Abacus[traditional]{4}{4^3,2,1^2,0} \quad
+    \Abacus{4}{4^3,2,1^2,0} \quad
+    \Multitableau[tabloid]{ 123,45 | 67,89} \quad
+    \SkewTableau[skew~boxes, skew~border] {2,1^2}{123,45,67}
+    \Tableau{1239,456{10},78}
+    \end{Example}
+  \egroup
 }
 
 % ---------------------------------------------------------------------------
@@ -3466,8 +3496,8 @@
   offset their $y$-coordinates.
 
   \begin{example}
-    \Multitableau[xoffsets={0.5,0.2}]{ 123,45 | 67,89} \par\bigskip
-    \Multidiagram[yoffsets={0,1.5}]{ 4,2 | 2^2 }
+    \Multitableau[xoffsets={0.5|0.2}]{ 123,45 | 67,89} \par\bigskip
+    \Multidiagram[yoffsets={0|1.5}]{ 4,2 | 2^2 }
   \end{example}
 
   When using \option{xoffsets} or \option{yoffsets}, you may want to use
@@ -3596,20 +3626,21 @@
   \index{beta numbers!quotient}
   \index{abacus!quotient}
 
-  Rather than specifying a partition, or beta numbers, it is also
-  possible to give a $|$-separated list partitions, or beta numbers, for
-  the corresponding quotient partition, which give the partitions
-  obtained by reading the beta numbers down each runner. The quotients
-  can either as partitions, or as beta numbers when using the
-  \option{beta numbers} key. The syntax is exactly the same as described in the
-  previous section except that the different components of the quotient
-  are separated by a pipe symbol~$|$. The number of components in the
-  quotients must be less than or equal to the number of runners.  Any
-  omitted components in quotient are assumed to be empty.
+  Rather than specifying a partition, or beta numbers, for an abacus it
+  is also possible to give a $|$-separated list partitions, or beta
+  numbers, for the corresponding (core and) quotient partition, which
+  corresponds to the partitions obtained by reading the beta numbers
+  down each runner. The quotients can be given as either partitions, or as beta
+  numbers with the \option{beta numbers} key. The syntax is
+  exactly the same as described in the previous section except that the
+  different components of the quotient are separated by a pipe
+  symbol~$|$. The number of components in the quotients must be less
+  than or equal to the number of runners.  Any omitted components in
+  quotient are assumed to be empty.
 
   \begin{example}
-    \Abacus{4}{1||2,1} \qquad
-    \Abacus[beta numbers]{4}{[ball color=red]1||2,1}
+    \Abacus{4}{1,0||2,1} \qquad
+    \Abacus[beta numbers]{4}{[ball color=red]1,0||2,1}
   \end{example}
 
   % --------------------------------------------------------------
@@ -4429,6 +4460,10 @@
 
   The \aTableau package defines and uses the following colours:
 
+  \ColourTheme{default}
+
+  \ColourTheme{black}
+
   \rowcolors{2}{LightSkyBlue!10}{}
   \begin{center}
     \begin{tabular}{lll}\toprule
@@ -4442,6 +4477,24 @@
        \bottomrule
     \end{tabular}
   \end{center}
+
+  \begin{Example}
+  \aTabset{colour theme=default}
+  \Abacus[traditional]{4}{4^3,2,1^2,0} \quad
+  \Abacus{4}{4^3,2,1^2,0} \quad
+  \Multitableau[tabloid]{ 123,45 | 67,89} \quad
+  \SkewTableau[skew boxes, skew border] {2,1^2}{123,45,67}
+  \Tableau{1239,456{10},78}
+  \end{Example}
+
+  \begin{Example}
+  \aTabset{colour theme=black}
+  \Abacus[traditional]{4}{4^3,2,1^2,0} \quad
+  \Abacus{4}{4^3,2,1^2,0} \quad
+  \Multitableau[tabloid]{ 123,45 | 67,89} \quad
+  \SkewTableau[skew boxes, skew border] {2,1^2}{123,45,67}
+  \Tableau{1239,456{10},78}
+  \end{Example}
 
   All of these colours are defined as HTML colours using the
   \keyword{\definecolor} command provided by \ctan{xcolor}.

@@ -1,6 +1,6 @@
 % ---------------------------------------------------------------------------
 % aTableau - Andrew Mathas (C) 2022-2025
-% Modified: 09:13 Tuesday, 01 April 2025
+% Modified: 18:38 Tuesday, 01 April 2025
 % ---------------------------------------------------------------------------
 %
 % A LaTeX package for symmetric group combinatorics:
@@ -118,6 +118,10 @@
 \msg_new:nnnn { aTableau } { unknown-halign }
   { Unrecognised~halign~option:~'#1' }
   { The~supported~halign~options~are~centre,~left,~and~right }
+
+\msg_new:nnnn { aTableau } { unknown-theme }
+  { Unrecognised~colour~theme~option:~'#1' }
+  { The~supported~halign~options~are~default,~black,~and~right }
 
 \msg_new:nnnn { aTableau } { unknown-valign }
   { Unrecognised~valign~option:~#1 }
@@ -262,16 +266,38 @@
 \tl_set:Nn \l__atableau_ribbon_type_tl {ribbon}   % by default, ribbons are ribbons
 
 % ---------------------------------------------------------------------------
-% aTableau colours
-\definecolor{aTableauMain}      {HTML} {00008B}
-\definecolor{aTableauInner}     {HTML} {0073e6}
-\definecolor{aTableauSkew}      {HTML} {818589}
-\definecolor{aTableauSkewFill}  {HTML} {F8F8F8}
-\definecolor{aTableauStarStyle} {HTML} {E6F7FF}
+% aTableau colour themes
 
+% We put the colour definitions into a property list mainly so that we can
+% easily add them in the manual without manually copying them across
 % do we need these?
 \definecolor{aTableauRunner}    {HTML} {C3835C}
 \definecolor{aTableauBead}      {HTML} {B49473}
+
+\prop_new:N \l__atableau_colour_theme_prop
+\prop_set_from_keyval:Nn \l__atableau_colour_theme_prop
+{
+  % default theme
+  default_Main = 00008B,
+  default_Inner = 0073e6,
+  default_Skew = 818589,
+  default_SkewFill = F8F8F8,
+  default_StarStyle = E6F7FF,
+  % black theme
+  black_Main = 011627,
+  black_Inner = 8a817c,
+  black_Skew = d9d9d9,
+  black_SkewFill = e0e1dd,
+  black_StarStyle = dedbd2,
+}
+
+% usage: \__atableau_define_html_colour:nn {theme name} {html colour}
+% define the HTML colour aTableau#1 = #2
+\cs_new_protected:Npn \__atableau_define_html_colour:nn #1 #2
+{
+\typeout{Defining~colour:~#1~->~#2.}
+    \definecolor {aTableau#1} {HTML} {#2}
+}
 
 % ---------------------------------------------------------------------------
 % TikZ styling of aTableau components
@@ -2974,7 +3000,7 @@
     align/centre .code:n = { \tikzset{baseline=(current~bounding~box.center)}},
     align/bottom .code:n = { \tikzset{baseline=(current~bounding~box.south)} },
     align/south  .code:n = { \tikzset{baseline=(current~bounding~box.south)} },
-    align .unknown .code:n = { \msg_error:nnn { aTableau } { unknown-baseline } {#1} },
+    align/unknown .code:n = { \msg_error:nnn { aTableau } { unknown-baseline } {#1} },
     align .initial:n     = centre,
 
     % set the Cartan type
@@ -2998,6 +3024,24 @@
     charge .value_required:n = true,
     charge .initial:n = 0,
 
+    % change the colour theme
+    colour~theme .choices:nn = { default, black }
+    {
+    \typeout{DEFINING~colours:~#1}
+        \clist_map_inline:nn {Main,Inner,Skew,SkewFill,StarStyle}
+        {
+        \typeout{~-~getting~#1_##1~####1=~???}
+            \prop_get:NnN \l__atableau_colour_theme_prop {#1_####1} \l_tmpa_tl
+        \typeout{~-~#1_##1~=~\l_tmpa_tl.}
+            \__atableau_define_html_colour:nn {####1} \l_tmpa_tl
+        }
+    },
+    colour~theme/unknown .code:n = { \msg_error:nnx {aTableau} {unknown-theme} {#1} },
+    colour~theme .initial:n = default,
+
+    color~theme .code:n = { \__atableau_set_colour_theme:n {#1} },
+    color~theme .value_required:n = true,
+
     % dotted rows and columns for tableaux and abacuses
     dotted~cols .code:n = { \__atableau_set_multiseq_key:nn {dotted_cols} {#1} },
     dotted~cols .value_required:n = true,
@@ -3017,7 +3061,7 @@
     halign/centre .code = {\cs_set_eq:NN \__atableau_halign:n \hbox_overlap_center:n},
     halign/left .code   = {\cs_set_eq:NN \__atableau_halign:n \hbox_overlap_left:n},
     halign/right .code  = {\cs_set_eq:NN \__atableau_halign:n \hbox_overlap_right:n},
-    halign .unknown .code:n = { \msg_error:nne { aTableau } { unknown-halign } {#1} },
+    halign/unknown .code:n = { \msg_error:nne { aTableau } { unknown-halign } {#1} },
     halign .initial:n = centre,
 
     % math/text mode for boxes and beads
@@ -3068,7 +3112,7 @@
     {
         \cs_set_eq:Nc \__atableau_valign:n { __atableau_valign_#1:n }
     },
-    valign .unknown .code:n = { \msg_error:nne { aTableau } { unknown-valign } {#1} },
+    valign/unknown .code:n = { \msg_error:nne { aTableau } { unknown-valign } {#1} },
     valign .initial:n = centre,
 
     xscale .code:n = { \__atableau_set_xscale:n {#1} },
