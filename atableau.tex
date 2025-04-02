@@ -1,6 +1,6 @@
 % ----------------------------------------------------------------------
 % atableau - Andrew Mathas (C) 2022-2025
-% Modified: 18:42 Tuesday, 01 April 2025
+% Modified: 15:29 Wednesday, 02 April 2025
 % ----------------------------------------------------------------------
 \documentclass{amsart}
 \usepackage[svgnames,table]{xcolor}
@@ -186,28 +186,37 @@
 \NewDocumentCommand\ColourTheme{ m }
 {
   \bgroup
-    \aTabset{colour~theme=#1}
-    \rowcolors{2}{LightSkyBlue!10}{}
-    \begin{center}
-      \begin{tabular}{lll}\toprule
-        \heading{Colour} & \heading{Name} & \heading{HTML}\\
-         \midrule
-         \aTableauColour{Inner}     & aTableauInner     & \prop_item:Nn \l__atableau_colour_theme_prop {#1_Inner}\\
-         \aTableauColour{Main}      & aTableauMain      & \prop_item:Nn \l__atableau_colour_theme_prop { #1_Main} \\
-         \aTableauColour{SkewFill}  & aTableauSkewFill  & \prop_item:Nn \l__atableau_colour_theme_prop { #1_SkewFill}\\
-         \aTableauColour{Skew}      & aTableauSkew      & \prop_item:Nn \l__atableau_colour_theme_prop { #1_Skew} \\
-         \aTableauColour{StarStyle} & aTableauStarStyle & \prop_item:Nn \l__atableau_colour_theme_prop { #1_StarStyle}\\
-         \bottomrule
-      \end{tabular}
-    \end{center}
+    \aTabset{colour~theme=#1, align=top}
+    \index{colour theme!#1}
 
-    \begin{Example}[listing~only]
-    \Abacus[traditional]{4}{4^3,2,1^2,0} \quad
-    \Abacus{4}{4^3,2,1^2,0} \quad
-    \Multitableau[tabloid]{ 123,45 | 67,89} \quad
-    \SkewTableau[skew~boxes, skew~border] {2,1^2}{123,45,67}
-    \Tableau{1239,456{10},78}
-    \end{Example}
+    \par\vspace*{2mm}
+
+    \rowcolors{2}{LightSkyBlue!10}{}
+    \begin{tabular}{lll}\toprule
+      \heading{Colour} & \heading{Name} & \heading{HTML}\\
+       \midrule
+       \aTableauColour{Main}      & aTableauMain      & \prop_item:Nn \l__atableau_colour_theme_prop { #1_Main} \\
+       \aTableauColour{Inner}     & aTableauInner     & \prop_item:Nn \l__atableau_colour_theme_prop {#1_Inner}\\
+       \aTableauColour{StarStyle} & aTableauStarStyle & \prop_item:Nn \l__atableau_colour_theme_prop { #1_StarStyle}\\
+       \aTableauColour{Skew}      & aTableauSkew      & \prop_item:Nn \l__atableau_colour_theme_prop { #1_Skew} \\
+       \aTableauColour{SkewFill}  & aTableauSkewFill  & \prop_item:Nn \l__atableau_colour_theme_prop { #1_SkewFill}\\
+       \bottomrule
+    \end{tabular}
+
+    \hfill
+
+    \Abacus{4}{4^3,2,1^2,0} \qquad
+    \Abacus[traditional]{4}{4^3,2,1^2,0} \qquad
+
+    \par\vspace*{2mm}
+
+    \Tableau{1239,456{10},78}\quad
+    \Tableau{ 1*2*3*4*5, 6*789, {10}*{11}{12} }\quad
+    \Tabloid[skew={2,1}]{19{11},29{10},6} \quad
+    \SkewTableau[skew~boxes, skew~border] {2,1^2}{123,45,67} \quad
+    \Multitableau[tabloid]{ 123,45 | 67,89, {10}} \quad
+
+    \par\vspace*{2mm}
   \egroup
 }
 
@@ -852,6 +861,14 @@
     \keyword{align=bottom}, which aligns the baseline of the diagram
     with the top, centre or bottom of the surrounding objects,
     respectively. By default, all \aTableau pictures are centered.
+
+    \item[colour theme]
+    The \aTableau pictures use a range of different colours for tableaux
+    and abacuses, with the default theme using a midnight blue for the
+    tableau border and abacus beads, and lighter shades of blue for
+    other components. As described in \autoref{S:ColourTheme}, \aTableau
+    provides several other colour themes. It is also possible to customise
+    the colours of the \aTableau pictures using the key-value interface.
 
     \item[math entries, text entries]\index{math entries}\index{text entries}
     Determines whether tableaux entries, and bead labels, are typeset as
@@ -4374,6 +4391,7 @@
     \option*{boxes}            & Draw inner walls around boxes                       & \Yes & \No \\
     \option{cartan}            & Set Cartan type for residues                        & \Yes & \Yes[abacus] \\
     \option{charge}            & Set charge for contents and residues                & \Yes & \Yes[abacus] \\
+    \option{colour theme}      & Set the \aTableau colour theme                      & \Yes & \Yes \\
     \option{conjugate}         & Draw the conjugate tableau/diagram                  & \Yes & \No \\
     \option{e}                 & Set the quantum characteristic for residues         & \Yes & \Yes[abacus] \\
     \option{east}              & Make abacus grow in the easterly direction          & \Yes & \No \\
@@ -4457,44 +4475,20 @@
 
   % --------------------------------------------------------------
   \subsection{\aTableau Colours}\label{S:Colours}
+  \label{S:ColourTheme}
+  \index{colour theme}
+  \AddKeyLink{colour theme}
 
   The \aTableau package defines and uses the following colours:
 
-  \ColourTheme{default}
-
-  \ColourTheme{black}
-
-  \rowcolors{2}{LightSkyBlue!10}{}
-  \begin{center}
-    \begin{tabular}{lll}\toprule
-      \heading{Colour} & \heading{Name} & \heading{HTML}\\
-       \midrule
-       \aTableauColour{Inner}     & aTableauInner     & 0073E6 \\
-       \aTableauColour{Main}      & aTableauMain      & 00008B \\
-       \aTableauColour{SkewFill}  & aTableauSkewFill  & F8F8F8 \\
-       \aTableauColour{Skew}      & aTableauSkew      & 818589 \\
-       \aTableauColour{StarStyle} & aTableauStarStyle & E6F7FF \\
-       \bottomrule
-    \end{tabular}
-  \end{center}
-
-  \begin{Example}
-  \aTabset{colour theme=default}
-  \Abacus[traditional]{4}{4^3,2,1^2,0} \quad
-  \Abacus{4}{4^3,2,1^2,0} \quad
-  \Multitableau[tabloid]{ 123,45 | 67,89} \quad
-  \SkewTableau[skew boxes, skew border] {2,1^2}{123,45,67}
-  \Tableau{1239,456{10},78}
-  \end{Example}
-
-  \begin{Example}
-  \aTabset{colour theme=black}
-  \Abacus[traditional]{4}{4^3,2,1^2,0} \quad
-  \Abacus{4}{4^3,2,1^2,0} \quad
-  \Multitableau[tabloid]{ 123,45 | 67,89} \quad
-  \SkewTableau[skew boxes, skew border] {2,1^2}{123,45,67}
-  \Tableau{1239,456{10},78}
-  \end{Example}
+  \begin{itemize}
+    \item \option{colour theme=default} \ColourTheme{default}
+    \item \option{colour theme=black}   \ColourTheme{black}
+    \item \option{colour theme=classic} \ColourTheme{classic}
+    \item \option{colour theme=natural} \ColourTheme{natural}
+    \item \option{colour theme=vibrant} \ColourTheme{vibrant}
+    \item \option{colour theme=pastel}  \ColourTheme{pastel}
+  \end{itemize}
 
   All of these colours are defined as HTML colours using the
   \keyword{\definecolor} command provided by \ctan{xcolor}.
