@@ -1,0 +1,157 @@
+% --------------------------------------------------------------------
+% Title:    title.
+% Author:   Andrew Mathas
+% Created:  April 2025
+% Modified: 16:06 Thursday, 03 April 2025
+% --------------------------------------------------------------------
+\documentclass{amsart}
+
+\usepackage{atableau}
+\usepackage{booktabs}
+\usepackage[a4paper,hmargin=24mm, vmargin=18mm, footskip=10mm]{geometry}
+\usepackage[svgnames,table]{xcolor}
+
+\newcommand\heading[1]{\textcolor{MidnightBlue}{\textsf{\large#1}}}
+\newcommand\aTableauColour[1]{%
+  \tikz[baseline={(current bounding box.south)}]\node[minimum width=8mm, minimum height=2ex,fill=aTableau#1]{};%
+}
+
+\ExplSyntaxOn
+
+% Add an index entry for a key. The *-form underlines the page number,
+% indicating that it is the definition of the key, and records this in
+% \l__atableau_index_prop. When the * is not present, we check to make
+% sure that an underlined entry has not already been added for this
+% page.
+\prop_new:N \l__atableau_index_prop
+\NewDocumentCommand\AddIndexEntry{ sm }
+{
+    \tl_set:No \l_tmpc_tl {#2-\thepage}
+    \IfBooleanTF{#1}
+    {
+        \prop_put:NVn \l__atableau_index_prop \l_tmpc_tl {}
+        \index{#2|underline}
+    }
+    { \prop_if_in:NVF \l__atableau_index_prop \l_tmpc_tl { \index{#2} } }
+}
+
+% \option*[default value]{option name}[accepted values]<hyperlink context>(link name)
+% The \option command is slightly overloaded, both in terms of arguments
+% (there are five) and in terms of use.
+% 1. If #2 is given then \option gives the syntax for the using this key:
+%    - #1=* determines whether a \newline or \bigskip is inserted. The
+%      *-version is used when a block of keys are listed together
+%    - #2 gives the default options
+%    - #3 is the key name and optionally may take the form key=value
+%      to describe the allowed values. If the value is given then it is
+%      printed in orange after the key inside \langle...\rangle. This is
+%      intended for "generic values like 'value' or 'style'.
+%      The key component of #2 is used to add a hyperlink to the current
+%      location, which takes the form Key:<key>-<context>, where the
+%      <context> is added only if #5 is supplied
+%    - any accepted values in #3 are printed in the right-hand margin
+% 2. When #2 is omitted, this an inline citation of the key. A
+% hyperlink is added
+
+% The *-version does not do a \bigskip before the option. A hyperlink is
+% added for new displayed options. If #2 is blank then the *-version
+% puts (no) before the option key. If #5 is given then it is added to
+% to the hyperlink.
+\NewDocumentCommand\option{ somo d<> d()}
+{%
+  \seq_set_split:Nnn \l_tmpa_seq {=} {#3}%
+  \seq_pop_left:NN \l_tmpa_seq \l_tmpa_tl%
+  \seq_if_empty:NTF \l_tmpa_seq
+  { \tl_clear:N \l_tmpb_tl }
+  { \tl_set:No \l_tmpb_tl { \seq_use:Nn \l_tmpa_seq {=} } }
+  \IfNoValueTF{#2}
+  {%
+    \IfNoValueTF{#6}
+    {
+      \tl_gset:Nx \g_lastlink_tl {Key:\str_lowercase:f{\l_tmpa_tl}}
+      \IfNoValueF{#5} { \tl_gput_right:No \g_lastlink_tl {\str_lowercase:f{-#5}} }
+    }
+    { \tl_gset:Ne \g_lastlink_tl {Key:#6} }
+    \hyperref[\g_lastlink_tl]{\textsf{\color{aTableauInner}\IfBooleanT{#1}{(no)~}\l_tmpa_tl}}
+    \AddIndexEntry{\l_tmpa_tl}%
+    \tl_if_empty:NF \l_tmpb_tl { \textsf{\,$=$\,}\textsf{\textcolor{orange}{\l_tmpb_tl}} }
+  }
+  {%
+    % encourage page breaks *before* the option, rather than after it
+    \IfBooleanTF{#1}{\newline}{\bigskip\pagebreak[0]}%
+    % adjust #3 if it contains a *, when we add = <value>
+    % add a label for references
+    \IfNoValueTF{#5} { \AddKeyLink{\l_tmpa_tl} }{ \AddKeyLink{\l_tmpa_tl-#5} }
+    \noindent\textsf
+    {
+        \textcolor{aTableauInner}{\l_tmpa_tl}
+        \tl_if_empty:NF \l_tmpb_tl { \textcolor{orange}{$\,=\,\langle$\l_tmpb_tl$\rangle$} }
+    }
+    \tl_if_blank:nF {#2}
+    { ~ \tl_if_eq:nnTF{#2} {-} {(default)} {(default:~\textcolor{DarkRed}{#2})} }%
+    \hfill%
+    \IfNoValueF{#4}{\textcolor{Grey}{[accepts:~#4]}}%
+    \AddIndexEntry*{\l_tmpa_tl}%
+    \nopagebreak[4]%
+  }%
+}
+
+% ---------------------------------------------------------------------------
+% displaying a colour theme
+\NewDocumentCommand\ColourTheme{ m }
+{
+  \bgroup
+    \aTabset{colour~theme=#1, align=top}
+    \index{colour theme!#1}
+
+    \par\vspace*{2mm}
+
+    \rowcolors{2}{LightSkyBlue!10}{}
+    \begin{tabular}{lll}\toprule
+      \heading{Colour} & \heading{Name} & \heading{HTML}\\
+       \midrule
+       \aTableauColour{Main}      & aTableauMain      & \prop_item:Nn \l__atableau_colour_theme_prop { #1_Main} \\
+       \aTableauColour{Inner}     & aTableauInner     & \prop_item:Nn \l__atableau_colour_theme_prop {#1_Inner}\\
+       \aTableauColour{StarStyle} & aTableauStarStyle & \prop_item:Nn \l__atableau_colour_theme_prop { #1_StarStyle}\\
+       \aTableauColour{Skew}      & aTableauSkew      & \prop_item:Nn \l__atableau_colour_theme_prop { #1_Skew} \\
+       \aTableauColour{SkewFill}  & aTableauSkewFill  & \prop_item:Nn \l__atableau_colour_theme_prop { #1_SkewFill}\\
+       \bottomrule
+    \end{tabular}
+    \hfill
+    \Abacus{4}{4^3,2,1^2,0} \qquad
+    \Abacus[traditional]{4}{4^3,2,1^2,0} \qquad
+
+    \par\vspace*{2mm}
+
+    \Tableau{1239,456{10},78}\quad
+    \Tableau{ 1*2*3*4*5, 6*789, {10}*{11}{12} }\quad
+    \Tabloid[skew={2,1}]{19{11},29{10},6} \quad
+    \SkewTableau[skew~boxes, skew~border] {2,1^2}{123,45,67} \quad
+    \Multitableau[tabloid]{ 123,45 | 67,89, {10}} \quad
+
+    \par\vspace*{2mm}
+  \egroup
+}
+\ExplSyntaxOff
+
+\usepackage{hyperref}
+\hypersetup{
+  colorlinks=true,
+  linkcolor=MediumBlue,
+  citecolor=FireBrick,
+}
+
+\begin{document}
+
+
+  \begin{itemize}
+    \item \option{colour theme=default} \ColourTheme{default}
+    \item \option{colour theme=black}   \ColourTheme{black}
+    \item \option{colour theme=classic} \ColourTheme{classic}
+    \item \option{colour theme=natural} \ColourTheme{natural}
+    \item \option{colour theme=vibrant} \ColourTheme{vibrant}
+    \item \option{colour theme=pastel}  \ColourTheme{pastel}
+  \end{itemize}
+
+
+\end{document}
