@@ -1,0 +1,49 @@
+#! /usr/bin/env bash
+
+# Record how long it takes to compile the atableau manual in manual_times,
+# together with the date, version number and number of pages. We compile twice
+# so that we get the "real" compile time
+
+# Andrew Mathas April, 2025
+
+RECORD_IN="manual_times"
+
+usage() {
+  cat <<END
+usage: record+compile_time [-h] [--record]
+
+Determine the compile time for the current version of the aTableau manual.
+
+  --record: record the compile time, version number and number of pages in $TIMES
+END
+  exit 1
+}
+
+save_record=false
+
+# parse command line arguments
+while [[ $# -ne 0 ]]; do
+  case $1 in
+    --record) shift && save_record=1 ;;
+    *) usage && exit ;;
+  esac
+done
+
+
+echo "Compiling aTableau manual and recording the compile time"
+sleep 1
+start_time=$(date +%s)
+pdflatex atableau
+end_time=$(date +%s)
+time=$(echo "$end_time - $start_time"  | bc)
+pages=$(gawk '/Output written on atableau/ {print substr($5,2,2)}' atableau.log)
+record=$(date "+%Y-%m-%d: $(git describe --tag --abbrev=0) - ${pages} pages - ${time} seconds" )
+
+cat $RECORD_IN
+echo "$record"
+
+if [ $save_record=true ]; then
+  echo $record >> $RECORD_IN
+fi
+
+
