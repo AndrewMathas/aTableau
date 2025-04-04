@@ -36,7 +36,8 @@ A LaTeX package for symmetric group combinatorics, with commands for:
 [LaTeX3](https://www.latex-project.org/latex3/) and [TikZ](https://tikz.net/)
 
 ## Author
-Andrew Mathas 
+Andrew Mathas <br>
+&copy; 2022-0225
 
 ## Licence
 LPPL Version 1.3c  2008-05-04

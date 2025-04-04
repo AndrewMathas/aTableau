@@ -21,3 +21,4 @@ echo "Check version, release date and the copyright years in atableau.sty"
 ag --nonumbers "@(release|version)" atableau.sty  | ag def
 ag --nonumbers "copyright" atableau.sty
 ag --nonumbers "(version|date|copyright)\s=" atableau.ini
+ag --nonumbers "copy" README.md

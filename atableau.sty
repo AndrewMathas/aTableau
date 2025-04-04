@@ -1,6 +1,6 @@
 % ---------------------------------------------------------------------------
 % aTableau - Andrew Mathas (C) 2022-2025
-% Modified: 12:01 Wednesday, 02 April 2025
+% Modified: 15:04 Friday, 04 April 2025
 % ---------------------------------------------------------------------------
 %
 % A LaTeX package for symmetric group combinatorics:
@@ -24,7 +24,7 @@
 % ---------------------------------------------------------------------------
 % aTableau package date and version
 \def\atableau@version{2.2.0}
-\def\atableau@release{2025-03-24}
+\def\atableau@release{2025-04-30}
 
 % ---------------------------------------------------------------------------
 % load TikZ early to avoid \ExplSyntaxOn...\ExplSyntaxOff wrappers
@@ -281,36 +281,24 @@
   default_StarStyle = E6F7FF,
   default_Skew      = 818589,
   default_SkewFill  = F8F8F8,
-  % black theme
-  black_Main        = 011627,
-  black_Inner       = D9D9D9,
-  black_StarStyle   = DEDBD2,
-  black_Skew        = 8A817C,
-  black_SkewFill    = E0E1DD,
-  % classic
-  classic_Main      = 2C3E50,
-  classic_Inner     = BDC3C7,
-  classic_StarStyle = E74C3C,
-  classic_Skew      = 7F8C8D,
-  classic_SkewFill  = ECF0F1,
-  % pastel
-  pastel_Main       = 5D6D7E,
-  pastel_Inner      = AED6F1,
-  pastel_StarStyle  = A3E4D7,
-  pastel_Skew       = F5B7B1,
-  pastel_SkewFill   = FAD7A0,
-    % vibrant
-  vibrant_Main      = FF5733,
-  vibrant_Inner     = FFC300,
-  vibrant_StarStyle = 3498DB,
-  vibrant_Skew      = 900C3F,
-  vibrant_SkewFill  = DAF7A6,
-    % natural
-  natural_Main      = 8B4513,
-  natural_Inner     = D2B48C,
-  natural_StarStyle = A52A2A,
-  natural_Skew      = 556B2F,
-  natural_SkewFill  = DEB887,
+  default_Rod       = AD6434,
+
+  % classic theme
+  classic_Main      = 2C2C2C,
+  classic_Inner     = 555555,
+  classic_StarStyle = D6D6D6,
+  classic_Skew      = 777777,
+  classic_SkewFill  = EAEAEA,
+  classic_Rod       = A0A0A0,
+
+  % natural theme
+  natural_Main      = 5C3D2E,
+  natural_Inner     = E6C29F,
+  natural_StarStyle = FFF2E5,
+  natural_Skew      = A48C74,
+  natural_SkewFill  = FFF8F2,
+  natural_Rod       = C4A484,
+
 }
 
 % usage: \__atableau_define_html_colour:nn {theme name} {html colour}
@@ -613,8 +601,8 @@
     \fp_set:Nn \l__atableau_bead_height_fp   {\l__atableau_abacus_ht_fp*0.97 }
     \fp_set:Nn \l__atableau_bead_width_fp    {\l__atableau_abacus_wd_fp*0.97 }
     \tl_set:Nn \l__atableau_bead_shape_tl    {rounded~rectangle}
-    \tl_set:Nn \l__atableau_tick_tl          {aTableauInner}
-    \tl_set:Nn \l__atableau_runner_tl        {aTableauInner}
+    \tl_set:Nn \l__atableau_tick_tl          {aTableauRod}
+    \tl_set:Nn \l__atableau_runner_tl        {aTableauRod}
     \fp_set_eq:NN \l__atableau_tick_length_fp  \l__atableau_rod_width_fp
     \cs_set_eq:NN \__atableau_abacus_end:nnnn \__atableau_traditional_end:nnnn
     \cs_set_eq:NN \__atableau_abacus_runner:nnn \__atableau_traditional_runner:nnn
@@ -3046,10 +3034,9 @@
     charge .initial:n = 0,
 
     % change the colour theme
-    colour~theme .choices:nn = { default, black, classic, pastel, vibrant, natural }
+    colour~theme .choices:nn = { default, classic, natural }
     {
-    \typeout{DEFINING~colours:~#1}
-        \clist_map_inline:nn {Main,Inner,Skew,SkewFill,StarStyle}
+        \clist_map_inline:nn {Main,Inner,Skew,SkewFill,StarStyle,Rod}
         {
         \typeout{~-~getting~#1_##1~####1=~???}
             \prop_get:NnN \l__atableau_colour_theme_prop {#1_####1} \l_tmpa_tl
@@ -3492,7 +3479,6 @@
 
     runner .tl_set:N = \l__atableau_runner_tl, % runner colour
     runner .value_required:n = true,
-    runner .initial:n = aTableauInner,
 
     runner~style .code:n = { \__atableau_tikzset_append:nn {abacusRunner} {#1} },
     runner~style .value_required:n = true,

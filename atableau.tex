@@ -1,6 +1,6 @@
 % ----------------------------------------------------------------------
 % atableau - Andrew Mathas (C) 2022-2025
-% Modified: 15:29 Wednesday, 02 April 2025
+% Modified: 15:43 Friday, 04 April 2025
 % ----------------------------------------------------------------------
 \documentclass{amsart}
 \usepackage[svgnames,table]{xcolor}
@@ -37,8 +37,8 @@
 \makeatletter
 \def\@evenhead{\hfill\aTableau\hfill}
 \let\@oddhead\@evenhead
-\def\@oddfoot {\color{aTableauInner} Version \atableau@version~(\atableau@release)\hfill\thepage}
-\def\@evenfoot{\color{aTableauInner} \thepage\hfill Version \atableau@version~(\atableau@release)}
+\def\@oddfoot {\color{aTableauMain} Version \atableau@version~(\atableau@release)\hfill\thepage}
+\def\@evenfoot{\color{aTableauMain} \thepage\hfill Version \atableau@version~(\atableau@release)}
 \makeatother
 
 % ----------------------------------------------------------------------
@@ -185,30 +185,29 @@
 % displaying a colour theme
 \NewDocumentCommand\ColourTheme{ m }
 {
+  \option{colour~theme=#1}
   \bgroup
     \aTabset{colour~theme=#1, align=top}
     \index{colour theme!#1}
-
-    \par\vspace*{2mm}
-
+    \par
     \rowcolors{2}{LightSkyBlue!10}{}
-    \begin{tabular}{lll}\toprule
+    \begin{tabular}[t]{lll}
+      \toprule
       \heading{Colour} & \heading{Name} & \heading{HTML}\\
        \midrule
-       \aTableauColour{Main}      & aTableauMain      & \prop_item:Nn \l__atableau_colour_theme_prop { #1_Main} \\
+       \aTableauColour{Main}      & aTableauMain      & \prop_item:Nn \l__atableau_colour_theme_prop {#1_Main} \\
        \aTableauColour{Inner}     & aTableauInner     & \prop_item:Nn \l__atableau_colour_theme_prop {#1_Inner}\\
-       \aTableauColour{StarStyle} & aTableauStarStyle & \prop_item:Nn \l__atableau_colour_theme_prop { #1_StarStyle}\\
-       \aTableauColour{Skew}      & aTableauSkew      & \prop_item:Nn \l__atableau_colour_theme_prop { #1_Skew} \\
-       \aTableauColour{SkewFill}  & aTableauSkewFill  & \prop_item:Nn \l__atableau_colour_theme_prop { #1_SkewFill}\\
+       \aTableauColour{StarStyle} & aTableauStarStyle & \prop_item:Nn \l__atableau_colour_theme_prop {#1_StarStyle}\\
+       \aTableauColour{Skew}      & aTableauSkew      & \prop_item:Nn \l__atableau_colour_theme_prop {#1_Skew} \\
+       \aTableauColour{SkewFill}  & aTableauSkewFill  & \prop_item:Nn \l__atableau_colour_theme_prop {#1_SkewFill}\\
+       \aTableauColour{Rod}       & aTableauRod       & \prop_item:Nn \l__atableau_colour_theme_prop {#1_Rod}\\
        \bottomrule
     \end{tabular}
-
     \hfill
-
-    \Abacus{4}{4^3,2,1^2,0} \qquad
+    \Abacus{4}{4^3,2,1^2,0}\qquad
     \Abacus[traditional]{4}{4^3,2,1^2,0} \qquad
 
-    \par\vspace*{2mm}
+    \par\vspace*{3mm}
 
     \Tableau{1239,456{10},78}\quad
     \Tableau{ 1*2*3*4*5, 6*789, {10}*{11}{12} }\quad
@@ -216,7 +215,7 @@
     \SkewTableau[skew~boxes, skew~border] {2,1^2}{123,45,67} \quad
     \Multitableau[tabloid]{ 123,45 | 67,89, {10}} \quad
 
-    \par\vspace*{2mm}
+    \par\vspace*{4mm}
   \egroup
 }
 
@@ -692,15 +691,16 @@
        w/.style={ball color=white},
     }
     \begin{tikzpicture}
-      \Tableau(0,0){[R]1[B]2,[G]3,[Y]4} \quad
-      \Tableau(2.25,1)[australian]{[R]1[B]2,[G]3,[Y]4} \quad
+      \Tableau(0,0)[yscale=2]{[R]1[B]2,[G]3,[Y]4} \quad
+      \Tableau(2.25,1.75)[australian]{[R]1[B]2,[G]3,[Y]4} \quad
       \Tableau(3.5,1.75)[skew={0,2}]{[Y]4[G]3[R]1,[B]2} \quad
-      \Tableau(6,0)[ukrainian,skew={0,1^2}]{[B]2[R]1,[G]3,[Y]4} \quad
-      \Tableau(7.5,-1)[french,skew={0,1^2}]{[B]2[R]1,[G]3,[Y]4} \quad
-      \Tableau(6.0,-2.25)[ukrainian]{[R]1[G]3[Y]4,[B]2} \quad
-      \Tableau(3.5,-3.0)[french]{[R]1[G]3[Y]4,[B]2} \quad
-      \Tableau(2,-1)[australian]{[B]2,[R]1[G]3[Y]4} \quad
-      \Abacus(4,0.5)[abacus ends=--,scale=1.4]{3}{[b]9,[w]8,[r]8,[b]6,[b]6,[r]2,[b]1}
+      \Tableau(6,1.55)[ukrainian,skew={0,1^2}]{[B]2[R]1,[G]3,[Y]4} \quad
+      \Tableau(8,-1)[yscale=2,french,skew={0,1^2}]{[B]2[R]1,[G]3,[Y]4} \quad
+      \Tableau(6.0,-3.2)[ukrainian]{[R]1[G]3[Y]4,[B]2} \quad
+      \Tableau(3.5,-3.2)[french]{[R]1[G]3[Y]4,[B]2} \quad
+      \Tableau(2,-3.2)[australian]{[B]2,[R]1[G]3[Y]4} \quad
+      \Abacus(2,0.5)[abacus ends=->,scale=1.4]{3}{[b]9,[w]8,[r]8,[b]6,[b]6,[r]2,[b]1}
+      \Abacus(5,0.5)[traditional, framed,scale=1.4]{3}{[b]9,[w]8,[r]8,[b]6,[b]6,[r]2,[b]1}
     \end{tikzpicture}
 
   \end{center}
@@ -4471,32 +4471,41 @@
   keys that are not intended to be applied to the current picture will
   be silently ignored.
 
-  \emph{Most users should ignore the following two subsections.}
-
   % --------------------------------------------------------------
   \subsection{\aTableau Colours}\label{S:Colours}
   \label{S:ColourTheme}
   \index{colour theme}
-  \AddKeyLink{colour theme}
 
-  The \aTableau package defines and uses the following colours:
+  The default colour theme for the pictures drawn by \aTableau are built
+  from six colours:
+    aTableauMain,
+    aTableauInner,
+    aTableauStarStyle,
+    aTableauSkew,
+    aTableauSkewFill,
+    aTableauRod,
+  Choosing a good colour scheme is difficult, and it is partly
+  subjective. The \option{colour theme} key makes the colour equal to
+  one of the following ``standard'' colour themes.
 
-  \begin{itemize}
-    \item \option{colour theme=default} \ColourTheme{default}
-    \item \option{colour theme=black}   \ColourTheme{black}
-    \item \option{colour theme=classic} \ColourTheme{classic}
-    \item \option{colour theme=natural} \ColourTheme{natural}
-    \item \option{colour theme=vibrant} \ColourTheme{vibrant}
-    \item \option{colour theme=pastel}  \ColourTheme{pastel}
-  \end{itemize}
+  {\samepage
 
-  All of these colours are defined as HTML colours using the
-  \keyword{\definecolor} command provided by \ctan{xcolor}.
+    \option[default]{colour theme}{default,classic,natural}
 
-  We recommend using the key-value interface to change the colours used
-  in the pictures created by \aTableau, rather than changing these
-  colours. It is sometimes useful to use these colour names directly in
-  your own styles.
+    \begin{itemize}
+      \item \ColourTheme{default}
+      \item \ColourTheme{classic}
+      \item \ColourTheme{natural}
+    \end{itemize}
+  }
+
+  It is sometimes useful to use the \aTableau colour names directly in
+  style specifications, and with \LaTeX\ colour commands. For example,
+  you can write \keyword{\textcolor{aTableauMain}{text}}. The \aTableau
+  colours are defined as HTML colours using the \keyword{\definecolor}
+  command provided by \ctan{xcolor}. In addition to changing the colour
+  theme, the key-value interface allows you to set the colour of the
+  individual components of the pictures produced by \aTableau.
 
   % --------------------------------------------------------------
   \subsection{\aTableau styles}\label{S:TikZStyles}
@@ -4526,6 +4535,7 @@
        aTableau/borderStyle      & Tableau borders \\
        aTableau/boxStyle         & Tableau boxes\\
        aTableau/clearBoxes       & Erase material. Used by \option{dotted rows} and \option{dotted cols}\\
+       aTableau/delimiterStyle   & Delimiter style in multitableaux and multidiagrams\\
        aTableau/dottedLine       & Adds dotted lines. Used by \option{dotted rows} and \option{dotted cols}\\
        aTableau/innerWall        & Inner tableau walls\\
        aTableau/labelStyle       & Tableau labels \\

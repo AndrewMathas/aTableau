@@ -1,16 +1,18 @@
 ![version](https://img.shields.io/github/v/tag/AndrewMathas/aTableau?color=success&label=aTableau)
+![LPPL](https://img.shields.io/github/license/note286/xduts?style=flat-square)
+![CTAN](https://img.shields.io/ctan/v/atableau?color=blue&link=https://ctan.org/pkg/atableau)
+![LaTeX](https://img.shields.io/badge/LaTeX-008080?logo=latex&logoColor=fff&style=flat)
+
 
 # aTableau - ToDo list
 
 ### Bugs:
 
-  - check the entries=betas key
   - check coordinate placement of abacuses. It is now slightly off because of the change in the height of the abacus bar
 
 ### Things we could do
 
   - allow R and C in ribbon tableau specifications
-  - add a shape=... key to specify the shape of a ribbon tableau
   - allow abacuses similar to those in suanpan-l3 
   - ?? implement colour themes
   - ?? rewrite ribbons and \Abacus to simultaneously parse the specifications and draw the picture

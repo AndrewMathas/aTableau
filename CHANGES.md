@@ -1,10 +1,13 @@
 ![version](https://img.shields.io/github/v/tag/AndrewMathas/aTableau?color=success&label=aTableau)
+![LPPL](https://img.shields.io/github/license/note286/xduts?style=flat-square)
+![CTAN](https://img.shields.io/ctan/v/atableau?color=blue&link=https://ctan.org/pkg/atableau)
+![LaTeX](https://img.shields.io/badge/LaTeX-008080?logo=latex&logoColor=fff&style=flat)
 
 # aTableau - Change log
 
 ### Version 2.2.0 - 2025-04-?
   - abacuses can be specified by quotients
-  - multidirectional ribbons
+  - multidirectional ribbons are now supported
   - adds `colour theme` to change the colour scheme
   - adds the `shape` key for `\RibbonTableau`
   - adds the `traditional` key for abacuses

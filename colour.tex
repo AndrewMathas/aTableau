@@ -2,7 +2,7 @@
 % Title:    title.
 % Author:   Andrew Mathas
 % Created:  April 2025
-% Modified: 16:06 Thursday, 03 April 2025
+% Modified: 15:02 Friday, 04 April 2025
 % --------------------------------------------------------------------
 \documentclass{amsart}
 
@@ -104,10 +104,11 @@
     \aTabset{colour~theme=#1, align=top}
     \index{colour theme!#1}
 
-    \par\vspace*{2mm}
+    \par\vspace*{1mm}
 
     \rowcolors{2}{LightSkyBlue!10}{}
-    \begin{tabular}{lll}\toprule
+    \begin{tabular}[t]{lll}
+      \toprule
       \heading{Colour} & \heading{Name} & \heading{HTML}\\
        \midrule
        \aTableauColour{Main}      & aTableauMain      & \prop_item:Nn \l__atableau_colour_theme_prop { #1_Main} \\
@@ -115,13 +116,14 @@
        \aTableauColour{StarStyle} & aTableauStarStyle & \prop_item:Nn \l__atableau_colour_theme_prop { #1_StarStyle}\\
        \aTableauColour{Skew}      & aTableauSkew      & \prop_item:Nn \l__atableau_colour_theme_prop { #1_Skew} \\
        \aTableauColour{SkewFill}  & aTableauSkewFill  & \prop_item:Nn \l__atableau_colour_theme_prop { #1_SkewFill}\\
+       \aTableauColour{Rod}       & aTableauRod       & \prop_item:Nn \l__atableau_colour_theme_prop { #1_Rod}\\
        \bottomrule
     \end{tabular}
     \hfill
-    \Abacus{4}{4^3,2,1^2,0} \qquad
+    \Abacus{4}{4^3,2,1^2,0}\qquad
     \Abacus[traditional]{4}{4^3,2,1^2,0} \qquad
 
-    \par\vspace*{2mm}
+    \par\vspace*{3mm}
 
     \Tableau{1239,456{10},78}\quad
     \Tableau{ 1*2*3*4*5, 6*789, {10}*{11}{12} }\quad
@@ -129,9 +131,10 @@
     \SkewTableau[skew~boxes, skew~border] {2,1^2}{123,45,67} \quad
     \Multitableau[tabloid]{ 123,45 | 67,89, {10}} \quad
 
-    \par\vspace*{2mm}
+    \par\vspace*{4mm}
   \egroup
 }
+
 \ExplSyntaxOff
 
 \usepackage{hyperref}
@@ -146,11 +149,11 @@
 
   \begin{itemize}
     \item \option{colour theme=default} \ColourTheme{default}
-    \item \option{colour theme=black}   \ColourTheme{black}
-    \item \option{colour theme=classic} \ColourTheme{classic}
+   \item \option{colour theme=classic} \ColourTheme{classic}
     \item \option{colour theme=natural} \ColourTheme{natural}
+    \item \option{colour theme=pastel} \ColourTheme{pastel}
     \item \option{colour theme=vibrant} \ColourTheme{vibrant}
-    \item \option{colour theme=pastel}  \ColourTheme{pastel}
+    \item \option{colour theme=earthy} \ColourTheme{earthy}
   \end{itemize}
 
 
