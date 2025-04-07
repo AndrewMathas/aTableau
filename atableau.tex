@@ -1,6 +1,6 @@
 % ----------------------------------------------------------------------
 % atableau - Andrew Mathas (C) 2022-2025
-% Modified: 15:43 Friday, 04 April 2025
+% Modified: 10:23 Saturday, 05 April 2025
 % ----------------------------------------------------------------------
 \documentclass{amsart}
 \usepackage[svgnames,table]{xcolor}
@@ -691,16 +691,15 @@
        w/.style={ball color=white},
     }
     \begin{tikzpicture}
-      \Tableau(0,0)[yscale=2]{[R]1[B]2,[G]3,[Y]4} \quad
-      \Tableau(2.25,1.75)[australian]{[R]1[B]2,[G]3,[Y]4} \quad
+      \Tableau(0,0){[R]1[B]2,[G]3,[Y]4} \quad
+      \Tableau(2.25,1)[australian]{[R]1[B]2,[G]3,[Y]4} \quad
       \Tableau(3.5,1.75)[skew={0,2}]{[Y]4[G]3[R]1,[B]2} \quad
-      \Tableau(6,1.55)[ukrainian,skew={0,1^2}]{[B]2[R]1,[G]3,[Y]4} \quad
-      \Tableau(8,-1)[yscale=2,french,skew={0,1^2}]{[B]2[R]1,[G]3,[Y]4} \quad
-      \Tableau(6.0,-3.2)[ukrainian]{[R]1[G]3[Y]4,[B]2} \quad
-      \Tableau(3.5,-3.2)[french]{[R]1[G]3[Y]4,[B]2} \quad
-      \Tableau(2,-3.2)[australian]{[B]2,[R]1[G]3[Y]4} \quad
-      \Abacus(2,0.5)[abacus ends=->,scale=1.4]{3}{[b]9,[w]8,[r]8,[b]6,[b]6,[r]2,[b]1}
-      \Abacus(5,0.5)[traditional, framed,scale=1.4]{3}{[b]9,[w]8,[r]8,[b]6,[b]6,[r]2,[b]1}
+      \Tableau(6,0)[ukrainian,skew={0,1^2}]{[B]2[R]1,[G]3,[Y]4} \quad
+      \Tableau(7.5,-1)[french,skew={0,1^2}]{[B]2[R]1,[G]3,[Y]4} \quad
+      \Tableau(6.0,-2.25)[ukrainian]{[R]1[G]3[Y]4,[B]2} \quad
+      \Tableau(3.5,-3.0)[french]{[R]1[G]3[Y]4,[B]2} \quad
+      \Tableau(2,-1)[australian]{[B]2,[R]1[G]3[Y]4} \quad
+      \Abacus(4,0.5)[abacus ends=--,scale=1.4]{3}{[b]9,[w]8,[r]8,[b]6,[b]6,[r]2,[b]1}
     \end{tikzpicture}
 
   \end{center}
@@ -714,11 +713,14 @@
   hood, everything is drawn using \TikZ (and \LaTeX3).  These commands
   can be used either as standalone commands or as part of a
   \keyword{tikzpicture} environment.  This package started as code for
-  drawing the diagrams that I need in my own research. It is written as
-  flexibly as possible in the hope that it will draw the diagrams that
-  others need.
+  drawing the diagrams that I need in my own research. It is written to
+  be easy to use and as
+  flexible as possible in the hope that the package will draw the
+  pictures\footnote{In this manual, ``diagram'' usually means ``Young
+  diagram'', so a ``picture'' is anything drawn by an \aTableau command.}
+  that others need.
 
-  For the impatient, here is a basic example that shows how to use the
+  For the impatient, here is an example that shows how to use the
   two main commands provided by the \aTableau package:
 
   \begin{example}
@@ -776,11 +778,13 @@
   This table shows how the commands provided by \aTableau work: there
   are basic commands for drawing pictures, and these pictures can be
   embellished using optional arguments, which use a key-value interface.
+  In addition, it is possible to apply \TikZ-styling to the different
+  components of an \aTableau picture.
 
   The different conventions for diagrams, and tableaux, are listed in
   order of (my perception of) their popularity in the literature.  By
-  default, the \textit{English} convention is used, so we can omit
-  \emph{english}:
+  default, the \textit{English} convention is used, so the
+  \emph{english} key can be omitted:
   \begin{example}[lefthand width=0.4\textwidth]
   \Tableau{1234,567,89{10},{11}{12}}
   \end{example}
@@ -802,8 +806,8 @@
   \end{quote}
 
   Here, the \textit{options} is an optional comma-separated list of
-  \aTableau options, or keys. We describe the possible options below.
-  For example, to make the tableaux and Young diagrams commands use the
+  \aTableau options, or keys, which are described below.  For example,
+  to make the tableaux and Young diagrams commands use the
   \option{French} convention, by default, you could write:
 
   \begin{quote}
@@ -832,26 +836,26 @@
   \index{Cartesian coordinates}
   The $(x,y)$-Cartesian coordinates%
   \footnote{Currently, only Cartesian coordinates are supported. For
-  example, it is not possible to use named or polar coordinates.}
+  example, it is not possible to use polar coordinates.}
   are optional, being necessary if (and only if), the diagram is part of
   a~\keyword{tikzpicture} environment. See the example below, and \autoref{SS:coordinates} and
   \autoref{SS:abcoordinates}, for more detail about using these coordinates
   for tableaux and abacuses, respectively.
 
   The key-value \emph{options}, or \emph{keys}, control the style and
-  appearance of the final diagram. The keys are optional and are
+  appearance of the \aTableau picture. The keys are optional and are
   described in detail below, with examples. This section emphasises only
-  some of these options together with the fact that every key can be set
-  ``globally'' (inside the current \LaTeX\ group), by using
-  \keyword{\aTabset{...options...}}, or ``locally'', for the current
-  picture. As discussed already, the default options for the entire
-  document can also be set via
+  some of these options. Every key can be set ``globally'' (inside the
+  current \LaTeX\ group), by using \keyword{\aTabset{...options...}}, or
+  ``locally'', for the current picture. As discussed already, the
+  default options for the entire document can also be set via
   \keyword{\usepackage[options]{atableau}}.\indexcmd{aTabset}
 
   Many of the \aTableau options are specific to the particular pictures
-  being drawn. The full list of the \aTableau commands and their options
+  being drawn. A list of the \aTableau commands and their options
   is given in \autoref{S:keys}, with the following sections giving more
-  details and many examples. The keys that are common to all
+  details and many examples. The keys\footnote{Each key name is a
+  hyperlink to the corresponding section of the manual.} that are common to all
   \aTableau commands are:
 
   \begin{options}
@@ -895,7 +899,8 @@
     When used without Cartesian coordinates, all \aTableau commands are
     implicitly drawn inside a \keyword{tikzpicture} environment.  Use
     \option{tikzpicture=keys} to set the optional argument of this
-    environment: \keyword{\begin{tikzpicture}[ keys ]...\end{tikzpicture}}.
+    environment. This is is equivalent to
+    \keyword{\begin{tikzpicture}[ keys ]...\end{tikzpicture}}.
 
     \item[tikz before, tikz after]\index{tikz before}\index{tikz after}
     Use the \option{tikz before} and \option{tikz after} keys to inject
@@ -905,19 +910,18 @@
   \end{options}
 
   With boolean options, which are set to \textcolor{orange}{true} or
-  \textcolor{orange}{false}, the value can typically be omitted, and there is
-  usually an \textit{inverse key}, which is given by adding a
-  \textcolor{aTableauInner}{no}-prefix. For example, \option{border} is
-  equivalent to \option{border=true} and to \option{no border=false}.
-  The \option{no border} key is inverse to \option{border}, so
-  \option{no border} is equivalent to \option{no border=true}, and to
-  \option{border=false}.
+  \textcolor{orange}{false}, the value can typically be omitted, and
+  there is usually an \textit{inverse key}, which is given by adding a
+  \textcolor{aTableauInner}{no}-prefix. For example, the \option{border}
+  and \option{no border} keys are inverse keys. Using the
+  \option{border} key is equivalent to \option{border=true} and to
+  \option{no border=false}, and the \option{no border} key is equivalent
+  to \option{no border=true}, and to \option{border=false}.
 
   \index{American dialect}
   For all keys, American spelling variations are tolerated. For example, you
   can use \emph{center} and \emph{color} instead of the correct
   spellings of \emph{centre} and \emph{colour}, respectively.
-
   \begin{warning}
     Unlike the egalitarian \aTableau-keys, \TikZ-keys
     \emph{do not} countenance English spelling of the English language!
@@ -928,7 +932,7 @@
   explicitly, the second \keyword{\Diagram} command has Cartesian
   coordinates because it is being used inside a \keyword{tikzpicture}
   environment. Otherwise, these two \keyword{\Diagram} commands are
-  identical, except that the second diagram is embellished with labels
+  identical, except that the second picture is embellished with labels
   that are drawn by the other $\TikZ$-commands inside the \keyword{tikzpicture}
   environment.
 
@@ -950,7 +954,7 @@
   \end{tikzpicture}
   \end{Example}
 
-  The left-hand diagram shows that most of the right-hand diagram is drawn
+  The left-hand picture shows that most of the right-hand picture is drawn
   by the~\keyword{\Diagram} command, even though most of the commands in
   the example are \TikZ commands. In particular, the shading of the
   boxes in the \emph{$(1,2)$-hook}, and the \emph{$(1,2)$-rim hook}, is
@@ -960,17 +964,17 @@
   \keyword{\draw}-commands.)
 
   \begin{warning}
-     Unlike \TikZ-commands, you should \emph{not} put a semicolon
-     after an \aTableau-command when it is used with Cartesian
-     coordinates inside a \keyword{tikzpicture} environment. If you
-     accidentally add a semicolon then, most of the time it will not
-     cause any harm and \TikZ will just give you a warning.
+     Unlike \TikZ-commands, you should \emph{not} put a semicolon after
+     an \aTableau-command when it is used inside a \keyword{tikzpicture}
+     environment. If you accidentally add a semicolon, then \TikZ will
+     give you a warning but, most of the time, it will not cause any
+     harm.
   \end{warning}
 
-  \TikZ-styling can be applied to the most of the components of the
+  \TikZ-styling can be applied to most of the components of the
   pictures produced by \aTableau commands.  The top of the last example
-  defines two \TikZ-styles, \textsf{B} and \text{G}, which add the
-  \textsf{b}lue and \textsf{g}reen coloured hatchings styling to the two
+  defines two \TikZ-styles, \textsf{B} and \text{G}, which are used to add the
+  \textsf{b}lue and \textsf{g}reen coloured hatchings to the two
   hooks. Inside the \keyword{tikzpicture} environment, the Young diagram
   is placed at position $(0,0)$ by the \keyword{\Diagram} command. The
   three \keyword{\draw} commands are used to add the three labelled
@@ -1049,20 +1053,22 @@
   \end{tikzpicture}
   \end{example}
 
-  In this example, the entries in the two tableaux were added by the key
-  \option{entries=residues}, which automatically puts the
-  \option{e}-residue into each box in these tableaux. The
-  shading is done by the \option{ribbons} commands.  Notice that
-  \option{ribbon style}, which sets the \TikZ-style of the ribbons,
-  includes \keyword{opacity=0.4}.  This necessary because the ribbons
-  are drawn \textit{after} the tableau entries; see \autoref{SS:order}.
-  Alternatively, these tableau entries could be included in the ribbon
-  specifications, as described in \autoref{S:RibbonTableaux}.
+  In this example, the entries in the two tableaux are added by the key
+  \option{entries=residues}, which adds the \option{e}-residue of each
+  box to these tableaux. The shading is done by the \option{ribbons}
+  commands.  Notice that \option{ribbon style}, which sets the
+  \TikZ-style of the ribbons, includes \keyword{opacity=0.4}.  This
+  necessary because the ribbons are drawn \textit{after} the tableau
+  entries; see \autoref{SS:order}.  Alternatively, these tableau entries
+  could be included in the ribbon specifications, as described in
+  \autoref{S:RibbonTableaux}.
 
   The final example in the introduction uses \keyword{\ShiftedTableau}
-  inside a \emph{matrix of nodes}:
+  inside a \emph{matrix of nodes} to produce the following lattice of
+  shifted tableaux:
 
-  \begin{Example}
+  % The picture is above the code because this avoids a bad page break
+  \begin{Example}[text above listing]
   % \usetikzlibrary{matrix}
   \begin{tikzpicture}[scale=0.8, arr/.style={->,SteelBlue, thick}]
     \matrix (M)[matrix of nodes,row sep=4mm,column sep=4mm]{
@@ -1092,17 +1098,18 @@
   \end{tikzpicture}
   \end{Example}
 
-  Notice that even though the \keyword{\SkewTableau} commands are being
+  Notice that even though the \keyword{\ShiftedTableau} commands are being
   used inside a \keyword{tikzpicture} environment they do not need
-  coordinates because the skew tableaux are being placed by the \TikZ
-  \keyword{\matrix} command. That is, the \keyword{\SkewTableau}
+  coordinates because the shifted tableaux are being placed by the \TikZ
+  \keyword{\matrix} command. That is, the \keyword{\ShiftedTableau}
   commands are not explicit components of the \keyword{tikzpicture}
-  environment as hey are all (implicitly) inside \TikZ-nodes.
+  environment because they are all (implicitly) inside \TikZ-nodes.
 
   The following sections describe the commands defined by the \aTableau
   package and how to use them.  We start with the \keyword{\Tableau}
   command because all of the diagram and tableau commands, except for
-  \keyword{\RibbonTableau}, are derived from \keyword{\Tableau}.
+  \keyword{\RibbonTableau}, are derived from the \keyword{\Tableau}
+  command.
 
 
   \begin{warning}
@@ -1141,7 +1148,7 @@
     since the entries sum to~$12$. It is customary to omit the zeros
     when writing partitions and to use exponents for repeated parts, so
     we can write this partition in \emph{exponential notation} as
-    $\lambda=(4,3^2,2)$. Many authors identity a
+    $\lambda=(4,3^2,2)$. Many authors identify a
     partition~$\lambda=(\lambda_1,\lambda_2,\dots)$ with its
     \emph{diagram}, which is the set $[\lambda] = \set{(r,c)|1\le
     c\le\lambda_r\text{ for }r\ge1}$.  When using the \emph{English
@@ -1171,7 +1178,7 @@
       \item[*$(x,y)$]\index{xy@$(x,y)$} The Cartesian coordinates $(x,y)$
       are needed if, and only if, the tableau is a component of a
       \keyword{tikzpicture} environment.
-      \item[*options] Optional arguments, or keys. The are described below, with examples.
+      \item[*options] Optional arguments, or keys, which are described below, with many examples.
       \item[*tableau entries]\index{tableau entries} The
       \keyword{tableau entries} are given as a comma-separated list, with commas
       separating rows and each \textit{token}, or braced-group of
@@ -1199,12 +1206,12 @@
   have blank lines inside a \keyword{\Tableau} command. As this example
   suggests, by default, the entries in a tableau are typeset in
   mathematics-mode, but this can be changed using the
-  \option{text entries} key, as described below.
+  \option{text entries} key, described below.
 
-  As the examples above show, the tableau entries can be individual
-  characters, or they can be \TeX\ commands. Tableaux frequently contain
-  entries that are not single characters, or given by commands. Such
-  entries can be added to a tableau by enclosing them in braces:
+  The tableau entries can be individual characters, or they can be \TeX\
+  commands. Tableaux frequently contain entries that are not single
+  characters, or given by commands. In true \TeX-style, such entries can be added to a
+  tableau by enclosing them in braces:
 
   \begin{example}
     \Tableau{ 13{10}{11}{2x}, 2{y^3}, {r_1} }
@@ -1235,7 +1242,7 @@
   In this tableau, there is an asterisk before each of the entries $2$,
   $3$, $4$, $5$, $7$ and $11$, which gives the corresponding boxes the
   \option{star style}.  By default, $*$-entries are given the
-  \TikZ-styling \keyword{fill=}\aTableauColour{StarStyle} by default. You can
+  \TikZ-styling \keyword{fill=}\aTableauColour{StarStyle}. You can
   change the default $*$-style using the \option{star style} key:
 
   \begin{example}
@@ -1361,9 +1368,11 @@
   In this example, the \TikZ-styles \textsf{B}, \textsf{G} \textsf{R},
   and \textsf{Y} are applied to the tableaux entries labelled $1$, $2$,
   $3$, and $4$, respectively. Note the use of \emph{minimum size} to
-  control the size of the circle. The colours used here, and throughout
-  this manual, are for demonstration purposes only. I recommend against
-  such garish choices in any self-respecting document!
+  control the size of the circle, which is advised when using the
+  \textit{Ukrainian} or \textit{Australian} conventions. The colours
+  used here, and throughout this manual, are for demonstration purposes
+  only. I recommend against such garish choices in any self-respecting
+  document!
 
   % --------------------------------------------------------------
   \subsubsection{Tableau coordinates}\label{SS:coordinates}
@@ -1402,8 +1411,8 @@
   \end{tikzpicture}
   \end{example}
 
-  The \option{label} keys should help match each tableau to the
-  corresponding command.
+  The \option{label} keys in this example are to help you match each
+  tableau with the corresponding command.
 
   % --------------------------------------------------------------
   \subsubsection{Tableau keys}
@@ -1413,7 +1422,7 @@
   for styling the individual boxes in a tableau. Using a key-value
   syntax, you can change aspects of the tableau produced by the
   \keyword{\Tableau} command.  The rest of this section describes these
-  keys, their default values, and gives examples of how to use them.
+  keys, their default values, and gives examples of their usage.
 
   The options below can be applied to the \keyword{\Tableau}
   command by giving them as a comma-separated list inside square
@@ -1428,11 +1437,11 @@
   When used inside a \keyword{\Tableau} command, the options only affect
   that particular tableau. Most of these options, or keys, can also be
   used in the \keyword{\aTabset} command, to change the default settings
-  of all tableaux in the same \LaTeX\ group, or as optional arguments in
+  of all subsequent tableaux in the same \LaTeX\ group, or as optional arguments in
   \keyword{\usepackage[..]{atableau}}, to change the default settings
   for the entire document.  For example, if you put the command
   \keyword{\aTabset[ukrainian]} in the preamble of your document then,
-  by default, all subsequent tableaux and Young diagrams will be drawn
+  by default, all tableaux and Young diagrams will be drawn
   using the Ukrainian convention.
 
   \option[-]{english}
@@ -1441,9 +1450,9 @@
   \option*[]{australian}
 
   These four (mutually exclusive) options change the convention, or
-  orientation, that is used when drawing the tableaux. Rather than
-  defining these conventions precisely, we use the tried and true method
-  in combinatorics of defining by example.
+  orientation, that is used when drawing tableaux. Rather than defining
+  these conventions precisely, we use the tried and true method in
+  combinatorics of defining by example.
 
   \begin{example}[lefthand width=0.3\textwidth]
   \Tableau[ukrainian, styles={R={fill=red!20,draw=red}}]
@@ -1714,7 +1723,7 @@
     minimum size=2mm}, label=1] {12,35,5}
   \end{example}
 
-  Like tableau entries, \option{label} is typeset as mathematics by default .
+  Like tableau entries, the \option{label} is typeset as mathematics.
 
   \option[true]{math entries}[true/false]
   \option*[false]{text entries}[true/false]
@@ -4476,8 +4485,7 @@
   \label{S:ColourTheme}
   \index{colour theme}
 
-  The default colour theme for the pictures drawn by \aTableau are built
-  from six colours:
+  The pictures drawn by \aTableau are drawn using six base colours:
     aTableauMain,
     aTableauInner,
     aTableauStarStyle,
@@ -4485,8 +4493,8 @@
     aTableauSkewFill,
     aTableauRod,
   Choosing a good colour scheme is difficult, and it is partly
-  subjective. The \option{colour theme} key makes the colour equal to
-  one of the following ``standard'' colour themes.
+  subjective, so three colour themes are provided . The
+  \option{colour theme} key sets the colour theme.
 
   {\samepage
 

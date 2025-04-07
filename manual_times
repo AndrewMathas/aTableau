@@ -2,6 +2,8 @@
   Compile times for the aTableau manual
 ==========================================
 
+These times were obtained using a Macbook pro M4.
+
 Date        Version  Pages      Time
 ------------------------------------------
 2025-01-22: v2.0.0 - 51 pages - 20 seconds
