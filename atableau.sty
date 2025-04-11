@@ -1,6 +1,6 @@
 % ---------------------------------------------------------------------------
 % aTableau - Andrew Mathas (C) 2022-2025
-% Modified: 17:49 Thursday, 10 April 2025
+% Modified: 11:02 Friday, 11 April 2025
 % ---------------------------------------------------------------------------
 %
 % A LaTeX package for symmetric group combinatorics:
@@ -22,9 +22,9 @@
 % the package repository github.com/AndrewMathas/aTableau/
 
 % ---------------------------------------------------------------------------
-% aTableau package date and version
+% aTableau release date and version number
 \def\atableau@version{2.2.0}
-\def\atableau@release{2025-04-30}
+\def\atableau@release{2025-04-30} % PENDING...
 
 % ---------------------------------------------------------------------------
 % load TikZ early to avoid \ExplSyntaxOn...\ExplSyntaxOff wrappers
@@ -171,7 +171,6 @@
 \fp_new:N \l__atableau_xb_fp              % scratch x-coordinate of a node/bead
 \fp_new:N \l__atableau_xl_fp              % x-coordinate of a tableau node/bead
 \fp_new:N \l__atableau_xmax_fp            % maximum x-coordinate for multidiagrams and multitableaux
-\fp_new:N \l__atableau_xoffsets_seq       % x-offsets for the (1,1)-nodes in a multi-tableau
 \fp_new:N \l__atableau_xscale_fp          % scaling in the x-direction
 \fp_new:N \l__atableau_xsep_fp            % x-coordinate difference to next separator for multishapes
 \fp_new:N \l__atableau_y_fp               % y-coordinate of the origin of the diagram
@@ -180,7 +179,6 @@
 \fp_new:N \l__atableau_yl_fp              % y-coordinate of a tableau node/bead
 \fp_new:N \l__atableau_ymax_fp            % maximum y-coordinate for multidiagrams and multitableaux
 \fp_new:N \l__atableau_ymin_fp            % minimum y-coordinate for multidiagrams and multitableaux
-\fp_new:N \l__atableau_yoffsets_seq       % t-offsets for the (1,1)-nodes in a multi-tableau
 \fp_new:N \l__atableau_yscale_fp          % scaling in the x-direction
 
 \int_new:N \l__atableau_beads_int         % number of beads in abacus
@@ -215,7 +213,9 @@
 \seq_new:N \l__atableau_snobs_seq         % snob ribbons to add to tableau/diagram
 \seq_new:N \l__atableau_styles_seq        % ribbon/bead styles
 \seq_new:N \l__atableau_texts_seq         % ribbon/bead texts
+\seq_new:N \l__atableau_xoffsets_seq      % x-offsets for the (1,1)-nodes in a multi-tableau
 \seq_new:N \l__atableau_xsep_seq          % x-coordinates separators for multishapes
+\seq_new:N \l__atableau_yoffsets_seq      % t-offsets for the (1,1)-nodes in a multi-tableau
 
 \tl_new:N \l__atableau_abacus_bottom_tl   % specifies the bottom of the abacus
 \tl_new:N \l__atableau_abacus_top_tl      % specifies the top of the abacus

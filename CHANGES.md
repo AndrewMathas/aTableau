@@ -7,12 +7,12 @@
 
 ### Version 2.2.0 - 2025-04-?
   - abacuses can be specified by quotients
-  - multidirectional ribbons are now supported
+  - multidirectional ribbons are now supported  (still incomplete)
   - adds `colour theme` to change the colour scheme
   - adds the `shape` key for `\RibbonTableau`
-  - adds the `traditional` key for abacuses
-  - fixes bug in `beta numbers` key for abacuses
+  - adds the `traditional` key for abacuses  (still incomplete)
   - many improvements and corrections to the manual
+  - fixes bug in `beta numbers` key for abacuses
 
 ### Version 2.1.1 - 2025-02-14
   - fixes expansion issue with `ribbon box` and friends

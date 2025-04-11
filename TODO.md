@@ -12,9 +12,9 @@
 
 ### Things we could do
 
-  - allow R and C in ribbon tableau specifications
-  - allow abacuses similar to those in suanpan-l3 
-  - allow a `custom theme` option
+  - allow R and C in ribbon tableau specifications ...needs enhanced code for ribbon border...
+  - allow abacuses similar to those in suanpan-l3  ...almost done...
+  - ?? add a `custom theme` option that sets the six aTableau colours
   - ?? implement colour themes
   - ?? rewrite ribbons and \Abacus to simultaneously parse the specifications and draw the picture
   - ?? rewrite the partition parsing using quarks
