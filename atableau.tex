@@ -1,6 +1,6 @@
 % ----------------------------------------------------------------------
 % atableau - Andrew Mathas (C) 2022-2025
-% Modified: 18:02 Thursday, 10 April 2025
+% Modified: 16:47 Friday, 11 April 2025
 % ----------------------------------------------------------------------
 \documentclass{amsart}
 \usepackage[svgnames,table]{xcolor}
@@ -3645,6 +3645,15 @@
   \option{math entries} and \option{text entries}.
   \index{math entries!abacus}
   \index{text entries!abacus}
+  Finally, we note that you can use the \option{traditional} to draw
+  more traditionally looking abacus display:
+
+  \begin{example}[label=Ex:NoShade]
+  \Abacus[traditional]
+    {5}{8^2_\bullet,7_+,5_a,[ball color=red]4^2_b,1^3,1_d}
+  \end{example}
+  \index{no shade}
+
 
   % --------------------------------------------------------------
   \subsection{Abacuses and quotients}\label{SS:quotients}
@@ -4011,11 +4020,7 @@
   \end{example}
 
   \item\option{entries=residues}:\index{entries!residues}
-  Labels the beads by their residues. Unlike for tableaux, it is not
-  necessary to specify the quantum characteristic \option{e}<abacus>,
-  because this is determined by the number of runners and the
-  \option{cartan}<abacus> type. You can override this by setting
-  \option{e}<abacus> manually.
+  Labels the beads by their residues.
   \begin{example}
   \Abacus[entries=residues,]{3}{3,2^2,0^2} \qquad
   \Abacus[entries=residues, cartan=C]
@@ -4026,9 +4031,12 @@
   \AddKeyLink{charge-abacus}
   \AddKeyLink{cartan-abacus}
   \noindent
-  As with (multi)tableau, use the \option{charge}<abacus> key to
-  add an offset to the residues, and the \option{cartan} key for
-  residues of other affine Cartan types.
+  As with (multi)tableau, use the \option{charge}<abacus> key to add an
+  offset to the residues, and the \option{cartan} key for residues of
+  other affine Cartan types.  Unlike for tableaux, it is not necessary
+  to specify the quantum characteristic \option{e}<abacus>, because this
+  is determined by the number of runners and the \option{cartan}<abacus>
+  type. You can override this by setting \option{e}<abacus> manually.
 
   \item\option{entries=rows}:\index{entries!rows}
   Labels the beads by their rows index of the corresponding part in the

@@ -1,6 +1,6 @@
 % ---------------------------------------------------------------------------
 % aTableau - Andrew Mathas (C) 2022-2025
-% Modified: 11:02 Friday, 11 April 2025
+% Modified: 10:43 Sunday, 13 April 2025
 % ---------------------------------------------------------------------------
 %
 % A LaTeX package for symmetric group combinatorics:
@@ -156,7 +156,6 @@
 \fp_new:N \l__atableau_beam_height_fp     % width of abacus rods/runners when using traditional style
 \fp_new:N \l__atableau_box_ht_fp          % height of a tableau box
 \fp_new:N \l__atableau_box_wd_fp          % width of a tableau box
-\fp_new:N \l__atableau_rod_width_fp       % width of abacus rods/runners when using traditional style
 \fp_new:N \l__atableau_rows_fp            % number of rows in abacus/tableau
 \fp_new:N \l__atableau_separation_fp      % distance between multitableau
 \fp_new:N \l__atableau_script_fp          % scaling when used as a subscript
@@ -514,7 +513,6 @@
     \fp_set:Nn \l__atableau_separation_fp  {#1*\l__atableau_separation_fp }
     \fp_set:Nn \l__atableau_tick_length_fp {#1*\l__atableau_tick_length_fp }
     \fp_set:Nn \l__atableau_beam_height_fp {#1*\l__atableau_beam_height_fp }
-    \fp_set:Nn \l__atableau_rod_width_fp   {#1*\l__atableau_rod_width_fp }
 }
 
 % usage: \__atableau_set_yscale:n {y-scale} : rescale the y-dimension
@@ -578,29 +576,28 @@
 
 \cs_new:Nn \__atableau_set_abacus_convention_standard:
 {
-    \fp_set:Nn \l__atableau_abacus_ht_fp     {\l__atableau_yscale_fp*0.42}
+    \fp_set:Nn \l__atableau_abacus_ht_fp     {\l__atableau_yscale_fp*0.42} % ht and wd are used for the bead coordinates
     \fp_set:Nn \l__atableau_abacus_wd_fp     {\l__atableau_xscale_fp*0.42}
-    \fp_set:Nn \l__atableau_bead_height_fp   {\l__atableau_yscale_fp*0.4}
+    \fp_set:Nn \l__atableau_bead_height_fp   {\l__atableau_yscale_fp*0.4}  % height and width give the size of the beads
     \fp_set:Nn \l__atableau_bead_width_fp    {\l__atableau_xscale_fp*0.4}
     \fp_set:Nn \l__atableau_tick_length_fp   {\l__atableau_xscale_fp*0.1}
     \tl_set:Nn \l__atableau_bead_shape_tl    {circle}
     \tl_set:Nn \l__atableau_tick_tl          {aTableauInner}
     \tl_set:Nn \l__atableau_runner_tl        {aTableauInner}
-    \fp_set:Nn \l__atableau_tick_length_fp   {\l__atableau_xscale_fp*0.1}
     \cs_set_eq:NN \__atableau_abacus_end:nnnn \__atableau_standard_end:nnnn
     \cs_set_eq:NN \__atableau_abacus_runner:nnn \__atableau_standard_runner:nnn
 }
 
 \cs_new:Nn \__atableau_set_abacus_convention_traditional:
 {
-    \fp_set:Nn \l__atableau_abacus_ht_fp     {\l__atableau_yscale_fp*0.5}
+    \fp_set:Nn \l__atableau_abacus_ht_fp     {\l__atableau_yscale_fp*0.5}  % ht and wd are used for the bead coordinates
     \fp_set:Nn \l__atableau_abacus_wd_fp     {\l__atableau_xscale_fp}
-    \fp_set:Nn \l__atableau_bead_height_fp   {\l__atableau_abacus_ht_fp*0.97 }
-    \fp_set:Nn \l__atableau_bead_width_fp    {\l__atableau_abacus_wd_fp*0.97 }
+    \fp_set:Nn \l__atableau_bead_height_fp   {\l__atableau_yscale_fp*0.4 } % height and width give the size of the beads
+    \fp_set:Nn \l__atableau_bead_width_fp    {\l__atableau_xscale_fp*0.6 }
+    \fp_set:Nn \l__atableau_tick_length_fp   {\l__atableau_xscale_fp*0.10}
     \tl_set:Nn \l__atableau_bead_shape_tl    {rounded~rectangle}
     \tl_set:Nn \l__atableau_tick_tl          {aTableauRod}
     \tl_set:Nn \l__atableau_runner_tl        {aTableauRod}
-    \fp_set_eq:NN \l__atableau_tick_length_fp  \l__atableau_rod_width_fp
     \cs_set_eq:NN \__atableau_abacus_end:nnnn \__atableau_traditional_end:nnnn
     \cs_set_eq:NN \__atableau_abacus_runner:nnn \__atableau_traditional_runner:nnn
 }
@@ -2493,11 +2490,11 @@
 \cs_new_protected:Npn \__atableau_traditional_runner:nnn #1 #2 #3
 {
     \shadedraw[aTableau/#1]
-        (\fp_eval:n {\fp_use:c{l__atableau_x#2_fp}+\l__atableau_rod_width_fp*\l__atableau_abacus_col_dx_fp},
-             \fp_eval:n {\fp_use:c{l__atableau_y#2_fp}+\l__atableau_rod_width_fp*\l__atableau_abacus_col_dy_fp})
+        (\fp_eval:n {\fp_use:c{l__atableau_x#2_fp}+\l__atableau_tick_length_fp*\l__atableau_abacus_col_dx_fp},
+             \fp_eval:n {\fp_use:c{l__atableau_y#2_fp}+\l__atableau_tick_length_fp*\l__atableau_abacus_col_dy_fp})
         rectangle
-        +(\fp_eval:n {\fp_use:c{l__atableau_x#3_fp}-2*\l__atableau_rod_width_fp*\l__atableau_abacus_col_dx_fp},
-          \fp_eval:n {\fp_use:c{l__atableau_y#3_fp}-2*\l__atableau_rod_width_fp*\l__atableau_abacus_col_dy_fp});
+        +(\fp_eval:n {\fp_use:c{l__atableau_x#3_fp}-2*\l__atableau_tick_length_fp*\l__atableau_abacus_col_dx_fp},
+          \fp_eval:n {\fp_use:c{l__atableau_y#3_fp}-2*\l__atableau_tick_length_fp*\l__atableau_abacus_col_dy_fp});
 }
 
 % usage: \__atableau_draw_abacus_end:nnn {abacus_top/abacus_bottom} {row index} {±1}
@@ -2714,8 +2711,8 @@
     \fp_set:Nn \l__atableau_xl_fp { \l_tmpa_fp*\l__atableau_abacus_row_dx_fp*\l__atableau_abacus_wd_fp }
     \fp_set:Nn \l__atableau_yl_fp { \l_tmpa_fp*\l__atableau_abacus_row_dy_fp*\l__atableau_abacus_ht_fp }
     % similarly, set (xb_fp, yb_fp) to the half the tick length
-    \fp_set:Nn \l__atableau_xb_fp {\l__atableau_rod_width_fp*\l__atableau_abacus_col_dx_fp}
-    \fp_set:Nn \l__atableau_yb_fp {\l__atableau_rod_width_fp*\l__atableau_abacus_col_dy_fp}
+    \fp_set:Nn \l__atableau_xb_fp {\l__atableau_tick_length_fp*\l__atableau_abacus_col_dx_fp}
+    \fp_set:Nn \l__atableau_yb_fp {\l__atableau_tick_length_fp*\l__atableau_abacus_col_dy_fp}
     \int_step_inline:nn {\l__atableau_cols_int}
     {
         \int_set:Nn \l_tmpa_int {##1-1} % save recalculating this many times
@@ -3468,9 +3465,8 @@
     no~shade .code:n = { \__atableau_tikzset_append:nn {abacusBead} {no~shade} },
     no~shade .value_required:n = false,
 
-    rod~width .code:n = { \fp_set:Nn \l__atableau_rod_width_fp {#1/2} }, % (half) rod width
+    rod~width .code:n = { \fp_set:Nn \l__atableau_tick_length_fp {#1/2} }, % rod width = tick length
     rod~width .value_required:n = true,
-    rod~width .initial:n = 0.3,
 
     runner .tl_set:N = \l__atableau_runner_tl, % runner colour
     runner .value_required:n = true,
