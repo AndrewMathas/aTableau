@@ -2,7 +2,10 @@
 
 # Record how long it takes to compile the atableau manual in manual_times,
 # together with the date, version number and number of pages. We compile twice
-# so that we get the "real" compile time
+# so that we get the "real" compile time. For comparison purposes, the same
+# computer should be used because, for example, the manual takes more than
+# twice to compile on an older imac than my macbook pro M4. These are
+# indicative only as they vary wildly between consecutive compilations.
 
 # Andrew Mathas April, 2025
 
@@ -24,14 +27,14 @@ save_record=false
 # parse command line arguments
 while [[ $# -ne 0 ]]; do
   case $1 in
-    --record) shift && save_record=1 ;;
+    --record) shift && save_record=true ;;
     *) usage && exit ;;
   esac
 done
 
 
-echo "Compiling aTableau manual and recording the compile time"
-sleep 1
+echo "Compiling aTableau manual. Recording the compile time: ${save_record}"
+sleep 2
 start_time=$(date +%s)
 pdflatex atableau
 end_time=$(date +%s)
@@ -40,9 +43,12 @@ pages=$(gawk '/Output written on atableau/ {print substr($5,2,2)}' atableau.log)
 record=$(date "+%Y-%m-%d: $(git describe --tag --abbrev=0) - ${pages} pages - ${time} seconds" )
 
 cat $RECORD_IN
+echo
+echo "New time:"
 echo "$record"
 
-if [ $save_record=true ]; then
+if [ "$save_record" = true ]; then
+  # append the new compilation time to manual_times
   echo $record >> $RECORD_IN
 fi
 

@@ -1,6 +1,6 @@
 % ----------------------------------------------------------------------
 % atableau - Andrew Mathas (C) 2022-2025
-% Modified: 16:47 Friday, 11 April 2025
+% Modified: 15:04 Wednesday, 16 April 2025
 % ----------------------------------------------------------------------
 \documentclass{amsart}
 \usepackage[svgnames,table]{xcolor}
@@ -185,8 +185,8 @@
 % displaying a colour theme
 \NewDocumentCommand\ColourTheme{ m }
 {
-  \option{colour~theme=#1}
-  \bgroup
+  \begin{samepage}
+    \option{colour~theme=#1}
     \aTabset{colour~theme=#1, align=top}
     \index{colour theme!#1}
     \par
@@ -204,8 +204,8 @@
        \bottomrule
     \end{tabular}
     \hfill
-    \Abacus{4}{4^3,2,1^2,0}\qquad
-    \Abacus[traditional]{4}{4^3,2,1^2,0} \qquad
+    \Abacus{4}{4^3,2_a,1^2_\bullet,0}\qquad
+    \Abacus[traditional]{4}{4^3,2_a,1^2_\bullet,0} \qquad
 
     \par\vspace*{3mm}
 
@@ -216,7 +216,7 @@
     \Multitableau[tabloid]{ 123,45 | 67,89, {10}} \quad
 
     \par\vspace*{4mm}
-  \egroup
+  \end{samepage}
 }
 
 % ---------------------------------------------------------------------------
@@ -671,9 +671,16 @@
     \aTableauHeader
 
     \begin{quote}
-      A \LaTeX\ package for symmetric group combinatorics, including Young
-      diagrams, tableaux, tabloids, skew tableaux, shifted tableaux, ribbon
-      tableaux, multitableaux, abacuses.
+      A \LaTeX\ package for symmetric group combinatorics, including
+        abacuses,
+        Young diagrams,
+        tableaux,
+        tabloids,
+        skew tableaux,
+        multitableaux,
+        shifted tableaux,
+      and
+        ribbon tableau.
     \end{quote}
 
     \begin{minipage}{0.75\textwidth}
@@ -1221,8 +1228,7 @@
   \subsubsection{Adding style}
   \index{star style}
   \index{*|see{star style}}
-  \index{tableau entries!style}
-  \index{tableau entries!star}
+  \index{tableau entries!star style}
 
   The \aTableau package provides several different ways to add
   \TikZ~style specifications to the boxes in diagrams and tableaux.
@@ -3537,25 +3543,26 @@
       xoffsets={0|-1.1}, yoffsets={0|-1},
       styles={O={fill=orange!50}, P={fill=purple!50}},
       snob style={draw=red,double,thick,fill=white},
-      snobs={|(O)24_{15}c_{14}, (P)26_{17}c_{16}, 27_{18},
-        31_{11},  (P)33_{13}c_{12}}
+      snobs={|(O)24_{15}c_{14}, (P)26_{17}c_{16},
+              27_{18}, 31_{11}, (P)33_{13}c_{12}}
     ]{1|7^2,4,1}
   \end{example}
 
   This is a slightly lazy way of drawing this multitableau because
-  \option{entries=first} is used to automatically populate most of the
-  entries and then \option{snobs=...} are used to rewrite the ``bricks''
-  in the homogeneous Garnir belt.
+  \option{entries=first} is used to populate most of the tableau
+  entries, afer which \option{snobs=...} is used to rewrite the
+  ``bricks'' in the homogeneous Garnir belt.
 
   % --------------------------------------------------------------
   \section{Abacuses} \label{S:Abacus} \index{abacus} \indexcmd{Abacus}
 
-  Gordon James introduced the abacus, with beads and runners, as another
-  way to represent a partition~\cite{James:YoungD}. The abacus is
-  particularly useful in modular representation theory, where the number
-  of runners is the (quantum) characteristic. Abacus combinatorics are
-  now used in the representation theory of many algebras, so their use
-  has extended far beyond the symmetric groups.
+  In the representation theory of the symmetric groups, Gordon James
+  introduced the abacus, with beads and runners, as another way to
+  represent a partition~\cite{James:YoungD}. The abacus is particularly
+  useful in modular representation theory, where the number of runners
+  is the (quantum) characteristic. Abacus combinatorics are now used in
+  the representation theory of many algebras, with their use now
+  extending far beyond the symmetric groups.
 
   The partition corresponding to an abacus is given by counting the
   number of empty bead positions before each bead on the abacus. The
@@ -3648,7 +3655,7 @@
   Finally, we note that you can use the \option{traditional} to draw
   more traditionally looking abacus display:
 
-  \begin{example}[label=Ex:NoShade]
+  \begin{example}
   \Abacus[traditional]
     {5}{8^2_\bullet,7_+,5_a,[ball color=red]4^2_b,1^3,1_d}
   \end{example}
@@ -4218,8 +4225,8 @@
   literature. The aim of this section is to show how these pictures can
   be drawn using the \aTableau package.
 
-  Diagrams like the following are common. Note the use of a ribbon to
-  add the $\alpha$ in row~$6$ and column~$8$.
+  Diagrams like the following are common. Note the use of
+  \option{ribbons} to add the $\alpha$ in row~$6$ and column~$8$.
 
   \begin{example}
   \Diagram[french, no boxes, ribbons={*68_\alpha}]
@@ -4338,8 +4345,8 @@
   \rowcolors{2}{LightSkyBlue!10}{}
 
   For this impatient, this section compactly lists the \aTableau
-  commands and their options. The sections above describe these commands and
-  show how their options, or keys, are used, giving many examples.
+  commands and their options. The earlier sections describe these commands and
+  show how their options, or keys, are used with many examples.
 
   The \aTableau package provides the following commands:
 
@@ -4484,36 +4491,42 @@
     \bottomrule
   \end{xltabular}
 
-  All keys can be used with all \aTableau pictures. Most of the time,
-  keys that are not intended to be applied to the current picture will
-  be silently ignored.
+  All keys can be used with all \aTableau pictures. In most cases, keys
+  that are not intended to be applied to a given picture will be
+  silently ignored.
 
   % --------------------------------------------------------------
   \subsection{\aTableau Colours}\label{S:Colours}
   \label{S:ColourTheme}
   \index{colour theme}
 
-  The pictures drawn by \aTableau are drawn using six base colours:
-    aTableauMain,
-    aTableauInner,
-    aTableauStarStyle,
-    aTableauSkew,
-    aTableauSkewFill,
-    aTableauRod,
-  Choosing a good colour scheme is difficult, and it is partly
-  subjective, so three colour themes are provided . The
-  \option{colour theme} key sets the colour theme.
+  The colours in the pictures drawn by \aTableau are controlled by the six base colours:
+  \begin{center}
+    \begin{tabular}{*3l}
+    aTableauMain      &
+    aTableauInner     &
+    aTableauStarStyle \\
+    aTableauSkew      &
+    aTableauSkewFill  &
+    aTableauRod
+    \end{tabular}
+  \end{center}
+  Colours of individual components of the pictures using the keys
+  described above. Creating a good colour scheme is difficult, and it is
+  partly subjective, so \aTableau provides three different colour themes
+  in the hope that one of them may appeal. The \option{colour theme} key
+  sets the colour theme.
 
   {\samepage
 
     \option[default]{colour theme}{default,classic,natural}
+  }
 
     \begin{itemize}
       \item \ColourTheme{default}
       \item \ColourTheme{classic}
       \item \ColourTheme{natural}
     \end{itemize}
-  }
 
   It is sometimes useful to use the \aTableau colour names directly in
   style specifications, and with \LaTeX\ colour commands. For example,
@@ -4574,11 +4587,12 @@
   \end{center}
 
   Most of these styles are quite basic, but some of them are more
-  involved, which is why we do not recommend changing them directly. In
+  involved. We do not recommend changing them directly because changing
+  these styles can, potentially, break \aTableau functionality. In
   some cases, such as the tableau boxes, the \TikZ styling does not
   fully control the rendering of these features. Most of these styles
-  can be augmented by styles supplied by the key-value interface, which
-  is another reason to avoid changing them directly.
+  can be changed using the key-value interface, which is another reason
+  to avoid changing them directly.
 
   % --------------------------------------------------------------
   \section{Feature requests and bug reports}

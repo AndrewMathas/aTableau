@@ -10,16 +10,18 @@
 
   - check coordinate placement of abacuses. It is now slightly off because of the change in the height of the abacus bar
 
-### Things we could do
-
+### features being implemented
   - allow R and C in ribbon tableau specifications ...still needs enhancement for ribbon border...
-  - allow abacuses similar to those in suanpan-l3  ...almost done...
-  - ?? add a `custom theme` option that sets the six aTableau colours
-  - ?? rewrite ribbons and \Abacus to simultaneously parse the specifications and draw the picture
-  - ?? rewrite the partition parsing using quarks
-  - ?? use l3color instead of xcolor...
-  - ?? beta numbers: allow partition to be specified by beta numbers in \Diagram and friends
-  - ?? checkboard={colours}: cyclic list of cell background colours...
-  - ?? allow polar, and other, coordinates to be used as xy-coordinates
+  - allow abacuses similar to those in suanpan-l3  ...almost done, still need to finalise the scale
+    and the borders...
+
+### Things we might do at some point
+
+  - add a `custom theme` option that sets the six aTableau colours
+  - rewrite ribbons and \Abacus to simultaneously parse the specifications and draw the picture
+  - rewrite the partition parsing using quarks
+  - beta numbers: allow partition to be specified by beta numbers in \Diagram and friends
+  - colours={....}: cyclic list of cell background colours...
+  - allow polar, and other, coordinates to be used as xy-coordinates
 
 AM April 2025

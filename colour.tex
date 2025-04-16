@@ -2,7 +2,7 @@
 % Title:    title.
 % Author:   Andrew Mathas
 % Created:  April 2025
-% Modified: 17:21 Thursday, 10 April 2025
+% Modified: 15:02 Wednesday, 16 April 2025
 % --------------------------------------------------------------------
 \documentclass{amsart}
 
@@ -100,28 +100,27 @@
 % displaying a colour theme
 \NewDocumentCommand\ColourTheme{ m }
 {
-  \bgroup
+  \begin{samepage}
+    \option{colour~theme=#1}
     \aTabset{colour~theme=#1, align=top}
     \index{colour theme!#1}
-
-    \par\vspace*{1mm}
-
+    \par
     \rowcolors{2}{LightSkyBlue!10}{}
     \begin{tabular}[t]{lll}
       \toprule
       \heading{Colour} & \heading{Name} & \heading{HTML}\\
        \midrule
-       \aTableauColour{Main}      & aTableauMain      & \prop_item:Nn \l__atableau_colour_theme_prop { #1_Main} \\
+       \aTableauColour{Main}      & aTableauMain      & \prop_item:Nn \l__atableau_colour_theme_prop {#1_Main} \\
        \aTableauColour{Inner}     & aTableauInner     & \prop_item:Nn \l__atableau_colour_theme_prop {#1_Inner}\\
-       \aTableauColour{StarStyle} & aTableauStarStyle & \prop_item:Nn \l__atableau_colour_theme_prop { #1_StarStyle}\\
-       \aTableauColour{Skew}      & aTableauSkew      & \prop_item:Nn \l__atableau_colour_theme_prop { #1_Skew} \\
-       \aTableauColour{SkewFill}  & aTableauSkewFill  & \prop_item:Nn \l__atableau_colour_theme_prop { #1_SkewFill}\\
-       \aTableauColour{Rod}       & aTableauRod       & \prop_item:Nn \l__atableau_colour_theme_prop { #1_Rod}\\
+       \aTableauColour{StarStyle} & aTableauStarStyle & \prop_item:Nn \l__atableau_colour_theme_prop {#1_StarStyle}\\
+       \aTableauColour{Skew}      & aTableauSkew      & \prop_item:Nn \l__atableau_colour_theme_prop {#1_Skew} \\
+       \aTableauColour{SkewFill}  & aTableauSkewFill  & \prop_item:Nn \l__atableau_colour_theme_prop {#1_SkewFill}\\
+       \aTableauColour{Rod}       & aTableauRod       & \prop_item:Nn \l__atableau_colour_theme_prop {#1_Rod}\\
        \bottomrule
     \end{tabular}
     \hfill
-    \Abacus{4}{4^3,2,1^2,0}\qquad
-    \Abacus[traditional]{4}{4^3,2,1^2,0} \qquad
+    \Abacus{4}{4^3,2_a,1^2_\bullet,0}\qquad
+    \Abacus[traditional]{4}{4^3,2_a,1^2_\bullet,0} \qquad
 
     \par\vspace*{3mm}
 
@@ -132,7 +131,7 @@
     \Multitableau[tabloid]{ 123,45 | 67,89, {10}} \quad
 
     \par\vspace*{4mm}
-  \egroup
+  \end{samepage}
 }
 
 \ExplSyntaxOff
@@ -148,9 +147,9 @@
 
 
   \begin{itemize}
-    \item \option{colour theme=default} \ColourTheme{default}
-    \item \option{colour theme=classic} \ColourTheme{classic}
-    \item \option{colour theme=natural} \ColourTheme{natural}
+    \item \ColourTheme{default}
+    \item \ColourTheme{classic}
+    \item \ColourTheme{natural}
   \end{itemize}
 
 

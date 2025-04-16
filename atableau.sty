@@ -1,6 +1,6 @@
 % ---------------------------------------------------------------------------
 % aTableau - Andrew Mathas (C) 2022-2025
-% Modified: 10:43 Sunday, 13 April 2025
+% Modified: 14:58 Wednesday, 16 April 2025
 % ---------------------------------------------------------------------------
 %
 % A LaTeX package for symmetric group combinatorics:
@@ -343,7 +343,7 @@
     },
     % styles for tableau boxes in Young diagrams
     % -----------------------------------------------------------------------
-    node/.style = {
+    aTableauBox/.style = {
         anchor         = center,
         inner~sep      = 0pt,
         minimum~height = \fp_use:N \l__atableau_box_ht_fp cm,
@@ -353,14 +353,14 @@
         text           = \l__atableau_box_text_tl,
     },
     boxStyle/.style = {
-        aTableau/node,
+        aTableau/aTableauBox,
         aTableau/innerWall,
         draw = \l__atableau_inner_tl,
         fill = \l__atableau_box_fill_tl,
     },
     % default skew box style
     skewBox/.style = {
-        aTableau/node,
+        aTableau/aTableauBox,
         aTableau/innerWall,
         draw  = \l__atableau_skew_border_tl,
         fill  = aTableauSkewFill,
@@ -368,14 +368,14 @@
     % box styles for paths, ribbons and snobs
     % -----------------------------------------------------------------------
     pathBox/.style = {
-        aTableau/node,
+        aTableau/aTableauBox,
         draw = none, % border disabled by default
     },
     ribbonBox/.style = {
-        aTableau/node,
+        aTableau/aTableauBox,
     },
     snobBox/.style = {
-        aTableau/node,
+        aTableau/aTableauBox,
     },
     % styles for paths, ribbons and snobs
     % -----------------------------------------------------------------------
@@ -474,7 +474,7 @@
         semithick,
     },
     runnerLabelStyle/.style = {
-        aTableau/node,
+        aTableau/aTableauBox,
         text = aTableauInner,
         font = \scriptsize
     },
@@ -576,10 +576,10 @@
 
 \cs_new:Nn \__atableau_set_abacus_convention_standard:
 {
-    \fp_set:Nn \l__atableau_abacus_ht_fp     {\l__atableau_yscale_fp*0.42} % ht and wd are used for the bead coordinates
-    \fp_set:Nn \l__atableau_abacus_wd_fp     {\l__atableau_xscale_fp*0.42}
-    \fp_set:Nn \l__atableau_bead_height_fp   {\l__atableau_yscale_fp*0.4}  % height and width give the size of the beads
-    \fp_set:Nn \l__atableau_bead_width_fp    {\l__atableau_xscale_fp*0.4}
+    \fp_set:Nn \l__atableau_abacus_ht_fp     {\l__atableau_yscale_fp*0.38} % ht and wd are used for the bead coordinates
+    \fp_set:Nn \l__atableau_abacus_wd_fp     {\l__atableau_xscale_fp*0.38}
+    \fp_set:Nn \l__atableau_bead_height_fp   {\l__atableau_abacus_ht_fp*0.95}  % height and width give the size of the beads
+    \fp_set:Nn \l__atableau_bead_width_fp    {\l__atableau_abacus_wd_fp*0.95}
     \fp_set:Nn \l__atableau_tick_length_fp   {\l__atableau_xscale_fp*0.1}
     \tl_set:Nn \l__atableau_bead_shape_tl    {circle}
     \tl_set:Nn \l__atableau_tick_tl          {aTableauInner}
@@ -590,10 +590,10 @@
 
 \cs_new:Nn \__atableau_set_abacus_convention_traditional:
 {
-    \fp_set:Nn \l__atableau_abacus_ht_fp     {\l__atableau_yscale_fp*0.5}  % ht and wd are used for the bead coordinates
-    \fp_set:Nn \l__atableau_abacus_wd_fp     {\l__atableau_xscale_fp}
-    \fp_set:Nn \l__atableau_bead_height_fp   {\l__atableau_yscale_fp*0.4 } % height and width give the size of the beads
-    \fp_set:Nn \l__atableau_bead_width_fp    {\l__atableau_xscale_fp*0.6 }
+    \fp_set:Nn \l__atableau_abacus_ht_fp     {\l__atableau_yscale_fp*0.35}  % ht and wd are used for the bead coordinates
+    \fp_set:Nn \l__atableau_abacus_wd_fp     {\l__atableau_xscale_fp*0.7}
+    \fp_set:Nn \l__atableau_bead_height_fp   {\l__atableau_abacus_ht_fp*0.95 } % height and width give the size of the beads
+    \fp_set:Nn \l__atableau_bead_width_fp    {\l__atableau_abacus_wd_fp*0.95 }
     \fp_set:Nn \l__atableau_tick_length_fp   {\l__atableau_xscale_fp*0.10}
     \tl_set:Nn \l__atableau_bead_shape_tl    {rounded~rectangle}
     \tl_set:Nn \l__atableau_tick_tl          {aTableauRod}
