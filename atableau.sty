@@ -1,6 +1,6 @@
 % ---------------------------------------------------------------------------
 % aTableau - Andrew Mathas (C) 2022-2025
-% Modified: 14:58 Wednesday, 16 April 2025
+% Modified: 13:59 Tuesday, 29 April 2025
 % ---------------------------------------------------------------------------
 %
 % A LaTeX package for symmetric group combinatorics:
@@ -3039,7 +3039,7 @@
     colour~theme/unknown .code:n = { \msg_error:nnx {aTableau} {unknown-theme} {#1} },
     colour~theme .initial:n = default,
 
-    color~theme .code:n = { \__atableau_set_colour_theme:n {#1} },
+    color~theme .meta:n = { colour~theme={#1} },
     color~theme .value_required:n = true,
 
     % dotted rows and columns for tableaux and abacuses
