@@ -1,6 +1,6 @@
 % ---------------------------------------------------------------------------
 % aTableau - Andrew Mathas (C) 2022-2025
-% Modified: 13:59 Tuesday, 29 April 2025
+% Modified: 12:44 Wednesday, 30 April 2025
 % ---------------------------------------------------------------------------
 %
 % A LaTeX package for symmetric group combinatorics:
@@ -312,6 +312,7 @@
   % Allow ball shading to be disabled via shade=none.
   % The essential idea comes from https://tex.stackexchange.com/a/85750/234252
   no~shade/.code={ \tikz@addmode{\tikz@mode@shadefalse } },
+  bead/.style={ball~color=#1},
   % -----------------------------------------------------------------------
   % aTableau settings are in the aTableau family
   aTableau/.is~family,

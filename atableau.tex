@@ -1,6 +1,6 @@
 % ----------------------------------------------------------------------
 % atableau - Andrew Mathas (C) 2022-2025
-% Modified: 13:51 Tuesday, 29 April 2025
+% Modified: 12:40 Wednesday, 30 April 2025
 % ----------------------------------------------------------------------
 \documentclass{amsart}
 \usepackage[svgnames,table]{xcolor}
@@ -4188,28 +4188,26 @@
   the abacus, which is a common way of drawing abacuses in papers in
   combinatorics and representation theory. When the \option{traditional}
   key is used, the \keyword{\Abacus} command draws a more traditional
-  Chinese abacus, where the runners look or like rods and the beads are
-  disc shaped. This section describes how to use the
-  \option{traditional} key, together with a description of how it
-  changes the default settings and the additional keys that only apply
-  to traditional abacuses.
+  abacus, where the runners look like rods and the beads are disc
+  shaped. This section describes how to use the \option{traditional}
+  key, together with the additional keys for traditional abacuses.
 
   \option[false]{traditional}[true/false]
 
   When using the \option{traditional} option, the \keyword{\Abacus}
-  commands draw an abacus that looks more like  a traditional Chinese
-  abacus, where the runners are drawn as rods and the beads are wider.
+  commands draw a more  abacus that looks more like  a traditional Chinese
+  abacus, where the runners are drawn as rods and the beads as discs.
 
   \begin{example}
-    \Abacus[traditional, scale=0.6]{3}{6,4,3,1,0} \qquad
-    \Abacus[traditional, runner=brown, bead=blue]
+    \Abacus[traditional]{3}{6,4,3,1,0} \qquad
+    \Abacus[traditional, colour theme=natural]
       {3}{6,4,3,[ball color=red]0^2}
   \end{example}
 
   Traditional abacuses occupy more space, but they are more visually
   appealing. Not all of the abacus options have been tested on
   traditional abacuses, so please
-  \href{https://github.com/AndrewMathas/aTableau/}{report any problems}.
+  \href{https://github.com/AndrewMathas/aTableau/issues}{report any problems}.
 
   \option[0,4]{bead height }[decimal number, width in \unit{cm}]
   \option*[0,4]{bead width}[decimal number, width in \unit{cm}]
@@ -4598,16 +4596,16 @@
   \section{Feature requests and bug reports}
 
   Please make any feature requests and bug reports on the \aTableau github
-  page
+  page:
   \begin{center}
-    \href{https://github.com/AndrewMathas/aTableau/}{github.com/AndrewMathas/aTableau/}.
+    \href{https://github.com/AndrewMathas/aTableau/issues}{github.com/AndrewMathas/aTableau/issues}.
   \end{center}
   Please give as much detail as possible when making such requests.
 
   Bug reports must be a accompanied by a \textit{minimal working
   example}, which is the smallest possible amount of \LaTeX\ code that
-  demonstrates the problem and compiles, unless you are reporting a
-  problem that gives a compilation error in which case your example
+  demonstrates the problem and compiles---unless you are reporting a
+  problem that gives a compilation error, in which case your code example
   should give the error. This is necessary because it is very difficult
   to fix a problem if we cannot reproduce it.
 
