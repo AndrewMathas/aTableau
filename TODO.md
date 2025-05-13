@@ -9,11 +9,15 @@
 ### Bugs:
 
   - check coordinate placement of abacuses. It is now slightly off because of the change in the height of the abacus bar
+  - fix abacus ends to work properly with traditional and non-traditional abacuses
 
-### features being implemented
+### Features being implemented
   - allow R and C in ribbon tableau specifications ...still needs enhancement for ribbon border...
   - allow abacuses similar to those in suanpan-l3  ...almost done, still need to finalise the scale
     and the borders...
+
+### Documentation
+  - add an example showing how to use dotted rows and columns for multitableaux
 
 ### Things we might do at some point
 
