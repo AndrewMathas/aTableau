@@ -1,6 +1,6 @@
 % ----------------------------------------------------------------------
 % atableau - Andrew Mathas (C) 2022-2025
-% Modified: 12:40 Wednesday, 30 April 2025
+% Modified: 18:26 Wednesday, 14 May 2025
 % ----------------------------------------------------------------------
 \documentclass{amsart}
 \usepackage[svgnames,table]{xcolor}
@@ -328,6 +328,9 @@
 \makeatother
 
 % warning environment to alert the reader to tricky points
+%\usepackage{tabularx}
+%\renewcommand\tabularxcolumn[1]{m{#1}}% for vertical centering text in X column
+%\NewDocumentEnvironment{warning}{+b}{\begin{tabularx}{\textwidth}{cX}\textcolor{red}{\textdbend}&#1\end{tabularx}}{}
 \newenvironment{warning}{\list{\raisebox{-2ex}{\textcolor{red}{\textdbend}}\quad}{\leftmargin=3em}\item}{\endlist}
 
 % ---------------------------------------------------------------------------

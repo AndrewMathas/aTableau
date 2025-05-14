@@ -1,6 +1,6 @@
 % ---------------------------------------------------------------------------
 % aTableau - Andrew Mathas (C) 2022-2025
-% Modified: 12:44 Wednesday, 30 April 2025
+% Modified: 09:05 Thursday, 15 May 2025
 % ---------------------------------------------------------------------------
 %
 % A LaTeX package for symmetric group combinatorics:
@@ -104,9 +104,9 @@
   { Unrecognised~entries~value:~'#1' }
   { The~possible~diagram~values~for~entries~are:~contents,~first,~hooks,~last,~and~residues}
 
-\msg_new:nnnn { aTableau } { unknown-abacus-ends }
+\msg_new:nnnn { aTableau } { unknown-abacus-end }
   { Unrecognised~abacus~ends~setting:~'#1' }
-  { The~supported~ends~for~the~top/bottom~of~the~abacus~are:~-,~_~,.~,|,~and~>}
+  { The~supported~ends~for~the~top/bottom~of~the~abacus~are:~-,~\c_underscore_str~,.~,|,~and~>}
 
 \msg_new:nnnn { aTableau } { unknown-cartan }
   { Unrecognised~Cartan~type~'#1' }
@@ -278,7 +278,7 @@
   default_StarStyle = E6F7FF,
   default_Skew      = 818589,
   default_SkewFill  = F8F8F8,
-  default_Rod       = BCBCC7,
+  default_Rod       = 644117,
 
   % classic theme
   classic_Main      = 2C2C2C,
@@ -665,11 +665,11 @@
 {
     \tl_set:Nn \l__atableau_abacus_top_tl {#1}
     \str_if_in:nnF {-.>|\c_underscore_str*} {#1}
-    { \msg_error:nne {aTableau} {unknown-abacus-ends} {#1}}
+    { \msg_error:nne {aTableau} {unknown-abacus-end} {#1}}
 
     \tl_set:Nn \l__atableau_abacus_bottom_tl {#2}
     \str_if_in:nnF {-.>|\c_underscore_str*} {#2}
-    { \msg_error:nne {aTableau} {unknown-abacus-ends} {#2}}
+    { \msg_error:nne {aTableau} {unknown-abacus-end} {#2}}
 }
 
 % ---------------------------------------------------------------------------
@@ -688,6 +688,7 @@
 \cs_generate_variant:Nn \__atableau_count_row:n {x}
 \cs_generate_variant:Nn \__atableau_draw_abacus_end:nnn {non, nVn}
 \cs_generate_variant:Nn \__atableau_draw_tableau:n {V}
+\cs_generate_variant:Nn \__atableau_define_html_colour:nn {no}
 \cs_generate_variant:Nn \__atableau_entry:n {x}
 \cs_generate_variant:Nn \__atableau_put_tikz_node:nnnnn {nnVnV, noVnV, noVno}
 \cs_generate_variant:Nn \__atableau_set_bead_coordinates:nnn {nVn, nVV, nnV, noo, non, nVo, noV, nno}
@@ -1417,6 +1418,7 @@
 
 % usage: \__atableau_tikz_node:nnnn {style} {label} {fp-coordinate name} {entry}
 % Draw a TikZ node. This simplifies the code and controls expansion
+% TODO: not currently used!
 \cs_new_protected:Nn \__atableau_tikz_node:nnnn
 {
     \node[#1] (#2) at (\fp_use:c {l__atableau_x#3_fp}, \fp_use:c {l__atableau_y#3_fp}) { \__atableau_entry:n {#4} };
@@ -1424,7 +1426,7 @@
 
 % usage: \__atableau_put_tikz_node:Nnnnn {token list} {style} {label} {fp-coordinate name} {entry}
 % Like \__atableau_put_tikz_node:nVno except that we append the node to the
-% token list hgiven by #1
+% token list given by #1
 \cs_new_protected:Nn \__atableau_put_tikz_node:nnnnn
 {
     \tl_put_right:cn {l__atableau_#1_tl} {\node[#2] (#3) at}
@@ -2617,7 +2619,10 @@
     % set the star style
     \tl_set:Nn \l__atableau_starstyle_tl {aTableau/abacusStarStyle}
 
+    % record the number of runners in cols_int
     \int_set:Nn \l__atableau_cols_int {#1}
+
+    % adjust the origin
 
     \seq_if_empty:NF \l__atableau_runner_labels_seq
     {
@@ -3033,8 +3038,7 @@
     {
         \clist_map_inline:nn {Main,Inner,Skew,SkewFill,StarStyle,Rod}
         {
-            \prop_get:NnN \l__atableau_colour_theme_prop {#1_####1} \l_tmpa_tl
-            \__atableau_define_html_colour:nn {####1} \l_tmpa_tl
+            \__atableau_define_html_colour:no {####1} { \prop_item:Nn \l__atableau_colour_theme_prop {#1_####1} }
         }
     },
     colour~theme/unknown .code:n = { \msg_error:nnx {aTableau} {unknown-theme} {#1} },
@@ -3522,7 +3526,6 @@
 }
 
 % usage: \__atableau_tikzpicture:nnn {settings} {origin} {aTableau command}
-% where
 %  - #1: settings are a comma separated list of aTableau settings
 %  - #2: origin are Cartesian coordinates in the form x,y, or NoValue
 %  - #3: an internal aTableau command with parameters for drawing something

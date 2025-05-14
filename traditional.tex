@@ -7,6 +7,28 @@
 
   \aTabset{align=top}
 
+  \tikzset{
+    add grid/.code = {
+      % draw coordinate axes
+      \draw[help lines, step=0.5,thin, LightGrey](-0.5,-1.5) grid (4,2.5);
+      \draw[help lines, step=1,thin, Grey](-0.5,-1.5) grid (4,2.5);
+      \foreach \pt in {0,...,3} {
+        \node[below,font=\tiny] at (\pt,-1.5){$\pt$};
+      }
+      \foreach \pt in {-1,...,2} {
+        \node[left, font=\tiny] at (-0.5,\pt){$\pt$};
+      }
+    }
+  }
+
+  \begin{tikzpicture}[add grid]
+    \aTabset{abacus ends=_|, entries=beads}
+    \Abacus(0,0.5)  [south]              {3}{2,1^2}
+    \Abacus(0,2)    [east,  bead=red]    {3}{2,1^2}
+    \Abacus(2.5,0.5)[north, bead=orange] {3}{2,1^2}
+    \Abacus(3.5,-1) [west,  bead=brown]  {3}{2,1^2}
+  \end{tikzpicture}
+
   \Abacus[abacus ends=-|]{3}{2,1^2,0^3}\quad\Abacus[abacus ends=-_]{3}{2,[bead=red]1^2,0^3}\quad
   \Abacus[abacus ends=_.]{3}{2,1^2,0^3}\quad\Abacus[abacus ends=>>]{3}{2,1^2,0^3}\quad
   \Abacus[abacus ends=>|]{3}{2,1^2,0^3}\quad\Abacus[abacus ends=_-]{3}{2,1^2,0^3}\quad
@@ -26,6 +48,7 @@
   \Abacus{4}{8^2_-,7_+,5_a,4^2_b,1_\times^3,1_d}
 
   framed:
+  \Abacus[framed ]{4}{8^2_-,7_+,5_a,4^2_b,1_\times^3,1_d} \qquad
   \Abacus[framed, traditional]{4}{8^2_-,7_+,5_a,4^2_b,1_\times^3,1_d}
 
     \Abacus[traditional, scale=0.6]{3}{6,4,3,1,0} \qquad
