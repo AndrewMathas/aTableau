@@ -11,8 +11,8 @@
   - adds `colour theme` to change the colour scheme
   - adds the `shape` key for `\RibbonTableau`
   - adds the `traditional` key for abacuses  (still incomplete)
-  - many improvements and corrections to the manual
   - fixes bug in `beta numbers` key for abacuses
+  - many improvements and corrections to the manual
 
 ### Version 2.1.1 - 2025-02-14
   - fixes expansion issue with `ribbon box` and friends

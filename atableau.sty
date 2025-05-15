@@ -1,6 +1,6 @@
 % ---------------------------------------------------------------------------
 % aTableau - Andrew Mathas (C) 2022-2025
-% Modified: 09:05 Thursday, 15 May 2025
+% Modified: 08:15 Friday, 16 May 2025
 % ---------------------------------------------------------------------------
 %
 % A LaTeX package for symmetric group combinatorics:
@@ -278,7 +278,7 @@
   default_StarStyle = E6F7FF,
   default_Skew      = 818589,
   default_SkewFill  = F8F8F8,
-  default_Rod       = 644117,
+  default_Rod       = 98AFC7,
 
   % classic theme
   classic_Main      = 2C2C2C,
@@ -2622,7 +2622,9 @@
     % record the number of runners in cols_int
     \int_set:Nn \l__atableau_cols_int {#1}
 
-    % adjust the origin
+    % adjust the origin to allow for the close abacus ends
+    \fp_add:Nn \l__atableau_x_fp {-\l__atableau_abacus_col_dx_fp*\l__atableau_abacus_wd_fp/2}
+    \fp_add:Nn \l__atableau_y_fp {-\l__atableau_abacus_col_dy_fp*\l__atableau_abacus_ht_fp/2}
 
     \seq_if_empty:NF \l__atableau_runner_labels_seq
     {
@@ -2752,6 +2754,27 @@
         \__atableau_abacus_runner:nnn {abacusRunner} {a} {l}
     }
 
+    % draw the top ends of the abacus -- and set \l_tmpa_fp for the runner labels
+    \typeout{TOP:~\fp_use:N\l__atableau_abacus_top_fp}
+    \__atableau_draw_abacus_end:nVn \l__atableau_abacus_top_tl \l__atableau_abacus_top_fp {1}
+
+    % draw the bottom ends of the abacus
+    \typeout{BOTTOM:~\fp_use:N\l__atableau_abacus_bottom_fp}
+    \__atableau_draw_abacus_end:non \l__atableau_abacus_bottom_tl
+        {\fp_eval:n {\l__atableau_rows_int+\l__atableau_abacus_bottom_fp}} {-1}
+
+    % add the runner labels using the "row height" \l_tmpa_fp
+    \int_zero:N \l__atableau_c_int
+    \seq_map_inline:Nn \l__atableau_runner_labels_seq
+    {
+        \__atableau_set_bead_coordinates:nVV {a} \l_tmpa_fp \l__atableau_c_int
+        \seq_if_in:NVF \l__atableau_dotted_cols_seq \l__atableau_c_int
+        {
+            \node[aTableau/runnerLabelStyle] at (\fp_use:N\l__atableau_xa_fp,\fp_use:N\l__atableau_ya_fp){ \__atableau_entry:n{##1} };
+        }
+        \int_incr:N \l__atableau_c_int
+    }
+
     % set e when entries=residues
     \tl_if_eq:VnT \l__atableau_show_tl {residues}
     {
@@ -2768,7 +2791,7 @@
           }
     }
 
-    % draw the beads on the abacus
+    % draw the beads on the abacus last so that they are on top
     \int_step_inline:nn { \l__atableau_beads_int } % finally, add the beads, with labels and styles
     {
 
@@ -2814,28 +2837,6 @@
             }
         }
     }
-
-    % draw the top ends of the abacus -- and set \l_tmpa_fp for the runner labels
-    \typeout{TOP:~\fp_use:N\l__atableau_abacus_top_fp}
-    \__atableau_draw_abacus_end:nVn \l__atableau_abacus_top_tl \l__atableau_abacus_top_fp {1}
-
-    % add the runner labels using the "row height" \l_tmpa_fp
-    \int_zero:N \l__atableau_c_int
-    \seq_map_inline:Nn \l__atableau_runner_labels_seq
-    {
-        \__atableau_set_bead_coordinates:nVV {a} \l_tmpa_fp \l__atableau_c_int
-        \seq_if_in:NVF \l__atableau_dotted_cols_seq \l__atableau_c_int
-        {
-            \node[aTableau/runnerLabelStyle] at (\fp_use:N\l__atableau_xa_fp,\fp_use:N\l__atableau_ya_fp){ \__atableau_entry:n{##1} };
-        }
-        \int_incr:N \l__atableau_c_int
-    }
-
-    % draw the bottom ends of the abacus
-    \typeout{BOTTOM:~\fp_use:N\l__atableau_abacus_bottom_fp}
-    \__atableau_draw_abacus_end:non \l__atableau_abacus_bottom_tl
-        {\fp_eval:n {\l__atableau_rows_int+\l__atableau_abacus_bottom_fp}}
-        {-1}
 
     % remove dotted rows and columns
     \seq_if_empty:NF \l__atableau_dotted_rows_seq \__atableau_remove_dotted_abacus_rows:
