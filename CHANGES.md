@@ -6,11 +6,13 @@
 # aTableau - Change log
 
 ### Version 2.2.0 - 2025-04-?
-  - abacuses can be specified by quotients
+  - abacuses can now be specified by quotients
   - multidirectional ribbons are now supported  (still incomplete)
-  - adds `colour theme` to change the colour scheme
+  - adds the `colour theme` key, which changes the colour scheme
+  - adds the `colours` key, which allows a cyclic list of fill colours in tableaux
   - adds the `shape` key for `\RibbonTableau`
   - adds the `traditional` key for abacuses  (still incomplete)
+  - adds the `framed` key for abacuses
   - fixes bug in `beta numbers` key for abacuses
   - many improvements and corrections to the manual
 
@@ -27,9 +29,9 @@
   - key interface for the **aTableau** options
   - allow commands to be used both in and outside `tikzpicture` environments
   - a quark-based interface allows styles to be applied to tableau and abacus entries
-  - support for different tableau (english, french, ukrainian, australian) and abacus (south, west, north east) conventions
+  - support for different tableau (english, french, ukrainian, australian) and abacus (south, west, north, east) conventions
   - support diagrams, tableaux, including tabloids, skew and shifted tableaux and ribbon tableaux
-  - adds stars and styles
+  - adds stars and styles to tableaux, diagrams and abacuses
 
 ### Version 1.0.0 - 2023-10-06
   - initial version

@@ -1,6 +1,6 @@
 % ----------------------------------------------------------------------
 % atableau - Andrew Mathas (C) 2022-2025
-% Modified: 08:19 Friday, 16 May 2025
+% Modified: 14:22 Monday, 16 June 2025
 % ----------------------------------------------------------------------
 \documentclass{amsart}
 \usepackage[svgnames,table]{xcolor}
@@ -853,7 +853,7 @@
   for tableaux and abacuses, respectively.
 
   The key-value \emph{options}, or \emph{keys}, control the style and
-  appearance of the \aTableau picture. The keys are optional and are
+  appearance of an \aTableau picture. The keys are optional and are
   described in detail below, with examples. This section emphasises only
   some of these options. Every key can be set ``globally'' (inside the
   current \LaTeX\ group), by using \keyword{\aTabset{...options...}}, or
@@ -864,9 +864,9 @@
   Many of the \aTableau options are specific to the particular pictures
   being drawn. A list of the \aTableau commands and their options
   is given in \autoref{S:keys}, with the following sections giving more
-  details and many examples. The keys\footnote{Each key name is a
-  hyperlink to the corresponding section of the manual.} that are common to all
-  \aTableau commands are:
+  details and many examples. The following keys\footnote{Each key name is a
+  hyperlink to the corresponding section of the manual.} are common to all
+  \aTableau commands:
 
   \begin{options}
     \item[align]\index{align}
@@ -976,9 +976,10 @@
   \begin{warning}
      Unlike \TikZ-commands, you should \emph{not} put a semicolon after
      an \aTableau-command when it is used inside a \keyword{tikzpicture}
-     environment. If you accidentally add a semicolon, then \TikZ will
-     give you a warning but, most of the time, it will not cause any
-     harm.
+     environment.  If you do accidentally add a semicolon, \TikZ\ will
+     issue a warning. In most cases, this extra semicolon will have no
+     visible effect, but it is still best to omit it to avoid potential
+     issues.
   \end{warning}
 
   \TikZ-styling can be applied to most of the components of the
@@ -1220,8 +1221,8 @@
 
   The tableau entries can be individual characters, or they can be \TeX\
   commands. Tableaux frequently contain entries that are not single
-  characters, or given by commands. In true \TeX-style, such entries can be added to a
-  tableau by enclosing them in braces:
+  characters, or given by commands. In true \TeX-style, such entries are
+  added to a tableau by enclosing them in braces:
 
   \begin{example}
     \Tableau{ 13{10}{11}{2x}, 2{y^3}, {r_1} }
@@ -1267,7 +1268,7 @@
 
   The $*$-syntax is a quick shorthand for adding emphasis to some boxes
   in a tableau, but all of the $*$-entries are given the same style.
-  It is possible to give every box in the tableau different styles by
+  It is possible to give every box in the tableau different styling by
   putting \TikZ-styling specifications inside square brackets,
   \keyword{[...]}, before the corresponding letter in the tableau
   specification.  You can mix the $*$-syntax and the
@@ -1282,9 +1283,10 @@
       {13} }
   \end{example}
 
-  It is not necessary to add spaces between the entries in the way that
-  this example does. This is done only to make it clearer how the
-  style specifications are applied to the different entries in the tableau.
+  Again, we emphasise that it is not necessary to add spaces between the
+  entries in the way that this example does. This is done only to make
+  it clearer how the style specifications are applied to the different
+  entries in the tableau.
 
   Omitting some technicalities, each box in a tableau is constructed as
   a \TikZ node, so any \TikZ-styling specifications for a node can be
@@ -1293,7 +1295,7 @@
   \textit{fill} the box and the \textit{text colour}, which is why some
   of tableau entries in the last example appear to be blank.  If you are
   already familiar with \TikZ then you probably already know what to do.
-  If not, then here is a short list of useful style specifications for
+  If not, here is a short list of useful style specifications for
   \TikZ nodes:
   \begin{center}\index{fill}\index{text}\index{draw}\index{font}
      \begin{tabular}{ll}\toprule
@@ -1469,7 +1471,8 @@
   \end{example}
 
   \begin{example}[lefthand width=0.3\textwidth]
-  \tikzset{R/.style={fill=red!20, circle, draw=red, ultra thick}}
+  \tikzset{R/.style={fill=red!20, circle, draw=red,
+            ultra thick}}
   \Tableau[french]{12[R]3,45}
   \end{example}
 
@@ -1535,9 +1538,9 @@
   \option[false]{no border}[false/true]
 
   The \option{border} and \option{no border} keys enable and disable
-  drawing of the tableau border. The \option{no border} key is inverse
-  to \option{border}, so \option{no border} is equivalent to \option{no
-  border=true}the drawing of the (thick) border wall around a tableau.
+  drawing of the drawing of the (thick) border wall around a tableau.
+  The \option{no border} key is inverse to \option{border}, so
+  \option{no border} is equivalent to \option{no border=true}.
 
   \begin{example}
   \Tableau[ukrainian, border=false]{123,455,674} \qquad
@@ -1647,6 +1650,42 @@
     {123,45} \qquad
   \Tableau[box style={font=\small}, french]{123,45}
   \end{example}
+
+  \option[]{colours}[list of \LaTeX\ colours]
+
+  Use the \option{colours} key to assign a cyclic list of background fill colours
+  to the boxes in the tableau. The colours are specified as a
+  comma-separated list of valid \LaTeX\ colour names.
+
+  By default, the colours are applied in type~$A$ residue order. This
+  means that, when using the \option{english} convention, colours are assigned
+  cyclically:
+  \begin{itemize}[nosep]
+    \item in increasing order, from left to right, along each row, and
+    \item in decreasing order, from top to bottom, down each column.
+  \end{itemize}
+  This produces a colouring pattern consistent with type~$A$ residues used in representation theory.
+
+  \begin{example}
+    \Tableau[colours={red,green!70!blue,blue!80},
+        box text=white]{12345,67,9,{10}}    \qquad
+    \Diagram[colours={black,white}]{4^4}    \qquad
+  \end{example}
+
+  By default, the type~$A$ residue pattern is used. Other residue
+  patterns can be used by setting the \option{cartan} type, in which
+  case you will also need to manually set the quantum characteristic
+  \option{e} \textit{after} specifying the \option{colours}. For more
+  information see the description of \option{entries=residues}, and the
+  next example.
+
+  \begin{example}
+    \Diagram[colours={yellow,white,white,yellow},
+        entries=residues, cartan=C, e=3] {8,5,4}
+  \end{example}
+
+  The \option{colours} key has precedence over the \option{box fill}
+  key, so these two keys should not be used in the same picture.
 
   \option[false]{conjugate}[false/true]
 
@@ -4187,18 +4226,19 @@
 
   \subsection{Traditional abacuses}
 
-  By default, the \keyword{\Abacus} draws a ball-and-stick version of
-  the abacus, which is a common way of drawing abacuses in papers in
-  combinatorics and representation theory. When the \option{traditional}
-  key is used, the \keyword{\Abacus} command draws a more traditional
-  abacus, where the runners look like rods and the beads are disc
-  shaped. This section describes how to use the \option{traditional}
-  key, together with the additional keys for traditional abacuses.
+  By default, the \keyword{\Abacus} command produces a ball-and-stick
+  style abacus, which is commonly used in the combinatorics and
+  representation theory literature. When the \option{traditional} key is
+  enabled, \keyword{\Abacus} instead draws a more traditional-style
+  abacus, with runners look like rods and beads like discs.
+
+  This section explains how to use the \option{traditional} key, along
+  with additional options specific to traditional abacus diagrams.
 
   \option[false]{traditional}[true/false]
 
-  When using the \option{traditional} option, the \keyword{\Abacus}
-  commands draw a more  abacus that looks more like  a traditional Chinese
+  When the \option{traditional} option is used, the \keyword{\Abacus}
+  command draws an abacus that looks more like a traditional Chinese
   abacus, where the runners are drawn as rods and the beads as discs.
 
   \begin{example}
@@ -4212,12 +4252,25 @@
   traditional abacuses, so please
   \href{https://github.com/AndrewMathas/aTableau/issues}{report any problems}.
 
-  \option[0,4]{bead height }[decimal number, width in \unit{cm}]
-  \option*[0,4]{bead width}[decimal number, width in \unit{cm}]
+  \option[0.4]{bead height }[decimal number, height in \unit{cm}]
+  \option*[0.4]{bead width}[decimal number, width in \unit{cm}]
 
-  \option[0,4]{beam height}[decimal number, width in \unit{cm}]
+  \begin{example}
+    \Abacus[traditional, bead height=0.6]{3}{6,4,3,1,0} \qquad
+    \Abacus[traditional, bead width=0.2]{3}{6,4,3,1,0}
+  \end{example}
 
-  \option[0,4]{rod width}[decimal number, width in \unit{cm}]
+  \option[0.4]{beam height}[decimal number, height in \unit{cm}]
+
+  \begin{example}
+    \Abacus[traditional, beam height=0.2, bead width=0.2]{3}{6,4,3,1,0} \qquad
+  \end{example}
+
+  \option[0.4]{rod width}[decimal number, width in \unit{cm}]
+
+  \begin{example}
+    \Abacus[traditional, rod width=0.2, bead width=0.2]{3}{6,4,3,1,0} \qquad
+  \end{example}
 
   % --------------------------------------------------------------
   \section{Examples from the literature}
@@ -4295,7 +4348,7 @@
   the up and down strings to this drawing, taking as input the string
   colour, the starting box, the list of the boxes that the string goes
   through, and the final box.  At the risk of further obfuscation, this
-  could be done a little more efficiently. From the \aTableau
+  could be done with a little less code. From the \aTableau
   perspective, the most interesting feature of this picture is that it
   is a non-trivial example using the named nodes for the tableaux boxes;
   see \autoref{E:NodeNames}.
@@ -4304,7 +4357,7 @@
 \tikzset{% reusable keys for drawing the strings in the diagram using named nodes
    Cap/.style={out=45, in=135}, % caps are drawn with to[Cap]
    Cup/.style={out=315,in=225}, % cups are drawn with to[Cup]
-   % define pics for drawing the curvy up and down strings
+   % define pics for drawing the curvy up and down strings using coords O and T
    pics/ustring/.style n args = {4}{% {colour}{first coord}{wave coords}{last coord}
       code = {
           \def\last{#2} % should not be necessary
@@ -4325,7 +4378,7 @@
    },
 }
 \begin{tikzpicture}[red ribbon/.style={fill=red!40,opacity=0.4}]
- \coordinate (O) at (0,0); \coordinate (T) at (0,3.2);
+ \coordinate (O) at (0,0); \coordinate (T) at (0,3.2); % needed by the strings
  \draw(-2,0)--(2.5,0) (-2,3.2)--(2.5,3.2);
  \Diagram(0,0)[ukrainian, inner style=dotted, ribbons={(red ribbon)24rcrcrc}]{5,4^3,3}
  \pic at (T) {ustring={gray}{A-1-5}{}{A-1-5}};  % up strings
@@ -4417,6 +4470,7 @@
     \option{cartan}            & Set Cartan type for residues                        & \Yes & \Yes[abacus] \\
     \option{charge}            & Set charge for contents and residues                & \Yes & \Yes[abacus] \\
     \option{colour theme}      & Set the \aTableau colour theme                      & \Yes & \Yes \\
+    \option{colours}           & Set a cyclic list of box fill colours               & \Yes & \Yes \\
     \option{conjugate}         & Draw the conjugate tableau/diagram                  & \Yes & \No \\
     \option{e}                 & Set the quantum characteristic for residues         & \Yes & \Yes[abacus] \\
     \option{east}              & Make abacus grow in the easterly direction          & \Yes & \No \\
@@ -4501,7 +4555,7 @@
   \label{S:ColourTheme}
   \index{colour theme}
 
-  The colours in the pictures drawn by \aTableau are controlled by the six base colours:
+  The colours in \aTableau pictures are controlled by the six base colours:
   \begin{center}
     \begin{tabular}{*3l}
     aTableauMain      &
@@ -4512,11 +4566,11 @@
     aTableauRod
     \end{tabular}
   \end{center}
-  Colours of individual components of the pictures using the keys
-  described above. Creating a good colour scheme is difficult, and it is
-  partly subjective, so \aTableau provides three different colour themes
-  in the hope that one of them may appeal. The \option{colour theme} key
-  sets the colour theme.
+
+  Creating a good colour scheme is difficult, and it is partly
+  subjective. \aTableau provides three different colour themes in the
+  hope that one of these theme will appeal. The \option{colour theme}
+  key sets the colour theme.
 
   {\samepage
 
@@ -4564,15 +4618,15 @@
        aTableau/abacusTick       & Abacus ticks \\
        aTableau/borderStyle      & Tableau borders \\
        aTableau/boxStyle         & Tableau boxes\\
-       aTableau/clearBoxes       & Erase material. Used by \option{dotted rows} and \option{dotted cols}\\
+       aTableau/clearBoxes       & Erases material. Used by \option{dotted rows} and \option{dotted cols}\\
        aTableau/delimiterStyle   & Delimiter style in multitableaux and multidiagrams\\
        aTableau/dottedLine       & Adds dotted lines. Used by \option{dotted rows} and \option{dotted cols}\\
        aTableau/innerWall        & Inner tableau walls\\
        aTableau/labelStyle       & Tableau labels \\
        aTableau/leftDelimiter    & Left delimiter in multitableau\\
-       aTableau/pathBox          & Boxes on paths \\
+       aTableau/pathBox          & Boxes in paths \\
        aTableau/pathStyle        & Paths \\
-       aTableau/ribbonBox        & Boxes on ribbons \\
+       aTableau/ribbonBox        & Boxes in ribbons \\
        aTableau/ribbonStyle      & Ribbons \\
        aTableau/rightDelimiter   & Right delimiter in multitableau\\
        aTableau/runnerLabelStyle & Style of abacus runner labels\\
@@ -4580,7 +4634,7 @@
        aTableau/separatorSymbol  & Separators in multitableau\\
        aTableau/skewBorder       & Skew tableau borders \\
        aTableau/skewBox          & Skew tableau boxes \\
-       aTableau/snobBox          & Boxes on snobs \\
+       aTableau/snobBox          & Boxes in snobs \\
        aTableau/snobStyle        & Snobs \\
        aTableau/tableauStarStyle & Star style for tableaux \\
        \bottomrule
@@ -4588,12 +4642,12 @@
   \end{center}
 
   Most of these styles are quite basic, but some of them are more
-  involved. We do not recommend changing them directly because changing
-  these styles can, potentially, break \aTableau functionality. In
+  involved. We do not recommend changing any of these styles directly
+  because doing so can, potentially, break \aTableau functionality. In
   some cases, such as the tableau boxes, the \TikZ styling does not
   fully control the rendering of these features. Most of these styles
   can be changed using the key-value interface, which is another reason
-  to avoid changing them directly.
+  to avoid changing them by hand.
 
   % --------------------------------------------------------------
   \section{Feature requests and bug reports}

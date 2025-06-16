@@ -37,7 +37,7 @@ A LaTeX package for symmetric group combinatorics, with commands for:
 
 ## Author
 Andrew Mathas <br>
-&copy; 2022-0225
+&copy; 2022-2025
 
 ## Licence
 LPPL Version 1.3c  2008-05-04
