@@ -1,6 +1,6 @@
 % ----------------------------------------------------------------------
 % atableau - Andrew Mathas (C) 2022-2025
-% Modified: 14:22 Monday, 16 June 2025
+% Modified: 12:25 Sunday, 22 June 2025
 % ----------------------------------------------------------------------
 \documentclass{amsart}
 \usepackage[svgnames,table]{xcolor}
@@ -13,6 +13,7 @@
 \usepackage{siunitx}
 \usepackage{xltabular}
 \usepackage{xspace}
+\usepackage{cprotect}
 
 \usepackage{array}
 \newcolumntype{L}{>{\sffamily\color{MidnightBlue}\textbackslash}l}
@@ -723,14 +724,13 @@
   hood, everything is drawn using \TikZ (and \LaTeX3).  These commands
   can be used either as standalone commands or as part of a
   \keyword{tikzpicture} environment.  This package started as code for
-  drawing the diagrams that I need in my own research. It is written to
-  be easy to use and as
-  flexible as possible in the hope that the package will draw the
-  pictures\footnote{In this manual, ``diagram'' usually means ``Young
-  diagram'', so a ``picture'' is anything drawn by an \aTableau command.}
-  that others need.
+  drawing tableaux in my research. It is designed to be easy to use and
+  easy to customise, so that the package can draw the wide variety of
+  pictures found in the literature.\footnote{In this manual,
+  ``diagram'' usually means ``Young diagram'', so a ``picture'' is
+  anything drawn by an \aTableau command.}
 
-  For the impatient, here is an example that shows how to use the
+  For the impatient, here is an example showing how to use the
   two main commands provided by the \aTableau package:
 
   \begin{example}
@@ -741,19 +741,19 @@
   If you already know what tableaux and abacuses are, then you can
   probably work out the (basic) syntax of these two commands from this
   example and start using the package. If you do not know what tableaux
-  and abacuses are, then you probably don't need this package! In any
+  and abacuses are, then you probably do not need this package! In any
   case, you will not find the precise mathematical definitions of these
   objects in this manual, so please consult textbooks like
   \cite{Mathas:ULect,Macdonald} if you need them. For more advanced
   usage, such as adding styling, I recommend skimming through the
-  manual, and looking at the many examples.  \autoref{S:keys} gives
+  manual and looking at the many examples.  \autoref{S:keys} gives
   a summary of the \aTableau commands and their options.
 
   The \aTableau commands are intended to be easy to use and easy to
-  customise. For example, partitions can be entered either as a (weakly
-  decreasing list of non-negative) integers, or using exponential
+  customise. For example, partitions can be entered either as a weakly
+  decreasing list of non-negative integers, or using exponential
   notation, or as a sequence of beta numbers (for the \keyword{\Abacus}
-  command), and tableaux are entered as comma-separated words. The
+  command), Tableaux are entered as comma-separated words. The
   commands support the main conventions for drawing tableaux and
   diagrams.
 
@@ -787,11 +787,11 @@
 
   These examples show how the commands provided by \aTableau work: there
   are basic commands for drawing pictures, and these pictures can be
-  embellished using optional arguments, which use a key-value interface.
-  As deteailed below, it is possible to apply \TikZ-styling to the different
+  embellished with optional arguments, using a key-value interface.
+  As detailed below, it is possible to apply \TikZ-styling to the different
   components of an \aTableau picture.
 
-  The different conventions for diagrams, and tableaux, are listed in
+  The different conventions for diagrams and tableaux, are listed in
   order of (my perception of) their popularity in the literature.  By
   default, the \textit{English} convention is used, so the
   \emph{english} key can be omitted:
@@ -831,7 +831,7 @@
 
   Each of the \aTableau commands is designed to be easy to use, easy to read,
   and easy to customise. Each command accepts an optional list
-  of key-value options that modify and embellish the diagrams. In addition, optional
+  of key-value options that modify and embellish the picture drawn by the command. In addition, optional
   styling can be applied to entries of a tableau and the beads in an
   abacus.  Each command can be used as a standalone object in a
   document, or it can be incorporated into a larger
@@ -847,7 +847,7 @@
   The $(x,y)$-Cartesian coordinates%
   \footnote{Currently, only Cartesian coordinates are supported. For
   example, it is not possible to use polar coordinates.}
-  are optional, being necessary if (and only if), the diagram is part of
+  are optional, being necessary if (and only if) the diagram is part of
   a~\keyword{tikzpicture} environment. See the example below, and \autoref{SS:coordinates} and
   \autoref{SS:abcoordinates}, for more detail about using these coordinates
   for tableaux and abacuses, respectively.
@@ -871,10 +871,10 @@
   \begin{options}
     \item[align]\index{align}
     Sets the baseline for vertically aligning diagrams. The options
-    are \keyword{align=top}, \keyword{align=center}, and
-    \keyword{align=bottom}, which aligns the baseline of the diagram
+    \keyword{align=top}, \keyword{align=center}, and
+    \keyword{align=bottom} align the baseline of the diagram
     with the top, centre or bottom of the surrounding objects,
-    respectively. By default, all \aTableau pictures are centered.
+    respectively. By default, all \aTableau pictures are centred.
 
     \item[colour theme]
     The \aTableau pictures use a range of different colours for tableaux
@@ -909,7 +909,7 @@
     When used without Cartesian coordinates, all \aTableau commands are
     implicitly drawn inside a \keyword{tikzpicture} environment.  Use
     \option{tikzpicture=keys} to set the optional argument of this
-    environment. This is is equivalent to
+    environment. This is equivalent to
     \keyword{\begin{tikzpicture}[ keys ]...\end{tikzpicture}}.
 
     \item[tikz before, tikz after]\index{tikz before}\index{tikz after}
@@ -964,19 +964,19 @@
   \end{tikzpicture}
   \end{Example}
 
-  The left-hand picture shows that most of the right-hand picture is drawn
-  by the~\keyword{\Diagram} command, even though most of the commands in
-  the example are \TikZ commands. In particular, the shading of the
-  boxes in the \emph{$(1,2)$-hook}, and the \emph{$(1,2)$-rim hook}, is
-  done by the \option{ribbons} key. (In fact, the right-hand picture
-  could be drawn without using a \keyword{tikzpicture} environment by
-  using the \option{tikz after} key to add the three
+  Most of the right-hand picture is drawn by the~\keyword{\Diagram}
+  command, as shown by the left-hand picture, even though most of the
+  commands in the example are \TikZ commands. In particular, the shading
+  of the boxes in the \emph{$(1,2)$-hook} and the \emph{$(1,2)$-rim
+  hook} is done by the \option{ribbons} key. (In fact, the right-hand
+  picture could be drawn without using a \keyword{tikzpicture}
+  environment by using the \option{tikz after} key to add the three
   \keyword{\draw}-commands.)
 
   \begin{warning}
      Unlike \TikZ-commands, you should \emph{not} put a semicolon after
      an \aTableau-command when it is used inside a \keyword{tikzpicture}
-     environment.  If you do accidentally add a semicolon, \TikZ\ will
+     environment.  If you accidentally add a semicolon, \TikZ\ will
      issue a warning. In most cases, this extra semicolon will have no
      visible effect, but it is still best to omit it to avoid potential
      issues.
@@ -996,7 +996,7 @@
   From the viewpoint of \aTableau, the most important point of the last
   example is that the first \keyword{\Diagram} command is a standalone
   diagram, whereas the second one is part of a \keyword{tikzpicture}
-  environment because it was given the Cartesian coordinate $(0,0)$. A
+  environment since it was given the Cartesian coordinate $(0,0)$. A
   second important point is that this example uses four \emph{named
   coordinates}: (\textsf{A-1-1}), (\textsf{A-1-2}), (\textsf{A-4-1}),
   and (\textsf{A-4-2}). When \aTableau draws a tableau, or a diagram, it
@@ -1039,7 +1039,7 @@
   prefix \textsf{A} in these anchors using the \option{name} key.  These
   \textit{anchors} are a standard part of \TikZ.  If you change the
   shape of the node, then the available anchors may change; for more
-  information see the \TikZ manual.
+  information, see the \TikZ manual.
 
   In the example above, the Cartesian coordinate $(0,0)$ is necessary
   because the \keyword{\Diagram} command is used inside a
@@ -1069,7 +1069,7 @@
   box to these tableaux. The shading is done by the \option{ribbons}
   commands.  Notice that \option{ribbon style}, which sets the
   \TikZ-style of the ribbons, includes \keyword{opacity=0.4}.  This
-  necessary because the ribbons are drawn \textit{after} the tableau
+  is necessary because the ribbons are drawn \textit{after} the tableau
   entries; see \autoref{SS:order}.  Alternatively, these tableau entries
   could be included in the ribbon specifications, as described in
   \autoref{S:RibbonTableaux}.
@@ -1125,7 +1125,7 @@
 
   \begin{warning}
     The \aTableau package relies heavily on \ctan{LaTeX3}, so it
-    requires an update-to-date version of \LaTeX. You may need to update
+    requires an up-to-date version of \LaTeX. You may need to update
     your \LaTeX\ installation if it is older than \TeX Live 2024.
   \end{warning}
 
@@ -1135,7 +1135,7 @@
     \emph{Partitions} are weakly decreasing sequences of non-negative
     integers. They are fundamental objects in algebraic combinatorics
     and representation theory.\index{partition}  Rather than working
-    with sequences of integers, it is often useful to visualise
+    with sequences of integers, it is often more useful to visualise
     partitions as Young \emph{diagrams}, which are arrays of
     \emph{boxes}, or \emph{nodes}, in the plane%
     \footnote{In this manual, we normally refer to the entries of
@@ -1250,7 +1250,7 @@
   \end{example}
 
   In this tableau, there is an asterisk before each of the entries $2$,
-  $3$, $4$, $5$, $7$ and $11$, which gives the corresponding boxes the
+  $3$, $4$, $5$, $7$, and $11$, which gives the corresponding boxes the
   \option{star style}.  By default, $*$-entries are given the
   \TikZ-styling \keyword{fill=}\aTableauColour{StarStyle}. You can
   change the default $*$-style using the \option{star style} key:
@@ -1329,7 +1329,7 @@
   \keyword{draw=cyan,ultra thick}, which consists of a comma-separated
   list of $\TikZ-$style settings, then the entire style must be put
   inside matching square brackets and curly braces \keyword{[{...}]}.%
-  \footnote{As shown below, as better approach to define a
+  \footnote{As shown below, a better approach is to define a
   \TikZ-style whenever you are using ``complicated'' \TikZ-styles.}
   This is necessary to ensure that  \LaTeX\ does not get confused by the
   commas in the style setting (because commas are used to separate
@@ -1351,7 +1351,7 @@
   style (see \autoref{SS:order}). As a result, modifying the borders of
   the boxes is often not a good way to add emphasis to a tableau,  so
   use this sparingly. In addition, the orange circle in this example
-  looks too big, but it is what we asked for because the diameter of the
+  is too big, but it is what we asked for because the diameter of the
   circle is the horizontal width of the box. The next example shows that
   we get a better result with \textit{minimum size} specification when
   using the \textit{Australian} and \textit{Ukrainian} conventions  for
@@ -1382,8 +1382,8 @@
   control the size of the circle, which is advised when using the
   \textit{Ukrainian} or \textit{Australian} conventions. The colours
   used here, and throughout this manual, are for demonstration purposes
-  only. I recommend against such garish choices in any self-respecting
-  document!
+  only.  Such vibrant colour choices are generally not recommended for
+  self-respecting documents!
 
   % --------------------------------------------------------------
   \subsubsection{Tableau coordinates}\label{SS:coordinates}
@@ -1462,7 +1462,7 @@
 
   These four (mutually exclusive) options change the convention, or
   orientation, that is used when drawing tableaux. Rather than defining
-  these conventions precisely, we use the tried and true method in
+  these conventions precisely, we use the tried-and-true method in
   combinatorics of defining by example.
 
   \begin{example}[lefthand width=0.3\textwidth]
@@ -1489,7 +1489,7 @@
   By default, the \option{english} convention is used to draw tableaux
   and Young diagrams. The default convention can be changed using
   \keyword{\aTabset}. Capitalised names, \keyword{Australian}\!,
-  \keyword{English}\!, \keyword{French} and \keyword{Ukrainian}\!, are also
+  \keyword{English}\!, \keyword{French}\!, and \keyword{Ukrainian}\!, are also
   recognised. If, for example, your document is only going to draw
   \option{french} tableaux and diagrams, then you can specify this when
   you load the package using \keyword{\usepackage[french]{atableau}}\!,
@@ -1538,7 +1538,7 @@
   \option[false]{no border}[false/true]
 
   The \option{border} and \option{no border} keys enable and disable
-  drawing of the drawing of the (thick) border wall around a tableau.
+  the drawing of the (thick) border wall around a tableau.
   The \option{no border} key is inverse to \option{border}, so
   \option{no border} is equivalent to \option{no border=true}.
 
@@ -1581,9 +1581,9 @@
 
   The \option{box font} key sets the font used to type the entries of a
   tableau.  By default, tableau entries are typeset as mathematics, so
-  this is mainly useful for changing the font size (because, for example
-  \keyword{\bfseries $1$} does not make the $1$ bold). It is only when
-  you are using \option{text entries} that font commands like
+  this is mainly useful for changing the font size (because, for
+  example, \keyword{\bfseries $1$} does not make the $1$ bold). It is
+  only when you are using \option{text entries} that font commands like
   \keyword{\itshape} and \keyword{\bfseries} will have any effect.
 
   \begin{example}
@@ -1595,7 +1595,7 @@
   \option*[0.5]{box width=number}[a decimal giving the width in \unit{cm}]
 
 
-  Changing the convention sets the \option{box height} and \option{box
+  Changing the convention also sets the \option{box height} and \option{box
   width}, relative to the current \option{scale}. If you want to use a
   custom box height and box width, then you need to set them
   \emph{after} specifying the convention.
@@ -1627,7 +1627,7 @@
   \Tableau[ukrainian, box width=0.3]{123,455}
   \end{example}
 
-  See also the \option{scale}, \option{xscale} and \option{yscale}
+  See also the \option{scale}, \option{xscale}, and \option{yscale}
   options.
 
   \option[\aTableauColour{Main}]{box text=colour}[a \LaTeX~colour]
@@ -1664,7 +1664,7 @@
     \item in increasing order, from left to right, along each row, and
     \item in decreasing order, from top to bottom, down each column.
   \end{itemize}
-  This produces a colouring pattern consistent with type~$A$ residues used in representation theory.
+  This produces a colouring pattern consistent with Type~$A$ residues used in representation theory.
 
   \begin{example}
     \Tableau[colours={red,green!70!blue,blue!80},
@@ -1672,20 +1672,20 @@
     \Diagram[colours={black,white}]{4^4}    \qquad
   \end{example}
 
-  By default, the type~$A$ residue pattern is used. Other residue
+  By default, the Type~$A$ residue pattern is used. Other residue
   patterns can be used by setting the \option{cartan} type, in which
   case you will also need to manually set the quantum characteristic
-  \option{e} \textit{after} specifying the \option{colours}. For more
-  information see the description of \option{entries=residues}, and the
-  next example.
+  \option{e} \textit{after} specifying the list of~\option{colours}. For
+  more information see the description of \option{entries=residues}, and
+  the next example.
 
   \begin{example}
     \Diagram[colours={yellow,white,white,yellow},
         entries=residues, cartan=C, e=3] {8,5,4}
   \end{example}
 
-  The \option{colours} key has precedence over the \option{box fill}
-  key, so these two keys should not be used in the same picture.
+  The \option{colours} key overrides the \option{box fill} key, so these
+  keys cannot be used in the same picture.
 
   \option[false]{conjugate}[false/true]
 
@@ -1700,10 +1700,10 @@
   \option[centre]{halign=value}[centre, left, right]
   \option*[centre]{valign=value}[bottom, centre, top]
 
-  By default, the entries in tableaux are centered, both horizontally
+  By default, the entries in tableaux are centred, both horizontally
   and vertically, and it is your responsibility to ensure that the
   entries fit inside the tableau boxes (you can change the box
-  dimensions using the \option{box height}, \option{box width} and
+  dimensions using the \option{box height}, \option{box width}, and
   \option{scale} keys). The \option{halign} and \option{valign} keys
   provide a crude way to change the horizontal and vertical alignment of
   the box entries.
@@ -1720,7 +1720,8 @@
   \Tableau[valign=top]{qf,gpt,jb}
   \end{example}
 
-  These keys are provided for completeness only. We recommend not using them!
+  These keys are provided for completeness only.  Their use is generally
+  not recommended.
 
   \option[\aTableauColour{Inner}]{inner wall=colour}[\LaTeX~colour]
   \option*[thin, line cap=rect]{inner style=style}[\TikZ-styling]
@@ -1740,9 +1741,9 @@
   \index{style!dashed}
   If you look closely at the second tableau in \autoref{Ex:dashed}, you will
   notice that the dashes are not very clean. This is because, for
-  example, the dashes on bottom of one box do not coincide with
+  example, the dashes on the bottom of one box do not coincide with
   the dashes on the top of the adjacent box below it. Rather than
-  using \option{inner style=dashes} it is better to use something like
+  using \option{inner style=dashed} it is better to use something like
   \option{inner style=\{dash pattern=on 1pt off 2pt\}}.
 
   \begin{example}
@@ -1750,7 +1751,7 @@
     {123,455}
   \end{example}
 
-  You can use \option{inner wall=none}, to remove the inner tableau walls. Alternatively, use \option{no boxes}.
+  Use \option{inner wall=none} to remove the inner tableau walls. Alternatively, use \option{no boxes}.
 
   \begin{example}
   \Tableau[ukrainian, inner wall=none]{123,45,67} \qquad
@@ -1777,9 +1778,9 @@
   \option*[false]{text entries}[true/false]
 
   Use the \option{math entries} and \option{text entries} keys to have
-  the tableau entries typeset as either mathematics or text,
-  respectively. By default, the entries of a tableau are typeset as
-  mathematics.
+  the tableau entries typeset as either in mathematics mode or text mode,
+  respectively. By default, the entries of a tableau are typeset in
+  mathematics mode.
 
   \begin{example}
   \Tableau[math entries]{ABCD, efg, HI}\qquad% the default
@@ -1792,27 +1793,27 @@
   \textsf{(A-1-1)}, \textsf{(A-1-2)}, \textsf{(A-1-3)}, \dots, with
   \textsf{(A-$r$-$c$)} referring to the box in row~$r$ and column~$c$.
   Use \option{name} to change the \emph{prefix} \textsf{A} to
-  anything else that you like.  This feature is most useful when you
+  anything that you like.  This feature is most useful when you
   have several tableaux inside a \keyword{tikzpicture} environment
   because by using \option{name} you can refer to boxes in the different
   diagrams. If you only have one tableau, then you would not normally
   need to change the default prefix for the node names. See
   \autoref{E:NodeNames} for a description of the extended anchor names.
   For examples using node names and anchors see \autoref{Ex:ABnames},
-  \autoref{Ex:pointing} and \autoref{Ex:waves}.
+  \autoref{Ex:pointing}, and \autoref{Ex:waves}.
 
-  \option[]{paths=path specifications}[list of paths]
+  \option[]{paths=ribbon specifications}[list of paths]
   \option*[]{path style=style}[\TikZ-styling]
 
   Use the \option{paths} key to add a comma-separated list of
   \emph{ribbon paths} to the tableau. This allows you to draw certain
   types of paths inside your tableaux and diagrams.
 
-  Ribbon paths are specified using the \keyword{\RibbonTableau} syntax,
-  where you first specify the row and column indices of the \emph{head}
+  Ribbon paths are specified using the \keyword{\RibbonTableau} syntax.
+  You first specify the row and column indices of the \emph{head}
   of the ribbon, which is the unique node of maximal content in the
   ribbon, and then give a sequence of \textsf{r}'s and \textsf{c}'s
-  depending on whether the row index increases, or the column index
+  depending on whether the row index increases or the column index
   decreases, respectively.  As always, you have the option of adding
   style --- and you can also specify the contents of each box in the
   ribbon.  For more details about the ribbon specifications, with
@@ -1888,7 +1889,7 @@
 
   Use the \option{ribbons} key to add a comma-separated list of
   \emph{ribbons} to a tableau.  The ribbon specifications are identical
-  to those used for \option{paths}.  For more details see
+  to those used for \option{paths}.  For more details, see
   \autoref{S:RibbonTableaux}, which describes the
   \keyword{\RibbonTableau} command.
 
@@ -1910,10 +1911,10 @@
     ribbons={22rc}]{123,45,67}
   \end{example}
 
-  Use \option{ribbon box style} to change the default style of the
-  boxes in a ribbon. For example, noting that a box is a ribbon of
-  length~$1$, the following code uses ribbons of length one (that is,
-  nodes), to highlight the addable nodes of this tableau.
+  Use \option{ribbon box style} to change the default style of the boxes
+  in a ribbon. For example, the following code uses ribbons of
+  length~$1$ (that is, boxes), to highlight the addable boxes of this
+  tableau.
 
   \begin{example}
   \Tableau[star style={fill=green!80!blue,text=white},
@@ -1926,7 +1927,7 @@
   the diagram of the tableau, so they do not change the border of a
   tableau.
 
-  \option[]{snobs=snob specifications}[list snobs]
+  \option[]{snobs=ribbon specifications}[list snobs]
   \option*[draw=\aTableauColour{Inner}, thin]{snob style=style}[\TikZ-styling]
   \option*[]{snob box=text}[A node entry]
   \option*[]{snob box style=style}[\TikZ-styling]
@@ -1944,8 +1945,8 @@
   \end{example}
 
   The difference between this pictures and the one given above using
-  \option{ribbons} is that in the \option{snobs} are drawn over the top
-  of the tableau border, causing the border to disappear for these
+  \option{ribbons} is that \option{snobs} are drawn \textit{after}
+  the tableau border, which causes the border to disappear for these
   nodes.  For this reason, in most cases you should normally avoid
   \option{snobs} and use \option{ribbons}. This said, \option{snobs} are
   exactly what are needed in \autoref{Ex:Garnir}.
@@ -1973,7 +1974,7 @@
   \end{example}
 
   This is unlikely to be the desired output! The options \option{scale},
-  \option{xscale} and \option{yscale} can be used to rescale the boxes
+  \option{xscale}, and \option{yscale} can be used to rescale the boxes
   in tableaux and diagrams. The names are slightly misleading because
   \option{xscale} rescales in the direction of increasing column index
   and \option{yscale} rescales in the direction of increasing row index.
@@ -2000,7 +2001,7 @@
   \end{example}
 
   \begin{warning}
-    The options, \option{scale}, \option{xscale}, and \option{yscale},
+    The options \option{scale}, \option{xscale}, and \option{yscale},
     affect all \aTableau diagrams, including tableaux, Young diagrams
     and abacuses. If you want to use \keyword{\aTabset} to change the
     default sizes of the diagrams and tableaux in your document, then it
@@ -2011,7 +2012,7 @@
   \option*[0.4]{scriptscript=value}[decimal number]
 
   Although rare, tableaux and diagrams are sometimes used as subscripts
-  and superscripts. The pacakage automatically rescales tableau when
+  and superscripts. The package automatically rescales tableau when
   they are used as subscripts and superscripts, with the \option{script}
   and \option{scriptscript} keys giving finer control over the scaling
   of subscripts and subsubscripts, respectively. The current values of
@@ -2056,7 +2057,7 @@
 
   Use \option{star style} to change the style of the starred entries
   of a tableau. (In \TikZ parlance, \option{star style} \emph{appends}
-  appends these styles to the default \option{star style}.)
+  these styles to the default \option{star style}.)
 
   \begin{example}
   \Tableau[star style={text=magenta, draw=cyan, thick}]
@@ -2095,9 +2096,8 @@
   \end{example}
 
   Styles defined this way will only be available in the current picture.
-  Use \keyword{\tikzset} whenever you are defining styles that are
-  likely to be used more than once. Alternatively, you can use
-  \keyword{\aTabset{styles={...}}}.
+  Use \keyword{\tikzset} to define styles that are likely to be used
+  more than once. Alternatively, you can use \keyword{\aTabset{styles={...}}}.
 
   \option[false]{tabloid}[true/false]
 
@@ -2182,7 +2182,7 @@
   Since \option{name}=A, the nodes in this tableau are referenced as
   \textsf{(A-1-1)}, \textsf{(A-1-2)}, \textsf{(A-1-3)}, \dots. As the
   example uses \textit{remember picture}, other \keyword{tikzpicture}
-  environments can reference the node names in last tableau, which
+  environments can reference the node names in the last tableau, which
   allows us to refer back to the table above using:
 
   \vspace*{3mm}
@@ -2202,7 +2202,7 @@
   \index{composition}
 
   As we have defined them, tableaux are always of \textit{partition}
-  shape, in the sense that the lengths of the rows is a weakly
+  shape, in the sense that the lengths of the rows form a weakly
   decreasing sequence. In fact, the \keyword{\Tableau} command also
   accepts tableaux of \emph{composition} shape, where the lengths of the
   rows are not necessarily in decreasing order:
@@ -2212,11 +2212,11 @@
   \SkewTableau{1,2}{ 45,27,31 }
   \end{example}
 
-  Even though it is possible to draw compositions, and tableaux of
+  Even though it is possible to draw compositions and tableaux of
   composition shape, compositions are not supported in the sense that
   many of the options/keys assume that the diagrams are of partition
   shape.  In addition, some options assume that tableaux and diagrams do
-  not contain empty rows, and that the diagrams are \textit{connected}.
+  not contain empty rows and that the diagrams are \textit{connected}.
   (For disconnected tableaux and diagrams, see the
   \keyword{\Multidiagram} and \keyword{\Multitableau} commands in
   \autoref{S:Multitableau}.)
@@ -2233,9 +2233,9 @@
   following:
   \begin{itemize}[nosep]
     \item First, the tableau entries that use the default styling are
-    placed, in the order that they appear in the \textit{tableau
+    placed in the order that they appear in the \textit{tableau
     specifications}.
-    \item Secondly, the styled tableau entries are placed, in the order
+    \item Secondly, the styled tableau entries are placed in the order
     that they appear in the \textit{tableau specifications}.
     \item Next, the nodes in any \option{ribbons} and ribbon
     \option{paths} are placed, again in the order that the ribbons are
@@ -2246,7 +2246,7 @@
     drawn, after which the border of the tableau is drawn.
     \item The \option{dotted rows} and \option{dotted cols} keys are
     applied to replace the specified rows and columns with dots.
-    \item Finally, any \option{snobs} are drawn, in the order that they are listed.
+    \item Finally, any \option{snobs} are drawn in the order that they are listed.
   \end{itemize}
 
   All of the tableau and Young diagram commands use this drawing order.
@@ -2260,7 +2260,7 @@
 
   The characters  \textsf{[}, \textsf{,}, and \textsf{*} have
   special meanings in the \textit{tableau specifications}. Enclose these characters in
-  braces when you want to use these characters as entries in a tableau:
+  braces when you want to use them as entries in a tableau:
 
   \begin{example}
   \Tableau{ 13{,}5], 8{[}, {*} }
@@ -2352,7 +2352,7 @@
   If \option{border} is true, which it is by default, then the border of
   the tableau is drawn.  If \option{border} is false, then the border of
   the tableau is not drawn. Notice that the border refers only to the
-  outside border of the diagram, and not to the internal borders of the
+  outside border of the diagram and not to the internal borders of the
   boxes on the diagram, which can be disabled using
   \option{no boxes}.
 
@@ -2459,8 +2459,8 @@
   designed to be used with the \option{conjugate} key.
 
   \option[]{ribbons=ribbon specifications}[list of ribbon specifications]
-  \option*[]{paths=path specifications}[list of ribbon specifications]
-  \option*[]{snobs=snobs specifications}[list of ribbon specifications]
+  \option*[]{paths=ribbon specifications}[list of ribbon specifications]
+  \option*[]{snobs=ribbon specifications}[list of ribbon specifications]
 
   Use \option{ribbons}, \option{paths} and \option{snobs} to add
   ribbons, ribbon paths and snobs to a diagram, respectively. The
@@ -2571,12 +2571,16 @@
   \AddKeyLink{residues}
   \AddKeyLink{charge}
 
-  \smallskip\noindent As shown by the last last tableau, the default
-  minus sign for a negative number is too long when it appears inside a
-  tableau.  To correct for this, \aTableau uses \keyword{\shortminus}
-  for negative content values. In the second diagram above, \aTableau
-  uses \keyword{\shortminus 1} instead of \keyword{-1}, which look
-  like $\shortminus1$ and $-1$, respectively.\indexcmd{shortminus}
+  \smallskip\noindent As shown by the last tableau, the default minus
+  sign for a negative number is too long when it appears inside a
+  tableau.  To correct for this, \aTableau uses the
+  \keyword{\shortminus} command for negative content
+  values\cprotect\footnote{If not defined, \aTableau defines
+  \keyword{\shortminus} using
+  \verb|\DeclareMathSymbol\shortminus{\mathbin}{AMSa}{"39}|, .}.
+  In the second diagram above, \aTableau uses~\keyword{\shortminus 1}
+  instead of~\keyword{-1}, which look like~$\shortminus1$ and~$-1$,
+  respectively.\indexcmd{shortminus}
 
   \item\option{entries=residues}: Prints the diagram where each box is
   labelled by its \emph{residue}, which is the row index minus the
@@ -2622,7 +2626,8 @@
 
   \begin{example}
   \Diagram[entries=contents, charge=2]{3,2,1} \qquad
-  \Diagram[entries=residues, e=3, charge=1]{3,2,1}
+  \Diagram[entries=residues, e=3, charge=1,
+      colours={white,yellow,brown}]{3,2,1}
   \end{example}
 
   % --------------------------------------------------------------
@@ -3056,9 +3061,9 @@
   inside or outside the border of the diagram or tableau. As shown
   below, this allows you to place boxes outside of the ribbon tableau.
 
-  \option[]{paths=path specifications}[comma separated ribbon specifications]<ribbons>
+  \option[]{paths=ribbon specifications}[comma separated ribbon specifications]<ribbons>
   \option*[]{ribbons=ribbon specifications}[comma separated ribbon specifications]<ribbons>
-  \option*[]{snobs=snob specifications}[comma separated ribbon specifications]<ribbons>
+  \option*[]{snobs=ribbon specifications}[comma separated ribbon specifications]<ribbons>
 
   You can add \option{ribbons}<ribbons>, \option{paths}<ribbons> and
   \option{snobs}<ribbons> to a \keyword{\RibbonTableau} in exactly the
@@ -3153,7 +3158,7 @@
 
   By default, the border of a ribbon tableau is automatically calculated
   to be the smallest partition that contains all of the ribbons. Use the
-  \option{shape} key to set the border of the ribbon tableau.
+  \option{shape} key to directly set the border of the ribbon tableau.
 
   \begin{example}
       \RibbonTableau[shape={8^2,6^2}]{26crcc}
@@ -3181,7 +3186,7 @@
   \index{components}
   \index{multidiagram!components}
   \index{multitableau!components}
-  Our preferred notation for a multipartition $\blam$ is to write
+  Our preferred notation is to write the multipartition $\blam$ as
   $\blam=(\lambda^{(1)}|\lambda^{(2)}|\dots|\lambda^{(\ell)})$, where
   $\ell\ge1$ is the \emph{level} and the partitions
   $\lambda^{(1)},\dots,\lambda^{(\ell)}$ are the \emph{components}
@@ -3239,8 +3244,8 @@
   \option*[]{australian}
 
   All four tableaux conventions are supported for multitableaux and
-  multidiagrams, with the caveat that all component diagrams use the
-  same convention.
+  multidiagrams, with the caveat that all component diagrams must use
+  the same convention.
 
   \begin{example}
   \aTabset{scale=0.7}
@@ -3334,18 +3339,20 @@
   \begin{itemize}
 
     \item\option{entries=first}: Prints the \emph{first} \textbf{standard} tableau of this
-    shape, which has the numbers $1,2\dots,n$ entered in order from top
-    left to right along down successive rows (with appropriate modifications for
-    the non-English conventions).
+    shape, which has the numbers $1,2\dots,n$ entered in order from into
+    the rows from top to bottom, and left to right along down successive
+    rows (with appropriate modifications for the non-English
+    conventions).
 
   \begin{example}
   \Multidiagram[entries=first]{3,1^2|2^2,1}
   \end{example}
 
-    \item\option{entries=last}: Prints the \emph{last} \textbf{standard} tableau of this
-    shape, which has the numbers $1,2\dots,n$ entered in order from top
-    to bottom down successive columns, and right to left along components (with appropriate modifications for
-    the non-English conventions).
+    \item\option{entries=last}: Prints the \emph{last} \textbf{standard}
+    tableau of this shape, which has the numbers $1,2\dots,n$ entered in
+    order from top to bottom down successive columns, and right to left
+    along components (with appropriate modifications for the non-English
+    conventions).
 
   \begin{example}
   \Multidiagram[entries=last]{3,2,2|2^2}
@@ -3368,7 +3375,7 @@
   \end{example}
 
     As shown, the \option{charge} offsets the contents in each
-    component.
+    \textit{component}.
 
     \item\option{entries=residues}: Prints the diagram where each box iss
     labelled by its \emph{residue}, which is the row index minus the
@@ -3413,7 +3420,7 @@
   \emph{row} and \emph{column} indices. In a multitableau, or
   multidiagram, the box names depend on the \emph{component}, \emph{row}
   and \emph{column} indices. Explicitly, by default, in multitableaux
-  and multidiagrams the names of the take the form \textsf{A-k-r-c},
+  and multidiagrams the box names take the form \textsf{A-k-r-c},
   where~\textsf{k} is the component index,~\textsf{r} is the row index,
   and~\textsf{c} is the column index of the box.
   \footnote{This follows the convention for nodes in multidiagrams
@@ -3428,9 +3435,9 @@
     }] { 123,4*5 | 67,*89}
   \end{example}
 
-  \option[]{paths=path specifications}[a $|$-separated list of ribbon path specifications]<multi>
+  \option[]{paths=ribbon specifications}[a $|$-separated list of ribbon specifications]<multi>
   \option*[]{ribbons=ribbon specifications}[a $|$-separated list of ribbon specifications]<multi>
-  \option*[]{snobs=snob specifications}[a $|$-separated list of ribbon specifications]<multi>
+  \option*[]{snobs=ribbon specifications}[a $|$-separated list of ribbon specifications]<multi>
 
   The \option{paths}<multi>, \option{ribbons}<multi>,  and
   \option{snobs}<multi> keys work in exactly the same way for
@@ -3457,7 +3464,7 @@
   delimiters in multitableaux and multidiagram.  By default, the
   \keyword{\Multitableau} and \keyword{\Multidiagram} set
   the size of the delimiters so that they match the component diagrams, which may
-  not be what you want especially when using the \option{australian} and
+  not be what you want, especially when using the \option{australian} and
   \option{ukrainian} conventions. The value of \option{rows} can be a
   decimal number.
 
@@ -3467,23 +3474,23 @@
 
   \begin{example}
   \Multitableau[rows=3, scale=0.8, box font=\tiny]
-       {{1_1}{1_1}{1_1}{2_1},{2_1}{2_1}{2_1} |
-        {1_2}{3_3},{2_2} |
-        {1_3}{1_3},{2_3}}
+       { {1_1}{1_1}{1_1}{2_1},{2_1}{2_1}{2_1} |
+         {1_2}{3_3},{2_2}                     |
+         {1_3}{1_3},{2_3}                     }
   \end{example}
 
   \begin{example}
-  \Multitableau[ukrainian, rows=2.5, scale=0.8, box font=\tiny]
-       {{1_1}{1_1}{1_1}{2_1},{2_1}{2_1}{2_1} |
-        {1_2}{3_3},{2_2} |
-        {1_3}{1_3},{2_3}}
+    \Multitableau[french,rows=2.5,scale=0.8,box font=\tiny]
+    { {1_1}{1_1}{1_1}{2_1},{2_1}{2_1}{2_1} |
+      {1_2}{3_3},{2_2}                     |
+      {1_3}{1_3},{2_3}                     }
   \end{example}
 
   \option[true]{separators}[true/false]
   \option*[false]{no separators}[false/true]
 
   When \option{separators} is true, delimiters are drawn around the
-  component diagrams in a multitableaux and a multidiagram and
+  component diagrams in a multitableau and a multidiagram and
   separators are drawn between the component shapes, and
   \option{no separators} is the inverse option. By default, separators
   and delimiters are drawn.
@@ -3592,7 +3599,7 @@
 
   This is a slightly lazy way of drawing this multitableau because
   \option{entries=first} is used to populate most of the tableau
-  entries, afer which \option{snobs=...} is used to rewrite the
+  entries, after which \option{snobs=...} is used to rewrite the
   ``bricks'' in the homogeneous Garnir belt.
 
   % --------------------------------------------------------------
@@ -3609,14 +3616,16 @@
   The partition corresponding to an abacus is given by counting the
   number of empty bead positions before each bead on the abacus. The
   \keyword{\Abacus} command, which draws an abacus representation of a
-  partition, has a similar syntax to the tableau and diagram commands.
+  partition, has a similar syntax to the \keyword{\Tableau} and
+  \keyword{\Diagram} commands.
 
   \keyword{\Abacus (x,y) [options] {number of runners} {bead specifications}}
 
   As with other \aTableau commands, the $(x,y)$-coordinates are
   necessary if, and only if, the abacus is part of a
   \keyword{tikzpicture} environment.  The number of runners is a
-  positive integer that specifies the number of abacus runners.
+  positive integer that specifies the number of runners, or vertical
+  lines, in the abacus.
 
   % --------------------------------------------------------------
   \subsection{Bead specifications}
@@ -4291,15 +4300,15 @@
   proof of the Murnaghan-Nakayama rule.
 
   \begin{example}
-    \tikzset{C/.style={circle,draw=blue,
-              minimum size=3.5mm, fill=white,thick}}
-    \Diagram[paths={
-      [C]13_1cc_\bullet, [C]21_2r_\bullet,
-      [C]23_3c_\bullet, [C]14_4
-    }]{4,3,1} \qquad
-    \Diagram[path style={rounded corners},
-      paths={[C]12_1cr_\bullet, [C]14_2c_\bullet,
-        [C]23_3c_\bullet, [C]31_4}]{4,3,1}
+  \tikzset{C/.style={circle,draw=blue,
+            minimum size=3.5mm, fill=white,thick}}
+  \Diagram[paths={
+    [C]13_1cc_\bullet, [C]21_2r_\bullet,
+    [C]23_3c_\bullet, [C]14_4
+  }]{4,3,1} \qquad
+  \Diagram[path style={rounded corners},
+    paths={[C]12_1cr_\bullet, [C]14_2c_\bullet,
+      [C]23_3c_\bullet, [C]31_4}]{4,3,1}
   \end{example}
 
   The following ribbon tableau comes from a nice paper by
@@ -4318,6 +4327,19 @@
      62cr,81,91,{10}1,{10}2,{11}1,{11}2
   }
   \end{example}
+
+  The next example, from \cite{Muniz}, is notable mainly for the
+  right-hand tableau, which is not of skew shape.
+  \begin{Example}
+  \aTabset{no border, styles={R={fill=red!75}, B={fill=blue!55}, P={fill=magenta!70}} }
+  \SkewTableau{4,1}{[B]1,[R]1[P]112,[R]2[B]2[P]23,[R]3[B]34,[B]4} \qquad$\mapsto$\qquad
+  \SkewTableau[snobs={(draw=none)11}]{4,1}{,1112,2[B]123,3[B]24,[B]3}\qquad
+  \SkewTableau{4,2}{1,112,[R]1223,[R]234,4}\qquad
+  \SkewTableau[snobs={22_1}]{4,3}{1,12,22[P]3,334,4}
+  \end{Example}
+  Notice also the use of \option{snobs} to draw a phantom box in the
+  $(1,1)$-position of the second tableau, with the result that this
+  tableau aligns correctly with the other tableaux.
 
   The entries of a tableau are usually single characters, or numbers,
   but they can be more complicated. The paper
@@ -4398,9 +4420,9 @@
   \section{Summary of \aTableau commands and options}\label{S:keys}
   \rowcolors{2}{LightSkyBlue!10}{}
 
-  For this impatient, this section compactly lists the \aTableau
-  commands and their options. The earlier sections describe these commands and
-  show how their options, or keys, are used with many examples.
+  This section compactly lists the \aTableau commands and their options.
+  The earlier sections describe these commands and show how their
+  options, or keys, are used with many examples.
 
   The \aTableau package provides the following commands:
 
@@ -4425,11 +4447,11 @@
   \end{center}
 
   In addition, the \keyword{\aTabset} command is provided for setting
-  can default \aTableau values for the \aTableau options (and the
+  default \aTableau values for the \aTableau options (and the
   \keyword{\shortminus} command for shorter minus signs, which are used
   for contents in tableaux).
 
-  For easier reference, here is the complete list of \aTableau keys,
+  For easy reference, here is the complete list of \aTableau keys,
   together with a quick explanation of what they do. The last two
   columns indicate whether the options apply to tableau (and diagrams),
   or to abacuses~--- or both!  Options starting with \keyword{(no)} are
@@ -4572,6 +4594,14 @@
   hope that one of these theme will appeal. The \option{colour theme}
   key sets the colour theme.
 
+  It is sometimes useful to use the \aTableau colour names directly in
+  style specifications, and with \LaTeX\ colour commands. For example,
+  you can write \keyword{\textcolor{aTableauMain}{text}}. The \aTableau
+  colours are defined as HTML colours using the \keyword{\definecolor}
+  command provided by \ctan{xcolor}. In addition to changing the colour
+  theme, the key-value interface allows you to set the colours of
+  individual components in the pictures produced by \aTableau.
+
   {\samepage
 
     \option[default]{colour theme}{default,classic,natural}
@@ -4582,14 +4612,6 @@
       \item \ColourTheme{classic}
       \item \ColourTheme{natural}
     \end{itemize}
-
-  It is sometimes useful to use the \aTableau colour names directly in
-  style specifications, and with \LaTeX\ colour commands. For example,
-  you can write \keyword{\textcolor{aTableauMain}{text}}. The \aTableau
-  colours are defined as HTML colours using the \keyword{\definecolor}
-  command provided by \ctan{xcolor}. In addition to changing the colour
-  theme, the key-value interface allows you to set the colours of
-  individual components in the pictures produced by \aTableau.
 
   % --------------------------------------------------------------
   \subsection{\aTableau styles}\label{S:TikZStyles}
@@ -4659,7 +4681,7 @@
   \end{center}
   Please give as much detail as possible when making such requests.
 
-  Bug reports must be a accompanied by a \textit{minimal working
+  Bug reports must be accompanied by a \textit{minimal working
   example}, which is the smallest possible amount of \LaTeX\ code that
   demonstrates the problem and compiles---unless you are reporting a
   problem that gives a compilation error, in which case your code example
@@ -4747,6 +4769,10 @@
 \textsc{A.~Mendes}, \textit{The combinatorics of rim hook tableaux}, Australas.
   J. Combin., \textbf{73} (2019), 132--148.
 
+\bibitem{Muniz}
+\textsc{B. Muniz}, \textit{Symplectic Branching through Crystals},
+preprint, 2025.\newblock
+\href{https://arxiv.org/abs/2505.21738}, {arxiv.org/abs/2505.21738}.
 \end{thebibliography}
 
 % ----------------------------------------------------------------------

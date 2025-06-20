@@ -40,7 +40,7 @@ pdflatex atableau
 end_time=$(date +%s)
 time=$(echo "$end_time - $start_time"  | bc)
 pages=$(gawk '/Output written on atableau/ {print substr($5,2,2)}' atableau.log)
-record=$(date "+%Y-%m-%d: $(git describe --tag --abbrev=0) - ${pages} pages - ${time} seconds" )
+record=$(date "+%Y-%m-%d: $(git describe --tag --abbrev=0)   ${pages} pages   ${time} seconds" )
 
 cat $RECORD_IN
 echo
