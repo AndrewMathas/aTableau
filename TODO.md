@@ -10,13 +10,18 @@
 
   - Check coordinate placement of abacuses. It is now slightly off because of the change to the height of the abacus bar
   - Fix abacus ends to work properly with traditional and non-traditional abacuses
+  - Make `\__atableau_ribbon_tableau:n` peek for commas rather than using
+    `\clist_map_inline:nn`. Currently braces are needed for "complex"
+    style specifications in ribbon tableaux `[{...}]`. Similarly,
+    `\__atableau_abacus:nn` needs to peek.
 
 ### Features being implemented
   - Allow R and C in ribbon tableau specifications ...still needs enhancement for ribbon border...
   - Allow abacuses similar to those in suanpan-l3  ...almost done, still need to finalise the scale, borders, and the runner decorations ...
 
 ### Documentation
-  - add an example showing how to use dotted rows and columns for multitableaux
+  - Add an example showing how to use dotted rows and columns for multitableaux
+  - Fix documentation for `\NewDiagram` and `\NewTableau`
 
 ### Things we might do at some point
 

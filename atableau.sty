@@ -1,6 +1,6 @@
 % ---------------------------------------------------------------------------
 % aTableau - Andrew Mathas (C) 2022-2025
-% Modified: 11:35 Sunday, 22 June 2025
+% Modified: 15:53 Sunday, 13 July 2025
 % ---------------------------------------------------------------------------
 %
 % A LaTeX package for symmetric group combinatorics:
@@ -23,7 +23,7 @@
 
 % ---------------------------------------------------------------------------
 % aTableau release date and version number
-\def\atableau@version{2.2.0}
+\def\atableau@version{2.2.0-beta}
 \def\atableau@release{2025-04-30} % PENDING...
 
 % ---------------------------------------------------------------------------
@@ -36,20 +36,8 @@
 }
 
 % ---------------------------------------------------------------------------
-% ensure compliance with older LaTeX distributions
 \providecommand \IfFormatAtLeastTF { \@ifl@t@r \fmtversion }
-\IfFormatAtLeastTF { 2022-11-01 }
-  { }
-  {%
-    \PackageError{siunitx}{LaTeX kernel too old}
-      {%
-        You need a newer LaTeX to use this release of siunitx.\MessageBreak
-        Loading~siunitx~will~abort!%
-      }%
-    \endinput
-  }
 
-% ---------------------------------------------------------------------------
 % Correct for negative signs in contents being too long to fit in a tableau
 \ifcsname shortminus\endcsname
   % define the \shortminus command only if it does not already exist
@@ -64,8 +52,10 @@
 \DeclareRelease{\atableau@version}{\atableau@release}{atableau.sty}
 \DeclareCurrentRelease{}{\atableau@release}
 
-\ProvidesExplPackage{atableau} {\atableau@release} {\atableau@version}
-  {A latex package for symmetric group combinatorics }
+\ProvidesExplPackage{atableau}
+  {\atableau@release}
+  {\atableau@version}
+  {A package for symmetric group combinatorics}
 
 % ---------------------------------------------------------------------------
 % Give a warning if the LaTeX installation is older than TeXLive 2024
@@ -75,7 +65,8 @@
 {
     \PackageWarning {aTableau}
     {
-      The~aTableau~package~uses~many~features~from~LaTeX3.~Your~LaTeX~installation~is~not~very~recent.~If~the~package~gives~you~errors,~then~you~may~need~to~update~your~LaTeX~installation~to~at~least~TeXLive~2024.
+      The~aTableau~package~uses~many~features~from~LaTeX3.~Your~LaTeX~installation~is~not~very~recent.~
+      If~the~package~gives~you~errors,~then~you~may~need~to~update~your~LaTeX~installation~to~at~least~TeXLive~2024.
     }
 }
 
@@ -794,7 +785,7 @@
 }
 
 % usage: \__atableau_residue_D:nn
-% Computes the residue of #1 in affine type C. When e=3 this residue pattern is
+% Computes the residue of #1 in affine type D. When e=3 this residue pattern is
 %    0 1 2 3 3 2 1 0 0 1 2 3 3 2 1 0 0 1 ...
 % As with \int_mod:n, the result is left in the input stream.
 \cs_new_nopar:Npn \__atableau_residue_DD:nn #1 #2
@@ -2132,8 +2123,8 @@
 }
 
 % usage: \__atableau_add_ribbon:n {ribbon} add a ribbon to the tableau
-% The code for adding ribbons is slightly different dependning onf on whether
-% \l__atableau_ribbbon_ty[e is equal to 'ribbon' or 'path'
+% The code for adding ribbons is slightly different depending on on whether
+% \l__atableau_ribbbon_sty[e is equal to 'ribbon' or 'path'
 \cs_new_protected:Npn \__atableau_add_ribbon:n #1
 {
     % reset the sequences that store the ribbon specifications data
@@ -3697,6 +3688,26 @@
 \NewDocumentCommand\Tabloid{ d() O{} m }
 {
     \__atableau_tikzpicture:nnn {tabloid,#2} {#1} { \__atableau_draw_tableau:n {#3} }
+}
+
+% Define a custom diagram command
+\NewDocumentCommand\NewDiagram{ mm }
+{
+    % \NewDiagramCommand (x,y) [style] {entries}
+    \NewDocumentCommand#1{ d() O{} m }
+    {
+        \__atableau_tikzpicture:nnn {#2,##2} {##1} { \__atableau_draw_diagram:n {##3} }
+    }
+}
+
+% Define a custom tableau command
+\NewDocumentCommand\NewTableau{ mm }
+{
+    % \NewTableauCommand (x,y) [style] {entries}
+    \NewDocumentCommand#1{ d() O{} m }
+    {
+        \__atableau_tikzpicture:nnn {#2,##2} {##1} { \__atableau_draw_tableau:n {##3} }
+    }
 }
 
 \NewDocumentCommand\aTabset{ m }{ \keys_set:nn { atableau } {#1} }

@@ -5,14 +5,16 @@
 
 # aTableau - Change log
 
-### Version 2.2.0 - 2025-04-?
+### Version 2.2.0 - 2025-?
   - abacuses can now be specified by quotients
-  - multidirectional ribbons are now supported  (still incomplete)
   - adds the `colour theme` key, which changes the colour scheme
-  - adds the `colours` key, which allows a cyclic list of fill colours in tableaux
+  - adds the `colours` key, which sets a cyclic list of fill colours for tableaux
+  - adds the `framed` key for abacuses
   - adds the `shape` key for `\RibbonTableau`
   - adds the `traditional` key for abacuses  (still incomplete)
-  - adds the `framed` key for abacuses
+  - adds the `\NewTableau` and `\NewDiagram` commands for creating
+    custom pictures
+  - adds support for multidirectional ribbons (still incomplete)
   - fixes bug in `beta numbers` key for abacuses
   - many improvements and corrections to the manual
 
