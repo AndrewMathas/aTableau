@@ -1,6 +1,6 @@
 % ----------------------------------------------------------------------
 % atableau - Andrew Mathas (C) 2022-2025
-% Modified: 16:17 Sunday, 13 July 2025
+% Modified: 21:33 Sunday, 13 July 2025
 % ----------------------------------------------------------------------
 \documentclass{amsart}
 \usepackage[svgnames,table]{xcolor}
@@ -878,7 +878,7 @@
   details and many examples.
 
   The following keys\footnote{Throughout the manual, each key name is a
-  hyperlink to the corresponding section of the manual.}
+  hyperlink to the (first) description of the key in the manual.}
   can be use with all \aTableau commands:
 
   \begin{options}
@@ -978,13 +978,13 @@
   \end{Example}
 
   Most of the right-hand picture is drawn by the~\keyword{\Diagram}
-  command, as shown by the left-hand picture, even though most of the
-  commands in the example are \TikZ commands. In particular, the shading
-  of the boxes in the \emph{$(1,2)$-hook} and the \emph{$(1,2)$-rim
-  hook} is done by the \option{ribbons} key. (In fact, the right-hand
-  picture could be drawn without using a \keyword{tikzpicture}
-  environment by using the \option{tikz after} key to add the three
-  \keyword{\draw}-commands.)
+  command, which is exactly the same as the left-hand picture, even
+  though most of the commands in the \keyword{tikzpicture} environment
+  are \TikZ commands. In particular, the shading of the boxes in the
+  \emph{$(1,2)$-hook} and the \emph{$(1,2)$-rim hook} is done by the
+  \option{ribbons} key. (In fact, the right-hand picture could be drawn
+  without using a \keyword{tikzpicture} environment by using the
+  \option{tikz after} key to add the three \keyword{\draw}-commands.)
 
   \begin{warning}
      Unlike \TikZ-commands, you should \emph{not} put a semicolon after
@@ -1139,10 +1139,10 @@
 
 
   \begin{warning}
-    The \aTableau package relies heavily recent advances in
-    \ctan{LaTeX3}, so it requires an up-to-date version of \LaTeX. You
-    may need to update your \LaTeX\ installation if it is older than
-    \TeX Live 2024.
+    The \aTableau package requires an up-to-date version of \LaTeX\
+    because it relies heavily on recent advances in \ctan{LaTeX3}. You may
+    need to update your \LaTeX\ installation if it is older than \TeX
+    Live 2024.
   \end{warning}
 
   % --------------------------------------------------------------
@@ -1816,12 +1816,12 @@
   By default, the boxes can be referenced using the node names
   \textsf{(A-1-1)}, \textsf{(A-1-2)}, \textsf{(A-1-3)}, \dots, with
   \textsf{(A-$r$-$c$)} referring to the box in row~$r$ and column~$c$.
-  Use \option{name} to change the \emph{prefix} \textsf{A} to
-  anything that you like.  This feature is most useful when you
-  have several tableaux inside a \keyword{tikzpicture} environment
-  because by using \option{name} you can refer to boxes in the different
-  diagrams. If you only have one tableau, then you would not normally
-  need to change the default prefix for the node names. See
+  Use \option{name} to change the \emph{prefix} \textsf{A} to anything
+  that you like.  This feature is most useful when you have several
+  tableaux inside a \keyword{tikzpicture} environment because you can
+  refer to boxes in the different diagrams by giving each tableau a
+  different \option{name}. If you only have one tableau, then you do
+  not normally need to change the default prefix for the node names. See
   \autoref{E:NodeNames} for a description of the extended anchor names.
   For examples using node names and anchors see \autoref{Ex:ABnames},
   \autoref{Ex:pointing}, and \autoref{Ex:waves}.
@@ -2273,10 +2273,10 @@
     listed. For each ribbon, first the border of the ribbon is drawn,
     together with any styling for the ribbon, and then the boxes in the
     ribbon, together with any styling, are added.
-    \item When enabled by \option{skew border}, the skew border is
-    drawn, after which the border of the tableau is drawn.
-    \item The \option{dotted rows} and \option{dotted cols} keys are
-    applied to replace the specified rows and columns with dots.
+    \item The key border, when by \option{skew border}, and the border
+    of the tableau are drawn.
+    \item The \option{dotted rows} and \option{dotted cols} keys
+    replace the specified rows and columns with dots.
     \item Finally, any \option{snobs} are drawn in the order that they are listed.
   \end{itemize}
 
@@ -2289,16 +2289,21 @@
   \index{tableau!*}
   \index{tableau![}
 
-  The characters  \textsf{[}, \textsf{,}, and \textsf{*} have
-  special meanings in the \textit{tableau specifications}. Enclose these characters in
-  braces when you want to use them as entries in a tableau:
+  The three characters\space
+  \keyword[width=1.5em,height=1em]{,} \space
+  \keyword[width=1.5em,height=1em]{*} \space
+  \keyword[width=1.5em,height=1em]{[} \space
+  each have a special meanings in the \textit{tableau specifications}.
+  Enclose these characters in braces if you want to use these characters as
+  entries in a tableau:
 
   \begin{example}
   \Tableau{ 13{,}5], 8{[}, {*} }
   \end{example}
 
   There is no need to enclose~\keyword{]} in braces because it only
-  becomes special when it has a partner~\keyword{[}.
+  becomes special when there is a matching~\keyword{[}, which is
+  not surrounded by braces.
 
   % --------------------------------------------------------------
   \subsection{Young diagrams}
@@ -2335,15 +2340,15 @@
 
   \begin{example}
   \Diagram{4,3^2,1^3} \qquad
-  \Diagram{4,3,3,1}
+  \Diagram{4,3,3,1^2}
   \end{example}
 
   Internally, \keyword{\Diagram} actually does something like the first
   example in this section, so all of the options for the
   \keyword{\Tableau} command can be used with \keyword{\Diagram}. Rather
   than repeating all of the \keyword{\Tableau} options in this section,
-  we highlight the more interesting ones, together with some new,
-  diagram specific, keys.
+  we highlight the keys that are more interesting for diagrams, together with
+  some new, diagram specific, keys.
 
   \begin{samepage}
   Just like the \keyword{\Tableau} command, \keyword{\Diagram} supports the
@@ -2381,11 +2386,11 @@
   \option*[false]{no border}[false/true]
 
   If \option{border} is true, which it is by default, then the border of
-  the tableau is drawn.  If \option{border} is false, then the border of
+  the tableau is drawn using slightly thicker lines than the internals
+  walls of the diagram. If \option{border} is false, then the border of
   the tableau is not drawn. Notice that the border refers only to the
   outside border of the diagram and not to the internal borders of the
-  boxes on the diagram, which can be disabled using
-  \option{no boxes}.
+  boxes on the diagram, which can be disabled using \option{no boxes}.
 
   \begin{example}
   \Diagram[border=false]{3,2,1} \qquad
@@ -2401,7 +2406,7 @@
   \option*[false]{no boxes}[false/true]
 
   The \option{boxes} and \option{no boxes} keys control whether or not
-  the internal wall around the boxes are drawn, with these two keys
+  the internal walls around the boxes are drawn, with these two keys
   being inverses of each other. By default, \option{boxes} is true, so
   the internal boxes are drawn.  When \option{no boxes} is in force
   (equivalently, \option{boxes} is false), the internal walls around
@@ -2428,7 +2433,7 @@
   The \option{dotted rows} and \option{dotted cols} keys draw diagrams
   where the specified rows and columns are replaced with dots. This
   makes it possible to draw \emph{generic} diagrams, where the number of
-  rows and columns is not fully specified.
+  rows and columns are not specified completely.
 
   \begin{example}
   \aTabset{scale=0.7}
@@ -2437,7 +2442,7 @@
     no boxes] {6,5,4,3,2,1}
   \end{example}
 
-  As shown, if row and columns indices are in increasing
+  As this example suggests, if the row and columns indices are in increasing
   \textit{consecutive} order, then the corresponding rows or columns are
   replaced as a block. Non-consecutive indices are treated separately.
 
@@ -2467,7 +2472,7 @@
   \end{example}
 
   When using these two keys together, you need to be careful when
-  choosing which rows and columns to remove because, otherwise,
+  choosing which rows and columns to remove because, sometimes,
   artefacts can remain. Ideally, the endpoints of the rows and columns
   being removed should not overlap. For example, consider the two
   pictures:
@@ -2495,7 +2500,8 @@
 
   Use \option{ribbons}, \option{paths} and \option{snobs} to add
   ribbons, ribbon paths and snobs to a diagram, respectively. The
-  \option{snobs} are drawn after the border of the diagram.
+  \option{paths} and \option{ribbons} are drawn before the border of the
+  diagram is drawn, whereas the \option{snobs} are drawn after the border.
 
   \begin{example}
   \Diagram[french, ribbons={*22*c_4*r*r}]{3,2^2,1} \qquad
@@ -2606,9 +2612,9 @@
   sign for a negative number is too long when it appears inside a
   tableau.  To correct for this, \aTableau uses the
   \keyword{\shortminus} command for negative content
-  values\cprotect\footnote{If not defined, \aTableau defines
+  values\cprotect\footnote{If not already defined, \aTableau defines
   \keyword{\shortminus} using
-  \verb|\DeclareMathSymbol\shortminus{\mathbin}{AMSa}{"39}|, .}.
+  \verb|\DeclareMathSymbol\shortminus{\mathbin}{AMSa}{"39}|.}.
   In the second diagram above, \aTableau uses~\keyword{\shortminus 1}
   instead of~\keyword{-1}, which look like~$\shortminus1$ and~$-1$,
   respectively.\indexcmd{shortminus}
@@ -2653,7 +2659,9 @@
   \end{example}
 
   \end{itemize}
-  Use \option{charge} to add offsets to the \option{contents} and \option{residues}.
+
+  Use \option{charge} to add offsets to the \option{contents} and \option{residues} {(}and
+  use \option{colours} for residue-compatible shadings).
 
   \begin{example}
   \Diagram[entries=contents, charge=2]{3,2,1} \qquad
@@ -2937,7 +2945,7 @@
   \keyword{tikzpicture} environment. All of the keys for the
   \keyword{\Tableau} command can be used with the ribbon command, so we
   refer to \autoref{S:Tableau} for a description of the available
-  options.
+  keys.
 
   % --------------------------------------------------------------
   \subsubsection{Ribbon specifications}
@@ -2964,10 +2972,11 @@
   \end{example}
 
   By default, the border of a ribbon tableau is the smallest (skew)
-  partition that contains all of its ribbons (the border can be
-  specified with the \option{shape} key).  In the last example, the
+  partition that contains all of its ribbons (it is also possible to set
+  the border with the \option{shape} key). In the last example, the
   \option{no border} key is used to disable the ribbon tableau border to
-  highlight ribbon, which is the full diagram for these two tableaux.
+  highlight ribbon, because in these examples the ribbon and tableaux
+  borders coincide.
 
   The following diagram shows a see-sawing ribbon with head in row~$1$
   and column~10, and tail in row~$5$ and column~$1$.
@@ -2991,14 +3000,18 @@
   }
   \end{example}
 
-  In particular, the yellow box in this example highlights that boxes
-  are ribbons of length~$1$. Most of the time, you want to style the
-  entire ribbon rather than styling the individual boxes in the ribbon.
-  Optionally, the style for the entire ribbon can be given inside
-  parentheses $(...)$ at the \textit{beginning} of the ribbon
-  specification. Unlike the other style specifications, the
-  $*$-shorthand for the \option{star style} cannot be applied to an
-  entire ribbon.
+  This ribbon tableau is built from five ribbons, each of which is given
+  on a separate line inside the \keyword{\RibbonTableau} command. Except
+  for the last ribbon, all of these ribbons start in row one. The yellow
+  box is drawn by the last ribbon, which consists of a single box in row
+  $2$ and column~$3$.
+
+  Often you want to style the entire ribbon, instead of styling
+  the individual boxes in the ribbon. The (optional) style for a
+  entire ribbon is given inside parentheses $(...)$ at the
+  \textit{beginning} of the ribbon specification. If we use the
+  \keyword{(...)}-styling the ribbons in the last example are much
+  easier to see:
 
   \begin{example}
   \RibbonTableau{
@@ -3010,16 +3023,19 @@
   }
   \end{example}
 
-  The styles for a ribbon, which are given inside parentheses
-  \keyword{(...)}, are applied to the region bounded by  the closed path
-  given by the border of the ribbon. The ribbon style is applied first,
-  after which any boxes in ribbon are drawn.  As the orange and yellow
-  ribbons in example show, the style of any box in the ribbon takes
-  precedence over the style of the full ribbon.
+  Unlike the other style specifications, the $*$-shorthand for the
+  \option{star style} cannot be applied to an entire ribbon.
+
+  The \keyword{(...)}-style of a ribbon is applied to the region bounded
+  by  the closed path given by the border of the ribbon. The ribbon
+  style is applied first, after which any boxes in ribbon are drawn.  As
+  the orange and yellow ribbons in example show, the style of any box in
+  the ribbon takes precedence over the \keyword{(...)}-style of the
+  ribbon.
 
   It is often useful to label some of the boxes in a ribbon, which can
-  be done by giving the box contents as a \textit{subscript} to the
-  corresponding entry in the ribbon specification:
+  be done by specifying the content of a box as a \textit{subscript} of
+  the corresponding entry in the ribbon specification:
 
   \begin{example}
   \RibbonTableau[french]    { 12_1 c_2 r_3 } \quad
@@ -3066,7 +3082,7 @@
   We have now seen the full ribbon specifications. To summarise:
   \begin{itemize}[nosep]
     \item The ribbon specification starts with optional \TikZ-styling
-    for the ribbon (or path), enclosed in~\keyword{$(...)$}.
+    for the ribbon (or path), enclosed in~\keyword{(...)}.
     \item The first entry in the ribbon is given as
     \textsf{a}\textsf{b}, if the head of the ribbon is in row \textsf{a}
     and column \textsf{b}. (Enclose \textsf{a} and \textsf{b} in braces
@@ -3078,7 +3094,7 @@
     \item Each box in the ribbon, including the head, can be
     given \TikZ-styling by prefixing it with a $*$, which gives the
     box the current \option{star style}, or by putting \TikZ-styling keys inside
-    square brackets~\keyword{$[...]$}.
+    square brackets~\keyword{[...]}.
     \item Add an entry to a box in the ribbon by adding it as a
     subscript, \textunderscore\texttt{\{entry\}}, to the corresponding
     ribbon specification for the box.
@@ -3087,13 +3103,13 @@
   When drawing the tableau border, all ribbons in a
   \keyword{\RibbonTableau} are assumed to be contained in the smallest
   Young diagram that contains the ribbons. This said, it is up to you to
-  ensure that the boxes in the ribbon do not have negative column
-  indices.  Inside a \keyword{\Diagram} or \keyword{\Tableau} command,
+  ensure that the boxes in the ribbon are contained inside a tableau.
+  Inside a \keyword{\Diagram} or \keyword{\Tableau} command,
   any ribbons added using \option{paths}, \option{ribbons}, or
   \option{snobs} do not affect the border of the diagram or tableau. You
   can draw paths, ribbons, and snobs so that their boxes are either
   inside or outside the border of the diagram or tableau. As shown
-  below, this allows you to place boxes outside of the ribbon tableau.
+  below, this allows you to place boxes outside of the tableau.
 
   \option[]{paths=ribbon specifications}[comma separated ribbon specifications]<ribbons>
   \option*[]{ribbons=ribbon specifications}[comma separated ribbon specifications]<ribbons>
@@ -3273,11 +3289,16 @@
     {123,45,67 | ... | {12}{13}{14}}
   \end{example}
 
+  \bigskip
+
   The \keyword{\Multitableau} and \keyword{\Multidiagram} commands
   accept most of the options of the \keyword{\Tableau} and
   \keyword{\Diagram} commands, together with a few options that are
-  specific to multitableaux and multidiagrams. This section describes
-  the new options, and highlights how some of the other options are used.
+  specific to multitableaux and multidiagrams.  This section describes
+  the new options, and highlights how some of the other options are
+  used.  In many cases, the key values for multitableau and multitableau
+  should be separated by the pipe symbol \keyword{|} to give the
+  corresponding key values for the component tableau and diagrams.
 
   \option[-]{english}
   \option*[]{french}
@@ -3414,11 +3435,12 @@
 
   \begin{example}
   \Multidiagram[entries=contents,
-    charge={0,2}] {3,2,1|2^2}
+    charge={0|2}] {3,2,1|2^2}
   \end{example}
 
     As shown, the \option{charge} offsets the contents in each
-    \textit{component}.
+    \textit{component}. Use \keyword{|} to separate the charges for the
+    different components.
 
     \item\option{entries=residues}: Prints the diagram where each box iss
     labelled by its \emph{residue}, which is the row index minus the
@@ -3434,7 +3456,7 @@
 
   \begin{example}
   \Multidiagram[french, entries=residues, e=3,
-    charge={1,2}]{3,2,1|1^2}
+    charge={1|2}]{3,2,1|1^2}
   \end{example}
 
   \medskip\noindent
@@ -3578,6 +3600,15 @@
   \Multidiagram[separation=0.8]{3,2 | 2^2}
   \end{example}
 
+  \option[]{shifted}[true/false]
+
+  Use the \option{shifted} key to draw shifted multitableaux and multidiagrams.
+
+  \begin{example}
+  \Multitableau[shifted]{ 1236,45 | 7{10}{11},89} \par\bigskip
+  \Multidiagram[shifted]{ 3,2 | 3,1 }
+  \end{example}
+
   \option[]{skew=partitions}[a $|$-separated list of partitions]
 
   Skew multishapes can be drawn using the \option{skew} option to
@@ -3588,14 +3619,12 @@
   \Multidiagram[skew={1|2,1}, skew boxes]{ 3,2 | 2^2 }
   \end{example}
 
-  There is no command for drawing shifted multitableau or multidiagrams.
-  Such diagrams can be drawn using the
-  \option{skew} key.  In the same way, it is possible to draw
-  multitableaux and multidiagrams with components that are a mixture of
-  non-skew, skew and shifted shapes.
+  In the same way, use the \option{skew} key to draw multitableaux and
+  multidiagrams with components that are a mixture of non-skew, skew and
+  shifted shapes.
 
   \begin{example}
-  \Multitableau[skew={0,1|0,1}]{ 1236,45 | 7{10}{11},89} \par\bigskip
+  \Multitableau[skew={1^2|1}]{ 1236,45 | 7{10},{11}{12}} \par\bigskip
   \Multidiagram[skew={|0,1}]{ 3,2 | 3,1 }
   \end{example}
 
@@ -3649,10 +3678,8 @@
   \indexcmd{NewDiagram}
   \indexcmd{NewTableau}
 
-  % TODO improve!
-
-  Sometimes, it is necessary to use multiple tableau styles within the
-  same document. While it is possible to apply the required key-value
+  Sometimes, it is necessary to use multiple tableau styles within a
+  single document. While it is possible to apply the required key-value
   settings manually to each picture using the commands and keys
   described above, a better approach is to define custom commands for
   these pictures using:
@@ -3663,7 +3690,10 @@
   \end{quote}
 
   Of course, you should replace ``\keyword{\Command}'' with whatever
-  name you want to call your command.
+  name you want to call your command. Defining a custom command helps to
+  ensure consistency throughout your document, and it also makes it
+  easier to modify the ``design specifications'' because they appear
+  in just one place.
 
   The \keyword{\NewDiagram} command creates custom diagrams, and the
   \keyword{\NewTableau} command creates custom tableaux. The commands
@@ -3674,22 +3704,28 @@
   styled.
 
   \begin{example}
-  \NewTableau\MyTab{french,border colour=magenta,
+  \NewTableau\MyTableau{french,border colour=magenta,
     box style={draw=orange,circle}}
-  \MyTab{123,45} \quad
-  \MyTab[box fill=red!20!white ]
+  \MyTableau{123,45} \quad
+  \MyTableau[box fill=red!20!white ]
     {123,[fill=orange,text=white]45}
-
-  \begin{tikzpicture}
-     \MyTab(0,0){135,*2,4}
-     \MyTab(3,0){467,9,2}
-  \end{tikzpicture}
   \end{example}
 
   Similarly, we can use these commands inside \keyword{tikzpicture}
   environments:
 
-  The \keyword{\NewDiagram} command is used in exactly the same way.
+  \begin{example}
+  \NewDiagram\MyDiagram{ukrainian,
+    box fill=orange!20,shifted}
+  \begin{tikzpicture}
+    \MyDiagram(0,0){3,2}
+    \MyDiagram(3,0)[shifted]{3,2,1}
+  \end{tikzpicture}
+  \end{example}
+
+  These two commands are mainly provided for convenience because it is
+  possible to define such commands ``by hand'' using
+  \keyword{\NewDocumentCommand}.
 
   % --------------------------------------------------------------
   \section{Abacuses} \label{S:Abacus} \index{abacus} \indexcmd{Abacus}
@@ -3791,15 +3827,15 @@
   \option{math entries} and \option{text entries}.
   \index{math entries!abacus}
   \index{text entries!abacus}
-  Finally, we note that you can use the \option{traditional} key to draw
-  a more traditional abacus display:
+  Finally, we note that a more traditional abacus display is drawn when
+  the \option{traditional} key is used.
 
   \begin{example}
   \Abacus[traditional]
     {5}{8^2_\bullet,7_+,5_a,[ball color=red]4^2_b,1^3,1_d}
   \end{example}
-  \index{no shade}
 
+  See \autoref{SS:Traditional} for more details.
 
   % --------------------------------------------------------------
   \subsection{Abacuses and quotients}\label{SS:quotients}
@@ -4321,7 +4357,9 @@
   \Abacus[tick length=0.3]{3}{6,4,3,1,0} \qquad
   \end{example}
 
-  \subsection{Traditional abacuses}
+  \subsection{Traditional abacuses}\label{SS:Traditional}
+  \index{traditional}
+  \index{abacus!traditional}
 
   By default, the \keyword{\Abacus} command produces a ball-and-stick
   style abacus, which is commonly used in the literature for algebraic
@@ -4513,6 +4551,8 @@
   The earlier sections describe these commands and show how their
   options, or keys, are used with many examples.
 
+  \subsection{\aTableau commands}
+
   The \aTableau package provides the following commands:
 
   \begin{center}
@@ -4535,13 +4575,19 @@
     \end{tabular}
   \end{center}
 
-  In addition, the \keyword{\aTabset} command is provided for setting
-  default \aTableau values for the \aTableau options and the
-  \keyword{\NewTableau} and \keyword{\NewDiagram} commands, for creating
-  custom picture commands; see \autoref{SS:NewTableau}. (Finally, the
-  package provides the \keyword{\shortminus} command for shorter minus
-  signs, which are used for contents in tableaux.)
+  In addition to the picture commands, \aTableau provides the
+  non-drawing commands:
+  \begin{enumerate}
+    \item \keyword{\aTabset} for setting default values for the \aTableau keys
+    \item \keyword{\NewTableau} for defining custom tableau commands;
+    see \autoref{SS:NewTableau}
+    \item \keyword{\NewDiagram} for defining custom diagram commands;
+    see \autoref{SS:NewTableau}
+    \item \keyword{\shortminus} for shorter minus signs, which are used
+    for contents in tableaux.
+  \end{enumerate}
 
+  \subsection{\aTableau keys}
   For easy reference, here is the complete list of \aTableau keys,
   together with a quick explanation of what they do. The last two
   columns indicate whether the options apply to tableau (and diagrams),
@@ -4549,7 +4595,7 @@
   a pair of boolean options and their inverses. If not given a true or
   false value then they are implicitly set to true. Although not
   explicitly listed, spelling variations of keys from the American
-  dialect of English are tolerated.
+  dialect of English are condoned.
 
   Here, and throughout the manual, the key names (and the green ticks
   below) are hyperlinks to the relevant sections of the manual.
@@ -4586,7 +4632,7 @@
     \option{colours}           & Set a cyclic list of box fill colours               & \Yes & \Yes \\
     \option{conjugate}         & Draw the conjugate tableau/diagram                  & \Yes & \No \\
     \option{e}                 & Set the quantum characteristic for residues         & \Yes & \Yes[abacus] \\
-    \option{east}              & Make abacus grow in the easterly direction          & \Yes & \No \\
+    \option{east}              & Make abacus grow towards the east                   & \Yes & \No \\
     \option{delimiters}        & Set delimiters for multitableaux and multidiagrams  & \Yes & \No  \\
     \option{empty}             & Symbol for empty tableau in a multitableau          & \Yes & \No \\
     \option{dotted cols}       & Specify columns to replace with dots                & \Yes & \Yes[abacus] \\
@@ -4603,7 +4649,7 @@
     \option{left delimiter}    & Set left delimiter for a multitableau               & \Yes & \No \\
     \option{math entries}      & Typeset box and label entries in math-mode          & \Yes & \Yes[abacus] \\
     \option{name}              & Prefix of named nodes                               & \Yes & \Yes[abacus] \\
-    \option{north}             & Make abacus grow in the northerly direction         & \No  & \Yes\\
+    \option{north}             & Make abacus grow towards the north                  & \No  & \Yes\\
     \option{paths}             & Add paths to a diagram or tableau                   & \Yes & \No \\
     \option{path box}          & Adds default box entry for each path                & \Yes & \No \\
     \option{path box style}    & Sets style of boxes on each path                    & \Yes & \No \\
@@ -4637,7 +4683,7 @@
     \option{snob box}          & Adds default box entry for each snob                & \Yes & \No \\
     \option{snob box style}    & Sets style of boxes on each snob                    & \Yes & \No \\
     \option{snob style}        & Sets style of a snob                                & \Yes & \No \\
-    \option{south}             & Make abacus grow in the southerly direction         & \Yes & \No \\
+    \option{south}             & Make abacus grow towards the south                  & \Yes & \No \\
     \option{star style}        & Set \TikZ-style of tableau $*$-nodes                & \Yes & \No \\
     \option{styles}            & Short-hand for defining single use \TikZ-styles     & \Yes & \Yes[abacus] \\
     \option{tabloid}           & True for a shifted tableau                          & \Yes & \No \\
@@ -4651,7 +4697,7 @@
     \option{traditional}       & Use the traditional abacus style                    & \No  & \Yes \\
     \option{ukrainian}         & Use the Ukrainian convention for tableaux           & \Yes & \No \\
     \option{valign}            & Set vertical alignment                              & \Yes & \Yes[abacus] \\
-    \option{west}              & Make abacus grow in the westerly direction          & \Yes & \No \\
+    \option{west}              & Make abacus grow towards the west                   & \Yes & \No \\
     \option{xoffsets}          & Set $x$-offsets for components in a multitableau    & \Yes & \No \\
     \option{xscale}            & Set \aTableau $x$-scale                             & \Yes & \Yes(scale-abacus) \\
     \option{yoffsets}          & Set $y$-offsets for components in a multitableau    & \Yes & \No \\

@@ -1,6 +1,6 @@
 % ---------------------------------------------------------------------------
 % aTableau - Andrew Mathas (C) 2022-2025
-% Modified: 15:53 Sunday, 13 July 2025
+% Modified: 19:27 Sunday, 13 July 2025
 % ---------------------------------------------------------------------------
 %
 % A LaTeX package for symmetric group combinatorics:
@@ -23,7 +23,7 @@
 
 % ---------------------------------------------------------------------------
 % aTableau release date and version number
-\def\atableau@version{2.2.0-beta}
+\def\atableau@version{2.2.0-b0}
 \def\atableau@release{2025-04-30} % PENDING...
 
 % ---------------------------------------------------------------------------
@@ -809,7 +809,10 @@
 % \seq_set_split:Nnn does not respect braces around singleton entries
 % such as in { 1345, 8{10}, {11}, {12} }, with the result that {11}
 % and {12} are treated as {1}{1} and {1}{2}, respectively. As this is
-% not what we want, we use \peek_charcode:NTF to do this ourselves.
+% not what we want, we use \peek_charcode:NTF to do this ourselves. As a bonus,
+% this means that comma-separated style specifications for nodes do not need to
+% be enclosed in braces as the surrounding square brackets, [...], are
+% sufficient to capture them in \__atableau_record_style:nn.
 \cs_new_protected:Npn \__atableau_peek_tableau:w
 {
     \peek_remove_spaces:n { % ignore spaces
