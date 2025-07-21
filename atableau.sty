@@ -1,6 +1,6 @@
 % ---------------------------------------------------------------------------
 % aTableau - Andrew Mathas (C) 2022-2025
-% Modified: 19:27 Sunday, 13 July 2025
+% Modified: 13:22 Monday, 21 July 2025
 % ---------------------------------------------------------------------------
 %
 % A LaTeX package for symmetric group combinatorics:
@@ -141,6 +141,8 @@
 \bool_new:N \l__atableau_border_bool      % true if drawing tableau border
 \bool_new:N \l__atableau_boxes_bool       % true if drawing inner tableau walls
 \bool_new:N \l__atableau_conjugate_bool   % true if drawing conjugate tableau/diagram
+\bool_new:N \l__atableau_cover_border_bool% true if drawing cover border
+\bool_new:N \l__atableau_cover_boxes_bool % true if drawing cover boxes
 \bool_new:N \l__atableau_framed_bool      % true if drawing framed abacus runners
 \bool_new:N \l__atableau_separators_bool  % true if drawing separators for multishapes
 \bool_new:N \l__atableau_shifted_bool     % true if a shifted tableau
@@ -202,8 +204,10 @@
 \seq_new:N \l__atableau_conjugate_seq     % conjugate partition
 \seq_new:N \l__atableau_dotted_cols_seq   % columns with dots
 \seq_new:N \l__atableau_dotted_rows_seq   % rows with dots
+\seq_new:N \l__atableau_cover_seq         % the inner partition for the cover shape
 \seq_new:N \l__atableau_multidotted_cols_seq % sequence of dotted columns for multi shapes
 \seq_new:N \l__atableau_multidotted_rows_seq % sequence of dotted rows for multi shapes
+\seq_new:N \l__atableau_multicover_seq    % a sequence of cover partitions for multi shapes
 \seq_new:N \l__atableau_multilabel_seq    % a sequence of labels for multi shapes
 \seq_new:N \l__atableau_multipaths_seq    % a sequence of ribbon paths for multi shapes
 \seq_new:N \l__atableau_multiribbons_seq  % a sequence of ribbon for multi shapes
@@ -240,6 +244,7 @@
 \tl_new:N \l__atableau_cartan_tl          % the Cartan type
 \tl_new:N \l__atableau_empty_tl           % symbol for empty tableau/diagram in a multi tableau/diagram
 \tl_new:N \l__atableau_entries_tl         % custom entries in tableau
+\tl_new:N \l__atableau_cover_border_tl    % cover border colour
 \tl_new:N \l__atableau_inner_tl           % colour of tableau inner walls
 \tl_new:N \l__atableau_label_tl           % a label to print on an tableau/diagram
 \tl_new:N \l__atableau_left_delimiter_tl  % the left delimiter for multitableau and multidiagrams
@@ -249,17 +254,17 @@
 \tl_new:N \l__atableau_path_box_tl        % node for ribbon paths
 \tl_new:N \l__atableau_prefix_tl          % prefix for node names
 \tl_new:N \l__atableau_ribbon_box_tl      % box entry for ribbons
-\tl_new:N \l__atableau_ribbon_style_tl    % optional style used for current path< ribbon or snob
 \tl_new:N \l__atableau_ribbon_path_tl     % a ribbon in the ribbon tableau
+\tl_new:N \l__atableau_ribbon_style_tl    % optional style used for current path< ribbon or snob
 \tl_new:N \l__atableau_ribbon_type_tl     % the type of ribbon, which is either path, ribbon or snob
 \tl_new:N \l__atableau_right_delimiter_tl % the right delimiter for multitableau and multidiagrams
 \tl_new:N \l__atableau_runner_tl          % abacus runner colour
-\tl_new:N \l__atableau_snob_box_tl        % box entry for snobs
 \tl_new:N \l__atableau_separator_fg_tl    % foreground colour of the separator
 \tl_new:N \l__atableau_separator_tl       % the separator between multitableau: | or , or ...
 \tl_new:N \l__atableau_shading_tl         % the type of shading to use for the abacus beads
 \tl_new:N \l__atableau_show_tl            % automatic tableau/bead labelling
 \tl_new:N \l__atableau_skew_border_tl     % skew border colour
+\tl_new:N \l__atableau_snob_box_tl        % box entry for snobs
 \tl_new:N \l__atableau_starstyle_tl       % current star style in use
 \tl_new:N \l__atableau_styled_nodes_tl    % token lists of nodes with non-default style
 \tl_new:N \l__atableau_tick_tl            % abacus tick colour
@@ -360,6 +365,14 @@
         very~thick,
         draw = \l__atableau_outer_tl,
     },
+    % cover walls
+    coverBorder/.style = {
+        % shifting allows us to use \__atableau_set_box_coordinates:nnn when drawing the border
+        shift = {(\fp_eval:n{-(\l__atableau_tab_row_dx_fp+\l__atableau_tab_col_dx_fp)*\l__atableau_box_wd_fp/2},
+                  \fp_eval:n{-(\l__atableau_tab_row_dy_fp+\l__atableau_tab_col_dy_fp)*\l__atableau_box_ht_fp/2})},
+        draw  = \l__atableau_cover_border_tl,
+        thick
+    },
     % skew walls
     skewBorder/.style = {
         % shifting allows us to use \__atableau_set_box_coordinates:nnn when drawing the border
@@ -384,6 +397,13 @@
         aTableau/innerWall,
         draw = \l__atableau_inner_tl,
         fill = \l__atableau_box_fill_tl,
+    },
+    % default cover box style
+    coverBox/.style = {
+        aTableau/aTableauBox,
+        aTableau/innerWall,
+        draw  = \l__atableau_cover_border_tl,
+        fill  = aTableauSkewFill,
     },
     % default skew box style
     skewBox/.style = {
@@ -987,7 +1007,7 @@
     }
 }
 
-% usage: \__atableau_set_partition:nn {shape|skew} {csv for partition}
+% usage: \__atableau_set_partition:nn {shape|skew|cover} {csv for partition}
 % This function allows the partition to be given either as a comma separated
 % list of integers, or as a comma separated list of integers with exponents
 % giving the multiplicity of each part. For example, 4,3,3,3,2 and 4,3^3,2
@@ -1030,7 +1050,7 @@
 }
 
 % usage: \__atableau_shape_to_content:Nn {partition sequence}
-% Return the content sequence to for a tableau of this shape
+% Return the content sequence for a tableau of this shape
 \cs_new_protected:Npn \__atableau_shape_to_content:N #1
 {
     \tl_clear:N \l__atableau_entries_tl
@@ -1479,6 +1499,31 @@
    \node[aTableau/labelStyle] at (\fp_use:N\l__atableau_xa_fp,\fp_use:N\l__atableau_ya_fp) { \__atableau_entry:n{\l__atableau_label_tl} };
 }
 
+% usage: \__atableau_draw_cover_boxes:
+% Draw the cover boxes using ribbons
+\cs_new_protected:Nn \__atableau_draw_cover_boxes:
+{
+   \group_begin:
+     % override the ribbon style inside this group
+     \tikzset{aTableau/ribbonBox/.style=aTableau/coverBox}
+     \tikzset{aTableau/ribbonStyle/.style={draw=none,fill=none}}
+     \tl_set:Nn \l__atableau_ribbon_type_tl {ribbon} % change ribbon type to ribbon
+     \int_zero:N \l__atableau_r_int
+     \seq_map_inline:Nn \l__atableau_cover_seq
+     {
+        \int_incr:N \l__atableau_r_int
+        \int_compare:nNnT {##1} > {0}
+        {
+          \tl_clear:N \l_tmpa_tl
+          \tl_put_right:Ne \l_tmpa_tl { {\int_use:N \l__atableau_r_int} }
+          \tl_put_right:Ne \l_tmpa_tl { {##1} }
+          \tl_put_right:Ne \l_tmpa_tl { \prg_replicate:nn {##1-1} {c} }
+          \__atableau_add_ribbon:V \l_tmpa_tl
+        }
+     }
+   \group_end:
+}
+
 % usage: \__atableau_draw_skew_boxes:
 % Draw the skew boxes using ribbons
 \cs_new_protected:Nn \__atableau_draw_skew_boxes:
@@ -1618,6 +1663,11 @@
 
     % draw border
     \tl_if_blank:VF \l__atableau_label_tl     { \__atableau_draw_label: }
+    \seq_if_empty:NF \l__atableau_cover_seq
+    {
+        \bool_if:NT \l__atableau_cover_boxes_bool  { \__atableau_draw_cover_boxes: }
+        \bool_if:NT \l__atableau_cover_border_bool { \__atableau_draw_border:nn {cover} {coverBorder}  }
+    }
     \bool_if:NT \l__atableau_skew_boxes_bool  { \__atableau_draw_skew_boxes: }
     \bool_if:NT \l__atableau_skew_border_bool { \__atableau_draw_border:nn {skew}  {skewBorder}  }
     \bool_if:NT \l__atableau_border_bool      { \__atableau_draw_border:nn {shape} {borderStyle} }
@@ -1872,7 +1922,13 @@
             \tl_set:No \l__atableau_label_tl {\l_tmpb_tl}
         }
 
-        % skew is handled separately because it uses set_partition
+        % cover and skew are handled separately because they use set_partition
+        \seq_if_empty:NTF \l__atableau_multicover_seq
+        { \seq_clear:N \l__atableau_cover_seq }
+        {
+            \tl_set:Nx \l_tmpb_tl {\seq_item:NV \l__atableau_multicover_seq \l__atableau_component_int}
+            \__atableau_set_partition:no {cover} {\l_tmpb_tl}
+        }
         \seq_if_empty:NTF \l__atableau_multiskew_seq
         { \seq_clear:N \l__atableau_skew_seq }
         {
@@ -3327,10 +3383,47 @@
     snob~box~style .value_required:n = true,
     snob~box~style .initial:n =,
 
-    % -- shifted, skew and tabloid shapes ------------
+    % -- shifted ------------
     shifted .bool_set:N = \l__atableau_shifted_bool,
     shifted .initial:n  = false,
 
+    % -- cover settings ------------
+    cover .code:n =
+    {
+        \tl_if_in:nnTF {#1} {|}
+        {
+            % unpack the cover tableau into \l__atableau_multicover_seq
+            \seq_set_split:Nnn \l__atableau_multicover_seq {|} {#1}
+        }
+        { \__atableau_set_partition:nn {cover} {#1} }
+    },
+    cover .value_required:n = true,
+    cover .initial:n = 0,
+
+    cover~border .bool_set:N = \l__atableau_cover_border_bool,
+    cover~border .default:n = true,
+    cover~border .initial:n  = true,
+
+    no~cover~border .bool_set_inverse:N = \l__atableau_cover_border_bool,
+    no~cover~border .default:n = true,
+
+    cover~border~style .code:n = { \__atableau_tikzset_append:nn {coverBorder} {#1} },
+    cover~border~style .value_required:n = true,
+
+    cover~boxes .bool_set:N = \l__atableau_cover_boxes_bool,
+    cover~boxes .default:n  = true,
+    cover~boxes .initial:n  = false,
+
+    no~cover~boxes .bool_set_inverse:N = \l__atableau_cover_boxes_bool,
+
+    cover~box~style .code:n = { \__atableau_tikzset_append:nn {coverBox} {#1} },
+    cover~box~style .value_required:n = true,
+
+    cover colour .tl_set:N = \l__atableau_cover_border_tl,
+    cover color .tl_set:N = \l__atableau_cover_border_tl,
+    cover colour .initial:n = aTableauSkew,
+
+    % -- skew settings ------------
     skew .code:n =
     {
         \tl_if_in:nnTF {#1} {|}
@@ -3345,6 +3438,7 @@
 
     skew~border .bool_set:N = \l__atableau_skew_border_bool,
     skew~border .initial:n  = false,
+    skew~border .default:n  = true,
 
     no~skew~border .bool_set_inverse:N = \l__atableau_skew_border_bool,
     no~skew~border .default:n = true,
@@ -3365,6 +3459,7 @@
     skew color .tl_set:N = \l__atableau_skew_border_tl,
     skew colour .initial:n = aTableauSkew,
 
+    % -- tabloid shapes ------------
     tabloid .bool_set:N = \l__atableau_tabloid_bool,
     tabloid .initial:n  = false,
 
