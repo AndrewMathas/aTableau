@@ -9,6 +9,7 @@
 ### Bugs:
 
   - Check coordinate placement of abacuses. It is now slightly off because of the change to the height of the abacus bar
+  - find a way for the path, ribbon and snob boxes to inherit colour from the ribbon style
 
 ### Features being implemented
   - Allow R and C in ribbon tableau specifications ...still needs enhancement for ribbon border...
@@ -20,7 +21,7 @@
 
 ### Documentation
   - Add an example showing how to use dotted rows and columns for multitableaux
-  - Fix documentation for `\NewDiagram` and `\NewTableau`
+  - Fix documentation for `\NewATableauCommand`
 
 ### Things we might do at some point
 

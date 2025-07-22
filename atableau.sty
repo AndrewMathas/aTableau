@@ -1,6 +1,6 @@
 % ---------------------------------------------------------------------------
 % aTableau - Andrew Mathas (C) 2022-2025
-% Modified: 13:22 Monday, 21 July 2025
+% Modified: 00:52 Wednesday, 23 July 2025
 % ---------------------------------------------------------------------------
 %
 % A LaTeX package for symmetric group combinatorics:
@@ -105,6 +105,10 @@
   { Unrecognised~abacus~label~'#1'. }
   { The~possible~abacus~labels~are~beads,~residues,~rows~and~shape}
 
+\msg_new:nnnn { aTableau } { unrecognised-atableau-command }
+  { Unrecognised~aTableau~command~'#1' }
+  { The~first parameter for \textbackslash NewaTableauCommand~must~be~the~name~of~one~of~the~aTableau~picture~commands }
+
 \msg_new:nnnn { aTableau } { unrecognised-entries }
   { Unrecognised~entries~value:~'#1' }
   { The~possible~diagram~values~for~entries~are:~contents,~first,~hooks,~last,~and~residues}
@@ -150,6 +154,7 @@
 \bool_new:N \l__atableau_skew_boxes_bool  % true if drawing skew boxes
 \bool_new:N \l__atableau_tabloid_bool     % true if a tabloid
 
+\fp_new:N \l__atableau_rotate_fp   % row index of the bottom of the abacus
 \fp_new:N \l__atableau_abacus_bottom_fp   % row index of the bottom of the abacus
 \fp_new:N \l__atableau_abacus_col_dx_fp   % change in x-coordinate between columns in an abacus
 \fp_new:N \l__atableau_abacus_col_dy_fp   % change in y-coordinate between columns in an abacus
@@ -248,7 +253,7 @@
 \tl_new:N \l__atableau_inner_tl           % colour of tableau inner walls
 \tl_new:N \l__atableau_label_tl           % a label to print on an tableau/diagram
 \tl_new:N \l__atableau_left_delimiter_tl  % the left delimiter for multitableau and multidiagrams
-\tl_new:N \l__atableau_multiprefix_tl     % prefix used when constructing multinode names
+\tl_new:N \l__atableau_multiprefix_tl     % intermediate prefix used when constructing multinode names
 \tl_new:N \l__atableau_name_tl            % name of a tableau node
 \tl_new:N \l__atableau_outer_tl           % colour of tableau outer walls
 \tl_new:N \l__atableau_path_box_tl        % node for ribbon paths
@@ -386,6 +391,7 @@
     aTableauBox/.style = {
         anchor         = center,
         inner~sep      = 0pt,
+        rotate         = \fp_use:N\l__atableau_rotate_fp,
         minimum~height = \fp_use:N \l__atableau_box_ht_fp cm,
         minimum~width  = \fp_use:N \l__atableau_box_wd_fp cm,
         shape          = \l__atableau_box_shape_tl,
@@ -1098,7 +1104,7 @@
             \bool_if:nT { \int_compare_p:nNn {##1} > {\l_tmpa_tl} && \int_compare_p:nNn {\l_tmpa_tl+####1+1} > {##1}}
             {
                 \int_incr:N \l__atableau_c_int
-                \tl_set:No \l_tmpa_tl { \seq_item:Nn \l_tmpc_seq {\l__atableau_r_int} }
+                \tl_set:No \l_tmpa_tl { \seq_item:NV \l_tmpc_seq \l__atableau_r_int }
                 \__atableau_tl_put_right_braced:No \l_tmpa_tl {\int_use:N \l__atableau_c_int}
                 \seq_set_item:NVx \l_tmpc_seq \l__atableau_r_int {\l_tmpa_tl}
             }
@@ -1215,9 +1221,8 @@
 % ---------------------------------------------------------------------------
 % draw diagram border
 
-% usage: \__atableau_draw_border:nn #1 #2 {name of sequence} {name of style}
-% The name of the sequence is either skew or shape.
-% This should probably be an N-type argument
+% usage: \__atableau_draw_border:nn {name of sequence} {name of border style}
+% The name of the sequence is cover, skew, or shape.
 \cs_new_protected:Npn \__atableau_draw_border:nn #1 #2
 {
     \int_zero:N \l__atableau_r_int  % row index
@@ -1226,15 +1231,29 @@
 
     \seq_map_inline:cn {l__atableau_#1_seq}
     {
-      % compute the endpoints of this row
-      \str_if_eq:nnF {skew} {#1}
+      % compute the endpoints of this row for skew and cover shapes
+      \str_case:nn {#1}
       {
-          \int_set:Nn \l__atableau_c_int { 0\seq_item:Nn \l__atableau_skew_seq {\l__atableau_r_int+1}}
-          \bool_if:nT { \l__atableau_tabloid_bool && \int_compare_p:nNn {\l__atableau_r_int} > {0} }
-          {
-              \int_set:Nn \l__atableau_c_int { \int_min:nn {\l__atableau_c_int} {0\seq_item:Nn \l__atableau_skew_seq {\l__atableau_r_int}} }
-          }
+        {cover}
+            { % left column depends on l__atableau_shape_seq
+              \int_set:Nn \l__atableau_c_int { 0\seq_item:Nn \l__atableau_shape_seq {\l__atableau_r_int+1}}
+              \bool_if:nT { \l__atableau_tabloid_bool && \int_compare_p:nNn {\l__atableau_r_int} > {0} }
+              {
+                  \int_set:Nn \l__atableau_c_int { \int_min:nn {\l__atableau_c_int} {0\seq_item:NV \l__atableau_shape_seq \l__atableau_r_int} }
+              }
+              \typeout{Cover:~row=\int_use:N\l__atableau_row_int,~c=\int_use:N\l__atableau_c_int,~##1}
+            }
+        {shape}
+            { % left column depends on l__atableau_skew_seq
+              \int_set:Nn \l__atableau_c_int { 0\seq_item:Nn \l__atableau_skew_seq {\l__atableau_r_int+1}}
+              \bool_if:nT { \l__atableau_tabloid_bool && \int_compare_p:nNn {\l__atableau_r_int} > {0} }
+              {
+                  \int_set:Nn \l__atableau_c_int { \int_min:nn {\l__atableau_c_int} {0\seq_item:NV \l__atableau_skew_seq \l__atableau_r_int} }
+              }
+              \typeout{Skew~row=\int_use:N\l__atableau_row_int,~c=\int_use:N\l__atableau_c_int,~##1}
+            }
       }
+
       \__atableau_set_box_coordinates:nVV {a} \l__atableau_r_int \l__atableau_c_int
       \__atableau_set_box_coordinates:nVn {b} \l__atableau_r_int {##1}
       \bool_if:nTF { \int_compare_p:n {\l__atableau_r_int = 0} || \l__atableau_tabloid_bool }
@@ -1340,8 +1359,8 @@
         ;
 
         % and between a and c, which is trickier as the skew shape plays a role
-        \int_set:No \l_tmpa_int { \int_eval:n {0\seq_item:Nn \l__atableau_skew_seq \l__atableau_row_int} }
-        \int_set:No \l_tmpb_int { \int_eval:n {\int_max:nn{\l_tmpa_int}{0\seq_item:Nn \l__atableau_skew_seq \l__atableau_r_int} }}
+        \int_set:No \l_tmpa_int { \int_eval:n {0\seq_item:NV \l__atableau_skew_seq \l__atableau_row_int} }
+        \int_set:No \l_tmpb_int { \int_eval:n {\int_max:nn{\l_tmpa_int}{0\seq_item:NV \l__atableau_skew_seq \l__atableau_r_int} }}
         \int_decr:N \l__atableau_row_int
         \int_decr:N \l__atableau_r_int
         \draw[aTableau/dottedLine]
@@ -1441,8 +1460,8 @@
         ;
 
         % and between a and c, which is trickier as the skew shape plays a role
-        \int_set:No \l_tmpa_int { \int_eval:n {0\seq_item:Nn \l_tmpa_seq \l__atableau_col_int} }
-        \int_set:No \l_tmpb_int { \int_eval:n {\int_max:nn{\l_tmpa_int}{0\seq_item:Nn \l_tmpa_seq \l__atableau_c_int} }}
+        \int_set:No \l_tmpa_int { \int_eval:n {0\seq_item:NV \l_tmpa_seq \l__atableau_col_int} }
+        \int_set:No \l_tmpb_int { \int_eval:n {\int_max:nn{\l_tmpa_int}{0\seq_item:NV \l_tmpa_seq \l__atableau_c_int} }}
         \int_decr:N \l__atableau_col_int
         \int_decr:N \l__atableau_c_int
         \draw[aTableau/dottedLine]
@@ -1512,12 +1531,13 @@
      \seq_map_inline:Nn \l__atableau_cover_seq
      {
         \int_incr:N \l__atableau_r_int
-        \int_compare:nNnT {##1} > {0}
+        \int_set:No \l__atableau_row_int { 0\seq_item:NV \l__atableau_shape_seq \l__atableau_r_int }
+        \int_compare:nNnT {##1} > {\l__atableau_row_int}
         {
           \tl_clear:N \l_tmpa_tl
           \tl_put_right:Ne \l_tmpa_tl { {\int_use:N \l__atableau_r_int} }
           \tl_put_right:Ne \l_tmpa_tl { {##1} }
-          \tl_put_right:Ne \l_tmpa_tl { \prg_replicate:nn {##1-1} {c} }
+          \tl_put_right:Ne \l_tmpa_tl { \prg_replicate:nn {##1-\l__atableau_row_int-1} {c} }
           \__atableau_add_ribbon:V \l_tmpa_tl
         }
      }
@@ -1751,10 +1771,22 @@
 % ---------------------------------------------------------------------------
 % tableaux boxes/nodes
 
-\cs_new_protected:Npn \__atableau_valign_bottom:n #1 { \vbox_to_zero:n { #1 \vss } }
-\cs_new_protected:Npn \__atableau_valign_centre:n #1 { \vbox_to_zero:n { \vss #1 \vss } }
-\cs_new_protected:Npn \__atableau_valign_top:n #1    { \vbox_to_zero:n { \vss #1 } }
-\cs_set_eq:NN  \__atableau_valign_center:n \__atableau_valign_centre:n
+% By default, tableau boxes are constructed using \__atableau_box:n = \vbox_to_zero:n
+% except when the rotate key is in play when we use \__atableau_rotated_box:n
+% to rotate the contents clockwise through \l__atableau_rotate_fp degrees so
+% that the tableau entries stay vertical
+\cs_set_eq:NN \__atableau_box:n \vbox_to_zero:n
+\cs_new_protected:Npn \__atableau_rotated_box:n #1
+{
+    \vbox_set_to_ht:Nnn \l_tmpa_box {0pt} {#1}
+    \box_rotate:Nn \l_tmpa_box {-\l__atableau_rotate_fp}
+    \box_use_drop:N \l_tmpa_box
+}
+
+\cs_new_protected:Npn \__atableau_valign_bottom:n #1 { \__atableau_box:n { #1 \vss } }
+\cs_new_protected:Npn \__atableau_valign_centre:n #1 { \__atableau_box:n { \vss #1 \vss } }
+\cs_new_protected:Npn \__atableau_valign_top:n #1    { \__atableau_box:n { \vss #1 } }
+\cs_set_eq:NN \__atableau_valign_center:n \__atableau_valign_centre:n
 
 % We use \vbox_to_zero:n and \hbox_overlap_center:n to ensure that an entry
 % does not change the height or width of the node when it is too large.
@@ -2273,7 +2305,6 @@
     % initialise the start of the path/ribbon
     \use:c {__atableau_initialise_ \l__atableau_ribbon_type_tl _head:}
 
-   %\message{row=\int_use:N\l__atableau_row_int,~col=\int_use:N\l__atableau_col_int}
     \__atableau_peek_ribbon_text:w
 }
 
@@ -3167,6 +3198,29 @@
     name .value_required:n = true,
     name .initial:n = A,
 
+    % rotating coordinate systems
+    rotate .code:n = {
+        \fp_set:Nn \l__atableau_rotate_fp {#1}
+        \cs_set_eq:NN \__atableau_box:n \__atableau_rotated_box:n
+        \fp_set:Nn \l_tmpa_fp { cosd(#1) } % cos(#1), with #1 in degrees
+        \fp_set:Nn \l_tmpb_fp { sind(#1) } % sin(#1), with #1 in degrees
+        % rotate the tableau coordinates
+        \fp_set:Nn \l__atableau_xa_fp {\l_tmpa_fp*\l__atableau_tab_col_dx_fp-\l_tmpb_fp*\l__atableau_tab_col_dy_fp}
+        \fp_set:Nn \l__atableau_tab_col_dy_fp {\l_tmpb_fp*\l__atableau_tab_col_dx_fp+\l_tmpa_fp*\l__atableau_tab_col_dy_fp}
+        \fp_set_eq:NN \l__atableau_tab_col_dx_fp \l__atableau_xa_fp
+        \fp_set:Nn \l__atableau_xa_fp {\l_tmpa_fp*\l__atableau_tab_row_dx_fp-\l_tmpb_fp*\l__atableau_tab_row_dy_fp}
+        \fp_set:Nn \l__atableau_tab_row_dy_fp {\l_tmpb_fp*\l__atableau_tab_row_dx_fp+\l_tmpa_fp*\l__atableau_tab_row_dy_fp}
+        \fp_set_eq:NN \l__atableau_tab_row_dx_fp \l__atableau_xa_fp
+        % rotate the abacus coordinates
+        \fp_set:Nn \l__atableau_xa_fp {\l_tmpa_fp*\l__atableau_abacus_col_dx_fp-\l_tmpb_fp*\l__atableau_abacus_col_dy_fp}
+        \fp_set:Nn \l__atableau_abacus_col_dy_fp {\l_tmpb_fp*\l__atableau_abacus_col_dx_fp+\l_tmpa_fp*\l__atableau_abacus_col_dy_fp}
+        \fp_set_eq:NN \l__atableau_abacus_col_dx \l__atableau_xa_fp
+        \fp_set:Nn \l__atableau_xa_fp {\l_tmpa_fp*\l__atableau_abacus_row_dx_fp-\l_tmpb_fp*\l__atableau_abacus_row_dy_fp}
+        \fp_set:Nn \l__atableau_abacus_row_dy_fp {\l_tmpb_fp*\l__atableau_abacus_row_dx_fp+\l_tmpa_fp*\l__atableau_abacus_row_dy_fp}
+        \fp_set_eq:NN \l__atableau_abacus_row_dx \l__atableau_xa_fp
+    },
+    rotate .value_required:n = true,
+
     % scaling
     scale .code:n = { \__atableau_set_xscale:n {#1} \__atableau_set_yscale:n {#1} },
     scale .value_required:n = true,
@@ -3398,7 +3452,7 @@
         { \__atableau_set_partition:nn {cover} {#1} }
     },
     cover .value_required:n = true,
-    cover .initial:n = 0,
+    cover .initial:n =,
 
     cover~border .bool_set:N = \l__atableau_cover_border_bool,
     cover~border .default:n = true,
@@ -3702,7 +3756,7 @@
                     \box_use:N \l_tmpa_box
                 }
             }
-            {   % Not in maths-mode. tcolorbox objects to using a box here
+            {   % Not in maths-mode. In the manual, tcolorbox objects to using a box here
                 \exp_last_unbraced:Ne \tikz{[\l__atableau_tikzpicture_tl]}
                   { \l__atableau_tikz_before_tl #3 \l__atableau_tikz_after_tl }
             }
@@ -3788,23 +3842,103 @@
     \__atableau_tikzpicture:nnn {tabloid,#2} {#1} { \__atableau_draw_tableau:n {#3} }
 }
 
-% Define a custom diagram command
-\NewDocumentCommand\NewDiagram{ mm }
+% Define custom aTableau commands
+% \NewATableauCommand \Commmand {tableau command name} {keys}
+\NewDocumentCommand\NewATableauCommand{ mmm }
 {
-    % \NewDiagramCommand (x,y) [style] {entries}
-    \NewDocumentCommand#1{ d() O{} m }
+    \str_case:nnF {#2}
     {
-        \__atableau_tikzpicture:nnn {#2,##2} {##1} { \__atableau_draw_diagram:n {##3} }
+        {Abacus}
+        {
+            % \NewAbacusCommand (x,y) [style] {#runners} {partition}
+            \NewDocumentCommand#1{ d() O{} m m }
+            {
+                \__atableau_tikzpicture:nnn {#3,##2} {##1} { \__atableau_abacus:nn {##3} {##4} }
+            }
+        }
+        {Diagram}
+        {
+            % \NewDiagramCommand (x,y) [style] {entries}
+            \NewDocumentCommand#1{ d() O{} m }
+            {
+                \__atableau_tikzpicture:nnn {#3,##2} {##1} { \__atableau_draw_diagram:n {##3} }
+            }
+        }
+        {Multidiagram}
+        {
+            % \Multidiagram (x,y) [style] {entries}
+            \NewDocumentCommand#1{ d() O{} m }
+            {
+                \__atableau_tikzpicture:nnn {#3,##2} {#1} { \__atableau_multidiagram:n {#3} }
+            }
+        }
+        {Multitableau}
+        {
+            % \Multitableau (x,y) [style] {entries}
+            \NewDocumentCommand#1{ d() O{} m }
+            {
+                \__atableau_tikzpicture:nnn {#3,##2} {##1} { \__atableau_multitableau:n {##3} }
+            }
+        }
+        {RibbonTableau}
+        {
+            % \RibbonTableau (x,y) [style] {entries}
+            \NewDocumentCommand#1{ d() O{} m }
+            {
+                \__atableau_tikzpicture:nnn {#3,##2} {##1} { \__atableau_ribbon_tableau:n {##3} }
+            }
+        }
+        {ShiftedDiagram}
+        {
+            % \ShiftedDiagram (x,y) [style] {entries}
+            \NewDocumentCommand#1{ d() O{} m }
+            {
+                \__atableau_tikzpicture:nnn {shifted,#3,##2} {##1} { \__atableau_draw_diagram:n {##3} }
+            }
+        }
+        {ShiftedTableau}
+        {
+            % \ShiftedTableau (x,y) [style] {entries}
+            \NewDocumentCommand#1{ d() O{} m }
+            {
+                \__atableau_tikzpicture:nnn {shifted,#3,##2} {##1} { \__atableau_draw_tableau:n {##3} }
+            }
+        }
+        {SkewDiagram}
+        {
+            % \SkewDiagram (x,y) [style] {skew shape} {entries}
+            \NewDocumentCommand#1{ d() O{} m m }
+            {
+                \__atableau_tikzpicture:nnn {skew={##3},#3,##2} {##1} { \__atableau_draw_diagram:n {##4} }
+            }
+        }
+        {SkewTableau}
+        {
+            % \SkewTableau (x,y) [style] {skew shape} {entries}
+            \NewDocumentCommand#1{ d() O{} m m }
+            {
+                \__atableau_tikzpicture:nnn {skew={##3},#3,##2} {##1} { \__atableau_draw_tableau:n {##4} }
+            }
+        }
+        {Tableau}
+        {
+            % \NewTableauCommand (x,y) [style] {entries}
+            \NewDocumentCommand#1{ d() O{} m }
+            {
+                \__atableau_tikzpicture:nnn {#3,##2} {##1} { \__atableau_draw_tableau:n {##3} }
+            }
+        }
+        {Tabloid}
+        {
+          % \Tabloid (x,y) [style] {entries}
+          \NewDocumentCommand#1{ d() O{} m }
+          {
+              \__atableau_tikzpicture:nnn {tabloid,#3,##2} {##1} { \__atableau_draw_tableau:n {##3} }
+          }
+        }
     }
-}
-
-% Define a custom tableau command
-\NewDocumentCommand\NewTableau{ mm }
-{
-    % \NewTableauCommand (x,y) [style] {entries}
-    \NewDocumentCommand#1{ d() O{} m }
     {
-        \__atableau_tikzpicture:nnn {#2,##2} {##1} { \__atableau_draw_tableau:n {##3} }
+       \msg_error:nnx {aTableau} {unrecognised-atableau-command} {#2}
     }
 }
 

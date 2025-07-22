@@ -1,6 +1,6 @@
 % ----------------------------------------------------------------------
 % atableau - Andrew Mathas (C) 2022-2025
-% Modified: 21:33 Sunday, 13 July 2025
+% Modified: 00:52 Wednesday, 23 July 2025
 % ----------------------------------------------------------------------
 \documentclass{amsart}
 \usepackage[svgnames,table]{xcolor}
@@ -151,7 +151,7 @@
     { \tl_gset:Ne \g_lastlink_tl {Key:#6} }
     \hyperref[\g_lastlink_tl]{\textsf{\color{aTableauInner}\IfBooleanT{#1}{(no)~}\l_tmpa_tl}}
     \AddIndexEntry{\l_tmpa_tl}%
-    \tl_if_empty:NF \l_tmpb_tl { \textsf{\,$=$\,}\textsf{\textcolor{orange}{\l_tmpb_tl}} }
+    \tl_if_empty:NF \l_tmpb_tl { \textsf{\,$=$}\textsf{\textcolor{orange}{\l_tmpb_tl}} }
   }
   {%
     % encourage page breaks *before* the option, rather than after it
@@ -162,7 +162,7 @@
     \noindent\textsf
     {
         \textcolor{aTableauInner}{\l_tmpa_tl}
-        \tl_if_empty:NF \l_tmpb_tl { \textcolor{orange}{$\,=\,\langle$\l_tmpb_tl$\rangle$} }
+        \tl_if_empty:NF \l_tmpb_tl { \textcolor{orange}{$\,=\langle$\l_tmpb_tl$\rangle$} }
     }
     \tl_if_blank:nF {#2}
     { ~ \tl_if_eq:nnTF{#2} {-} {(default)} {(default:~\textcolor{DarkRed}{#2})} }%
@@ -387,8 +387,7 @@
     Diagram,
     Multidiagram,
     Multitableau,
-    NewDiagram,
-    NewTableau,
+    NewATableauCommand,
     RibbonTableau,
     ShiftedDiagram,
     ShiftedTableau,
@@ -515,6 +514,7 @@
     qquad,
     quad,
     smallskip,
+    space,
   },
 }
 
@@ -681,6 +681,7 @@
 
     \aTableauHeader
 
+    \kern-4mm
     \begin{quote}
       A \LaTeX\ package for symmetric group combinatorics, including
         abacuses,
@@ -694,10 +695,7 @@
         ribbon tableau.
     \end{quote}
 
-    \begin{minipage}{0.75\textwidth}
-      \tableofcontents
-    \end{minipage}
-
+    \kern-4mm
     \aTabset{scale=0.6}
     \tikzset{
       B/.style={fill=blue!40, text=yellow},
@@ -719,6 +717,14 @@
       \Tableau(2,-1)[australian]{[B]2,[R]1[G]3[Y]4} \quad
       \Abacus(4,0.5)[abacus ends=--,scale=1.4]{3}{[b]9,[w]8,[r]8,[b]6,[b]6,[r]2,[b]1}
     \end{tikzpicture}
+
+    \bigskip
+
+    \begin{minipage}{0.75\textwidth}
+      \tableofcontents
+    \end{minipage}
+
+    \vfill
 
   \end{center}
 
@@ -904,6 +910,10 @@
     \item[name]\index{name}
     Set the prefix for the \TikZ \emph{named anchors} for the boxes and
     beads in \aTableau pictures.
+
+    \item[rotate]\index{rotate}
+    Rotate the coordinate axes for tableaux and abacuses through the specified number of
+    \textit{degrees}.
 
     \item[scale, xscale, yscale, script, scriptscript]
     \index{scale}\index{xscale}\index{yscale}\index{script}\index{scriptscript}
@@ -1451,7 +1461,9 @@
   for styling the individual boxes in a tableau. Using a key-value
   syntax, you can change aspects of the tableau produced by the
   \keyword{\Tableau} command.  The rest of this section describes these
-  keys, their default values, and gives examples of their usage.
+  keys, their default values, and gives examples of their usage.  Keys
+  are mostly, listed in alphabetical order except that some related keys
+  are grouped together.
 
   The options below can be applied to the \keyword{\Tableau}
   command by giving them as a comma-separated list inside square
@@ -1683,7 +1695,7 @@
   The \option{colours} key overrides the \option{box fill} key, so these
   two keys cannot be used in the same picture.
 
-  By default, the colours are applied sing the type~$A$ residue pattern.
+  By default, the colours are applied using the type~$A$ residue pattern.
   This means that, when using the \option{english} convention, colours
   are assigned cyclically:
   \begin{itemize}[nosep]
@@ -1720,6 +1732,45 @@
   \Tableau{123,45,67}    \qquad
   \Tableau[conjugate]{123,45,67}
   \end{example}
+
+  \option[]{cover=partition}[a partition]
+  \option*[]{skew=partition}[a partition]
+  \index{partition!cover}
+  \index{partition!skew}
+  \index{tableau!cover}
+  \index{tableau!skew}
+
+  If $\lambda$ and $\mu$ are partitions, then $\mu$ \emph{covers}
+  $\lambda$ if $\lambda\subseteq\mu$. Equivalently, $\nu$ is
+  \emph{contained} in $\lambda$ if $\nu\subseteq\lambda$.  The
+  \option{cover} and \option{skew} keys provide a mechanism for drawing
+  tableaux and diagrams of shapes $\nu\subseteq\lambda$,
+  $\lambda\subseteq\mu$ and $\nu\subseteq\lambda\subseteq\mu$. For skew
+  shapes, the more standard notation is $\lambda/\nu$, so perhaps the
+  two other shapes should be written as $\mu{\setminus}\lambda$ and
+  $\mu{\setminus}\lambda/\nu$, respectively. Irrespective of the
+  notation, \aTableau can draw each of these shapes.
+
+  \begin{example}
+  \Tableau[cover={4^2,3}]{123,45,67} \qquad
+  \Tableau[skew={2,1}]{123,45,67}
+  \end{example}
+
+  The covering and skew partitions can be given as a comma separated list of
+  positive integers, or using exponential notation. As covering partitions
+  are a type of dual \emph{skew shapes}, there are similar keys that control
+  how these pictures are drawn.
+
+  \begin{example}
+  \Tableau[cover={4^2,3}, cover boxes]{123,45,67} \qquad
+  \Tableau[skew={2,1}, skew boxes]{123,45,67}
+  \end{example}
+
+  Skew tableaux and skew diagrams are common in the literature, so
+  \aTableau provides dedicated commands, \keyword{\SkewDiagram} and
+  \keyword{\SkewTableau}, for drawing them. These commands, and the
+  options for covered and skew shapes are described in
+  \autoref{S:Skew}.
 
   \option[centre]{halign=value}[centre, left, right]
   \option*[centre]{valign=value}[bottom, centre, top]
@@ -1802,7 +1853,7 @@
   \option*[false]{text entries}[true/false]
 
   Use the \option{math entries} and \option{text entries} keys to have
-  the tableau entries typeset as either in mathematics mode or text mode,
+  the tableau entries typeset in either mathematics mode or text mode,
   respectively. By default, the entries of a tableau are typeset in
   mathematics mode.
 
@@ -1867,7 +1918,8 @@
   same symbol.
 
   \begin{example}
-  \tikzset{R/.style={red,thick},C/.style={cyan,thick}}
+  \aTabset{styles={R={red,text=red,thick},
+    C={cyan,text=cyan,thick}}}
   \Tableau[paths={(R)14ccrc,(C)23rcc},
     path box=\bullet
   ]{1234,567,89{10}}
@@ -1907,9 +1959,9 @@
   \end{example}
 
   \option[]{ribbons=ribbon specifications}[list of ribbons]
-  \option*[draw=\aTableauColour{Inner}, thin]{ribbon style=style}[\TikZ-styling]
   \option*[]{ribbon box=text}[A node entry]
   \option*[]{ribbon box style=style}[\TikZ-styling]
+  \option*[draw=\aTableauColour{Inner}, thin]{ribbon style=style}[\TikZ-styling]
 
   Use the \option{ribbons} key to add a comma-separated list of
   \emph{ribbons} to a tableau.  The ribbon specifications are identical
@@ -1952,9 +2004,9 @@
   tableau.
 
   \option[]{snobs=ribbon specifications}[list snobs]
-  \option*[draw=\aTableauColour{Inner}, thin]{snob style=style}[\TikZ-styling]
   \option*[]{snob box=text}[A node entry]
   \option*[]{snob box style=style}[\TikZ-styling]
+  \option*[draw=\aTableauColour{Inner}, thin]{snob style=style}[\TikZ-styling]
 
   Use \option{snobs} to add ribbons to the tableau, which are ribbons
   that are placed \textit{after} the border of the diagram is drawn.
@@ -1975,9 +2027,9 @@
   \option{snobs} and use \option{ribbons}. This said, \option{snobs} are
   exactly what are needed in \autoref{Ex:Garnir}.
 
-  The \option{snob box} and \option{snob box style} keys work in the
-  same way as the \option{path box} and \option{ribbon box}, and
-  \option{path box style} and \option{ribbon box style}, keys.
+  Since snobs are placed after the tableau is drawn, they provide a way
+  to add content outside of the tableau or diagram, as shown by the
+  following picture.
 
   \begin{example}
   \Diagram[entries=contents, snob style={draw=none},
@@ -1985,6 +2037,27 @@
     snobs={16, 26, 36, 46, 61_\vdots, 62_\vdots}
   ] {5^5}
   \end{example}
+
+  The \option{snob box} and \option{snob box style} keys work in the
+  same way as the \option{path box} and \option{ribbon box}, and
+  \option{path box style} and \option{ribbon box style}, keys.
+
+  \option[0]{rotate=angle}[angle in degrees]
+
+  The \option{rotate} key rotates the tableau through the specified
+  number of \textit{degrees} in an anti-clockwise direction.
+
+  \begin{example}
+  \Tableau[rotate=0]{123,45} \quad
+  \Tableau[rotate=45]{123,45} \space
+  \Tableau[rotate=160]{123,45}
+  \end{example}
+
+  Only the boxes in the tableau, not their entries, are rotated.  Only
+  one \option{rotate} key should be used in any given picture. The
+  different tableau conventions, such as \option{ukrainian} and
+  \option{australian}, should be used in preference to the
+  \option{rotate} key.
 
   \option[1]{scale=number}[a decimal number]
   \option*[1]{xscale=number}[a decimal number]
@@ -2028,20 +2101,20 @@
     The options \option{scale}, \option{xscale}, and \option{yscale},
     affect all \aTableau diagrams, including abacuses. It is better to
     use \keyword{\aTabset} to set the \option{box height} and
-    \option{box width} sizes if you want to change the default sizes of the
+    \option{box width} sizes if you only want to change the default sizes of the
     diagrams and tableaux in your document.
   \end{warning}
 
   \option[0.5]{script=value}[decimal number]
   \option*[0.4]{scriptscript=value}[decimal number]
 
-  Tableaux and diagrams are rarely, but occasionally, used as subscripts
-  or superscripts. The package automatically rescales tableau when they
-  are used as subscripts and superscripts, with the \option{script} and
-  \option{scriptscript} keys giving finer control over the sizes of
-  subscripts and subsubscripts, respectively. The values of the
-  \option{scale}, \option{xscale} and \option{yscale} keys are taken
-  into account by these keys.
+  Even though this is rarely needed, tableaux and diagrams can be used
+  as subscripts and superscripts. The package automatically rescales
+  tableau when they are used as subscripts and superscripts, with the
+  \option{script} and \option{scriptscript} keys giving finer control
+  over the sizes of subscripts and subsubscripts, respectively. The
+  values of the \option{scale}, \option{xscale} and \option{yscale} keys
+  are taken into account by these keys.
 
   \begin{example}
   $v_{\Tableau{123,45}}$ \qquad% the default
@@ -2053,7 +2126,8 @@
   Set to \textsf{true} for a shifted tableau or shifted diagram. Shifted
   tableaux, and shifted diagrams, are discussed in more detail in
   \autoref{S:Shifted}, which describes the \keyword{\ShiftedDiagram} and
-  \keyword{\ShiftedTableau} commands.
+  \keyword{\ShiftedTableau} commands, which produce pictures like the
+  following:
 
   \begin{example}
   \Tableau[shifted]{123,45} \qquad
@@ -2064,23 +2138,6 @@
   \keyword{\ShiftedDiagram{2^2,1}{3,2^2}}, respectively, can be used for
   these two pictures. See \autoref{S:Shifted} for the options specific
   to shifted tableaux and shifted diagrams.
-
-  \option[0]{skew=partition}[a partition]
-
-  Specify the skew shape for a skew tableau or skew diagram. Skew
-  tableaux, and skew diagrams, are discussed in more detail in
-  \autoref{S:Skew}, which describes the \keyword{\SkewDiagram} and
-  \keyword{\SkewTableau} commands.
-
-  \begin{example}
-  \Tableau[skew={2}]{123,45} \qquad
-  \Diagram[skew={2^2,1}]{3,2^2}
-  \end{example}
-
-  Equivalently, the commands \keyword{\SkewTableau{2}{123,45}} and
-  \keyword{\SkewDiagram{2^2,1}{3,2^2}}, respectively, can be used for
-  these two pictures. See \autoref{S:Skew} for the options specific to
-  skew tableaux and skew diagrams.
 
   \option[fill=\aTableauColour{StarStyle}]{star style=style}[\TikZ-styling]
 
@@ -2174,34 +2231,11 @@
   \option{tikzpicture} option is ignored  when the \keyword{\Tableau}
   command is equipped with $(x,y)$-coordinates.
 
-  As a first example, we can use \keyword{tikzpicture={rotate=30}}
-  to rotate a tableau by 90 degrees:
-
-  \begin{example}
-  \Tableau[tikzpicture={rotate=90}]{123,45} \qquad
-  \begin{tikzpicture}[rotate=90]
-   \Tableau(0,0){123,45}
-  \end{tikzpicture}
-  \end{example}
-
-  The two tableaux constructions in this example are equivalent. An
-  oddity with both of these examples is that the numbers in the tableaux
-  have not been rotated, which is because the \TikZ \emph{rotate} key
-  does not affect component objects, such as nodes, inside a \TikZ
-  picture. You can rotate the entire picture using the
-  \TikZ-key \textit{transform canvas}
-
-  \vspace*{15mm}
-
-  \begin{example}[valign=top, lefthand width=0.3\textwidth]
-  \Tableau[tikzpicture={transform canvas={rotate=90}}]{123,45}
-  \end{example}
-
-  A more interesting application is using
-  \option{tikzpicture=remember picture} to annotate a tableau:
+  An interesting application of the \option{tikzpicture} key is for
+  annotating a tableau. Consider:
 
   \begin{example}[lefthand width=0.3\textwidth, label={Ex:pointing}]
-  \Tableau[ukrainian, name=A,
+  \Tableau[ukrainian,
     tikzpicture={remember picture}]
     { 1[fill=blue!20]23[text=red]45,
       6*78[draw=cyan,ultra thick]9,
@@ -2210,11 +2244,11 @@
     }
   \end{example}
 
-  Since \option{name}=A, the nodes in this tableau are referenced as
-  \textsf{(A-1-1)}, \textsf{(A-1-2)}, \textsf{(A-1-3)}, \dots. As the
-  example uses \textit{remember picture}, other \keyword{tikzpicture}
-  environments can reference the node names in the last tableau, which
-  allows us to refer back to the table above using:
+  Recalling the \option{name} key, the nodes in this tableau are
+  referenced as \textsf{(A-1-1)}, \textsf{(A-1-2)}, \textsf{(A-1-3)},
+  \dots. Since \autoref{Ex:pointing} uses \textit{remember picture}, other
+  \keyword{tikzpicture} environments can reference the node names in the
+  last tableau, which allows us to refer back to the tableau above using:
 
   \vspace*{3mm}
 
@@ -2247,8 +2281,9 @@
   composition shape, compositions are not supported in the sense that
   many of the options/keys assume that the diagrams are of partition
   shape.  In addition, some options assume that tableaux and diagrams do
-  not contain empty rows and that the diagrams are \textit{connected}.
-  (For disconnected tableaux and diagrams, see the
+  not contain empty rows and that the diagrams are \textit{connected},
+  in the sense that their boundary can be drawn without lifting the pen
+  off the page.  (For disconnected tableaux and diagrams, see the
   \keyword{\Multidiagram} and \keyword{\Multitableau} commands in
   \autoref{S:Multitableau}.)
 
@@ -2273,8 +2308,9 @@
     listed. For each ribbon, first the border of the ribbon is drawn,
     together with any styling for the ribbon, and then the boxes in the
     ribbon, together with any styling, are added.
-    \item The key border, when by \option{skew border}, and the border
-    of the tableau are drawn.
+    \item The border of the tableau is drawn, including the cover and
+    skew borders when they are enabled by \option{cover border} and
+    \option{skew border}, respectively.
     \item The \option{dotted rows} and \option{dotted cols} keys
     replace the specified rows and columns with dots.
     \item Finally, any \option{snobs} are drawn in the order that they are listed.
@@ -2332,7 +2368,7 @@
   needed if, and only if, the diagram is inside a \keyword{tikzpicture}
   environment.  The \keyword{\Diagram} command allows the
   \emph{partition} to be specified as either a comma-separated list of
-  \emph{weakly decreasing positive integers}, or by using \emph{exponential
+  \emph{weakly decreasing positive integers}, or using \emph{exponential
   notation}:
   \index{exponential notation}
   \index{partition!exponential notation}
@@ -2612,8 +2648,9 @@
   sign for a negative number is too long when it appears inside a
   tableau.  To correct for this, \aTableau uses the
   \keyword{\shortminus} command for negative content
-  values\cprotect\footnote{If not already defined, \aTableau defines
-  \keyword{\shortminus} using
+  values\cprotect\footnote{The \aTableau package only defines the
+  \keyword{\shortminus} command if it does not already exist, in which
+  case it is defined using the command
   \verb|\DeclareMathSymbol\shortminus{\mathbin}{AMSa}{"39}|.}.
   In the second diagram above, \aTableau uses~\keyword{\shortminus 1}
   instead of~\keyword{-1}, which look like~$\shortminus1$ and~$-1$,
@@ -2660,8 +2697,8 @@
 
   \end{itemize}
 
-  Use \option{charge} to add offsets to the \option{contents} and \option{residues} {(}and
-  use \option{colours} for residue-compatible shadings).
+  Use \option{charge} to add offsets to the \option{contents} and \option{residues}, and
+  use \option{colours} for residue-compatible shadings.
 
   \begin{example}
   \Diagram[entries=contents, charge=2]{3,2,1} \qquad
@@ -2678,12 +2715,12 @@
   \index{partition!skew}
   \index{tableau!skew}
 
-  A partition $\mu$ is \emph{contained} in another partition $\lambda$,
-  written as~$\mu\subseteq\lambda$, if $\mu_k\le\lambda_k$, for
-  $k\ge0$. If $\mu\subseteq\lambda$ then the \emph{skew partition}
-  $\lambda/\mu=\set{(r,c)\in\lambda|(r,c)\notin\mu}$ is the set of nodes
-  that are in~$\lambda$ and not in~$\mu$. In this manual, $\mu$ is
-  the \emph{inner shape} and $\lambda/\mu$ is the \emph{outer shape}. A
+  A partition $\nu$ is \emph{contained} in another partition $\lambda$,
+  written as~$\nu\subseteq\lambda$, if $\mu_k\le\lambda_k$, for
+  $k\ge0$. If $\nu\subseteq\lambda$ then the \emph{skew partition}
+  $\lambda/\nu=\set{(r,c)\in\lambda|(r,c)\notin\nu}$ is the set of nodes
+  that are in~$\lambda$ and not in~$\nu$. In this manual, $\nu$ is
+  the \emph{inner shape} and $\lambda$ is the \emph{outer shape}. A
   \emph{skew tableau} is a labelling of the nodes in the diagram of a
   skew partition. Skew partitions and skew tableaux can be drawn using
   the commands:
@@ -2695,8 +2732,8 @@
   As with the previous commands, the $(x,y)$--coordinates should be
   given if, and only if, the picture is inside a \keyword{tikzpicture}
   environment.  The partitions for the inner and outer shapes can either
-  be given as a comma-separated list of non-negative integers, or in
-  exponential notation.
+  be given as a comma-separated list of non-negative integers, or using
+  exponential notation for repeated parts.
 
   Skew tableau and skew diagrams should always be connected. Use
   \keyword{\Multidiagram} and \keyword{\Multitableau} to draw
@@ -2796,6 +2833,86 @@
   \SkewDiagram[entries=last]{2,1}{4,2,1} \qquad
   \SkewDiagram[entries=residues, e=3]{2,1}{4,2,1}
   \end{Example}
+
+  As implied in \autoref{SS:TableauOptions}, skew tableaux and skew
+  diagrams can also be drawn using the \keyword{\Tableau} and
+  \keyword{\Diagram} commands, together with the \option{skew} key:
+
+  \begin{example}
+  \Tableau[skew boxes, skew={2,1^2}]{12,35,6} \qquad
+  \Diagram[entries=first, skew={2,1}]{2^2,1}
+  \end{example}
+
+  \index{cover}
+  \index{partition!cover}
+  \index{tableau!cover}
+  The \option{cover} key works in exactly the same way as the
+  \option{skew} key. In particular, as we now describe, there are
+  identical keys for controlling the pictures that use the
+  \option{cover} and \option{skew} keys.
+
+  \option[true]{cover border}[true/false]
+  \option*[false]{no cover border}[false/true]
+  \option*[draw=\aTableauColour{Skew}, fill=\aTableauColour{SkewFill}, thick]{cover border style=style}[\TikZ-styling]
+
+  These two keys are inverse to each other.  When \option{cover border}
+  is \textsf{true}, the border of the outside covering shape is drawn.
+  By default, \option{cover border} is \textsf{true}, so that the
+  covering shape is drawn. In contrast, by default, \option{skew border}
+  is false.
+
+  \begin{example}
+  \tikzset{R/.style={fill=red!20,circle}}
+  \Tableau[cover={3^3}, cover border]{12[R]3,45,67} \qquad
+  \Tableau[cover={3^3}, french, cover border]{12[R]3,45,67}
+  \end{example}
+
+  The \option{cover border style} key changes the style of the cover border.
+
+  \begin{example}
+  \Tableau[cover border style={draw=brown,thick},
+    cover={3^2}]{123,45,67} \qquad
+  \Diagram[cover border style={dashed,fill=red!10},
+    cover={3,2}]{2^3}
+  \end{example}
+
+  \option[true]{cover boxes}[true/true]
+  \option*[false]{no cover boxes}[false/true]
+  \option*[thin, fill=\aTableauColour{SkewFill}]{cover box style=style}[\TikZ-styling]
+
+  The \option{cover boxes} key adds walls to the boxes for the covering
+  partition. Use \option{cover box style} to change the
+  default shading of these boxes.
+
+  \begin{example}
+  \Tableau[cover={3^4}, no cover boxes]{123,45,67} \qquad
+  \Tableau[cover={4^4}, cover boxes,
+    cover box style={dash pattern=on 1pt off 2pt}
+  ]{123,45,67,89}
+  \end{example}
+
+  BY default, \option{cover border} is true, so if you want walls for
+  the boxes in the covering partition and border walls, you only need to
+  set \option{cover boxes}.
+
+  \begin{example}
+  \Tableau[cover={4^2,3^2}, cover border, cover boxes]{123,45,67}
+  \end{example}
+
+  The \option{cover} and \option{skew} keys can be used together.
+  Equivalently, you can use \option{cover} with the
+  \keyword{\SkewDiagram} and \keyword{\SkewTableau} commands.
+
+  \begin{example}
+  \Tableau[skew={2,1}, cover={6^4}, cover boxes,
+    cover box style={fill=yellow!20, draw=brown},
+    skew border, skew boxes ]{123,45,67}
+  \end{example}
+
+  Finally, we note that the \option{cover} and \option{skew} keys do not
+  provide a mechanism to put entries inside the skew and cover shapes.
+  Use the \option{paths}, \option{ribbons} and \option{snobs} keys when
+  you need to do this.
 
   % --------------------------------------------------------------
   \subsection{Shifted tableaux and shifted diagrams}
@@ -3674,60 +3791,6 @@
   ``bricks'' in the homogeneous Garnir belt.
 
   % --------------------------------------------------------------
-  \subsection{Custom tableau and diagram commands}\label{SS:NewTableau}
-  \indexcmd{NewDiagram}
-  \indexcmd{NewTableau}
-
-  Sometimes, it is necessary to use multiple tableau styles within a
-  single document. While it is possible to apply the required key-value
-  settings manually to each picture using the commands and keys
-  described above, a better approach is to define custom commands for
-  these pictures using:
-
-  \begin{quote}
-    \keyword{\NewDiagram \Command { atableau settings }} \newline
-    \keyword{\NewTableau \Command { atableau settings }}
-  \end{quote}
-
-  Of course, you should replace ``\keyword{\Command}'' with whatever
-  name you want to call your command. Defining a custom command helps to
-  ensure consistency throughout your document, and it also makes it
-  easier to modify the ``design specifications'' because they appear
-  in just one place.
-
-  The \keyword{\NewDiagram} command creates custom diagrams, and the
-  \keyword{\NewTableau} command creates custom tableaux. The commands
-  created this way can be used in exactly the same ways as the \aTableau
-  picture commands. In particular, they can be used inside and outside
-  \keyword{tikzpicture} environments, they accept \aTableau
-  key-value settings as an optional argument, and tableau entries can be
-  styled.
-
-  \begin{example}
-  \NewTableau\MyTableau{french,border colour=magenta,
-    box style={draw=orange,circle}}
-  \MyTableau{123,45} \quad
-  \MyTableau[box fill=red!20!white ]
-    {123,[fill=orange,text=white]45}
-  \end{example}
-
-  Similarly, we can use these commands inside \keyword{tikzpicture}
-  environments:
-
-  \begin{example}
-  \NewDiagram\MyDiagram{ukrainian,
-    box fill=orange!20,shifted}
-  \begin{tikzpicture}
-    \MyDiagram(0,0){3,2}
-    \MyDiagram(3,0)[shifted]{3,2,1}
-  \end{tikzpicture}
-  \end{example}
-
-  These two commands are mainly provided for convenience because it is
-  possible to define such commands ``by hand'' using
-  \keyword{\NewDocumentCommand}.
-
-  % --------------------------------------------------------------
   \section{Abacuses} \label{S:Abacus} \index{abacus} \indexcmd{Abacus}
 
   In the representation theory of the symmetric groups, Gordon
@@ -3807,10 +3870,10 @@
   but you can give labels to as many beads as you like.
 
   You can remove beads that you have placed on the abacus using the \emph{no shade} style%
-  \footnote{\TikZ \emph{does not} provide a way to disable
+  \footnote{Out of the box, \TikZ \emph{does not} provide a way to disable
   a shading that is already in effect. The \emph{no shade} style, which is
   based on a \href{https://tex.stackexchange.com/a/85750/234252}{stack exchange post},
-  is available whenever the \aTableau package is loaded.}.
+  is available whpartition the \aTableau package is loaded.}.
   The point of being able to remove beads in this way is that this
   allows you to put something else in its place using the bead label.
   In such cases, you probably want to change the text colour, which is white
@@ -3842,6 +3905,7 @@
   \index{quotient}
   \index{beta numbers!quotient}
   \index{abacus!quotient}
+  \index{partition!quotient}
 
   Rather than specifying a partition, or beta numbers, for an abacus it
   is also possible to give a $|$-separated list partitions, or beta
@@ -4410,11 +4474,351 @@
   \end{example}
 
   % --------------------------------------------------------------
-  \section{Examples from the literature}
+  \section{Summary of \aTableau commands and options}\label{S:keys}
+  \rowcolors{2}{LightSkyBlue!10}{}
+
+  This section compactly lists the \aTableau commands and their options.
+  The earlier sections describe these commands and show how their
+  options, or keys, are used with many examples.
+
+  \subsection{\aTableau commands}
+
+  The \aTableau package provides the following commands:
+
+  \begin{center}
+    \begin{tabular}{Lll}\toprule
+      \large\sffamily\color{MidnightBlue}Command
+                     & \large\sffamily\color{MidnightBlue} Picture
+                     & \large\sffamily\color{MidnightBlue} Section \\\midrule
+      Abacus         & An abacus for a partition         & \autoref{S:Abacus}\\
+      Diagram        & A Young diagram for a partition   & \autoref{S:Diagram}\\
+      Multidiagram   & An $\ell$-tuple of Young diagrams & \autoref{S:Multitableau} \\
+      Multitableau   & An  $\ell$-tuple of tableaux      & \autoref{S:Multitableau} \\
+      RibbonTableau  & A ribbon tableau                  & \autoref{S:RibbonTableaux} \\
+      ShiftedDiagram & A shifted Young diagram           & \autoref{S:Shifted} \\
+      ShiftedTableau & A shifted tableau                 & \autoref{S:Shifted} \\
+      SkewDiagram    & A skew Young diagram              & \autoref{S:Skew} \\
+      SkewTableau    & A skew tableau                    & \autoref{S:Skew} \\
+      Tableau        & A tableau                         & \autoref{S:Tableau} \\
+      Tabloid        & A tabloid                         & \autoref{S:Tabloid} \\
+      \bottomrule
+    \end{tabular}
+  \end{center}
+
+  In addition to the picture commands, \aTableau provides the
+  non-drawing commands:
+  \begin{itemize}
+    \item \keyword{\aTabset} for setting default values for the \aTableau keys
+    \item \keyword{\NewATableauCommand} for defining custom \aTableau commands;
+    see \autoref{SS:NewTableau}
+    \item \keyword{\shortminus} for shorter minus signs, which are used
+    for contents in tableaux.
+  \end{itemize}
+
+  \subsection{\aTableau keys}
+  For easy reference, here is the complete list of \aTableau keys,
+  together with a quick explanation of what they do. The last two
+  columns indicate whether the options apply to tableau (and diagrams),
+  or to abacuses~--- or both!  Options starting with \keyword{(no)} are
+  a pair of boolean options and their inverses. If not given a true or
+  false value then they are implicitly set to true. Although not
+  explicitly listed, spelling variations of keys from the American
+  dialect of English are condoned.
+
+  Here, and throughout the manual, the key names (and the green ticks
+  below) are hyperlinks to the relevant sections of the manual.
+
+  \newcommand\heading[1]{\textcolor{MidnightBlue}{\textsf{\large#1}}}
+  \rowcolors{2}{LightSkyBlue!10}{}
+  \begin{xltabular}{0.9\textwidth}{l>{\raggedright}Xcc}\toprule
+    \heading{Key} & \heading{Meaning} & \heading{Tableau} & \heading{Abacus} \\
+    \midrule
+    \endhead
+    \option{abacus ends}       & Set the top and bottom of the abacus                & \No  & \Yes\\
+    \option{abacus ends style} & Set the style of the top and bottom of the abacus   & \No  & \Yes\\
+    \option{abacus bottom}     & Set the offset for the bottom of the abacus         & \No  & \Yes\\
+    \option{abacus top}        & Set the offset for the top of the abacus            & \No  & \Yes\\
+    \option{align}             & Set baseline alignment of \aTableau diagram         & \Yes & \Yes[abacus]\\
+    \option{australian}        & Use the Australian convention for tableaux          & \Yes & \No \\
+    \option{bead}              & Set the colour of the abacus beads                  & \No  & \Yes \\
+    \option{bead font}         & Set the font used for the abacus bead labels        & \No  & \Yes \\
+    \option{bead sep}          & The distance between adjacent beads on a runner     & \No  & \Yes \\
+    \option{bead size}         & The diameter of the abacus beads                    & \No  & \Yes \\
+    \option{bead style}        & Set the style of the abacus beads                   & \No  & \Yes \\
+    \option{bead text}         & Set the colour of the abacus bead labels            & \No  & \Yes \\
+    \option{beta numbers}      & Enter bead specification as beta numbers            & \No  & \Yes \\
+    \option*{border}           & Draw the tableau border                             & \Yes & \No \\
+    \option{border colour}     & Set tableau border colour                           & \Yes & \No \\
+    \option{border style}      & Set tableau border style                            & \Yes & \No \\
+    \option{box height}        & Set tableau box height                              & \Yes & \No \\
+    \option{box style}         & Set tableau box style                               & \Yes & \No \\
+    \option{box width}         & Set tableau box width                               & \Yes & \No \\
+    \option*{boxes}            & Draw inner walls around boxes                       & \Yes & \No \\
+    \option{cartan}            & Set Cartan type for residues                        & \Yes & \Yes[abacus] \\
+    \option{charge}            & Set charge for contents and residues                & \Yes & \Yes[abacus] \\
+    \option{colour theme}      & Set the \aTableau colour theme                      & \Yes & \Yes \\
+    \option{colours}           & Set a cyclic list of box fill colours               & \Yes & \Yes \\
+    \option{conjugate}         & Draw the conjugate tableau/diagram                  & \Yes & \No \\
+    \option{cover}             & Draw a covering partition                           & \Yes & \No \\
+    \option*{cover border}     & Set cover border colour                             & \Yes & \No \\
+    \option{cover border style}& Set \TikZ-style of the cover border                 & \Yes & \No \\
+    \option*{cover boxes}      & Enable drawing of cover boxes                       & \Yes & \No \\
+    \option{cover box style}   & Set \TikZ-style of the cover boxes                  & \Yes & \No \\
+    \option{e}                 & Set the quantum characteristic for residues         & \Yes & \Yes[abacus] \\
+    \option{east}              & Make abacus grow towards the east                   & \Yes & \No \\
+    \option{delimiters}        & Set delimiters for multitableaux and multidiagrams  & \Yes & \No  \\
+    \option{empty}             & Symbol for empty tableau in a multitableau          & \Yes & \No \\
+    \option{dotted cols}       & Specify columns to replace with dots                & \Yes & \Yes[abacus] \\
+    \option{dotted rows}       & Specify rows to replace with dots                   & \Yes & \Yes[abacus] \\
+    \option{english}           & Use the English convention for tableaux             & \Yes & \No \\
+    \option{entries}           & Add entries to tableaux and abacuses                & \Yes & \Yes[abacus] \\
+    \option{framed}            & Draw a frame around the abacus                      & \No  & \Yes \\
+    \option{french}            & Use the French convention for tableaux              & \Yes & \No \\
+    \option{halign}            & Horizontal alignment of box entries and bead labels & \Yes & \Yes[abacus] \\
+    \option{inner style}       & Set style of inner tableau wall                     & \Yes & \No \\
+    \option{inner wall}        & Set colour of inner tableau wall                    & \Yes & \No \\
+    \option{label}             & Set tableau label                                   & \Yes & \No \\
+    \option{label style}       & Set style of tableau labels                         & \Yes & \No \\
+    \option{left delimiter}    & Set left delimiter for a multitableau               & \Yes & \No \\
+    \option{math entries}      & Typeset box and label entries in math-mode          & \Yes & \Yes[abacus] \\
+    \option{name}              & Prefix of named nodes                               & \Yes & \Yes[abacus] \\
+    \option{north}             & Make abacus grow towards the north                  & \No  & \Yes\\
+    \option{paths}             & Add paths to a diagram or tableau                   & \Yes & \No \\
+    \option{path box}          & Adds default box entry for each path                & \Yes & \No \\
+    \option{path box style}    & Sets style of boxes on each path                    & \Yes & \No \\
+    \option{path style}        & Sets style of a path                                & \Yes & \No \\
+    \option{ribbons}           & Add ribbons to tableau                              & \Yes & \No \\
+    \option{ribbon box}        & Adds default box entry for each ribbon              & \Yes & \No \\
+    \option{ribbon style}      & Set ribbon style                                    & \Yes & \No \\
+    \option{ribbon box style}  & Sets style of boxes on each ribbon                  & \Yes & \No \\
+    \option{right delimiter}   & Set right delimiter for a multitableau              & \No  & \Yes \\
+    \option{rotate}            & Rotate the picture anti-clockwise                   & \Yes & \Yes[abacus] \\
+    \option{rows}              & Set number of rows in a multitableau or abacus      & \Yes & \Yes[abacus] \\
+    \option{runner}            & Set the colour of the abacus runners                & \No  & \Yes \\
+    \option{runner labels}     & List of labels for the abacus runners               & \No  & \Yes \\
+    \option{runner label style}& Set the style for e abacus labels                   & \No  & \Yes \\
+    \option{runner sep}        & Set distance between consecutive abacus runners     & \No  & \Yes \\
+    \option{runner style}      & Set the colour of the abacus runners                & \No  & \Yes \\
+    \option{scale}             & Sets the \aTableau scale                            & \Yes & \Yes[abacus] \\
+    \option{script}            & Sets the \aTableau scale for subscripts             & \Yes & \Yes(scale-abacus) \\
+    \option{scriptscript}      & Sets the \aTableau scale for subsubscripts          & \Yes & \Yes(scale-abacus) \\
+    \option{separation}        & Set distance between components in a multitableau   & \Yes & \No \\
+    \option{separator colour}  & Set separator colour for a multitableau             & \Yes & \No \\
+    \option{separator}         & Set separator colour in a multitableau              & \Yes & \No \\
+    \option*{separators}       & Enable separators in a multitableau                 & \Yes & \No \\
+    \option{shape}             & Set the shape of a ribbon tableau                   & \Yes & \No \\
+    \option{shifted}           & True for a shifted tableau                          & \Yes & \No \\
+    \option{skew}              & Set inner skew shape                                & \Yes & \No \\
+    \option*{skew border}      & Set skew border colour                              & \Yes & \No \\
+    \option{skew border style} & Set \TikZ-style of the skew border                  & \Yes & \No \\
+    \option*{skew boxes}       & Enable drawing of skew boxes                        & \Yes & \No \\
+    \option{skew box style}    & Set \TikZ-style of the skew boxes                   & \Yes & \No \\
+    \option{snobs}             & add snobs to tableau                                & \Yes & \No \\
+    \option{snob box}          & Adds default box entry for each snob                & \Yes & \No \\
+    \option{snob box style}    & Sets style of boxes on each snob                    & \Yes & \No \\
+    \option{snob style}        & Sets style of a snob                                & \Yes & \No \\
+    \option{south}             & Make abacus grow towards the south                  & \Yes & \No \\
+    \option{star style}        & Set \TikZ-style of tableau $*$-nodes                & \Yes & \No \\
+    \option{styles}            & Short-hand for defining single use \TikZ-styles     & \Yes & \Yes[abacus] \\
+    \option{tabloid}           & True for a shifted tableau                          & \Yes & \No \\
+    \option{text entries}      & Typeset box and label entries in text-mode          & \Yes & \Yes[abacus] \\
+    \option{tick}              & Set the colour of the ticks on the abacus runner    & \No  & \Yes \\
+    \option{tick length}       & Set the length of the ticks on the abacus runners   & \No  & \Yes \\
+    \option{tick style}        & Set the style of the ticks on the abacus runners    & \No  & \Yes \\
+    \option{tikz after}        & \TikZ-code injected after \aTableau picture         & \Yes & \Yes[abacus] \\
+    \option{tikz before}       & \TikZ-code injected before \aTableau picture        & \Yes & \Yes[abacus] \\
+    \option{tikzpicture}       & Sets tikzpicture environment keys                   & \Yes & \No \\
+    \option{traditional}       & Use the traditional abacus style                    & \No  & \Yes \\
+    \option{ukrainian}         & Use the Ukrainian convention for tableaux           & \Yes & \No \\
+    \option{valign}            & Set vertical alignment                              & \Yes & \Yes[abacus] \\
+    \option{west}              & Make abacus grow towards the west                   & \Yes & \No \\
+    \option{xoffsets}          & Set $x$-offsets for components in a multitableau    & \Yes & \No \\
+    \option{xscale}            & Set \aTableau $x$-scale                             & \Yes & \Yes(scale-abacus) \\
+    \option{yoffsets}          & Set $y$-offsets for components in a multitableau    & \Yes & \No \\
+    \option{yscale}            & Set \aTableau $y$-scale                             & \Yes & \Yes(scale-abacus) \\
+    \bottomrule
+  \end{xltabular}
+
+  All keys can be used with all \aTableau pictures. In most cases, keys
+  that are not intended to be applied to a given picture are silently
+  ignored.
+
+  % --------------------------------------------------------------
+  \subsection{Custom tableau and diagram commands}\label{SS:NewTableau}
+  \indexcmd{NewATableauCommand}
+
+  Sometimes, it is necessary to use multiple tableau styles within a
+  single document. While it is possible to apply the required key-value
+  settings manually to each picture using the commands and keys
+  described above, a better approach is to define custom commands for
+  these pictures using:
+
+  \begin{quote}
+  \keyword{\NewATableauCommand \Commmand {<tableau command name>} {keys}}
+  \end{quote}
+
+  Of course, you should replace $\langle$\keyword{\Command}$\rangle$ with whatever
+  name you want to call your command. The $\langle$tableau command
+  name$\rangle$ can be any of the \aTableau picture commands:
+  \begin{center}
+      \begin{tabular}{*5l}
+         Abacus&
+         Diagram&
+         Multidiagram&
+         Multitableau&
+         ShiftedDiagram\\
+         ShiftedTableau&
+         SkewDiagram&
+         SkewTableau&
+         Tableau&
+         Tabloid
+      \end{tabular}
+  \end{center}
+  Finally the $\langle$keys$\rangle$ can be an arbitrary comma separated
+  list of \aTableau keys.  Defining custom commands helps to ensure
+  consistency throughout your document, and it also makes it easier to
+  modify your ``design specifications'' because they will appear only in
+  the definition of your custom command.
+
+  The \keyword{\NewATableauCommand} command creates custom \aTableau
+  commands. These commands are used in exactly the same ways as the
+  \aTableau picture commands that they emulate. In particular, they can
+  be used inside and outside \keyword{tikzpicture} environments, they
+  accept \aTableau key-value settings as an optional argument, and
+  tableau entries can be styled.
+
+  \begin{example}
+  \NewATableauCommand\MyTableau{Tableau}
+    {french,border colour=magenta, box style={draw=orange,circle}}
+  \MyTableau{123,45} \quad
+  \MyTableau[box fill=red!20!white ]
+    {123,[fill=orange,text=white]45}
+  \end{example}
+
+  Similarly, we can use these commands inside \keyword{tikzpicture}
+  environments:
+
+  \begin{example}
+  \NewATableauCommand\MyDiagram{Diagram}
+    {ukrainian, box fill=orange!20,shifted}
+  \begin{tikzpicture}
+    \MyDiagram(0,0){3,2}
+    \MyDiagram(3,0)[shifted]{3,2,1}
+  \end{tikzpicture}
+  \end{example}
+
+  These commands are mainly provided for convenience because it is
+  possible to define such commands ``by hand'' using
+  \keyword{\NewDocumentCommand}.
+
+  % --------------------------------------------------------------
+  \subsection{\aTableau Colours}\label{S:Colours}
+  \label{S:ColourTheme}
+  \index{colour theme}
+
+  The colours in \aTableau pictures are controlled by the six base colours:
+  \begin{center}
+    \begin{tabular}{*3l}
+    aTableauMain      &
+    aTableauInner     &
+    aTableauStarStyle \\
+    aTableauSkew      &
+    aTableauSkewFill  &
+    aTableauRod
+    \end{tabular}
+  \end{center}
+
+  Creating a good colour scheme is difficult, and it is partly
+  subjective. \aTableau provides three different colour themes in the
+  hope that one of these themes will appeal. The \option{colour theme}
+  key sets the colour theme.
+
+  It is sometimes useful to use the \aTableau colour names directly in
+  style specifications, and with \LaTeX\ colour commands. For example,
+  you can write \keyword{\textcolor{aTableauMain}{text}}. The \aTableau
+  colours are defined as HTML colours using the \keyword{\definecolor}
+  command provided by \ctan{xcolor}. In addition to changing the colour
+  theme, the key-value interface allows you to set the colours of
+  individual components in the pictures produced by \aTableau.
+
+  {\samepage
+
+    \option[default]{colour theme}{default,classic,natural}
+  }
+
+    \begin{itemize}
+      \item \ColourTheme{default}
+      \item \ColourTheme{classic}
+      \item \ColourTheme{natural}
+    \end{itemize}
+
+  % --------------------------------------------------------------
+  \subsection{\aTableau styles}\label{S:TikZStyles}
+
+  This package is little more than a glorified interface to some \TikZ
+  commands. Under the hood there are many custom \TikZ styles that
+  control the pictures drawn by the \aTableau package. The key-value
+  interface to the \aTableau commands is the recommended way of changing
+  these styles, however, it is sometimes useful (see, for example,
+  \autoref{Ex:DottedAbacus}), to use these styles in your own pictures.
+  You can, if you want, change these styles directly using
+  \keyword{\tikzset}, but we recommend not doing this  because there is
+  a risk that you may break some of the corresponding \aTableau
+  commands. If you do change these styles directly, we strongly
+  recommend that you \emph{append} to these styles rather than setting
+  them directly.
+
+  \begin{center}
+    \begin{xltabular}{0.9\textwidth}{ll}\toprule
+       \heading{Style name} & \heading{Adds \TikZ-styling to...}\\
+       \midrule
+       aTableau/abacusBead       & Standard abacus beads\\
+       aTableau/abacusEnds       & Tops and bottoms of abacuses\\
+       aTableau/abacusRunner     & Abacus runners\\
+       aTableau/abacusStarStyle  & Abacus stars \\
+       aTableau/abacusTick       & Abacus ticks \\
+       aTableau/borderStyle      & Tableau borders \\
+       aTableau/boxStyle         & Tableau boxes\\
+       aTableau/clearBoxes       & Erases material. Used by \option{dotted rows} and \option{dotted cols}\\
+       aTableau/coverBorder      & Borders for covering partitions\\
+       aTableau/coverBox         & Boxes for covering partitions\\
+       aTableau/delimiterStyle   & Delimiter style in multitableaux and multidiagrams\\
+       aTableau/dottedLine       & Adds dotted lines. Used by \option{dotted rows} and \option{dotted cols}\\
+       aTableau/innerWall        & Inner tableau walls\\
+       aTableau/labelStyle       & Tableau labels \\
+       aTableau/leftDelimiter    & Left delimiter in multitableau\\
+       aTableau/pathBox          & Boxes in paths \\
+       aTableau/pathStyle        & Paths \\
+       aTableau/ribbonBox        & Boxes in ribbons \\
+       aTableau/ribbonStyle      & Ribbons \\
+       aTableau/rightDelimiter   & Right delimiter in multitableau\\
+       aTableau/runnerLabelStyle & Style of abacus runner labels\\
+       aTableau/separatorLine    & Separator lines in multitableau\\
+       aTableau/separatorSymbol  & Separators in multitableau\\
+       aTableau/skewBorder       & Skew tableau borders \\
+       aTableau/skewBox          & Skew tableau boxes \\
+       aTableau/snobBox          & Boxes in snobs \\
+       aTableau/snobStyle        & Snobs \\
+       aTableau/tableauStarStyle & Star style for tableaux \\
+       \bottomrule
+    \end{xltabular}
+  \end{center}
+
+  Most of these styles are quite basic, however, some are more involved.
+  We do not recommend changing any of these styles directly because
+  doing so can, potentially, break \aTableau functionality. In some
+  cases, such as the tableau boxes, the \TikZ styling does not fully
+  control the rendering of these features. Most of these styles can be
+  changed using the key-value interface, which is another reason to
+  avoid changing them by hand. Changes that you make to these styles are
+  not guaranteed to be compatible with future releases of \aTableau.
+
+
+  % --------------------------------------------------------------
+  \subsection{Examples from the literature}
 
   This section shows how to draw some tableaux that appear in the
-  literature. The aim of this section is to show how these pictures can
-  be drawn using the \aTableau package.
+  literature using the \aTableau package.
 
   Diagrams like the following are common. Note the use of
   \option{ribbons} to add the $\alpha$ in row~$6$ and column~$8$.
@@ -4544,272 +4948,6 @@
 \end{Example}
 
   % --------------------------------------------------------------
-  \section{Summary of \aTableau commands and options}\label{S:keys}
-  \rowcolors{2}{LightSkyBlue!10}{}
-
-  This section compactly lists the \aTableau commands and their options.
-  The earlier sections describe these commands and show how their
-  options, or keys, are used with many examples.
-
-  \subsection{\aTableau commands}
-
-  The \aTableau package provides the following commands:
-
-  \begin{center}
-    \begin{tabular}{Lll}\toprule
-      \large\sffamily\color{MidnightBlue}Command
-                     & \large\sffamily\color{MidnightBlue} Picture
-                     & \large\sffamily\color{MidnightBlue} Section \\\midrule
-      Abacus         & An abacus for a partition         & \autoref{S:Abacus}\\
-      Diagram        & A Young diagram for a partition   & \autoref{S:Diagram}\\
-      Multidiagram   & An $\ell$-tuple of Young diagrams & \autoref{S:Multitableau} \\
-      Multitableau   & An  $\ell$-tuple of tableaux      & \autoref{S:Multitableau} \\
-      RibbonTableau  & A ribbon tableau                  & \autoref{S:RibbonTableaux} \\
-      ShiftedDiagram & A shifted Young diagram           & \autoref{S:Shifted} \\
-      ShiftedTableau & A shifted tableau                 & \autoref{S:Shifted} \\
-      SkewDiagram    & A skew Young diagram              & \autoref{S:Skew} \\
-      SkewTableau    & A skew tableau                    & \autoref{S:Skew} \\
-      Tableau        & A tableau                         & \autoref{S:Tableau} \\
-      Tabloid        & A tabloid                         & \autoref{S:Tabloid} \\
-      \bottomrule
-    \end{tabular}
-  \end{center}
-
-  In addition to the picture commands, \aTableau provides the
-  non-drawing commands:
-  \begin{enumerate}
-    \item \keyword{\aTabset} for setting default values for the \aTableau keys
-    \item \keyword{\NewTableau} for defining custom tableau commands;
-    see \autoref{SS:NewTableau}
-    \item \keyword{\NewDiagram} for defining custom diagram commands;
-    see \autoref{SS:NewTableau}
-    \item \keyword{\shortminus} for shorter minus signs, which are used
-    for contents in tableaux.
-  \end{enumerate}
-
-  \subsection{\aTableau keys}
-  For easy reference, here is the complete list of \aTableau keys,
-  together with a quick explanation of what they do. The last two
-  columns indicate whether the options apply to tableau (and diagrams),
-  or to abacuses~--- or both!  Options starting with \keyword{(no)} are
-  a pair of boolean options and their inverses. If not given a true or
-  false value then they are implicitly set to true. Although not
-  explicitly listed, spelling variations of keys from the American
-  dialect of English are condoned.
-
-  Here, and throughout the manual, the key names (and the green ticks
-  below) are hyperlinks to the relevant sections of the manual.
-
-  \newcommand\heading[1]{\textcolor{MidnightBlue}{\textsf{\large#1}}}
-  \rowcolors{2}{LightSkyBlue!10}{}
-  \begin{xltabular}{0.9\textwidth}{l>{\raggedright}Xcc}\toprule
-    \heading{Key} & \heading{Meaning} & \heading{Tableau} & \heading{Abacus} \\
-    \midrule
-    \endhead
-    \option{abacus ends}       & Set the top and bottom of the abacus                & \No  & \Yes\\
-    \option{abacus ends style} & Set the style of the top and bottom of the abacus   & \No  & \Yes\\
-    \option{abacus bottom}     & Set the offset for the bottom of the abacus         & \No  & \Yes\\
-    \option{abacus top}        & Set the offset for the top of the abacus            & \No  & \Yes\\
-    \option{align}             & Set baseline alignment of \aTableau diagram         & \Yes & \Yes[abacus]\\
-    \option{australian}        & Use the Australian convention for tableaux          & \Yes & \No \\
-    \option{bead}              & Set the colour of the abacus beads                  & \No  & \Yes \\
-    \option{bead font}         & Set the font used for the abacus bead labels        & \No  & \Yes \\
-    \option{bead sep}          & The distance between adjacent beads on a runner     & \No  & \Yes \\
-    \option{bead size}         & The diameter of the abacus beads                    & \No  & \Yes \\
-    \option{bead style}        & Set the style of the abacus beads                   & \No  & \Yes \\
-    \option{bead text}         & Set the colour of the abacus bead labels            & \No  & \Yes \\
-    \option{beta numbers}      & Enter bead specification as beta numbers            & \No  & \Yes \\
-    \option*{border}           & Draw the tableau border                             & \Yes & \No \\
-    \option{border colour}     & Set tableau border colour                           & \Yes & \No \\
-    \option{border style}      & Set tableau border style                            & \Yes & \No \\
-    \option{box height}        & Set tableau box height                              & \Yes & \No \\
-    \option{box style}         & Set tableau box style                               & \Yes & \No \\
-    \option{box width}         & Set tableau box width                               & \Yes & \No \\
-    \option*{boxes}            & Draw inner walls around boxes                       & \Yes & \No \\
-    \option{cartan}            & Set Cartan type for residues                        & \Yes & \Yes[abacus] \\
-    \option{charge}            & Set charge for contents and residues                & \Yes & \Yes[abacus] \\
-    \option{colour theme}      & Set the \aTableau colour theme                      & \Yes & \Yes \\
-    \option{colours}           & Set a cyclic list of box fill colours               & \Yes & \Yes \\
-    \option{conjugate}         & Draw the conjugate tableau/diagram                  & \Yes & \No \\
-    \option{e}                 & Set the quantum characteristic for residues         & \Yes & \Yes[abacus] \\
-    \option{east}              & Make abacus grow towards the east                   & \Yes & \No \\
-    \option{delimiters}        & Set delimiters for multitableaux and multidiagrams  & \Yes & \No  \\
-    \option{empty}             & Symbol for empty tableau in a multitableau          & \Yes & \No \\
-    \option{dotted cols}       & Specify columns to replace with dots                & \Yes & \Yes[abacus] \\
-    \option{dotted rows}       & Specify rows to replace with dots                   & \Yes & \Yes[abacus] \\
-    \option{english}           & Use the English convention for tableaux             & \Yes & \No \\
-    \option{entries}           & Add entries to tableaux and abacuses                & \Yes & \Yes[abacus] \\
-    \option{framed}            & Draw a frame around the abacus                      & \No  & \Yes \\
-    \option{french}            & Use the French convention for tableaux              & \Yes & \No \\
-    \option{halign}            & Horizontal alignment of box entries and bead labels & \Yes & \Yes[abacus] \\
-    \option{inner style}       & Set style of inner tableau wall                     & \Yes & \No \\
-    \option{inner wall}        & Set colour of inner tableau wall                    & \Yes & \No \\
-    \option{label}             & Set tableau label                                   & \Yes & \No \\
-    \option{label style}       & Set style of tableau labels                         & \Yes & \No \\
-    \option{left delimiter}    & Set left delimiter for a multitableau               & \Yes & \No \\
-    \option{math entries}      & Typeset box and label entries in math-mode          & \Yes & \Yes[abacus] \\
-    \option{name}              & Prefix of named nodes                               & \Yes & \Yes[abacus] \\
-    \option{north}             & Make abacus grow towards the north                  & \No  & \Yes\\
-    \option{paths}             & Add paths to a diagram or tableau                   & \Yes & \No \\
-    \option{path box}          & Adds default box entry for each path                & \Yes & \No \\
-    \option{path box style}    & Sets style of boxes on each path                    & \Yes & \No \\
-    \option{path style}        & Sets style of a path                                & \Yes & \No \\
-    \option{ribbons}           & Add ribbons to tableau                              & \Yes & \No \\
-    \option{ribbon box}        & Adds default box entry for each ribbon              & \Yes & \No \\
-    \option{ribbon style}      & Set ribbon style                                    & \Yes & \No \\
-    \option{ribbon box style}  & Sets style of boxes on each ribbon                  & \Yes & \No \\
-    \option{right delimiter}   & Set right delimiter for a multitableau              & \No  & \Yes \\
-    \option{rows}              & Set number of rows in a multitableau or abacus      & \Yes & \Yes[abacus] \\
-    \option{runner}            & Set the colour of the abacus runners                & \No  & \Yes \\
-    \option{runner labels}     & List of labels for the abacus runners               & \No  & \Yes \\
-    \option{runner label style}& Set the style for e abacus labels                   & \No  & \Yes \\
-    \option{runner sep}        & Set distance between consecutive abacus runners     & \No  & \Yes \\
-    \option{runner style}      & Set the colour of the abacus runners                & \No  & \Yes \\
-    \option{scale}             & Sets the \aTableau scale                            & \Yes & \Yes[abacus] \\
-    \option{script}            & Sets the \aTableau scale for subscripts             & \Yes & \Yes(scale-abacus) \\
-    \option{scriptscript}      & Sets the \aTableau scale for subsubscripts          & \Yes & \Yes(scale-abacus) \\
-    \option{separation}        & Set distance between components in a multitableau   & \Yes & \No \\
-    \option{separator colour}  & Set separator colour for a multitableau             & \Yes & \No \\
-    \option{separator}         & Set separator colour in a multitableau              & \Yes & \No \\
-    \option*{separators}       & Enable separators in a multitableau                 & \Yes & \No \\
-    \option{shape}             & Set the shape of a ribbon tableau                   & \Yes & \No \\
-    \option{shifted}           & True for a shifted tableau                          & \Yes & \No \\
-    \option{skew}              & Set inner skew shape                                & \Yes & \No \\
-    \option*{skew border}      & Set skew border colour                              & \Yes & \No \\
-    \option{skew border style} & Set \TikZ-style of the skew border                  & \Yes & \No \\
-    \option*{skew boxes}       & Enable drawing of skew boxes                        & \Yes & \No \\
-    \option{skew box style}    & Set \TikZ-style of the skew boxes                   & \Yes & \No \\
-    \option{snobs}             & add snobs to tableau                                & \Yes & \No \\
-    \option{snob box}          & Adds default box entry for each snob                & \Yes & \No \\
-    \option{snob box style}    & Sets style of boxes on each snob                    & \Yes & \No \\
-    \option{snob style}        & Sets style of a snob                                & \Yes & \No \\
-    \option{south}             & Make abacus grow towards the south                  & \Yes & \No \\
-    \option{star style}        & Set \TikZ-style of tableau $*$-nodes                & \Yes & \No \\
-    \option{styles}            & Short-hand for defining single use \TikZ-styles     & \Yes & \Yes[abacus] \\
-    \option{tabloid}           & True for a shifted tableau                          & \Yes & \No \\
-    \option{text entries}      & Typeset box and label entries in text-mode          & \Yes & \Yes[abacus] \\
-    \option{tick}              & Set the colour of the ticks on the abacus runner    & \No  & \Yes \\
-    \option{tick length}       & Set the length of the ticks on the abacus runners   & \No  & \Yes \\
-    \option{tick style}        & Set the style of the ticks on the abacus runners    & \No  & \Yes \\
-    \option{tikz after}        & \TikZ-code injected after \aTableau picture         & \Yes & \Yes[abacus] \\
-    \option{tikz before}       & \TikZ-code injected before \aTableau picture        & \Yes & \Yes[abacus] \\
-    \option{tikzpicture}       & Sets tikzpicture environment keys                   & \Yes & \No \\
-    \option{traditional}       & Use the traditional abacus style                    & \No  & \Yes \\
-    \option{ukrainian}         & Use the Ukrainian convention for tableaux           & \Yes & \No \\
-    \option{valign}            & Set vertical alignment                              & \Yes & \Yes[abacus] \\
-    \option{west}              & Make abacus grow towards the west                   & \Yes & \No \\
-    \option{xoffsets}          & Set $x$-offsets for components in a multitableau    & \Yes & \No \\
-    \option{xscale}            & Set \aTableau $x$-scale                             & \Yes & \Yes(scale-abacus) \\
-    \option{yoffsets}          & Set $y$-offsets for components in a multitableau    & \Yes & \No \\
-    \option{yscale}            & Set \aTableau $y$-scale                             & \Yes & \Yes(scale-abacus) \\
-    \bottomrule
-  \end{xltabular}
-
-  All keys can be used with all \aTableau pictures. In most cases, keys
-  that are not intended to be applied to a given picture are silently
-  ignored.
-
-  % --------------------------------------------------------------
-  \subsection{\aTableau Colours}\label{S:Colours}
-  \label{S:ColourTheme}
-  \index{colour theme}
-
-  The colours in \aTableau pictures are controlled by the six base colours:
-  \begin{center}
-    \begin{tabular}{*3l}
-    aTableauMain      &
-    aTableauInner     &
-    aTableauStarStyle \\
-    aTableauSkew      &
-    aTableauSkewFill  &
-    aTableauRod
-    \end{tabular}
-  \end{center}
-
-  Creating a good colour scheme is difficult, and it is partly
-  subjective. \aTableau provides three different colour themes in the
-  hope that one of these themes will appeal. The \option{colour theme}
-  key sets the colour theme.
-
-  It is sometimes useful to use the \aTableau colour names directly in
-  style specifications, and with \LaTeX\ colour commands. For example,
-  you can write \keyword{\textcolor{aTableauMain}{text}}. The \aTableau
-  colours are defined as HTML colours using the \keyword{\definecolor}
-  command provided by \ctan{xcolor}. In addition to changing the colour
-  theme, the key-value interface allows you to set the colours of
-  individual components in the pictures produced by \aTableau.
-
-  {\samepage
-
-    \option[default]{colour theme}{default,classic,natural}
-  }
-
-    \begin{itemize}
-      \item \ColourTheme{default}
-      \item \ColourTheme{classic}
-      \item \ColourTheme{natural}
-    \end{itemize}
-
-  % --------------------------------------------------------------
-  \subsection{\aTableau styles}\label{S:TikZStyles}
-
-  This package is little more than a glorified interface to some \TikZ
-  commands. Under the hood there are many custom \TikZ styles that
-  control the pictures drawn by the \aTableau package. The key-value
-  interface to the \aTableau commands is the recommended way of changing
-  these styles, however, it is sometimes useful (see, for example,
-  \autoref{Ex:DottedAbacus}), to use these styles in your own pictures.
-  You can, if you want, change these styles directly using
-  \keyword{\tikzset}, but we recommend not doing this  because there is
-  a risk that you may break some of the corresponding \aTableau
-  commands. If you do change these styles directly, we strongly
-  recommend that you \emph{append} to these styles rather than setting
-  them directly.
-
-  \begin{center}
-    \begin{xltabular}{0.9\textwidth}{ll}\toprule
-       \heading{Style name} & \heading{Adds \TikZ-styling to...}\\
-       \midrule
-       aTableau/abacusBead       & Standard abacus beads\\
-       aTableau/abacusEnds       & Tops and bottoms of abacuses\\
-       aTableau/abacusRunner     & Abacus runners\\
-       aTableau/abacusStarStyle  & Abacus stars \\
-       aTableau/abacusTick       & Abacus ticks \\
-       aTableau/borderStyle      & Tableau borders \\
-       aTableau/boxStyle         & Tableau boxes\\
-       aTableau/clearBoxes       & Erases material. Used by \option{dotted rows} and \option{dotted cols}\\
-       aTableau/delimiterStyle   & Delimiter style in multitableaux and multidiagrams\\
-       aTableau/dottedLine       & Adds dotted lines. Used by \option{dotted rows} and \option{dotted cols}\\
-       aTableau/innerWall        & Inner tableau walls\\
-       aTableau/labelStyle       & Tableau labels \\
-       aTableau/leftDelimiter    & Left delimiter in multitableau\\
-       aTableau/pathBox          & Boxes in paths \\
-       aTableau/pathStyle        & Paths \\
-       aTableau/ribbonBox        & Boxes in ribbons \\
-       aTableau/ribbonStyle      & Ribbons \\
-       aTableau/rightDelimiter   & Right delimiter in multitableau\\
-       aTableau/runnerLabelStyle & Style of abacus runner labels\\
-       aTableau/separatorLine    & Separator lines in multitableau\\
-       aTableau/separatorSymbol  & Separators in multitableau\\
-       aTableau/skewBorder       & Skew tableau borders \\
-       aTableau/skewBox          & Skew tableau boxes \\
-       aTableau/snobBox          & Boxes in snobs \\
-       aTableau/snobStyle        & Snobs \\
-       aTableau/tableauStarStyle & Star style for tableaux \\
-       \bottomrule
-    \end{xltabular}
-  \end{center}
-
-  Most of these styles are quite basic, but some of them are more
-  involved. We do not recommend changing any of these styles directly
-  because doing so can, potentially, break \aTableau functionality. In
-  some cases, such as the tableau boxes, the \TikZ styling does not
-  fully control the rendering of these features. Most of these styles
-  can be changed using the key-value interface, which is another reason
-  to avoid changing them by hand. Changes that you make to these styles
-  are not guaranteed to be compatible with future releases of \aTableau.
-
-  % --------------------------------------------------------------
   \section{Feature requests and bug reports}
 
   Please make any feature requests and bug reports on the \aTableau github
@@ -4829,8 +4967,8 @@
   % --------------------------------------------------------------
   \subsection*{Acknowledgements}
 
-  Several features in \aTableau have benefited from discussions on
-  \url{tex.stackexchange}. In particular, I thank
+  Several features in \aTableau have benefited from posts on
+  \href{https://https://tex.stackexchange.com}{tex.stackexchange.com}. In particular, I thank
     Max Chernoff,
     Lars Madsen,
     Clea F. Rees,

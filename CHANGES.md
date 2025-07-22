@@ -7,12 +7,14 @@
 
 ### Version 2.2.0 - 2025-?
   - abacuses can now be specified by quotients
-  - adds the `colour theme` key, which changes the colour scheme
+  - adds the `colour theme` key, which gives a choice of three colour schemes
   - adds the `colours` key, which sets a cyclic list of fill colours for tableaux
+  - adds the `cover` key for tableau
   - adds the `framed` key for abacuses
+  - adds the `rotate` key
   - adds the `shape` key for `\RibbonTableau`
   - adds the `traditional` key for abacuses  (still incomplete)
-  - adds the `\NewTableau` and `\NewDiagram` commands for creating
+  - adds the `\NewATableauCommand` commands for creating
     custom pictures
   - adds support for multidirectional ribbons (still incomplete)
   - fixes bug in `beta numbers` key for abacuses
