@@ -7,7 +7,15 @@
 
   \aTabset{align=top}
 
-  \Abacus [south] {3}{2,1^2}
+  framed:
+
+  \Abacus[framed ]{4}{8^2_-,7_+,5_a,4^2_b,1_\times^3,1_d} \qquad
+  \Abacus[framed, traditional]{4}{8^2_-,7_+,5_a,4^2_b,1_\times^3,1_d}
+
+  \Abacus[framed, runner labels={0,1,2,3} ]{4}{8^2_-,7_+,5_a,4^2_b,1_\times^3,1_d} \qquad
+  \Abacus[framed, traditional, runner labels={0,1,2,3}]{4}{8^2_-,7_+,5_a,4^2_b,1_\times^3,1_d}
+
+\end{document}
 
   \tikzset{
     add grid/.code = {
@@ -23,55 +31,88 @@
     }
   }
 
-  \begin{tikzpicture}[add grid]
-    \aTabset{abacus ends=_|, entries=beads}
-    \Abacus(0,0) [south]              {3}{2,1^2}
-    \Abacus(0,2) [east,  bead=red]    {3}{2,1^2}
-    \Abacus(2,0) [north, bead=orange] {3}{2,1^2}
-    \Abacus(2,2) [west,  bead=brown]  {3}{2,1^2}
-  \end{tikzpicture}
+  dash
+  \Abacus[abacus ends=--]{3}{2,1^2,0^3}\quad
+  \Abacus[abacus ends=-_]{3}{2,1^2,0^3}\quad
+  \Abacus[abacus ends=-.]{3}{2,1^2,0^3}\quad
+  \Abacus[abacus ends=-*]{3}{2,1^2,0^3}\quad
+  \Abacus[abacus ends=-|]{3}{2,1^2,0^3}\quad
+  \Abacus[abacus ends=->]{3}{2,1^2,0^3}
 
-  \Abacus[abacus ends=-|]{3}{2,1^2,0^3}\quad\Abacus[abacus ends=-_]{3}{2,[bead=red]1^2,0^3}\quad
-  \Abacus[abacus ends=_.]{3}{2,1^2,0^3}\quad\Abacus[abacus ends=>>]{3}{2,1^2,0^3}\quad
-  \Abacus[abacus ends=>|]{3}{2,1^2,0^3}\quad\Abacus[abacus ends=_-]{3}{2,1^2,0^3}\quad
-  \Abacus[abacus ends=>-]{3}{2,1^2,0^3}\quad\Abacus[abacus ends=-*]{3}{2,1^2,0^3}
+  underline
+  \Abacus[abacus ends=_-]{3}{2,1^2,0^3}\quad
+  \Abacus[abacus ends=__]{3}{2,1^2,0^3}\quad
+  \Abacus[abacus ends=_.]{3}{2,1^2,0^3}\quad
+  \Abacus[abacus ends=_*]{3}{2,1^2,0^3}\quad
+  \Abacus[abacus ends=_|]{3}{2,1^2,0^3}\quad
+  \Abacus[abacus ends=_>]{3}{2,1^2,0^3}
 
+  dot
+  \Abacus[abacus ends=.-]{3}{2,1^2,0^3}\quad
+  \Abacus[abacus ends=._]{3}{2,1^2,0^3}\quad
+  \Abacus[abacus ends=..]{3}{2,1^2,0^3}\quad
+  \Abacus[abacus ends=.*]{3}{2,1^2,0^3}\quad
+  \Abacus[abacus ends=.|]{3}{2,1^2,0^3}\quad
+  \Abacus[abacus ends=.>]{3}{2,1^2,0^3}
 
-  \Abacus[traditional,abacus ends=-|]{3}{2,1^2,0^3}\quad\Abacus[traditional,abacus ends=-_]{3}{2,1^2,0^3}\quad
-  \Abacus[traditional,abacus ends=_.]{3}{2,1^2,0^3}\quad\Abacus[traditional,abacus ends=>>]{3}{2,1^2,0^3}\quad
-  \Abacus[traditional,abacus ends=>|]{3}{2,1^2,0^3}\quad\Abacus[traditional,abacus ends=_-]{3}{2,1^2,0^3}\quad
-  \Abacus[traditional,abacus ends=>-]{3}{2,1^2,0^3}\quad\Abacus[traditional,abacus ends=-*]{3}{2,1^2,0^3}
+  star
+  \Abacus[abacus ends=*-]{3}{2,1^2,0^3}\quad
+  \Abacus[abacus ends=*_]{3}{2,1^2,0^3}\quad
+  \Abacus[abacus ends=*.]{3}{2,1^2,0^3}\quad
+  \Abacus[abacus ends=**]{3}{2,1^2,0^3}\quad
+  \Abacus[abacus ends=*|]{3}{2,1^2,0^3}\quad
+  \Abacus[abacus ends=*>]{3}{2,1^2,0^3}
+
+  pipe
+  \Abacus[abacus ends=|-]{3}{2,1^2,0^3}\quad
+  \Abacus[abacus ends=|_]{3}{2,1^2,0^3}\quad
+  \Abacus[abacus ends=|.]{3}{2,1^2,0^3}\quad
+  \Abacus[abacus ends=|*]{3}{2,1^2,0^3}\quad
+  \Abacus[abacus ends=||]{3}{2,1^2,0^3}\quad
+  \Abacus[abacus ends=|>]{3}{2,1^2,0^3}
+
+  arrow
+  \Abacus[abacus ends=>-]{3}{2,1^2,0^3}\quad
+  \Abacus[abacus ends=>_]{3}{2,1^2,0^3}\quad
+  \Abacus[abacus ends=>.]{3}{2,1^2,0^3}\quad
+  \Abacus[abacus ends=>*]{3}{2,1^2,0^3}\quad
+  \Abacus[abacus ends=>|]{3}{2,1^2,0^3}\quad
+  \Abacus[abacus ends=>>]{3}{2,1^2,0^3}
+
+\bigskip
+
+  \Abacus[traditional,abacus ends=--]{3}{2,1^2,0^3}\quad\Abacus[traditional,abacus ends=-_]{3}{2,1^2,0^3}\quad
+  \Abacus[traditional,abacus ends=-_]{3}{2,1^2,0^3}\quad\Abacus[traditional,abacus ends=>>]{3}{2,1^2,0^3}\quad
+
+\bigskip
+
+  \Abacus[traditional,abacus ends=_-]{3}{2,1^2,0^3}\quad\Abacus[traditional,abacus ends=>>]{3}{2,1^2,0^3}\quad
+  \Abacus[traditional,abacus ends=__]{3}{2,1^2,0^3}\quad\Abacus[traditional,abacus ends=>>]{3}{2,1^2,0^3}\quad
+
+\bigskip
+
+  \Abacus[traditional,abacus ends=-|]{3}{2,1^2,0^3}\quad\Abacus[traditional,abacus ends=>>]{3}{2,1^2,0^3}\quad
+  \Abacus[traditional,abacus ends=|-]{3}{2,1^2,0^3}\quad\Abacus[traditional,abacus ends=>>]{3}{2,1^2,0^3}\quad
+
+\bigskip
+
+  \Abacus[traditional,abacus ends=_|]{3}{2,1^2,0^3}\quad\Abacus[traditional,abacus ends=>>]{3}{2,1^2,0^3}\quad
+  \Abacus[traditional,abacus ends=|_]{3}{2,1^2,0^3}\quad\Abacus[traditional,abacus ends=>>]{3}{2,1^2,0^3}\quad
 
     \bigskip
 
-  \Abacus[styles={b={ball color=blue},r={ball color=red},w={ball color=white}},abacus ends=--,scale=1.4]{3}{[b]9,[w]8,[r]8,[b]6,[b]6,[r]2,[b]1} \qquad
-  \Abacus{2}{5_5, 4_4, 3_3, 2_2,0_0} \qquad
-  \Abacus[styles={R={ball color=red, text=yellow}}]{3}{*5^2_5, [R]4^3_4, 3, 2_2,*0^2_{oo}} \qquad
-  \Abacus{4}{8^2_-,7_+,5_a,4^2_b,1_\times^3,1_d}
-
-  framed:
-  \Abacus[framed ]{4}{8^2_-,7_+,5_a,4^2_b,1_\times^3,1_d} \qquad
-  \Abacus[framed, traditional]{4}{8^2_-,7_+,5_a,4^2_b,1_\times^3,1_d}
+    \bigskip
 
     \Abacus[traditional, scale=0.6]{3}{6,4,3,1,0} \qquad
     \Abacus[traditional, runner=brown, bead=blue]
       {3}{6,4,3,[ball color=red]0^2}
+
+    \bigskip
 
   \Abacus[traditional, styles={b={ball color=blue},r={ball color=red},w={ball color=white}},abacus ends=--,scale=1.4]{3}{[b]9,[w]8,[r]8,[b]6,[b]6,[r]2,[b]1} \qquad
   \Abacus[traditional]{2}{5_5, 4_4, 3_3, 2_2,0_0} \qquad
   \Abacus[traditional,styles={R={ball color=red, text=yellow}}]{3}{*5^2_5, [R]4^3_4, 3, 2_2,*0^2_{oo}} \qquad
   \Abacus[traditional]{4}{8^2_-,7_+,5_a,4^2_b,1_\times^3,1_d}
 
-
-  \Abacus[abacus ends=-|]{3}{2,1^2,0^3}\quad\Abacus[abacus ends=-_]{3}{2,1^2,0^3}\quad
-  \Abacus[abacus ends=_.]{3}{2,1^2,0^3}\quad\Abacus[abacus ends=>>]{3}{2,1^2,0^3}\quad
-  \Abacus[abacus ends=>|]{3}{2,1^2,0^3}\quad\Abacus[abacus ends=_-]{3}{2,1^2,0^3}\quad
-  \Abacus[abacus ends=>-]{3}{2,1^2,0^3}\quad\Abacus[abacus ends=-*]{3}{2,1^2,0^3}
-
-
-  \Abacus[traditional, abacus ends=-|]{3}{2,1^2,0^3}\quad\Abacus[abacus ends=-_]{3}{2,1^2,0^3}\quad
-  \Abacus[traditional, abacus ends=_.]{3}{2,1^2,0^3}\quad\Abacus[abacus ends=>>]{3}{2,1^2,0^3}\quad
-  \Abacus[traditional, abacus ends=>|]{3}{2,1^2,0^3}\quad\Abacus[abacus ends=_-]{3}{2,1^2,0^3}\quad
-  \Abacus[traditional, abacus ends=>-]{3}{2,1^2,0^3}\quad\Abacus[abacus ends=-*]{3}{2,1^2,0^3}
 
 \end{document}

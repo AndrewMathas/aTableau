@@ -12,7 +12,7 @@
 
 ### Features being implemented
   - Allow R and C in ribbon tableau specifications ...still needs enhancement for ribbon border...
-  - Allow abacuses similar to those in suanpan-l3  ...almost done, still need to finalise the scale, borders, and the runner decorations, and fix abacus ends to work properly with traditional and non-traditional abacuses...
+  - Complete implementation and DOCUMENTATION for traditional abacuses and the framed key
   - Make `\__atableau_ribbon_tableau:n` peek for commas rather than using
     `\clist_map_inline:nn`. Currently braces are needed for "complex"
     style specifications in ribbon tableaux `[{...}]`. Similarly,

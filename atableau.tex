@@ -1,6 +1,6 @@
 % ----------------------------------------------------------------------
 % atableau - Andrew Mathas (C) 2022-2025
-% Modified: 13:52 Friday, 01 August 2025
+% Modified: 19:01 Saturday, 02 August 2025
 % ----------------------------------------------------------------------
 \documentclass{amsart}
 \usepackage[svgnames,table]{xcolor}
@@ -1702,7 +1702,7 @@
     \item in increasing order, from left to right, along each row, and
     \item in decreasing order, from top to bottom, down each column.
   \end{itemize}
-  This produces a colouring pattern consistent with Type~$A$ residues used in representation theory.
+  People working in representation theory will probably recognise this pattern as coming from residues in Type~A.
 
   \begin{example}
   \Tableau[colours={red,green!70!blue,blue!80},
@@ -1710,10 +1710,11 @@
   \Diagram[colours={black,white}]{4^4}    \qquad
   \end{example}
 
-  By default, the type~$A$ residue pattern is used. Other residue
-  patterns can be used by setting the \option{cartan} type, in which
-  case you will also need to manually set the quantum characteristic
-  \option{e} \textit{after} specifying the list of~\option{colours}.
+  Rather than placing the colours using the Type~A residue patterns,
+  other residue patterns can be used by setting the \option{cartan}
+  type. When using other Cartan types you will need to manually set the
+  quantum characteristic \option{e} \textit{after} specifying the list
+  of~\option{colours}.
 
   \begin{example}
   \Diagram[colours={yellow,white,white,yellow},
@@ -3830,7 +3831,7 @@
 
   \begin{Example}
   \aTabset{align=top}
-  \Abacus{1}{2,1,1}     \qquad \Abacus{2}{2,1^2,0^3} \qquad \Abacus{3}{2,1^2,0^5} \qquad
+  \Abacus{1}{2,1}       \qquad \Abacus{2}{2,1^2,0^3} \qquad \Abacus{3}{2,1^2,0^5} \qquad
   \Abacus{4}{2,1^2,0^5} \qquad \Abacus{5}{2,1^2,0^5} \qquad \Abacus{6}{2,1^2,0^5}
   \end{Example}
 
@@ -3871,21 +3872,22 @@
   will spill into the abacus. Traditionally, abacus beads are not labelled,
   but you can give labels to as many beads as you like.
 
-  You can remove beads that you have placed on the abacus using the \emph{no shade} style%
-  \footnote{Out of the box, \TikZ \emph{does not} provide a way to disable
-  a shading that is already in effect. The \emph{no shade} style, which is
-  based on a \href{https://tex.stackexchange.com/a/85750/234252}{stack exchange post},
-  is available whpartition the \aTableau package is loaded.}.
+  You can remove beads that you have placed on the abacus using the \emph{no bead} style%
+  \footnote{The \emph{no bead} style actually disables an existing
+  \TikZ-shading on a node. Out of the box, \TikZ \emph{does not} provide
+  a way to do this.  The \emph{no bead} style, which is based on a
+  \href{https://tex.stackexchange.com/a/85750/234252}{stack exchange
+  post}, is available whenever the \aTableau package is loaded.}.
   The point of being able to remove beads in this way is that this
-  allows you to put something else in its place using the bead label.
-  In such cases, you probably want to change the text colour, which is white
-  by default.
+  allows you to put something else in this bead position using the bead
+  label.  In such cases, you probably want to change the text colour
+  because this is white by default.
 
   \begin{example}[label=Ex:NoShade]
-  \Abacus[styles={C={no shade,text=red}}]
+  \Abacus[styles={C={no bead,text=red}}]
     {5}{8^2_-,7_+,5_a,4^2_b,[C]1_\bullet^3,1_d}
   \end{example}
-  \index{no shade}
+  \index{no bead}
 
   As with tableau boxes, the bead labels are typeset in
   mathematics~mode by default. This can changed using
@@ -4011,8 +4013,8 @@
     \rowcolors{2}{LightSkyBlue!10}{}
     \begin{tabular}{Oll} \toprule
       \multicolumn1l{\textsf{Character}} & \textsf{Symbol} & \textsf{Meaning} \\ \midrule
-      $-$    & dash         & Draw a line that extends slightly past the first and last runners\\
-      \_\!\_ & underscore   & Draw a line between the first and last runners\\
+      $-$    & dash         & Draw a horizontal line that extends slightly past the first and last runners\\
+      \_\!\_ & underscore   & Draw a horizontal line between the first and last runners\\
       .      & dot          & Draw dots at the end of the runners\\
       *      & asterisk     & Draw dots and arrows at the end of the runners\\
       $|$    & pipe         & No additional decoration\\
@@ -4073,8 +4075,8 @@
     {3}{5,*4_b,*1^2,0^4}
   \end{example}
 
-  \option[0.8]{abacus top}[a decimal number]
-  \option*[0.2]{abacus bottom}[a decimal number]
+  \option[0.4]{abacus top=number}[a decimal number]
+  \option*[0]{abacus bottom=number}[a decimal number]
 
   The \option{abacus top} key sets the gaps between the ``top'' of the
   abacus and the first row of beads. Similarly, \option{abacus bottom}
@@ -4089,7 +4091,8 @@
 
   \begin{example}
   \Abacus[abacus ends=--]{3}{2,1^2,0^3}\qquad
-  \Abacus[abacus ends=--, abacus top=0, abacus bottom=1]{3}{2,1^2,0^3}
+  \Abacus[abacus ends=--, abacus top=0,
+    abacus bottom=1]{3}{2,1^2,0^3}
   \end{example}
 
   \option[\aTableauColour{Main}]{bead=colour}[a \LaTeX\ colour]
@@ -4154,7 +4157,7 @@
 
   \begin{example}
   \Abacus[bead style={shading=axis}, bead text=red] {3}{3_3,2^2,1^3} \qquad
-  \Abacus[bead style={no shade, fill=aTableauMain}] {3}{3_3,2^2,1^3}
+  \Abacus[bead style={no bead, fill=aTableauMain}] {3}{3_3,2^2,1^3}
   \end{example}
 
   By default, the beads look like balls (they use the
@@ -4307,6 +4310,15 @@
 
   \end{itemize}
 
+  \option[false]{framed}[false/true]
+
+  The \option{framed} key adds a frame around the abacus. This key
+  overrides the \option{abacus ends} key.
+
+  \begin{example}
+  \Abacus[framed]{3}{3,2^2,0^2} \qquad
+  \end{example}
+
   \option[A]{name=text}[text]
 
   Just like the tableaux commands, the \keyword{abacus} command defines
@@ -4332,30 +4344,30 @@
     }]{3}{4^3,1^2}
   \end{Example}
 
-  \option[]{no shade}
+  \option[]{no bead}
 
   The abacus balls are drawn with the \TikZ style
   \keyword{shading=ball}.  As noted in \autoref{Ex:NoShade}, you can
-  disable the \TikZ-ball shading for individual beads using the \TikZ-style \keyword{no shade}. The
-  \option{no shade} key disables the ball shading for \emph{all} beads,
+  disable the \TikZ-ball shading for individual beads using the \TikZ-style \keyword{no bead}. The
+  \option{no bead} key disables the ball shading for \emph{all} beads,
   which allows you to fully customise how the abacus beads are
   displayed.
 
   \begin{example}
-  \Abacus[no shade, bead text=red]{3}{3_1,2_2,2_3} \qquad
-  \Abacus[bead style={no shade, shape=diamond,
+  \Abacus[no bead, bead text=red]{3}{3_1,2_2,2_3} \qquad
+  \Abacus[bead style={no bead, shape=diamond,
     fill=brown, text=yellow}]{3}{3_1,2_2,2_3,0^2}
   \end{example}
 
-  As the first example shows, if you use the \option{no shade} key then
+  As the first example shows, if you use the \option{no bead} key then
   you need to define a new style for the abacus beads. As the second
-  example shows, rather than using \option{no shade} as an
+  example shows, rather than using \option{no bead} as an
   \keyword{\Abacus} key, you can use it inside \option{bead style} as a
-  \TikZ-style. (We include the \option{no shade} option partly for
+  \TikZ-style. (We include the \option{no bead} option partly for
   convenience and partly to advertise how to use it.)
 
   \begin{warning}
-    The \option{no shade} key is \textit{not} a boolean key. In
+    The \option{no bead} key is \textit{not} a boolean key. In
     particular, there is no inverse key \textcolor{aTableauInner}{shade}.
   \end{warning}
 
@@ -4374,10 +4386,12 @@
   \Abacus[rows=5]{3}{3,2^2,0^2}
   \end{example}
 
-  \option[draw=\aTableauColour{Inner}]{runner=colour}[a \LaTeX\ colour]
+  \option[\aTableauColour{Inner}]{runner=colour}[a \LaTeX\ colour]
   \option*[very thick]{runner style=style}[\TikZ-styling]
 
-  Use \option{runner} to set the colour of abacus runners.
+  Use \option{runner} to set the colour of abacus runners and, more
+  generally, \option{runner style} to set the style of the abacus
+  runners.
 
   \begin{example}
   \Abacus{3}{3,2^2} \qquad
@@ -4409,21 +4423,23 @@
     minimum size=2.5mm}] {4}{5,3,2^2,0^2}
   \end{example}
 
-  As with the \option{label} key for tableau, the runner labels are
-  typeset as mathematics, by default.
+  As with the \option{label} key for tableau, , by default, the runner
+  labels are typeset in mathematics mode.
 
   \option[\aTableauColour{Inner}]{tick=colour}[a \LaTeX\ colour]
   \option*[semithick]{tick style=style}[\TikZ-styling]
-  \option*[0.1]{tick length=number}[length in \unit{cm}]
+  \option*[0.2]{tick length=number}[decimal]
 
   These three keys control the ticks on the abacus runners, which mark
-  the empty bead positions. Use \option{tick} to the colour of the
-  ticks on the abacus runners. The other two key have the obvious meanings.
+  the empty bead positions. Use \option{tick} to the colour of the ticks
+  on the abacus runners. The \option{tick style} key sets the style of
+  the abacus tick,s and \option{tick length} sets it length \textit{as a
+  fraction of the bead width}.
 
   \begin{example}
   \Abacus[tick=red]{3}{6,4,3,1,0} \qquad
-  \Abacus[tick style={ultra thick,orange}]{3}{6,4,3,1,0} \qquad
   \Abacus[tick length=0.3]{3}{6,4,3,1,0} \qquad
+  \Abacus[tick style={ultra thick,orange}]{3}{6,4,3,1,0}
   \end{example}
 
   \subsection{Traditional abacuses}\label{SS:Traditional}
@@ -4454,28 +4470,50 @@
   \end{example}
 
   Traditional abacuses occupy more space, but they are more visually
-  appealing. Not all of the abacus options have been tested on
-  traditional abacuses, so please
+  appealing. Traditional abacuses were added as an afterthought and not
+  all of the abacus options have been tested on traditional abacuses.
+  Please
   \href{https://github.com/AndrewMathas/aTableau/issues}{report any problems}.
 
-  \option[0.4]{bead height }[decimal number, height in \unit{cm}]
-  \option*[0.4]{bead width}[decimal number, width in \unit{cm}]
+  \option[0.285]{bead height }[height in \unit{cm}]
+  \option*[0.665]{bead width }[width in \unit{cm}]
+
+  The \option{bead height} and \option{bead width} keys set the height
+  and width of the abacus beads, or disks.
 
   \begin{example}
-  \Abacus[traditional, bead height=0.6]{3}{6,4,3,1,0} \qquad
-  \Abacus[traditional, bead width=0.2]{3}{6,4,3,1,0}
+  \Abacus[traditional, bead height=0.3]{3}{6,4,3,1,0} \qquad
+  \Abacus[traditional, bead width=0.8]{3}{6,4,3,1,0} \qquad
   \end{example}
 
-  \option[0.4]{beam height}[decimal number, height in \unit{cm}]
+  If you change these keys, then you may also need to adjust
+  \option{bead sep} and \option{runner sep}.
+
+  \option[0.13]{beam height}[height in \unit{cm}]
+
+  Sets the height of the beam at the top and bottom of the abacus (see
+  \option{abacus ends}).
 
   \begin{example}
-  \Abacus[traditional, beam height=0.2, bead width=0.2]{3}{6,4,3,1,0} \qquad
+  \Abacus[traditional, beam height=0.26,
+    abacus ends=--]{3}{6,4,3,1,0} \qquad
   \end{example}
 
-  \option[0.4]{rod width}[decimal number, width in \unit{cm}]
+  \option[false]{framed}[false/true]
+
+  The \option{framed} key adds a frame around the abacus. This key
+  overrides the \option{abacus ends} key.
 
   \begin{example}
-  \Abacus[traditional, rod width=0.2, bead width=0.2]{3}{6,4,3,1,0} \qquad
+  \Abacus[framed, traditional]{4}{3,2^2,1^3,0^2}
+  \end{example}
+
+  \option[0.2]{tick length}[decimal number, length \unit{cm}]
+
+  For traditional abacuses, the \option{tick length} sets the with of
+  the rods in the abacus.
+  \begin{example}
+  \Abacus[traditional, tick length=0.3]{3}{6,4,3,1,0} \qquad
   \end{example}
 
   % --------------------------------------------------------------
@@ -4784,6 +4822,7 @@
        aTableau/innerWall        & Inner tableau walls\\
        aTableau/labelStyle       & Tableau labels \\
        aTableau/leftDelimiter    & Left delimiter in multitableau\\
+       aTableau/namedTick        & Named nodes for abacus beads and ticks\\
        aTableau/pathBox          & Boxes in paths \\
        aTableau/pathStyle        & Paths \\
        aTableau/ribbonBox        & Boxes in ribbons \\
@@ -4801,14 +4840,15 @@
     \end{xltabular}
   \end{center}
 
-  Most of these styles are quite basic, however, some are more involved.
-  We do not recommend changing any of these styles directly because
-  doing so can, potentially, break \aTableau functionality. In some
-  cases, such as the tableau boxes, the \TikZ styling does not fully
-  control the rendering of these features. Most of these styles can be
-  changed using the key-value interface, which is another reason to
-  avoid changing them by hand. Changes that you make to these styles are
-  not guaranteed to be compatible with future releases of \aTableau.
+  Most of these styles are quite basic, however, some are more involved
+  or are used in non-obvious ways. We do not recommend changing any of
+  these styles directly because doing so can, potentially, break
+  \aTableau functionality. In some cases, such as the tableau boxes, the
+  \TikZ styling does not fully control the rendering of these features.
+  Most of these styles can be changed using the \aTableau key-value
+  interface, which is another reason to avoid changing them by hand.
+  Changes that you make to these styles are not guaranteed to be
+  compatible with future releases of \aTableau.
 
 
   % --------------------------------------------------------------
@@ -4818,11 +4858,11 @@
   literature using the \aTableau package.
 
   Diagrams like the following are common. Note the use of
-  \option{ribbons} to add the $\alpha$ in row~$6$ and column~$8$.
+  \option{ribbons} to add the $\alpha$ in row~$4$ and column~$8$.
 
   \begin{example}
-  \Diagram[french, no boxes, ribbons={*68_\alpha}]
-    {15,13,12,9,8^2,5,3}
+  \Diagram[french, no boxes, ribbons={*48_\alpha}]
+    {12,9,8^2,5,3}
   \end{example}
 
   Mendes~ \cite{Mendes:hooks} uses tableaux like those below to give a new
