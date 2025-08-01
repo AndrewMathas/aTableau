@@ -16,6 +16,8 @@
   - adds the `traditional` key for abacuses  (still incomplete)
   - adds the `\NewATableauCommand` commands for creating
     custom pictures
+  - adds error messages whenever an aTableau command is not properly
+    contained inside, or outside, of a tikzpicture environment
   - adds support for multidirectional ribbons (still incomplete)
   - fixes bug in `beta numbers` key for abacuses
   - many improvements and corrections to the manual

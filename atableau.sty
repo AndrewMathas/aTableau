@@ -1,6 +1,6 @@
 % ---------------------------------------------------------------------------
 % aTableau - Andrew Mathas (C) 2022-2025
-% Modified: 00:52 Wednesday, 23 July 2025
+% Modified: 12:55 Friday, 01 August 2025
 % ---------------------------------------------------------------------------
 %
 % A LaTeX package for symmetric group combinatorics:
@@ -96,6 +96,14 @@
 \msg_new:nnnn { aTableau } { invalid-ribbon-specification }
   { Invalid~ribbon~specification~'#1':~expecting~r~or~c. }
   { Ribbon~specifications~must~be~for~the~form:~[optional~style]<row><col>~sequences~of~r's and~c's~with~style}
+
+\msg_new:nnnn { aTableau } { inside-tikzpicture }
+  { aTableau~command~without~(x,y)-coordinates~CANNOT~be~inside~a~tikzpicture~environment! \@currenvir}
+  { You~need~to~be~inside~a~tikzpicture~environment~whenever~you~use~an~aTableau~command~with~(x,y)-coordinates }
+
+\msg_new:nnnn { aTableau } { outside-tikzpicture }
+  { aTableau~command~with~(x,y)-coordinates~NOT~inside~a~tikzpicture~environment! }
+  { You~need~to~be~inside~a~tikzpicture~environment~whenever~you~use~an~aTableau~command~with~(x,y)-coordinates }
 
 \msg_new:nnnn { aTableau } { quotient-components }
   { The~quotient~has~too~many~components:~#1 }
@@ -638,7 +646,7 @@
     \tl_set:Nn \l__atableau_tick_tl          {aTableauInner}
     \tl_set:Nn \l__atableau_runner_tl        {aTableauInner}
     \cs_set_eq:NN \__atableau_abacus_end:nnnn \__atableau_standard_end:nnnn
-    \cs_set_eq:NN \__atableau_abacus_runner:nnn \__atableau_standard_runner:nnn
+    \cs_set_eq:NN \__atableau_draw_abacus_runner:nnn \__atableau_standard_runner:nnn
 }
 
 \cs_new:Nn \__atableau_set_abacus_convention_traditional:
@@ -652,7 +660,7 @@
     \tl_set:Nn \l__atableau_tick_tl          {aTableauRod}
     \tl_set:Nn \l__atableau_runner_tl        {aTableauRod}
     \cs_set_eq:NN \__atableau_abacus_end:nnnn \__atableau_traditional_end:nnnn
-    \cs_set_eq:NN \__atableau_abacus_runner:nnn \__atableau_traditional_runner:nnn
+    \cs_set_eq:NN \__atableau_draw_abacus_runner:nnn \__atableau_traditional_runner:nnn
 }
 
 % ---------------------------------------------------------------------------
@@ -738,13 +746,12 @@
 \cs_generate_variant:Nn \__atableau_abacus_bead:nnn {enV}
 \cs_generate_variant:Nn \__atableau_add_ribbon:n {V}
 \cs_generate_variant:Nn \__atableau_count_row:n {x}
-\cs_generate_variant:Nn \__atableau_draw_abacus_end:nnn {non, nVn}
 \cs_generate_variant:Nn \__atableau_draw_tableau:n {V}
 \cs_generate_variant:Nn \__atableau_define_html_colour:nn {no}
 \cs_generate_variant:Nn \__atableau_entry:n {x}
 \cs_generate_variant:Nn \__atableau_put_tikz_node:nnnnn {nnVnV, noVnV, noVno}
 \cs_generate_variant:Nn \__atableau_set_bead_coordinates:nnn {nVn, nVV, nnV, noo, non, nVo, noV, nno}
-\cs_generate_variant:Nn \__atableau_set_box_coordinates:nnn {nVV, nVn, noo }
+\cs_generate_variant:Nn \__atableau_set_box_coordinates:nnn {nVV, nVn, noo, noV }
 \cs_generate_variant:Nn \__atableau_set_partition:nn {no}
 \cs_generate_variant:Nn \__atableau_tikz_node:nnnn {nVno}
 \cs_generate_variant:Nn \__atableau_tl_put_right_braced:Nn { NV, Nx, No, Ne }
@@ -1760,12 +1767,16 @@
 %  - \l__atableau_xl_fp : x-coordinates
 %  - \l__atableau_yl_fp : y-coordinate
 %  - \l__atableau_name_tl : the node name
-% Used by both the tableaux and abacus commands
+% Used by both the tableaux and abacus commands. We shift all of the
+% row coordinates up by l__atableau_abacus_top_fp to ensure the line at the top
+% of the abacus is in the expected place.
 \cs_new_protected:Npn \__atableau_set_bead_coordinates:nnn #1 #2 #3
 {
-    \tl_set:Nx \l__atableau_name_tl {\l__atableau_prefix_tl-\fp_to_int:n{#2-1}-\fp_to_int:n{#3}}
-    \fp_set:cn {l__atableau_x#1_fp} {\l__atableau_x_fp+(#2*\l__atableau_abacus_row_dx_fp+#3*\l__atableau_abacus_col_dx_fp)*\l__atableau_abacus_wd_fp }
-    \fp_set:cn {l__atableau_y#1_fp} {\l__atableau_y_fp+(#2*\l__atableau_abacus_row_dy_fp+#3*\l__atableau_abacus_col_dy_fp)*\l__atableau_abacus_ht_fp }
+\typeout{~-~setting~bead~coord~for~(#1,~\fp_eval:n{#2},~#3).~top=\fp_use:N\l__atableau_abacus_top_fp}
+    \tl_set:Nx \l__atableau_name_tl {\l__atableau_prefix_tl-\fp_to_int:n{#2}-\fp_to_int:n{#3}}
+    \fp_set:cn {l__atableau_x#1_fp} {\l__atableau_x_fp+((#2+\l__atableau_abacus_top_fp)*\l__atableau_abacus_row_dx_fp+#3*\l__atableau_abacus_col_dx_fp)*\l__atableau_abacus_wd_fp }
+    \fp_set:cn {l__atableau_y#1_fp} {\l__atableau_y_fp+((#2+\l__atableau_abacus_top_fp)*\l__atableau_abacus_row_dy_fp+#3*\l__atableau_abacus_col_dy_fp)*\l__atableau_abacus_ht_fp }
+\typeout{~-~done:~\l__atableau_name_tl}
 }
 
 % ---------------------------------------------------------------------------
@@ -2582,7 +2593,7 @@
     \node[aTableau/abacusBead, #1] at (\fp_use:c{l__atableau_x#2_fp},\fp_use:c{l__atableau_y#2_fp}) {\__atableau_entry:n {#3}};
 }
 
-% usage: \__atableau_standard_runner:nnn {style} {initial coordinate} {offset}
+% usage: \__atableau_standard_end:nnnn {style} {initial coordinate} {offset}
 % Draw a line for an abacus runner using the initial coordinate (x#2_fp, y#2_fp) -- +(x#3_fp,y#3_fp)
 \cs_new_protected:Npn \__atableau_standard_end:nnnn #1 #2 #3 #4
 {
@@ -2604,7 +2615,12 @@
 % Draw a line for an abacus runner using the initial coordinate (x#2_fp, y#2_fp) -- +(x#3_fp,y#3_fp)
 \cs_new_protected:Npn \__atableau_standard_runner:nnn #1 #2 #3
 {
-    \draw[aTableau/#1] (\fp_use:c {l__atableau_x#2_fp},\fp_use:c {l__atableau_y#2_fp})--+(\fp_use:c {l__atableau_x#3_fp}, \fp_use:c {l__atableau_y#3_fp});
+\typeout{standard~runner:~#1,~#2,~#3.}
+\typeout{x#2=\fp_use:c {l__atableau_x#2_fp},~y#2=\fp_use:c {l__atableau_y#2_fp}}
+\typeout{x#3=\fp_use:c {l__atableau_x#3_fp},~y#3=\fp_use:c {l__atableau_y#3_fp}}
+
+    \draw[aTableau/#1] (\fp_use:c {l__atableau_x#2_fp}, \fp_use:c {l__atableau_y#2_fp})--+(\fp_use:c {l__atableau_x#3_fp}, \fp_use:c{l__atableau_y#3_fp});
+    \typeout{runner~drawn}
 }
 
 % usage: \__atableau_traditional_runner:nnn {style} {initial coordinate} {offset}
@@ -2619,22 +2635,22 @@
           \fp_eval:n {\fp_use:c{l__atableau_y#3_fp}-2*\l__atableau_tick_length_fp*\l__atableau_abacus_col_dy_fp});
 }
 
-% usage: \__atableau_draw_abacus_end:nnn {abacus_top/abacus_bottom} {row index} {±1}
+% usage: \__atableau_draw_abacus_end:Vnn {abacus_top/abacus_bottom} {row index} {±1}
 % Draw the top/bottom on the abacus. Here:
 %   - #1 is either % \l__atableau_abacus_top_tl  or \l__atableau_abacus_bottom_tl
 %   - #2 is the row index for the line we will draw
 %   - #3, which is ±1, determines whether arrows go up or down
 % either 0, for top, or the row index of the last row, for bottom
-\cs_new_protected:Npn \__atableau_draw_abacus_end:nnn #1 #2 #3
+\cs_new_protected:Npn \__atableau_draw_abacus_end:Vnn #1 #2 #3
 {
-\typeout{abacus~ends:~#1,~#2,~#3.}
+\typeout{ABACUS~ENDS:~"#1",~\fp_eval:n{#2},~#3.}
+\typeout{~-~checking...}
     \str_case:Vn #1
     {
         {-}
             {   % draw a line from the just before the first runner to just after the last runner
-                \__atableau_set_bead_coordinates:non {a} {#2} {0}
-                \fp_add:Nn \l__atableau_xa_fp {-\l__atableau_abacus_col_dx_fp*\l__atableau_abacus_wd_fp/2}
-                \fp_add:Nn \l__atableau_ya_fp {-\l__atableau_abacus_col_dy_fp*\l__atableau_abacus_ht_fp/2}
+            \typeout{~-~getting~a-coordinate}
+                \__atableau_set_bead_coordinates:nnn {a} {#2} {0}
                 \fp_set:Nn \l__atableau_xb_fp {\l__atableau_cols_int*\l__atableau_abacus_col_dx_fp*\l__atableau_abacus_wd_fp}
                 \fp_set:Nn \l__atableau_yb_fp {\l__atableau_cols_int*\l__atableau_abacus_col_dy_fp*\l__atableau_abacus_ht_fp}
                 \__atableau_abacus_end:nnnn {abacusEnds} {a} {b} {#3}
@@ -2650,7 +2666,7 @@
 
         {_}
             {   % draw a line  from the first to last runner
-                \__atableau_set_bead_coordinates:non {a} {#2} {0}
+                \__atableau_set_bead_coordinates:nnn {a} {#2} {0}
                 \fp_set:Nn \l__atableau_xb_fp {(\l__atableau_cols_int-1)*\l__atableau_abacus_col_dx_fp*\l__atableau_abacus_wd_fp}
                 \fp_set:Nn \l__atableau_yb_fp {(\l__atableau_cols_int-1)*\l__atableau_abacus_col_dy_fp*\l__atableau_abacus_ht_fp}
                 \__atableau_abacus_end:nnnn {abacusEnds} {a} {b} {#3}
@@ -2668,7 +2684,7 @@
                     \seq_if_in:NeF \l__atableau_dotted_cols_seq { \int_eval:n{##1-1} }
                     {
                         % draw the abacus runners from (xa,ya) to (xb,yb)
-                        \__atableau_set_bead_coordinates:noo {a} { #2 } { \int_eval:n{##1-1} }
+                        \__atableau_set_bead_coordinates:nnn {a} { #2 } { \int_eval:n{##1-1} }
                         \fp_set:Nn \l__atableau_xb_fp {#3*\l__atableau_abacus_row_dx_fp*\l__atableau_abacus_wd_fp}
                         \fp_set:Nn \l__atableau_yb_fp {#3*\l__atableau_abacus_row_dy_fp*\l__atableau_abacus_ht_fp}
                         \__atableau_abacus_end:nnnn {abacusEnds,dotted} {a} {b} {#3}
@@ -2741,10 +2757,6 @@
     % record the number of runners in cols_int
     \int_set:Nn \l__atableau_cols_int {#1}
 
-    % adjust the origin to allow for the close abacus ends
-    \fp_add:Nn \l__atableau_x_fp {-\l__atableau_abacus_col_dx_fp*\l__atableau_abacus_wd_fp/2}
-    \fp_add:Nn \l__atableau_y_fp {-\l__atableau_abacus_col_dy_fp*\l__atableau_abacus_ht_fp/2}
-
     \seq_if_empty:NF \l__atableau_runner_labels_seq
     {
         \int_set:No \l_tmpa_int { \seq_count:N \l__atableau_runner_labels_seq }
@@ -2753,7 +2765,7 @@
             \msg_error:nn {aTableau} {missing-runner-labels }
         }
     }
-
+    \typeout{Abacus!!}
     % Extract the bead positions and their styles into
     % \l__atableau_shape_seq, \l__atableau_styles_seq and \l__atableau_text_tl
     % We allow all of the following expressions
@@ -2820,7 +2832,7 @@
         {
             \__atableau_peek_style:nw {record_style:nn} ##1  \q_recursion_tail \q_recursion_stop
         }
-        % set the maximum beta nunber
+        % set the maximum beta number
         \int_set:No \l__atableau_row_int { \seq_item:Nn \l__atableau_shape_seq {-1}}
     }
     \typeout{IN=(#2)~->~part=(\seq_use:Nn\l__atableau_shape_seq {,})}
@@ -2833,54 +2845,54 @@
     % draw the abacus runners
     \int_zero:N \l__atableau_col_int
     % compute the change in x and y coordinates when we move to the end of the runner,
-    % which we store as (xl_fp, yl_fp) for use in \__atableau_abacus_runner:nnn
+    % which we store as (xl_fp, yl_fp) for use in \__atableau_draw_abacus_runner:nnn
     \fp_set:Nn \l_tmpa_fp {\l__atableau_rows_int+\l__atableau_abacus_bottom_fp}
     \fp_set:Nn \l__atableau_xl_fp { \l_tmpa_fp*\l__atableau_abacus_row_dx_fp*\l__atableau_abacus_wd_fp }
     \fp_set:Nn \l__atableau_yl_fp { \l_tmpa_fp*\l__atableau_abacus_row_dy_fp*\l__atableau_abacus_ht_fp }
     % similarly, set (xb_fp, yb_fp) to the half the tick length
     \fp_set:Nn \l__atableau_xb_fp {\l__atableau_tick_length_fp*\l__atableau_abacus_col_dx_fp}
     \fp_set:Nn \l__atableau_yb_fp {\l__atableau_tick_length_fp*\l__atableau_abacus_col_dy_fp}
-    \int_step_inline:nn {\l__atableau_cols_int}
+    \int_step_inline:nnn {0} {\l__atableau_cols_int-1}
     {
-        \int_set:Nn \l_tmpa_int {##1-1} % save recalculating this many times
         % skip the runners in dotted_cols_seq
-        \seq_if_in:NVF \l__atableau_dotted_cols_seq \l_tmpa_int
+        \seq_if_in:NnF \l__atableau_dotted_cols_seq {##1}
         {
             % draw the abacus runners from (xa,ya) to +(xl,yl)
-            \__atableau_set_bead_coordinates:nVV {a} \l__atableau_abacus_top_fp \l_tmpa_int
-            \__atableau_abacus_runner:nnn {abacusRunner} {a} {l}
+            \__atableau_set_bead_coordinates:nnn {a} {-\l__atableau_abacus_top_fp} {##1}
+    \typeout{HERE~with~##1~and~####1.~Going~to~\cs_to_str:N \__atableau_draw_abacus_runner:nnn}
+            \__atableau_draw_abacus_runner:nnn {abacusRunner} {a} {l}
 
             % draw ticks
-            \int_step_inline:nn {\l__atableau_rows_int}
+            \int_step_inline:nnn {0} {\l__atableau_rows_int-1}
             {
-                \__atableau_set_bead_coordinates:noV {a} { ####1 } \l_tmpa_int
-                % add a named node
+                \__atableau_set_bead_coordinates:non {a} { ####1 } {##1}
+\typeout{ADDING~TICK:~\l__atableau_name_tl~:~####1,~##1}
+                % add a named node first that sits on the runner
                 \node[aTableau/namedTick] (\l__atableau_name_tl) at (\fp_use:N\l__atableau_xa_fp,\fp_use:N\l__atableau_ya_fp){};
-                % draw the tick
+                % draw the tick, which extends to either side of the runner
                 \draw[aTableau/abacusTick]
                     (\fp_eval:n{\l__atableau_xa_fp+\l__atableau_xb_fp},\fp_eval:n{\l__atableau_ya_fp+\l__atableau_yb_fp})
                     --(\fp_eval:n{\l__atableau_xa_fp-\l__atableau_xb_fp},\fp_eval:n{\l__atableau_ya_fp-\l__atableau_yb_fp});
             }
         }
     }
-
     % draw extra runners at the end when framed is true
     \bool_if:NT \l__atableau_framed_bool
     {
-        \__atableau_set_bead_coordinates:non {a} {\fp_eval:n {\l__atableau_abacus_top_fp-0.3}} {-0.7}
-        \__atableau_abacus_runner:nnn {abacusRunner} {a} {l}
-        \__atableau_set_bead_coordinates:noo {a} {\fp_eval:n {\l__atableau_abacus_top_fp-0.3}} {\fp_eval:n {\l__atableau_cols_int-0.3}}
-        \__atableau_abacus_runner:nnn {abacusRunner} {a} {l}
+        \__atableau_set_bead_coordinates:non {a} {-\l__atableau_abacus_top_fp-0.3} {-0.7}
+        \__atableau_draw_abacus_runner:nnn {abacusRunner} {a} {l}
+        \__atableau_set_bead_coordinates:noo {a} {-\l__atableau_abacus_top_fp-0.3} {\l__atableau_cols_int-0.3}
+        \__atableau_draw_abacus_runner:nnn {abacusRunner} {a} {l}
     }
 
     % draw the top ends of the abacus -- and set \l_tmpa_fp for the runner labels
     \typeout{TOP:~\fp_use:N\l__atableau_abacus_top_fp}
-    \__atableau_draw_abacus_end:nVn \l__atableau_abacus_top_tl \l__atableau_abacus_top_fp {1}
+    \__atableau_draw_abacus_end:Vnn \l__atableau_abacus_top_tl {-\l__atableau_abacus_top_fp} {1}
 
     % draw the bottom ends of the abacus
     \typeout{BOTTOM:~\fp_use:N\l__atableau_abacus_bottom_fp}
-    \__atableau_draw_abacus_end:non \l__atableau_abacus_bottom_tl
-        {\fp_eval:n {\l__atableau_rows_int+\l__atableau_abacus_bottom_fp}} {-1}
+    \__atableau_draw_abacus_end:Vnn \l__atableau_abacus_bottom_tl
+            {\l__atableau_rows_int+\l__atableau_abacus_bottom_fp} {-1}
 
     % add the runner labels using the "row height" \l_tmpa_fp
     \int_zero:N \l__atableau_c_int
@@ -2920,12 +2932,15 @@
 
         % determine the bead coordinates: push everything 0.5 of a
         % unit down to allow space of the top of the abacus
-        \__atableau_set_bead_coordinates:noV {l} {\int_eval:n{\l__atableau_row_int+1} } \l__atableau_col_int
+        \typeout{ADDING~BEAD~AT~row=\int_use:N\l__atableau_row_int,~col=\int_use:N\l__atableau_col_int.}
+        \__atableau_set_bead_coordinates:nVV {l} \l__atableau_row_int \l__atableau_col_int
 
+        % add the bead only if they are not in a dotted row or column
         \seq_if_in:NVF \l__atableau_dotted_rows_seq \l__atableau_row_int
         {
             \seq_if_in:NVF \l__atableau_dotted_cols_seq \l__atableau_col_int
             {
+                % check to see if we need to show something for this entry
                 \str_case:VnF \l__atableau_show_tl
                 {
                   {beads}
@@ -3596,9 +3611,9 @@
 
     abacus~bottom .fp_set:N = \l__atableau_abacus_bottom_fp,
     abacus~bottom .value_required:n = true,
-    abacus~bottom .initial:n = 0.6,
+    abacus~bottom .initial:n = 0.4,
 
-    abacus~top .fp_set:N = \l__atableau_abacus_top_fp,
+    abacus~top .code:n = \fp_set:Nn \l__atableau_abacus_top_fp {1-#1}\typeout{TOP=\fp_use:N\l__atableau_abacus_top_fp},
     abacus~top .value_required:n = true,
     abacus~top .initial:n = 0.4,
 
@@ -3725,6 +3740,7 @@
         \keys_set:nn {atableau} {#1}
         \IfNoValueTF {#2}
         {   % wrap inside a tikzpicture environment, placing the picture at (0,0)
+            \if_cs_exist:N \draw \msg_error:nn {aTableau} { inside-tikzpicture} \fi:
             \__atableau_set_origin:nn (0,0)
 
             \mode_if_math:TF
@@ -3762,6 +3778,7 @@
             }
         }
         {   % already inside a tikzpicture environment
+            \if_cs_exist:N \draw \else: \msg_error:nn {aTableau} { outside-tikzpicture} \fi:
             \__atableau_set_origin:nn (#2)
             \l__atableau_tikz_before_tl #3 \l__atableau_tikz_after_tl
         }

@@ -8,7 +8,6 @@
 
 ### Bugs:
 
-  - Check coordinate placement of abacuses. It is now slightly off because of the change to the height of the abacus bar
   - find a way for the path, ribbon and snob boxes to inherit colour from the ribbon style
 
 ### Features being implemented

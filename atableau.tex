@@ -1,6 +1,6 @@
 % ----------------------------------------------------------------------
 % atableau - Andrew Mathas (C) 2022-2025
-% Modified: 00:52 Wednesday, 23 July 2025
+% Modified: 13:52 Friday, 01 August 2025
 % ----------------------------------------------------------------------
 \documentclass{amsart}
 \usepackage[svgnames,table]{xcolor}
@@ -2044,8 +2044,10 @@
 
   \option[0]{rotate=angle}[angle in degrees]
 
-  The \option{rotate} key rotates the tableau through the specified
-  number of \textit{degrees} in an anti-clockwise direction.
+  The \option{rotate} key rotates the tableau (diagram, or abacus),
+  through the specified number of \textit{degrees} in an anti-clockwise
+  direction around the outside vertex of the box in row~$1$ and
+  column~$1$.
 
   \begin{example}
   \Tableau[rotate=0]{123,45} \quad
@@ -2054,10 +2056,10 @@
   \end{example}
 
   Only the boxes in the tableau, not their entries, are rotated.  Only
-  one \option{rotate} key should be used in any given picture. The
-  different tableau conventions, such as \option{ukrainian} and
-  \option{australian}, should be used in preference to the
-  \option{rotate} key.
+  one \option{rotate} key should be used in any given picture. For
+  efficiency reasons, the tableau conventions, such as
+  \option{ukrainian} and \option{australian}, should be used in
+  preference to the \option{rotate} key.
 
   \option[1]{scale=number}[a decimal number]
   \option*[1]{xscale=number}[a decimal number]
@@ -3915,7 +3917,7 @@
   numbers with the \option{beta numbers} key. The syntax is
   exactly the same as described in the previous section except that the
   different components of the quotient are separated by a pipe
-  symbol~$|$. The number of components in the quotients must be less
+  symbol~\keyword{|}. The number of components in the quotients must be less
   than or equal to the number of runners.  Any omitted components in
   quotient are assumed to be empty.
 
@@ -3930,7 +3932,7 @@
   \index{Cartesian coordinates!abacus}
 
   The $(x,y)$-coordinates are required if, and only if, the
-  \keyword{\Abacus}command is used inside a \keyword{tikzpicture}
+  \keyword{\Abacus} command is used inside a \keyword{tikzpicture}
   environment, in which case $(x,y)$ gives the coordinates of the
   ``outside corner'' of the bead in row~$0$ and column~$0$ of the abacus
   (unlike tableaux, both the row and column indices start from~$0$). The
@@ -3942,10 +3944,10 @@
   \begin{example}
   \begin{tikzpicture}[add grid]
     \aTabset{abacus ends=_|, entries=beads}
-    \Abacus(0,0.5)  [south]              {3}{2,1^2}
-    \Abacus(0,2)    [east,  bead=red]    {3}{2,1^2}
-    \Abacus(2.5,0.5)[north, bead=orange] {3}{2,1^2}
-    \Abacus(3.5,-1) [west,  bead=brown]  {3}{2,1^2}
+    \Abacus(0,0) [south]              {3}{2,1^2}
+    \Abacus(0,2) [east,  bead=red]    {3}{2,1^2}
+    \Abacus(2,-1)[north, bead=orange] {3}{2,1^2}
+    \Abacus(3,1) [west,  bead=brown]  {3}{2,1^2}
   \end{tikzpicture}
   \end{example}
 
@@ -4071,20 +4073,19 @@
     {3}{5,*4_b,*1^2,0^4}
   \end{example}
 
-  \option[0.1]{abacus top}[a decimal number]
-  \option*[0.1]{abacus bottom}[a decimal number]
+  \option[0.8]{abacus top}[a decimal number]
+  \option*[0.2]{abacus bottom}[a decimal number]
 
-  The \option{abacus top} key controls the distance between the ``top''
-  end of the abacus runners and the first row of beads, and
-  \option{abacus bottom} controls the distance between the ``bottom'' of
-  the abacus runners and the last row of beads  on the abacus. Both of
-  these keys are interpreted as offsets to the row index, so
-  decreasing \option{abacus top} raises the line at the ``top'' of abacus
-  and increasing \option{abacus top} lowers the line at the ``bottom'' of
-  the abacus.\footnote{Throughout this section, the word ``top'' and ``bottom''
-  are correct when using the \option{south} convention for
-  abacuses.  These words need to be appropriately modified when using
-  the other abacus conventions.}
+  The \option{abacus top} key sets the gaps between the ``top'' of the
+  abacus and the first row of beads. Similarly, \option{abacus bottom}
+  sets the distance between the last row of beads and the bottom of the
+  abacus runners. Both of these keys are ``fractional'' row indices.interpreted as offsets to the
+  row index, so decreasing \option{abacus top} raises the line at the
+  ``top'' of abacus and increasing \option{abacus top} lowers the line
+  at the ``bottom'' of the abacus.\footnote{Throughout this section, the
+  word ``top'' and ``bottom'' are correct when using the \option{south}
+  convention for abacuses.  These words need to be appropriately
+  modified when using the other abacus conventions.}
 
   \begin{example}
   \Abacus[abacus ends=--]{3}{2,1^2,0^3}\qquad
@@ -4310,12 +4311,16 @@
 
   Just like the tableaux commands, the \keyword{abacus} command defines
   named coordinates for all of the \emph{beads} and \emph{ticks} on the
-  abacus. By default, the named coordinates take the form
-  $(\mathsf{A{-}r{-}c})$, for the bead or tick in row~$r$ and column~$c$ of the
-  abacus. Note that for abacuses, both the row and column indexing starts
-  from~$0$. The key \option{name} changes the prefix used for the names.
-  For example, after \option{name=X} the bead and tick names take the
-  form~$(\mathsf{X{-}r{-}c})$.
+  abacus. The key \option{name} changes the prefix used for the \TikZ
+  node names.  By default, the named coordinates take the form
+  $(\mathsf{A{-}r{-}c})$, for the bead or tick in row~$r$ and column~$c$
+  of the abacus.
+
+  \begin{warning}
+    For abacuses, both the row and column indexing starts from~$0$. For
+    example, after \option{name=X} the bead and tick names take the
+    form~$(\mathsf{X{-}r{-}c})$.
+  \end{warning}
 
   \begin{Example}[label=Ex:BeadPositions]
     \Abacus[name=X,
@@ -4429,9 +4434,9 @@
   style abacus, which is commonly used in the literature for algebraic
   combinatorics and representation theory. When the \option{traditional}
   key is used the \keyword{\Abacus} commands draws a more
-  traditional-style abacus, with runners look like rods and beads like
-  discs. The result is more visually appealing, except possibly for the
-  choice of colours!
+  traditional-style abacus, where the runners look like rods, and the
+  beads look like discs. The result is more visually appealing, except
+  possibly for the choice of colours!
 
   This section explains how to use the \option{traditional} key, along
   with additional options specific to traditional abacus diagrams.
@@ -4657,28 +4662,20 @@
   \keyword{\NewATableauCommand \Commmand {<tableau command name>} {keys}}
   \end{quote}
 
-  Of course, you should replace $\langle$\keyword{\Command}$\rangle$ with whatever
-  name you want to call your command. The $\langle$tableau command
-  name$\rangle$ can be any of the \aTableau picture commands:
+  Of course, you should replace $\langle$\keyword{\Command}$\rangle$
+  with whatever name you want to call your command. The $\langle$tableau
+  command name$\rangle$ can be any of the \aTableau picture commands:
   \begin{center}
-      \begin{tabular}{*5l}
-         Abacus&
-         Diagram&
-         Multidiagram&
-         Multitableau&
-         ShiftedDiagram\\
-         ShiftedTableau&
-         SkewDiagram&
-         SkewTableau&
-         Tableau&
-         Tabloid
-      \end{tabular}
+    \begin{tabular}{*5l}
+      Abacus& Diagram& Multidiagram& Multitableau& ShiftedDiagram\\
+      ShiftedTableau& SkewDiagram& SkewTableau& Tableau& Tabloid
+    \end{tabular}
   \end{center}
   Finally the $\langle$keys$\rangle$ can be an arbitrary comma separated
   list of \aTableau keys.  Defining custom commands helps to ensure
   consistency throughout your document, and it also makes it easier to
-  modify your ``design specifications'' because they will appear only in
-  the definition of your custom command.
+  modify your ``design specifications'' of your custom tableaux because
+  they will appear only in the definition of your custom command.
 
   The \keyword{\NewATableauCommand} command creates custom \aTableau
   commands. These commands are used in exactly the same ways as the
