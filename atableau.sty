@@ -1,6 +1,6 @@
 % ---------------------------------------------------------------------------
 % aTableau - Andrew Mathas (C) 2022-2025
-% Modified: 19:00 Saturday, 02 August 2025
+% Modified: 17:41 Sunday, 03 August 2025
 % ---------------------------------------------------------------------------
 %
 % A LaTeX package for symmetric group combinatorics:
@@ -232,13 +232,10 @@
 \seq_new:N \l__atableau_multiribbons_seq  % a sequence of ribbon for multi shapes
 \seq_new:N \l__atableau_multiskew_seq     % a sequence of skew partitions for multi shapes
 \seq_new:N \l__atableau_multisnobs_seq    % a sequence of snobs for multi shapes
-\seq_new:N \l__atableau_paths_seq         % ribbon paths to add to tableau/diagram
 \seq_new:N \l__atableau_rcs_seq           % ribbon row, column indices
-\seq_new:N \l__atableau_ribbons_seq       % ribbons to add to tableau/diagram
 \seq_new:N \l__atableau_runner_labels_seq % labels for the abacus runners
 \seq_new:N \l__atableau_shape_seq         % a partition
 \seq_new:N \l__atableau_skew_seq          % the inner partition for a skew shape
-\seq_new:N \l__atableau_snobs_seq         % snob ribbons to add to tableau/diagram
 \seq_new:N \l__atableau_styles_seq        % ribbon/bead styles
 \seq_new:N \l__atableau_texts_seq         % ribbon/bead texts
 \seq_new:N \l__atableau_xoffsets_seq      % x-offsets for the (1,1)-nodes in a multi-tableau
@@ -261,9 +258,9 @@
 \tl_new:N \l__atableau_capture_style_tl   % contains captured style
 \tl_new:N \l__atableau_capture_txt_tl     % contains captured text
 \tl_new:N \l__atableau_cartan_tl          % the Cartan type
+\tl_new:N \l__atableau_cover_border_tl    % cover border colour
 \tl_new:N \l__atableau_empty_tl           % symbol for empty tableau/diagram in a multi tableau/diagram
 \tl_new:N \l__atableau_entries_tl         % custom entries in tableau
-\tl_new:N \l__atableau_cover_border_tl    % cover border colour
 \tl_new:N \l__atableau_inner_tl           % colour of tableau inner walls
 \tl_new:N \l__atableau_label_tl           % a label to print on an tableau/diagram
 \tl_new:N \l__atableau_left_delimiter_tl  % the left delimiter for multitableau and multidiagrams
@@ -271,11 +268,13 @@
 \tl_new:N \l__atableau_name_tl            % name of a tableau node
 \tl_new:N \l__atableau_outer_tl           % colour of tableau outer walls
 \tl_new:N \l__atableau_path_box_tl        % node for ribbon paths
+\tl_new:N \l__atableau_paths_tl           % ribbon paths to add to tableau/diagram
 \tl_new:N \l__atableau_prefix_tl          % prefix for node names
 \tl_new:N \l__atableau_ribbon_box_tl      % box entry for ribbons
 \tl_new:N \l__atableau_ribbon_path_tl     % a ribbon in the ribbon tableau
 \tl_new:N \l__atableau_ribbon_style_tl    % optional style used for current path< ribbon or snob
 \tl_new:N \l__atableau_ribbon_type_tl     % the type of ribbon, which is either path, ribbon or snob
+\tl_new:N \l__atableau_ribbons_tl         % ribbons to add to tableau/diagram
 \tl_new:N \l__atableau_right_delimiter_tl % the right delimiter for multitableau and multidiagrams
 \tl_new:N \l__atableau_runner_tl          % abacus runner colour
 \tl_new:N \l__atableau_separator_fg_tl    % foreground colour of the separator
@@ -284,6 +283,7 @@
 \tl_new:N \l__atableau_show_tl            % automatic tableau/bead labelling
 \tl_new:N \l__atableau_skew_border_tl     % skew border colour
 \tl_new:N \l__atableau_snob_box_tl        % box entry for snobs
+\tl_new:N \l__atableau_snobs_tl           % snob ribbons to add to tableau/diagram
 \tl_new:N \l__atableau_starstyle_tl       % current star style in use
 \tl_new:N \l__atableau_styled_nodes_tl    % token lists of nodes with non-default style
 \tl_new:N \l__atableau_tick_tl            % abacus tick colour
@@ -708,20 +708,50 @@
 % usage: \__atableau_set_delimiters:nn {left delimiter} {right delimiter}
 \cs_new_protected:Npn \__atableau_set_delimiters:nn #1 #2
 {
-  \tl_set:Nn \l__atableau_left_delimiter_tl  #1
-  \tl_set:Nn \l__atableau_right_delimiter_tl #2
+    \tl_set:Nn \l__atableau_left_delimiter_tl  #1
+    \tl_set:Nn \l__atableau_right_delimiter_tl #2
 }
 
-% usage: \__atableau_set_multiseq_key:nn {name} {value}
-% Set up a sequence, for keys used with multishapes
-\cs_new_protected:Npn \__atableau_set_multiseq_key:nn #1 #2
+% usage: \__atableau_set_multi_seq_key:nn {name} {value}
+% Set up a partition for keys used with multishapes
+\cs_new_protected:Npn \__atableau_set_multi_shape_key:nn #1 #2
 {
-  \tl_if_in:nnTF {#2} {|}
-  {
-      % unpack the ribbons into \l__atableau_multi#1_seq
-      \seq_set_split:cnn {l__atableau_multi#1_seq} {|} {#2}
-  }
-  { \seq_set_from_clist:cn {l__atableau_#1_seq} {#2} }
+    \tl_if_in:nnTF {#2} {|}
+    {
+        % unpack the ribbons into \l__atableau_multi#1_seq
+        \seq_set_split:cnn {l__atableau_multi#1_seq} {|} {#2}
+    }
+    {
+        \__atableau_set_partition:nn {#1} {#2}
+    }
+}
+
+% usage: \__atableau_set_multi_seq_key:nn {name} {value}
+% Set up a sequence for keys used with multishapes
+\cs_new_protected:Npn \__atableau_set_multi_seq_key:nn #1 #2
+{
+    \tl_if_in:nnTF {#2} {|}
+    {
+        % unpack the ribbons into \l__atableau_multi#1_seq
+        \seq_set_split:cnn {l__atableau_multi#1_seq} {|} {#2}
+    }
+    {
+        \seq_set_from_clist:cn {l__atableau_#1_seq} {#2}
+    }
+}
+
+% usage: \__atableau_set_multi_tl_key:nn {name} {value}
+% Set up a token list for keys used with multishapes
+\cs_new_protected:Npn \__atableau_set_multi_tl_key:nn #1 #2
+{
+    \tl_if_in:nnTF {#2} {|}
+    {
+        % unpack the ribbons into \l__atableau_multi#1_seq
+        \seq_set_split:cnn {l__atableau_multi#1_seq} {|} {#2}
+    }
+    {
+        \tl_set:cn {l__atableau_#1_tl} {#2}
+    }
 }
 
 % usage: \__atableau_set_abacus_ends:nn {top} {top}
@@ -750,15 +780,15 @@
 \cs_generate_variant:Nn \seq_set_split:Nnn {cnn}
 
 \cs_generate_variant:Nn \__atableau_abacus_bead:nnn {enV}
-\cs_generate_variant:Nn \__atableau_add_ribbon:n {V}
 \cs_generate_variant:Nn \__atableau_count_row:n {x}
 \cs_generate_variant:Nn \__atableau_draw_tableau:n {V}
 \cs_generate_variant:Nn \__atableau_define_html_colour:nn {no}
 \cs_generate_variant:Nn \__atableau_entry:n {x}
+\cs_generate_variant:Nn \__atableau_add_ribbon:nn {nV}
 \cs_generate_variant:Nn \__atableau_put_tikz_node:nnnnn {nnVnV, noVnV, noVno}
 \cs_generate_variant:Nn \__atableau_set_bead_coordinates:nnn {nVn, nVV, nnV, noo, non, nVo, noV, nno}
 \cs_generate_variant:Nn \__atableau_set_box_coordinates:nnn {nVV, nVn, noo, noV }
-\cs_generate_variant:Nn \__atableau_set_partition:nn {no}
+\cs_generate_variant:Nn \__atableau_set_partition:nn {nV}
 \cs_generate_variant:Nn \__atableau_tikz_node:nnnn {nVno}
 \cs_generate_variant:Nn \__atableau_tl_put_right_braced:Nn { NV, Nx, No, Ne }
 
@@ -976,7 +1006,7 @@
         \int_step_inline:nn { \l__atableau_capture_exp_tl }
         {
             \int_incr:N \l__atableau_beads_int
-            \__atableau_add_to_abacus_shape: % add \l__atableau_capture_part_tl to \l__atableau_paths_seq
+            \__atableau_add_to_abacus_shape:
             \seq_put_right:NV \l__atableau_texts_seq  \l__atableau_capture_txt_tl
             \seq_put_right:NV \l__atableau_styles_seq \l__atableau_capture_style_tl
         }
@@ -1290,6 +1320,7 @@
           \__atableau_set_box_coordinates:nVV {a} \l__atableau_r_int \l__atableau_c_int
       }
       \tl_put_right:Nx \l__atableau_border_tl {(\fp_use:N\l__atableau_xa_fp,\fp_use:N\l__atableau_ya_fp)--(\fp_use:N\l__atableau_xb_fp,\fp_use:N\l__atableau_yb_fp)}
+
       % draw the border
       \draw[aTableau/#2] \l__atableau_border_tl;
     }
@@ -1535,7 +1566,6 @@
      % override the ribbon style inside this group
      \tikzset{aTableau/ribbonBox/.style=aTableau/coverBox}
      \tikzset{aTableau/ribbonStyle/.style={draw=none,fill=none}}
-     \tl_set:Nn \l__atableau_ribbon_type_tl {ribbon} % change ribbon type to ribbon
      \int_zero:N \l__atableau_r_int
      \seq_map_inline:Nn \l__atableau_cover_seq
      {
@@ -1547,7 +1577,7 @@
           \tl_put_right:Ne \l_tmpa_tl { {\int_use:N \l__atableau_r_int} }
           \tl_put_right:Ne \l_tmpa_tl { {##1} }
           \tl_put_right:Ne \l_tmpa_tl { \prg_replicate:nn {##1-\l__atableau_row_int-1} {c} }
-          \__atableau_add_ribbon:V \l_tmpa_tl
+          \__atableau_add_ribbon:nV {ribbon} \l_tmpa_tl
         }
      }
    \group_end:
@@ -1561,7 +1591,6 @@
      % override the ribbon style inside this group
      \tikzset{aTableau/ribbonBox/.style=aTableau/skewBox}
      \tikzset{aTableau/ribbonStyle/.style={draw=none,fill=none}}
-     \tl_set:Nn \l__atableau_ribbon_type_tl {ribbon} % change ribbon type to ribbon
      \int_zero:N \l__atableau_r_int
      \seq_map_inline:Nn \l__atableau_skew_seq
      {
@@ -1572,7 +1601,7 @@
           \tl_put_right:Ne \l_tmpa_tl { {\int_use:N \l__atableau_r_int} }
           \tl_put_right:Ne \l_tmpa_tl { {##1} }
           \tl_put_right:Ne \l_tmpa_tl { \prg_replicate:nn {##1-1} {c} }
-          \__atableau_add_ribbon:V \l_tmpa_tl
+          \__atableau_add_ribbon:nV {ribbon} \l_tmpa_tl
         }
      }
    \group_end:
@@ -1680,12 +1709,11 @@
     \cs_set_eq:NN \__atableau_update_shape: \prg_do_nothing:
 
     % add paths
-    \tl_set:Nn \l__atableau_ribbon_type_tl {path}   % change ribbon type to path
-    \seq_map_inline:Nn \l__atableau_paths_seq {\__atableau_add_ribbon:n {##1}}
+    \tl_if_empty:VF \l__atableau_paths_tl { \__atableau_add_ribbon:nV {path} \l__atableau_paths_tl }
 
     % add ribbons
-    \tl_set:Nn \l__atableau_ribbon_type_tl {ribbon} % change ribbon type to ribbon
-    \seq_map_inline:Nn \l__atableau_ribbons_seq {\__atableau_add_ribbon:n {##1}}
+    \typeout{RIBBONS=\tl_to_str:N\l__atableau_ribbons_tl}
+    \tl_if_empty:VF \l__atableau_ribbons_tl { \__atableau_add_ribbon:nV {ribbon} \l__atableau_ribbons_tl }
 
     % paths and ribbons are inside the delimiters, but snobs are not
     \cs_set_eq:NN \__atableau_update_extrema:n \use_none:n
@@ -1706,8 +1734,7 @@
     \seq_if_empty:NF \l__atableau_dotted_cols_seq \__atableau_remove_dotted_tableau_cols:
 
     % add snobs
-    \tl_set:Nn \l__atableau_ribbon_type_tl {snob} % change ribbon type to snob
-    \seq_map_inline:Nn \l__atableau_snobs_seq {\__atableau_add_ribbon:n {##1}}
+    \tl_if_empty:VF \l__atableau_snobs_tl { \__atableau_add_ribbon:nV {snob} \l__atableau_snobs_tl }
 }
 
 % ---------------------------------------------------------------------------
@@ -1947,8 +1974,8 @@
         % charge defaults to zero if not set
         \int_set:Nn \l__atableau_charge_int {0\seq_item:NV \l__atableau_charge_seq \l__atableau_component_int}
 
-        % set the multi-component keys from the corresponding multi sequence
-        \clist_map_inline:nn {dotted_rows, dotted_cols, paths, ribbons, snobs}
+        % set the multi-component sequence keys from the corresponding multi sequence
+        \clist_map_inline:nn {dotted_rows, dotted_cols}
         {
           % if multi####1 is empty then clear the ####1 sequence, otherwise set it equal to component value
           \seq_if_empty:cTF {l__atableau_multi####1_seq}
@@ -1959,26 +1986,27 @@
           }
         }
 
-        % labels are handled separately because they are not sequences
-        \seq_if_empty:NTF \l__atableau_multilabel_seq
-        { \seq_clear:N \l__atableau_label_seq }
+        % set the multi-component tl-keys from the corresponding multi sequence
+        \clist_map_inline:nn {label, paths, ribbons, snobs}
         {
-            \tl_set:Nx \l_tmpb_tl {\seq_item:NV \l__atableau_multilabel_seq \l__atableau_component_int}
-            \tl_set:No \l__atableau_label_tl {\l_tmpb_tl}
+          % if multi####1 is empty then clear the ####1 sequence, otherwise set it equal to component value
+          \seq_if_empty:cTF {l__atableau_multi####1_seq}
+          { \seq_clear:c {l__atableau_####1_seq} }
+          {
+              \tl_set:Nx \l_tmpb_tl {\seq_item:cV {l__atableau_multi####1_seq} \l__atableau_component_int}
+              \tl_set:cV {l__atableau_####1_tl} \l_tmpb_tl
+          }
         }
 
         % cover and skew are handled separately because they use set_partition
-        \seq_if_empty:NTF \l__atableau_multicover_seq
-        { \seq_clear:N \l__atableau_cover_seq }
+        \clist_map_inline:nn {cover, skew}
         {
-            \tl_set:Nx \l_tmpb_tl {\seq_item:NV \l__atableau_multicover_seq \l__atableau_component_int}
-            \__atableau_set_partition:no {cover} {\l_tmpb_tl}
-        }
-        \seq_if_empty:NTF \l__atableau_multiskew_seq
-        { \seq_clear:N \l__atableau_skew_seq }
-        {
-            \tl_set:Nx \l_tmpb_tl {\seq_item:NV \l__atableau_multiskew_seq \l__atableau_component_int}
-            \__atableau_set_partition:no {skew} {\l_tmpb_tl}
+            \seq_if_empty:cTF {l__atableau_multi####1_seq}
+            { \seq_clear:c {l__atableau_####1_seq} }
+            {
+                \tl_set:Nx \l_tmpb_tl {\seq_item:cV {l__atableau_multi####1_seq} \l__atableau_component_int}
+                \__atableau_set_partition:nV {####1} \l_tmpb_tl
+            }
         }
 
         % determine the coordinates for the diagram/tableau
@@ -2069,13 +2097,13 @@
               {
                  % an empty diagram -> \l__atableau_empty_tl
                  \__atableau_set_box_coordinates:nnn {a} {0} {0}
-                 \node[aTableau/separatorSymbol] at (\fp_use:N \l__atableau_xa_fp, \fp_use:N \l__atableau_ya_fp){\l__atableau_empty_tl};
+                 \node[aTableau/separatorSymbol] at (\fp_use:N \l__atableau_xa_fp, \fp_use:N \l__atableau_ya_fp){ \__atableau_entry:n {\l__atableau_empty_tl} };
               }
             {...}
               {
                  % insert dots. ?? Replace \cdots with \l__atableau_dots_tl ??
                  \__atableau_set_box_coordinates:nnn {a} {0} {0}
-                 \node[aTableau/separatorSymbol] at (\fp_use:N \l__atableau_xa_fp, \fp_use:N \l__atableau_ya_fp){$\cdots$};
+                 \node[aTableau/separatorSymbol] at (\fp_use:N \l__atableau_xa_fp, \fp_use:N \l__atableau_ya_fp){ \__atableau_entry:n{\cdots} };
               }
         }
         {
@@ -2125,16 +2153,14 @@
       \seq_pop_left:NN \l__atableau_xsep_seq \l_tmpa_tl
       \tl_if_blank:VF \l__atableau_left_delimiter_tl
       {
-        \path[aTableau/delimiterPath] (\fp_eval:n{\l_tmpa_tl-\l__atableau_separation_fp/2}, \fp_use:N \l__atableau_y_fp)
-              node[aTableau/leftDelimiter] {};
+        \path[aTableau/delimiterPath] (\fp_eval:n{\l_tmpa_tl-\l__atableau_separation_fp/2}, \fp_use:N \l__atableau_y_fp) node[aTableau/leftDelimiter] {};
       }
 
       % add right delimiter
       \seq_pop_right:NN \l__atableau_xsep_seq \l_tmpa_tl
       \tl_if_blank:VF \l__atableau_right_delimiter_tl
       {
-        \path[aTableau/delimiterPath] (\fp_eval:n{\l_tmpa_tl-\l__atableau_separation_fp/2}, \fp_use:N \l__atableau_y_fp)
-              node[aTableau/rightDelimiter] {};
+        \path[aTableau/delimiterPath] (\fp_eval:n{\l_tmpa_tl-\l__atableau_separation_fp/2}, \fp_use:N \l__atableau_y_fp) node[aTableau/rightDelimiter] {};
       }
 
       % the internal separators
@@ -2218,7 +2244,9 @@
 
     % draw the ribbon tableau by drawing each of the ribbons
     \tl_set:Nn \l__atableau_ribbon_type_tl {ribbon} % change ribbon type to ribbon
-    \clist_map_inline:nn {#1} { \__atableau_add_ribbon:n  {##1} }
+    \typeout{STARTING~NEW~RIBBON~TABLEAU}
+    \__atableau_peek_ribbon:w #1 \q_recursion_tail \q_recursion_stop
+    %\clist_map_inline:nn {#1} { \__atableau_add_ribbon:n  {##1} }
 
     % draw the tableau border, adding associated bells and whistles
     \__atableau_finalise_tableau:
@@ -2227,13 +2255,34 @@
 % usage: \__atableau_add_ribbon:n {ribbon} add a ribbon to the tableau
 % The code for adding ribbons is slightly different depending on on whether
 % \l__atableau_ribbbon_sty[e is equal to 'ribbon' or 'path'
-\cs_new_protected:Npn \__atableau_add_ribbon:n #1
+\cs_new_protected:Npn \__atableau_add_ribbon:nn #1 #2
 {
-    % reset the sequences that store the ribbon specifications data
-    \seq_clear:N \l__atableau_texts_seq  % will contain node text
-    \seq_clear:N \l__atableau_styles_seq % will contain node styles
-    \seq_clear:N \l__atableau_rcs_seq    % will contain node (row,col)-indices
-    \__atableau_peek_ribbon_style:w #1 \q_recursion_tail \q_recursion_stop
+    \typeout{ADDING~A~"#1"~with~"#2"}
+    \tl_set:Nn \l__atableau_ribbon_type_tl {#1} % change ribbon type to ribbon
+    \__atableau_peek_ribbon:w #2 \q_recursion_tail \q_recursion_stop
+}
+
+% We peek for the commas in the ribbon specifications so that it is not
+% necessary to enclose "complicated" styles inside both square brackets and
+% braces using [{...}].
+\cs_new_protected:Npn \__atableau_peek_ribbon:w
+{
+    \peek_remove_spaces:n { % ignore spaces
+        \peek_charcode_remove:NTF ,
+        {
+            % look for the next ribbon
+            \typeout{PEEKING~AGAIN}
+            \__atableau_peek_ribbon:w
+         }
+         {
+         \typeout{resetting}
+            % reset the sequences that store the ribbon specifications
+            \seq_clear:N \l__atableau_texts_seq  % will contain node text
+            \seq_clear:N \l__atableau_styles_seq % will contain node styles
+            \seq_clear:N \l__atableau_rcs_seq    % will contain node (row,col)-indices
+            \__atableau_peek_ribbon_style:w
+         }
+    }
 }
 
 % usage: \__atableau_peek_ribbon_style:w {ribbon specifications}
@@ -2253,6 +2302,7 @@
 % and then peek for [style]rc...
 \cs_new_protected:Npn \__atableau_save_ribbon_style:n (#1)
 {
+\typeout{ribbon~style="#1"}
     \tl_set:Nn \l__atableau_ribbon_style_tl {#1}
     \__atableau_peek_style:nw {save_ribbon_head:nnn}
 }
@@ -2269,7 +2319,7 @@
 }
 
 % usage: \__atableau_initialise_ribbon_head:
-% Start \l__atableau_ribbon_path_tl for a ribbon
+% Start constructing the token list \l__atableau_ribbon_path_tl for a ribbon
 \cs_new_protected:Nn \__atableau_initialise_ribbon_head:
 {
     % 1. Make (xl,yl) the top corner of the ribbon and add it
@@ -2295,9 +2345,10 @@
 \cs_new_protected:Npn \__atableau_save_ribbon_head:nnn [#1] #2 #3
 {
     % check for syntax errors to prevent an endless loop
-    \quark_if_recursion_tail_stop_do:nn {#2} { \msg_error:nnn {aTableau} {invalid-ribbon-head} {no~x-coordinate~given} }
-    \quark_if_recursion_tail_stop_do:nn {#3} { \msg_error:nnn {aTableau} {invalid-ribbon-head} {no~y-coordinate~given} }
+    \quark_if_recursion_tail_stop_do:nn {#2} { \msg_error:nnn {aTableau} {invalid-ribbon-head} {no~x-coordinate~given~#1,#2,#3.} }
+    \quark_if_recursion_tail_stop_do:nn {#3} { \msg_error:nnn {aTableau} {invalid-ribbon-head} {no~y-coordinate~given~#1,#2,#3.} }
 
+    \typeout{Head:~"#1",~"#2",~"#3".}
     % save any style
     \seq_put_right:Nx \l__atableau_styles_seq {#1}
 
@@ -2316,35 +2367,63 @@
     % initialise the start of the path/ribbon
     \use:c {__atableau_initialise_ \l__atableau_ribbon_type_tl _head:}
 
-    \__atableau_peek_ribbon_text:w
+    \typeout{Sending~to~peek~comma}
+    \__atableau_peek_ribbon_comma:nnw {peek_ribbon_text:w} {}
 }
 
-% usage: \__atableau_peek_ribbon_text:nw {path/ribbon}
+% usage: \__atableau_peek_ribbon_text:w
 % peek for subscripted text _{text} in the ribbon
 \cs_new_protected:Npn \__atableau_peek_ribbon_text:w
 {
     \peek_remove_spaces:n { % ignore spaces
-      \peek_charcode_remove:NTF _
-        { \__atableau_save_ribbon_text:n }
+        \peek_charcode_remove:NTF _
+        { \__atableau_save_ribbon_text:n } % set the text of this box
         {
-          \seq_put_right:Nn \l__atableau_texts_seq {} % empty text
-          \__atableau_peek_style:nw  {save_ribbon:nn}
+            % set the text of this box to empty
+            \seq_put_right:Nn \l__atableau_texts_seq {}
+            % look for next entry in the ribbon
+        \typeout{ribbon_text~to~style.}
+            \__atableau_peek_ribbon_comma:nnw {peek_style:nw}  {save_ribbon:nn}
         }
     }
 }
+
+
+% usage: \__atableau_peek_ribbon_comma:nnw {next function} {parameters}
+\cs_new_protected:Npn \__atableau_peek_ribbon_comma:nnw #1 #2
+{
+    \peek_remove_spaces:n { % ignore spaces
+        \peek_charcode_remove:NTF ,
+        {
+            % if there is no _ indicating following text, then we might see a
+            % comma in which case we need to start a new ribbon
+            \__atableau_draw_ribbon:
+            \__atableau_peek_ribbon:w
+        }
+        {
+        \typeout{peek~comma:~#1,~#2.}
+            \tl_if_empty:nTF {#2}
+            { \use:c {__atableau_#1}      }
+            { \use:c {__atableau_#1} {#2} }
+        }
+    }
+}
+
 
 % usage: \__atableau_save_ribbon_text:n {text}
 % save any text for a rode in the ribbon in \l__atableau_texts_seq
 \cs_new_protected:Npn \__atableau_save_ribbon_text:n #1
 {
+\typeout{~~--~~TEXT:~\tl_to_str:n{#1}}
     \seq_put_right:No \l__atableau_texts_seq {#1}
-    \__atableau_peek_style:nw  {save_ribbon:nn}
+    \__atableau_peek_ribbon_comma:nnw {peek_style:nw}  {save_ribbon:nn}
 }
 
 % usage: \__atableau_add_to_ribbon:n
 % Extend a ribbon path. Here #1 is either r or c
 \cs_new_protected:Npn \__atableau_extend_ribbon:n #1
 {
+\typeout{Extend~ribbon~=~"#1"}
    \str_case:enF {#1}
    {
       {c} { % move back one column
@@ -2413,6 +2492,7 @@
 \cs_new_protected:Npn \__atableau_extend_path:n #1
 {
 
+\typeout{Extend~path~=~"#1"}
    % the ribbon hasn't finished, so move row and col according to the ribbon
    % specification and update the nodes (xa,ya) and (xb,yb) in the ribbon
    \str_case:enF {#1}
@@ -2450,8 +2530,9 @@
 % \l__atableau_styles_seq and then repeat
 \cs_new_protected:Npn \__atableau_save_ribbon:nn [#1] #2
 {
-   % draw the ribbon when we run out of nodes
-   \quark_if_recursion_tail_stop_do:nn {#2} { \__atableau_draw_ribbon: }
+    % draw the ribbon when we run out of nodes
+    \quark_if_recursion_tail_stop_do:nn {#2} { \typeout{about~to~draw} \__atableau_draw_ribbon: \typeout{just~drawn...}}
+    \typeout{SAVE~ribbon:~#1,~#2.}
 
     % Add the new coordinate(s) to \l__atableau_ribbon_path_tl. This is
     % different for ribbons and paths
@@ -2474,7 +2555,7 @@
     % retrieve this information later in \__atableau_draw_ribbon:
 
     % check to see if this node has any text
-    \__atableau_peek_ribbon_text:w
+    \__atableau_peek_ribbon_comma:nnw {peek_ribbon_text:w} {}
 }
 
 % update the shape of the ribbon tableau using the current values of
@@ -2529,6 +2610,8 @@
 % finally, add the nodes with custom styling or text.
 \cs_new_protected:Nn \__atableau_draw_ribbon:
 {
+\typeout{FINISHING~RIBBON!!!}
+
     \use:c { __atableau_finalise_ \l__atableau_ribbon_type_tl :}
 
     % We want to first draw the ribbon, with its outline and any filling, and
@@ -2538,49 +2621,52 @@
     % two types of nodes
     \tl_clear:N \l__atableau_styled_nodes_tl
     \tl_clear:N \l__atableau_unstyled_nodes_tl
-
+    \typeout{one}
     % use ribbon_box, snob_box or path_box
     \tl_set_eq:Nc \l_tmpc_tl { l__atableau_\l__atableau_ribbon_type_tl  _box_tl }
 
+
+    \typeout{Lengths:
+    ~texts=\seq_count:N\l__atableau_texts_seq,
+    ~styles=\seq_count:N\l__atableau_styles_seq,
+    ~rcs=\seq_count:N\l__atableau_rcs_seq.
+    }
+
     \seq_map_inline:Nn \l__atableau_styles_seq
     {
+        % The last text entry in \l__atableau_texts_seq will be empty if the
+        % peeking stops before it can be cleared
+        \seq_pop_left:NNF \l__atableau_texts_seq \l_tmpa_tl {\tl_clear:N\l_tmpa_tl}
+
         % pop the text and row and column indices
-        \seq_pop_left:NN \l__atableau_texts_seq \l_tmpa_tl % text
         \seq_pop_left:NN \l__atableau_rcs_seq \l_tmpb_tl   % row index
         \int_set:Nn \l__atableau_row_int {\l_tmpb_tl}
         \seq_pop_left:NN \l__atableau_rcs_seq \l_tmpb_tl   % column index
         \int_set:Nn \l__atableau_col_int {\l_tmpb_tl}
 
+    \typeout{TEXT=\tl_to_str:N\l_tmpa_tl}
         % compute the box coordinates
         \__atableau_set_box_coordinates:nVV {l} \l__atableau_row_int \l__atableau_col_int
         \tl_if_empty:oTF {##1\l_tmpa_tl}
         {   % nodes with default style and no text are added to \l__atableau_unstyled_nodes_tl
-            \__atableau_put_tikz_node:nnVnV {unstyled_nodes} {aTableau/\l__atableau_ribbon_type_tl Box}
-                \l__atableau_name_tl {l} \l_tmpc_tl
-                %\exp_not:N \node [aTableau/\l__atableau_ribbon_type_tl Box](\l__atableau_name_tl)
-                %    at (\fp_use:N\l__atableau_xl_fp,\fp_use:N\l__atableau_yl_fp)
-                %    { \exp_not:N \__atableau_entry:n{\l_tmpc_tl }};
-            %\__atableau_tl_put_right_braced:No \l__atableau_unstyled_nodes_tl {\exp_not:N \__atableau_entry:n{\l_tmpc_tl}}
-            %\tl_put_right:Nn \l__atableau_unstyled_nodes_tl {;}
+            \__atableau_put_tikz_node:noVnV {unstyled_nodes} {aTableau/\l__atableau_ribbon_type_tl Box} \l__atableau_name_tl {l} \l_tmpc_tl
         }
         {   % nodes with styling are added to \l__atableau_styled_nodes_tl
-                \__atableau_put_tikz_node:noVnV {styled_nodes} {aTableau/\l__atableau_ribbon_type_tl Box,##1}
-                    \l__atableau_name_tl {l} \l_tmpa_tl
-                %\exp_not:N \node [aTableau/\l__atableau_ribbon_type_tl Box,##1](\l__atableau_name_tl)
-                %    at (\fp_use:N\l__atableau_xl_fp,\fp_use:N\l__atableau_yl_fp)
-                %    {\exp_not:N \__atableau_entry:n{\l_tmpa_tl}};
-            %\tl_show:N \l__atableau_styled_nodes_tl
-            %\__atableau_tl_put_right_braced:No \l__atableau_styled_nodes_tl {\exp_not:N \__atableau_entry:n{\l_tmpa_tl}}
-            %\tl_put_right:Nn \l__atableau_styled_nodes_tl {;}
+            \__atableau_put_tikz_node:noVnV {styled_nodes} {aTableau/\l__atableau_ribbon_type_tl Box,##1} \l__atableau_name_tl {l} \l_tmpa_tl
         }
     }
+    \typeout{two}
 
     % draw the ribbon, applying any style
-    \exp_last_unbraced:Ne\draw { [aTableau/\l__atableau_ribbon_type_tl Style,\l__atableau_ribbon_style_tl] } \l__atableau_ribbon_path_tl;
+    \exp_last_unbraced:Ne \draw { [aTableau/\l__atableau_ribbon_type_tl Style,\l__atableau_ribbon_style_tl] } \l__atableau_ribbon_path_tl;
+    \typeout{three}
+    \typeout{unstyled:~\tl_to_str:N\l__atableau_unstyled_nodes_tl}
 
     % finally, add the unstyled and the styled nodes on top of the ribbon
     \l__atableau_unstyled_nodes_tl
+    \typeout{styled:~\tl_to_str:N\l__atableau_styled_nodes_tl}
     \l__atableau_styled_nodes_tl
+\typeout{DONE!!!}
 }
 
 % ---------------------------------------------------------------------------
@@ -2943,14 +3029,10 @@
                          { \tl_set:No \l_tmpa_tl { ##1 } }
                          { \tl_set:No \l_tmpa_tl { {-} } }
                      }
-                  {shape}
-                    {   \tl_set:No \l_tmpa_tl { \seq_item:Nn \l__atableau_shape_seq {##1} } }
-                  {    }
-                    {   \tl_set:No \l_tmpa_tl { \seq_item:Nn \l__atableau_texts_seq {##1} } }
+                  {shape} { \tl_set:No \l_tmpa_tl { \seq_item:Nn \l__atableau_shape_seq {##1} } }
+                  {     } { \tl_set:No \l_tmpa_tl { \seq_item:Nn \l__atableau_texts_seq {##1} } }
                 }
-                {
-                    \msg_error:nnx {aTableau} {unrecognised-abacus-label} {  \l__atableau_show_tl }
-                }
+                { \msg_error:nnx {aTableau} {unrecognised-abacus-label} {  \l__atableau_show_tl } }
                 % draw the bead with style
                 \tl_set:No \l_tmpb_tl { \seq_item:Nn \l__atableau_styles_seq {##1} }
                 \__atableau_abacus_bead:enV \l_tmpb_tl {l} \l_tmpa_tl
@@ -3011,8 +3093,7 @@
                 --++(\fp_eval:n{-0.2*\l_tmpa_fp},\fp_eval:n{-0.2*\l_tmpb_fp})
                     --cycle
             ;
-            % first blank out the possible header line and replace with dots
-            %\draw[fill=white,draw=none](\fp_use:N\l__atableau_xa_fp,\fp_use:N\l__atableau_ya_fp)--(\fp_use:N\l__atableau_xb_fp,\fp_use:N\l__atableau_yb_fp);
+            % replace line with dots
             \draw[aTableau/dottedLine](\fp_use:N\l__atableau_xa_fp,\fp_use:N\l__atableau_ya_fp)--(\fp_use:N\l__atableau_xb_fp,\fp_use:N\l__atableau_yb_fp);
         }
 
@@ -3169,10 +3250,10 @@
     color~theme .value_required:n = true,
 
     % dotted rows and columns for tableaux and abacuses
-    dotted~cols .code:n = { \__atableau_set_multiseq_key:nn {dotted_cols} {#1} },
+    dotted~cols .code:n = { \__atableau_set_multi_seq_key:nn {dotted_cols} {#1} },
     dotted~cols .value_required:n = true,
 
-    dotted~rows .code:n = { \__atableau_set_multiseq_key:nn {dotted_rows} {#1} },
+    dotted~rows .code:n = { \__atableau_set_multi_seq_key:nn {dotted_rows} {#1} },
     dotted~rows .value_required:n = true,
 
     e .int_set:N = \l__atableau_e_int,
@@ -3191,6 +3272,9 @@
     halign .initial:n = centre,
 
     % math/text mode for boxes and beads
+    math~boxes .code:n = { \cs_set_eq:NN \__atableau_entry:n \__atableau_entry_math:n },
+    text~boxes .code:n = { \cs_set_eq:NN \__atableau_entry:n \__atableau_entry_text:n },
+    % for compatibility with v2.1.0 we still allow
     math~entries .code:n = { \cs_set_eq:NN \__atableau_entry:n \__atableau_entry_math:n },
     text~entries .code:n = { \cs_set_eq:NN \__atableau_entry:n \__atableau_entry_text:n },
 
@@ -3379,20 +3463,13 @@
     inner~style .value_required:n = true,
 
     % label
-    label .code:n = {
-        \tl_if_in:nnTF {#1} {|}
-        {
-            % unpack the ribbons into \l__atableau_multiribbons_seq
-            \seq_set_split:cnn {l__atableau_multilabel_seq} {|} {#1}
-        }
-        { \tl_set:No \l__atableau_label_tl {#1} }
-    },
+    label .code:n = { \__atableau_set_multi_tl_key:nn {label} {#1} },
 
     label~style .code:n = { \__atableau_tikzset_append:nn {labelStyle} {#1} },
     label~style .value_required:n = true,
 
     % -- paths ---------------------------------------
-    paths .code:n = { \__atableau_set_multiseq_key:nn {paths} {#1} },
+    paths .code:n = { \__atableau_set_multi_tl_key:nn {paths} {#1} },
     paths .initial:n = ,
 
     path~style .code:n = { \__atableau_tikzset_append:nn {pathStyle} {#1} },
@@ -3407,7 +3484,7 @@
     path~box~style .initial:n =,
 
     % -- ribbons ---------------------------------------
-    ribbons .code:n = { \__atableau_set_multiseq_key:nn {ribbons} {#1} },
+    ribbons .code:n = { \__atableau_set_multi_tl_key:nn {ribbons} {#1} },
     ribbons .initial:n = ,
 
     ribbon~style .code:n = { \__atableau_tikzset_append:nn {ribbonStyle} {#1} },
@@ -3424,7 +3501,7 @@
     shape .code:n = { \__atableau_set_partition:nn {shape} {#1} },
 
     % -- snobs ---------------------------------------
-    snobs .code:n = { \__atableau_set_multiseq_key:nn {snobs} {#1} },
+    snobs .code:n = { \__atableau_set_multi_tl_key:nn {snobs} {#1} },
     snobs .initial:n = ,
 
     snob~style .code:n = { \__atableau_tikzset_append:nn {snobStyle} {#1} },
@@ -3443,15 +3520,7 @@
     shifted .initial:n  = false,
 
     % -- cover settings ------------
-    cover .code:n =
-    {
-        \tl_if_in:nnTF {#1} {|}
-        {
-            % unpack the cover tableau into \l__atableau_multicover_seq
-            \seq_set_split:Nnn \l__atableau_multicover_seq {|} {#1}
-        }
-        { \__atableau_set_partition:nn {cover} {#1} }
-    },
+    cover .code:n = \__atableau_set_multi_shape_key:nn {cover} {#1},
     cover .value_required:n = true,
     cover .initial:n =,
 
@@ -3479,15 +3548,7 @@
     cover colour .initial:n = aTableauSkew,
 
     % -- skew settings ------------
-    skew .code:n =
-    {
-        \tl_if_in:nnTF {#1} {|}
-        {
-            % unpack the skew tableau into \l__atableau_multiskew_seq
-            \seq_set_split:Nnn \l__atableau_multiskew_seq {|} {#1}
-        }
-        { \__atableau_set_partition:nn {skew} {#1} }
-    },
+    skew .code:n = \__atableau_set_multi_shape_key:nn {skew} {#1},
     skew .value_required:n = true,
     skew .initial:n = 0,
 
@@ -3531,7 +3592,7 @@
     right~delimiter .value_required:n = true,
 
     empty .tl_set:N = \l__atableau_empty_tl,
-    empty .initial:n = \textendash,
+    empty .initial:n = -,
 
     separators .bool_set:N = \l__atableau_separators_bool,
     separators .default:n = true,
@@ -3722,10 +3783,13 @@
         % keep changes to settings local by working inside a group
         \keys_set:nn {atableau} {#1}
         \IfNoValueTF {#2}
-        {   % wrap inside a tikzpicture environment, placing the picture at (0,0)
+        {   % Wrap inside a tikzpicture environment, placing the picture at (0,0).
+            % Checking for the existence of the \draw command is a proxy for
+            % determining whether we are inside a tikzpicture environment since
+            % it is only defined when we are
             \if_cs_exist:N \draw \msg_error:nn {aTableau} { inside-tikzpicture} \fi:
-            \__atableau_set_origin:nn (0,0)
 
+            \__atableau_set_origin:nn (0,0)
             \mode_if_math:TF
             {
                 % We want to automatically rescale when used as a subscript, which
@@ -3744,12 +3808,12 @@
                 {   % text style: do nothing
                     \box_use:N \l_tmpa_box
                 }
-                {   % script style: rescale
+                {   % script style => rescale using \l__atableau_script_fp
                     \box_scale:Nnn \l_tmpa_box {\l__atableau_script_fp*\l__atableau_xscale_fp}
                                                {\l__atableau_script_fp*\l__atableau_yscale_fp}
                     \box_use:N \l_tmpa_box
                 }
-                {   % scriptscript style: rescale
+                {   % scriptscript style => rescale using \l__atableau_scriptscript_fp
                     \box_scale:Nnn \l_tmpa_box {\l__atableau_scriptscript_fp*\l__atableau_xscale_fp}
                                                {\l__atableau_scriptscript_fp*\l__atableau_yscale_fp}
                     \box_use:N \l_tmpa_box

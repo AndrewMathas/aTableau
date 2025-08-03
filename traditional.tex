@@ -7,6 +7,45 @@
 
   \aTabset{align=top}
 
+  \typeout{Ribbon tableau}
+  \RibbonTableau{
+      *1{10}c*rc*rc*rc*rc*cc*cc,
+      *18c[fill=red]rc[fill=blue]rc*rc*cc[fill=teal]c,
+      [fill=green]16c*rc*rc*cc,
+      *14c[draw=purple,ultra thick]cc[fill=orange]r,
+      [fill=yellow,draw=red,ultra thick]23
+  }
+
+  \begin{tikzpicture}
+        \Diagram(4,2) [ribbons={11,12,13,21,23,31,32,33,41,43,51,53}]{}     % A
+        \Diagram(5,2) [ribbons={11,12,13,22,32,42,52}]{}                    % T
+        \Diagram(6,2) [ribbons={11,12,13,21,23,31,32,33,41,43,51,53}]{}     % A
+        \Diagram(7,2) [ribbons={11,12,13,21,23,31,32,33,41,43,51,52,53}]{}  % B
+        \Diagram(8,2) [ribbons={11,21,31,41,51,52,53}]{}                    % L
+        \Diagram(9,2) [ribbons={11,12,13,21,31,32,33,41,51,52,53}]{}        % E
+        \Diagram(10,2)[ribbons={11,12,13,21,23,31,32,33,41,43,51,53}]{}     % A
+        \Diagram(11,2)[ribbons={11,13,21,23,31,33,41,43,51,52,53}]{}        % U
+  \end{tikzpicture}
+
+\end{document}
+
+  \Multidiagram{3,2^2|...|1}
+  \Multitableau[box font=\tiny]
+    {123,45,67 | ... | {12}{13}{14}}
+
+  \Tableau[cover={4^2,3}]{123,45,67} \qquad
+  \Tableau[skew={2,1}]{123,45,67}
+
+  \tikzset{Fill/.style={fill=#1!20!white},
+    B/.style={Fill=blue}, R/.style={Fill=red}, Y/.style={Fill=yellow}}
+
+  \RibbonTableau{ [B]12_1  [R]c_2   [Y]r_3} \qquad
+  \RibbonTableau{ [B]12_1, [R]11_2, [Y]21_3 } \qquad
+
+  \typeout{Ribbons in tableaux}
+
+\end{document}
+
   framed:
 
   \Abacus[framed ]{4}{8^2_-,7_+,5_a,4^2_b,1_\times^3,1_d} \qquad

@@ -19,6 +19,7 @@
   - adds error messages whenever an aTableau command is not properly
     contained inside, or outside, of a tikzpicture environment
   - adds support for multidirectional ribbons (still incomplete)
+  - removed the requirement that "complex" styles be entered as [{...}]
   - fixes bug in `beta numbers` key for abacuses
   - many improvements and corrections to the manual
 

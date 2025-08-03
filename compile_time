@@ -22,14 +22,14 @@ END
   exit 1
 }
 
-record_times() {
+record_times( ) {
   start_time=$(date "+%s.%N")
-  pdflatex atableau
+  $1 atableau > /dev/null
   end_time=$(date "+%s.%N")
   time=$(printf "%.1f" $(bc -l -e "$end_time-$start_time"))
   pages=$(gawk '/Output written on atableau/ {print substr($5,2,2)}' atableau.log)
   tpage=$(printf "%.1f" $(bc -l -e "$pages/$time"))
-  record=$(date "+%Y-%m-%d:  $(git describe --tag --abbrev=0)     ${pages}  ${time}    $tpage " )
+  record=$(date "+%Y-%m-%d:  $(git describe --tag --abbrev=0)     ${pages}  ${time}    $tpage" )
 }
 
 save_record=false
@@ -43,20 +43,23 @@ while [[ $# -ne 0 ]]; do
 done
 
 
-echo "Compiling aTableau manual. Recording the compile time: ${save_record}"
-"$save_record" = true && sleep 2
+cat << MESG
+Compiling aTableau manual
+Recording the compile time: ${save_record}
+MESG
 
-record_times
+if [ "$save_record" = true ]; then
+  record_times latexmk
+  record_times pdflatex
+  # append the new compilation time to manual_times
+  echo $record >> $RECORD_IN
+else
+  record_times pdflatex
+fi
 
 cat $RECORD_IN
 echo
 echo "New time:"
 echo "$record"
-
-if [ "$save_record" = true ]; then
-  record_times
-  # append the new compilation time to manual_times
-  echo $record >> $RECORD_IN
-fi
 
 
