@@ -1,11 +1,13 @@
 #! /usr/bin/env bash
 
-# create tar file for uploading atableau package to ctan
+# Create tar file for uploading atableau package to ctan
+# In particular, this deletes the \__atableau_debug:n commands from
+# atableau.sty
 
 CTANIFY="/Library/TeX/texbin/ctanify"
 
 TAR=$(tar --version)
-GTAR=$(tar --version)
+GTAR=$(gtar --version)
 
 if [[ "$TAR" != "$GTAR" ]]
 then
@@ -13,8 +15,15 @@ then
   echo "WARNING: tar is not gnu-tar!"
 fi
 
+# create a copy of atableau.sty so that we can remove the debug commands
+/bin/mv atableau.sty atableau-dev.sty
+gsed '/__atableau_debug:n/d' atableau-dev.sty > atableau.sty
+
 # create the tar file for ctan
 $CTANIFY --no-tds atableau.{ini,sty,pdf,tex} {CHANGES,README,TODO}.md LICENSE
+
+# restore the debug commands
+/bin/mv atableau-dev.sty atableau.sty
 
 # remind user to check version number and the copyright and release dates
 echo "Check version, release date and the copyright years in atableau.sty"

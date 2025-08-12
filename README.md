@@ -17,6 +17,8 @@ A LaTeX package for symmetric group combinatorics, with commands for:
   - multitableaux
   - abacuses
 
+![aTableau example](./aTableau_example.png)
+
 ``` latex
 \Tableau{12345,678,9{10},{11}}
 \Diagram[french]{4^4,2,1^3}
@@ -31,6 +33,7 @@ A LaTeX package for symmetric group combinatorics, with commands for:
 \Abacus[rows=3, abacus ends=..]{3}{0,2,3,4,5}
 \Abacus{3}{0,2,3,4,5}
 ```
+
 
 ### Dependencies
 [LaTeX3](https://www.latex-project.org/latex3/) and [TikZ](https://tikz.net/)

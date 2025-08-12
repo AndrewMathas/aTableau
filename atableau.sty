@@ -1,6 +1,6 @@
 % ---------------------------------------------------------------------------
 % aTableau - Andrew Mathas (C) 2022-2025
-% Modified: 17:41 Sunday, 03 August 2025
+% Modified: 19:21 Wednesday, 06 August 2025
 % ---------------------------------------------------------------------------
 %
 % A LaTeX package for symmetric group combinatorics:
@@ -71,8 +71,13 @@
     }
 }
 
+%  \__atableau_debug:n { message }  -- for debugging in development mode
+%  \__atableau_debug:n ** must occupy ONLY ONE LINE **
+%  \__atableau_debug:n -- all such lines removed by ctanify script
+\cs_new_protected:Npn \__atableau_debug:n #1 {\typeout{ #1 }}
+
 % ---------------------------------------------------------------------------
-% aTableau errors
+% aTableau error messages
 
 \msg_new:nnnn { aTableau } { empty-tableau-row }
   { Row~#1~of~tableau~is~empty }
@@ -101,6 +106,10 @@
 \msg_new:nnnn { aTableau } { inside-tikzpicture }
   { aTableau~command~without~(x,y)-coordinates~CANNOT~be~inside~a~tikzpicture~environment! \@currenvir}
   { You~need~to~be~inside~a~tikzpicture~environment~whenever~you~use~an~aTableau~command~with~(x,y)-coordinates }
+
+\msg_new:nnnn { aTableau } { invalid-key }
+  { Invalid~key~'#1'~in~aTableau~settings. }
+  { A~list~of~supported~keys~can~be~found~in~the~aTableau~manual. }
 
 \msg_new:nnnn { aTableau } { outside-tikzpicture }
   { aTableau~command~with~(x,y)-coordinates~NOT~inside~a~tikzpicture~environment! }
@@ -1875,7 +1884,6 @@
     % when colours is used, set the box fill colour
     \l__atableau_set_box_fill:nn \l__atableau_row_int \l__atableau_col_int
 
-
     \tl_if_empty:nTF {#1}
     {   % draw box if it has the default styling
         \node[aTableau/boxStyle] (\l__atableau_name_tl)
@@ -3202,6 +3210,7 @@
 {
     % ---------------------------------------------------------------------------
     % general settings
+    unknown .code:n = { \msg_error:nnn {aTableau} {invalid-key} {#1} },
 
     % tableaux alignment
     align .choice:,
@@ -4039,6 +4048,7 @@
 %       atableau.pdf
 %       atableau.sty
 %       atableau.tex
+%       atableau_example.png
 %       LICENSE
 %       README.md
 %       CHANGES.md
