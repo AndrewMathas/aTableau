@@ -8,15 +8,14 @@
 
 ### Bugs:
 
-  - find a way for the path, ribbon and snob boxes to inherit colour from the ribbon style
 
 ### Features being implemented
+  - Find a way for the path, ribbon and snob boxes to inherit colour from the ribbon style
   - Allow R and C in ribbon tableau specifications ...still needs enhancement for ribbon border...
   - Complete implementation and DOCUMENTATION for traditional abacuses and the framed key
-  - Make `\__atableau_ribbon_tableau:n` peek for commas rather than using
+  - Make `\__atableau_abacus:nn` peek for commas rather than using
     `\clist_map_inline:nn`. Currently braces are needed for "complex"
-    style specifications in ribbon tableaux `[{...}]`. Similarly,
-    `\__atableau_abacus:nn` needs to peek.
+    style specifications in ribbon tableaux `[{...}]`.
 
 ### Documentation
   - Add an example showing how to use dotted rows and columns for multitableaux

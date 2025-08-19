@@ -6,7 +6,9 @@
 
 # aTableau
 
-A LaTeX package for symmetric group combinatorics, with commands for:
+![aTableau example](./aTableau_example.png)
+
+A LaTeX package for **symmetric group combinatorics**, with commands for:
 
   - Young diagrams
   - tableaux
@@ -16,8 +18,6 @@ A LaTeX package for symmetric group combinatorics, with commands for:
   - ribbon tableaux
   - multitableaux
   - abacuses
-
-![aTableau example](./aTableau_example.png)
 
 ``` latex
 \Tableau{12345,678,9{10},{11}}

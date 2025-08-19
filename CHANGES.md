@@ -13,13 +13,12 @@
   - adds the `framed` key for abacuses
   - adds the `rotate` key
   - adds the `shape` key for `\RibbonTableau`
-  - adds the `traditional` key for abacuses  (still incomplete)
-  - adds the `\NewATableauCommand` commands for creating
-    custom pictures
+  - adds the `traditional` key for abacuses
+  - adds the `\NewATableauCommand` commands for creating custom pictures
   - adds error messages whenever an aTableau command is not properly
     contained inside, or outside, of a tikzpicture environment
   - adds support for multidirectional ribbons (still incomplete)
-  - removed the requirement that "complex" styles be entered as [{...}]
+  - removed the requirement that "complex" styles be entered as [{...}] for tableaux (still needs updating for abacuses)
   - fixes bug in `beta numbers` key for abacuses
   - many improvements and corrections to the manual
 

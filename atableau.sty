@@ -1,6 +1,6 @@
 % ---------------------------------------------------------------------------
 % aTableau - Andrew Mathas (C) 2022-2025
-% Modified: 19:21 Wednesday, 06 August 2025
+% Modified: 15:32 Friday, 15 August 2025
 % ---------------------------------------------------------------------------
 %
 % A LaTeX package for symmetric group combinatorics:
@@ -1781,6 +1781,7 @@
     \fp_set:cn {l__atableau_x#1_fp} {\l__atableau_x_fp+((#2+0.5)*\l__atableau_tab_row_dx_fp+(#3+0.5)*\l__atableau_tab_col_dx_fp)*\l__atableau_box_wd_fp }
     \fp_set:cn {l__atableau_y#1_fp} {\l__atableau_y_fp+((#2+0.5)*\l__atableau_tab_row_dy_fp+(#3+0.5)*\l__atableau_tab_col_dy_fp)*\l__atableau_box_ht_fp }
     \__atableau_update_extrema:n #1
+    \__atableau_debug:n {~-~box~coordinates:~\l__atableau_name_tl~=~(\fp_use:c{l__atableau_x#1_fp},~\fp_use:c{l__atableau_y#1_fp})}
 }
 
 % usage: \__atableau_set_box_coordinates_conjugate:nnn <letter> <row> <col>: given the row and columns
@@ -1795,6 +1796,7 @@
     \fp_set:cn {l__atableau_x#1_fp} {\l__atableau_x_fp+((#3+0.5)*\l__atableau_tab_row_dx_fp+(#2+0.5)*\l__atableau_tab_col_dx_fp)*\l__atableau_box_wd_fp }
     \fp_set:cn {l__atableau_y#1_fp} {\l__atableau_y_fp+((#3+0.5)*\l__atableau_tab_row_dy_fp+(#2+0.5)*\l__atableau_tab_col_dy_fp)*\l__atableau_box_ht_fp }
     \__atableau_update_extrema:n #1
+    \__atableau_debug:n {~-~conjugate~box~coordinates:~\l__atableau_name_tl~=~(\fp_use:c{l__atableau_x#1_fp},~\fp_use:c{l__atableau_y#1_fp})}
 }
 
 % by default , normal coordinates are used
@@ -1810,11 +1812,10 @@
 % of the abacus is in the expected place.
 \cs_new_protected:Npn \__atableau_set_bead_coordinates:nnn #1 #2 #3
 {
-\typeout{~-~setting~bead~coord~for~(#1,~\fp_eval:n{#2},~\fp_eval:n{#3}).~top=\fp_use:N\l__atableau_abacus_top_fp}
     \tl_set:Nx \l__atableau_name_tl {\l__atableau_prefix_tl-\fp_to_int:n{#2}-\fp_to_int:n{#3}}
     \fp_set:cn {l__atableau_x#1_fp} {\l__atableau_x_fp+((#2+\l__atableau_abacus_top_fp)*\l__atableau_abacus_row_dx_fp+(#3)*\l__atableau_abacus_col_dx_fp)*\l__atableau_abacus_wd_fp }
     \fp_set:cn {l__atableau_y#1_fp} {\l__atableau_y_fp+((#2+\l__atableau_abacus_top_fp)*\l__atableau_abacus_row_dy_fp+(#3)*\l__atableau_abacus_col_dy_fp)*\l__atableau_abacus_ht_fp }
-\typeout{~-~made~coord~\l__atableau_name_tl :~(\fp_use:c{l__atableau_x#1_fp},~\fp_use:c{l__atableau_y#1_fp})}
+    \__atableau_debug:n {~-~bead~coordinates:~\l__atableau_name_tl~=~(\fp_use:c{l__atableau_x#1_fp},~\fp_use:c{l__atableau_y#1_fp})}
 }
 
 % ---------------------------------------------------------------------------
