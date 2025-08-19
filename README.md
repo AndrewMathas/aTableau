@@ -6,7 +6,7 @@
 
 # aTableau
 
-![aTableau example](./aTableau_example.png)
+![aTableau example](./aTableau_readme.png)
 
 A LaTeX package for **symmetric group combinatorics**, with commands for:
 

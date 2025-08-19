@@ -15,7 +15,8 @@
   - Complete implementation and DOCUMENTATION for traditional abacuses and the framed key
   - Make `\__atableau_abacus:nn` peek for commas rather than using
     `\clist_map_inline:nn`. Currently braces are needed for "complex"
-    style specifications in ribbon tableaux `[{...}]`.
+    style specifications in abacuses `[{...}]`. (This has alr4ady been
+    changed for (ribbon) tableau)
 
 ### Documentation
   - Add an example showing how to use dotted rows and columns for multitableaux
