@@ -11,8 +11,6 @@
 
 ### Features being implemented
   - Find a way for the path, ribbon and snob boxes to inherit colour from the ribbon style
-  - Allow R and C in ribbon tableau specifications ...still needs enhancement for ribbon border...
-  - Complete implementation and DOCUMENTATION for traditional abacuses and the framed key
   - Make `\__atableau_abacus:nn` peek for commas rather than using
     `\clist_map_inline:nn`. Currently braces are needed for "complex"
     style specifications in abacuses `[{...}]`. (This has alr4ady been
@@ -20,7 +18,6 @@
 
 ### Documentation
   - Add an example showing how to use dotted rows and columns for multitableaux
-  - Fix documentation for `\NewATableauCommand`
 
 ### Things we might do at some point
 
@@ -30,6 +27,6 @@
   - Beta numbers: allow partition to be specified by beta numbers in `\Diagram` and friends
   - Allow polar, and other, coordinates to be used as `(x,y)`-coordinates
   - Redesign the example environment to automate a testing framework
-    using image diffs and speed tests
+    using image diffs
 
-AM April 2025
+AM August 2025

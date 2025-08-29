@@ -1,6 +1,6 @@
 % ----------------------------------------------------------------------
 % atableau - Andrew Mathas (C) 2022-2025
-% Modified: 15:28 Wednesday, 06 August 2025
+% Modified: 19:55 Friday, 29 August 2025
 % ----------------------------------------------------------------------
 \documentclass{amsart}
 \usepackage[svgnames,table]{xcolor}
@@ -14,6 +14,7 @@
 \usepackage{xltabular}
 \usepackage{xspace}
 \usepackage{cprotect}
+\usepackage{MnSymbol}
 
 \usepackage{array}
 \newcolumntype{L}{>{\sffamily\color{MidnightBlue}\textbackslash}l}
@@ -1759,11 +1760,11 @@
   The covering and skew partitions can be given as a comma separated list of
   positive integers, or using exponential notation. As covering partitions
   are a type of dual \emph{skew shapes}, there are similar keys that control
-  how these pictures are drawn.
+  how these pictures are drawn. It is possible to combine these keys.
 
   \begin{example}
-  \Tableau[cover={4^2,3}, cover boxes]{123,45,67} \qquad
-  \Tableau[skew={2,1}, skew boxes]{123,45,67}
+  \Tableau[skew={2,1}, skew boxes,
+    cover={4^2,3},cover boxes]{123,45,67}
   \end{example}
 
   Skew tableaux and skew diagrams are common in the literature, so
@@ -1918,10 +1919,11 @@
   same symbol.
 
   \begin{example}
+  % \usepackage{MnSymbol}
   \aTabset{styles={R={red,text=red,thick},
     C={cyan,text=cyan,thick}}}
-  \Tableau[paths={(R)14ccrc,(C)23rcc},
-    path box=\bullet
+    \Tableau[path box=\bigcircle,
+    paths={(R)14ccrc,(C)23rcc},
   ]{1234,567,89{10}}
   \end{example}
 
@@ -3062,7 +3064,7 @@
   Like the other \aTableau commands, the $(x,y)$-coordinates are
   optional and are required if, and only if, the diagram is part of a
   \keyword{tikzpicture} environment. All of the keys for the
-  \keyword{\Tableau} command can be used with the ribbon command, so we
+  \keyword{\Tableau} command can be used with \keyword{\RibbonTableau}, so we
   refer to \autoref{S:Tableau} for a description of the available
   keys.
 
@@ -3198,6 +3200,35 @@
   }
   \end{example}
 
+  The ribbon specifications described already are sufficient for drawing
+  arbitrary ribbons. To allow more general regions to be drawn inside
+  diagrams and tableaux, the ribbon specifications also accept
+  \textsf{R}'s' and~\textsf{C}'s, which \textit{decrease the row index} and
+  \textit{increase the column index}, respectively. That is, when using
+  the English convention, the direction that \textsf{c}, \textsf{C},
+  \textsf{r} and \textsf{R} move the box in the ribbon specification is
+  given by:
+
+  \begin{center}
+    \Diagram[styles={A={thick,red,->},L={text=aTableauMain}},
+      scale=1.5,
+      tikz after={
+        \draw[A](A-1-1)--+(-0.8,0)node[L,left=0.1]{$c$};
+        \draw[A](A-1-1)--+(0.8,0)node[L,right=0.1]{$C$};
+        \draw[A](A-1-1)--+(0,0.8)node[L,above=0.1]{$R$};
+        \draw[A](A-1-1)--+(0,-0.8)node[L,below=0.1]{$r$};
+    }]{1}
+  \end{center}
+
+  For example, using this enhanced syntax it is possible to draw pictures like the following:
+
+  \begin{Example}
+  \RibbonTableau[shape=5^5]{23rcCrRC}  \qquad\RibbonTableau[shape=5^5]{24rrccRRCr}\qquad
+  \RibbonTableau[shape=5^5]{24rrccRRCC}\qquad\RibbonTableau[shape=7^5]{23crrCCCCRRccr}
+  \end{Example}
+
+  The boundary of these regions is the union
+
   We have now seen the full ribbon specifications. To summarise:
   \begin{itemize}[nosep]
     \item The ribbon specification starts with optional \TikZ-styling
@@ -3205,11 +3236,16 @@
     \item The first entry in the ribbon is given as
     \textsf{a}\textsf{b}, if the head of the ribbon is in row \textsf{a}
     and column \textsf{b}. (Enclose \textsf{a} and \textsf{b} in braces
-    if they are  greater than $9$, or less than $0$.) The remaining
-    entries in the ribbon are specified by a sequence of \textsf{r}'s
-    and \textsf{c}'s, depending on whether the next box in the ribbon is
-    given by increasing the row index, or decreasing the column index,
-    respectively.
+    if they are  greater than $9$, or less than $0$.)
+    \item The remaining
+    entries in the ribbon are specified by a sequence of \textsf{r}'s, \textsf{R}'s,
+    \textsf{c}'s and \textsf{C}'s where:
+    \begin{itemize}[nosep]
+      \item\textsf{r} increases the row index by $1$
+      \item\textsf{R} decreases the row index by $1$
+      \item\textsf{c} decreases the column index by $1$
+      \item\textsf{C} increases the column index by $1$.
+    \end{itemize}
     \item Each box in the ribbon, including the head, can be
     given \TikZ-styling by prefixing it with a $*$, which gives the
     box the current \option{star style}, or by putting \TikZ-styling keys inside
@@ -4701,16 +4737,19 @@
   with whatever name you want to call your command. The $\langle$tableau
   command name$\rangle$ can be any of the \aTableau picture commands:
   \begin{center}
-    \begin{tabular}{*5l}
-      Abacus& Diagram& Multidiagram& Multitableau& ShiftedDiagram\\
-      ShiftedTableau& SkewDiagram& SkewTableau& Tableau& Tabloid
+    \begin{tabular}{*4l}
+      Abacus& Diagram& Multidiagram& Multitableau\\
+      RibbonTableau&ShiftedDiagram&ShiftedTableau& SkewDiagram\\
+      SkewTableau& Tableau& Tabloid
     \end{tabular}
   \end{center}
-  Finally the $\langle$keys$\rangle$ can be an arbitrary comma separated
-  list of \aTableau keys.  Defining custom commands helps to ensure
-  consistency throughout your document, and it also makes it easier to
-  modify your ``design specifications'' of your custom tableaux because
-  they will appear only in the definition of your custom command.
+  The $\langle$keys$\rangle$ are a comma separated list of \aTableau
+  keys that define your custom command.  Defining custom commands helps
+  to ensure consistency throughout your document, and it also makes it
+  easier to modify the ``design specifications'' of your custom
+  \aTableau picture because these specifications appear only in the
+  definition of your custom command, rather than at several places in
+  your document.
 
   The \keyword{\NewATableauCommand} command creates custom \aTableau
   commands. These commands are used in exactly the same ways as the
@@ -4721,10 +4760,11 @@
 
   \begin{example}
   \NewATableauCommand\MyTableau{Tableau}
-    {french,border colour=magenta, box style={draw=orange,circle}}
+    {french,border colour=orange,
+     box style={draw=orange,circle,
+        text=white, fill=red!40!white}}
   \MyTableau{123,45} \quad
-  \MyTableau[box fill=red!20!white ]
-    {123,[fill=orange,text=white]45}
+  \MyTableau[border colour=red]{123,[fill=red]45}
   \end{example}
 
   Similarly, we can use these commands inside \keyword{tikzpicture}
@@ -4732,7 +4772,7 @@
 
   \begin{example}
   \NewATableauCommand\MyDiagram{Diagram}
-    {ukrainian, box fill=orange!20,shifted}
+    {ukrainian, box fill=yellow!40,shifted}
   \begin{tikzpicture}
     \MyDiagram(0,0){3,2}
     \MyDiagram(3,0)[shifted]{3,2,1}
@@ -4854,6 +4894,19 @@
   This section shows how to draw some tableaux that appear in the
   literature using the \aTableau package.
 
+  The first example, from \cite{Muniz}, is notable mainly for the
+  right-hand tableau, which is not of skew shape.
+  \begin{Example}
+  \aTabset{no border, styles={R={fill=red!75}, B={fill=blue!55}, P={fill=magenta!70}} }
+  \SkewTableau{4,1}{[B]1,[R]1[P]112,[R]2[B]2[P]23,[R]3[B]34,[B]4} \qquad$\mapsto$\qquad
+  \SkewTableau[snobs={(draw=none)11}]{4,1}{,1112,2[B]123,3[B]24,[B]3}\qquad
+  \SkewTableau{4,2}{1,112,[R]1223,[R]234,4}\qquad
+  \SkewTableau[snobs={22_1}]{4,3}{1,12,22[P]3,334,4}
+  \end{Example}
+  Notice also the use of \option{snobs} to draw a phantom box in the
+  $(1,1)$-position of the second tableau, with the result that this
+  tableau aligns correctly with the other tableaux.
+
   Diagrams like the following are common. Note the use of
   \option{ribbons} to add the $\alpha$ in row~$4$ and column~$8$.
 
@@ -4894,19 +4947,6 @@
   }
   \end{example}
 
-  The next example, from \cite{Muniz}, is notable mainly for the
-  right-hand tableau, which is not of skew shape.
-  \begin{Example}
-  \aTabset{no border, styles={R={fill=red!75}, B={fill=blue!55}, P={fill=magenta!70}} }
-  \SkewTableau{4,1}{[B]1,[R]1[P]112,[R]2[B]2[P]23,[R]3[B]34,[B]4} \qquad$\mapsto$\qquad
-  \SkewTableau[snobs={(draw=none)11}]{4,1}{,1112,2[B]123,3[B]24,[B]3}\qquad
-  \SkewTableau{4,2}{1,112,[R]1223,[R]234,4}\qquad
-  \SkewTableau[snobs={22_1}]{4,3}{1,12,22[P]3,334,4}
-  \end{Example}
-  Notice also the use of \option{snobs} to draw a phantom box in the
-  $(1,1)$-position of the second tableau, with the result that this
-  tableau aligns correctly with the other tableaux.
-
   The entries of a tableau are usually single characters, or numbers,
   but they can be more complicated. The paper
   \cite{bowman2023quiverpresentationsisomorphismshecke} contains
@@ -4916,10 +4956,8 @@
   \begin{example}
   \newcommand\Symb[2]{\genfrac{}{}{0pt}{}{#1}{#2}}
   \Tableau[ukrainian, box font=\scriptsize,
-   tikz after = {\draw[ultra thick, red]
-     (A-2-3.east)--(A-2-2.south)--(A-3-2.west)
-                 --(A-3-3.north)--cycle;
-  }]{
+    ribbons={(ultra thick,red)23crC}
+  ]{
      {\Symb11}{\Symb11}{\Symb11}{\Symb0s},
      {\Symb11}{\Symb11}{\Symb11}{\Symb0s},
      {\Symb11}{\Symb11}{\Symb{s^*}s}{\Symb0f},

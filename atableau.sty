@@ -1,6 +1,6 @@
 % ---------------------------------------------------------------------------
 % aTableau - Andrew Mathas (C) 2022-2025
-% Modified: 15:07 Tuesday, 19 August 2025
+% Modified: 20:01 Friday, 29 August 2025
 % ---------------------------------------------------------------------------
 %
 % A LaTeX package for symmetric group combinatorics:
@@ -99,7 +99,7 @@
   { Ribbon~specifications~must~be~for~the~form:~(optional~ribbon~style)[style]<row><col>+sequences~of~r's~and~c's~with~style}
 
 \msg_new:nnnn { aTableau } { invalid-ribbon-path }
-  { Ribbon~specifications~should~not~back-track:~#1~is~not~allowed!}
+  { Ribbon~specifications~should~not~back-track:~rR,~Rr,~cC~and~Cc~are~not~allowed!}
   { The~ribbon~specifications~do~not~allow~paths~to~immediately~backtrack~by~using~rR,~Rr,~cC~or~Cc}
 
 \msg_new:nnnn { aTableau } { invalid-ribbon-specification }
@@ -180,7 +180,6 @@
 \bool_new:N \l__atableau_tabloid_bool     % true if a tabloid
 \bool_new:N \l__atableau_traditional_bool % true if a traditional abacus
 
-\fp_new:N \l__atableau_rotate_fp   % row index of the bottom of the abacus
 \fp_new:N \l__atableau_abacus_bottom_fp   % row index of the bottom of the abacus
 \fp_new:N \l__atableau_abacus_col_dx_fp   % change in x-coordinate between columns in an abacus
 \fp_new:N \l__atableau_abacus_col_dy_fp   % change in y-coordinate between columns in an abacus
@@ -192,16 +191,17 @@
 \fp_new:N \l__atableau_bead_height_fp     % abacus bead height
 \fp_new:N \l__atableau_bead_width_fp      % abacus bead width
 \fp_new:N \l__atableau_beam_height_fp     % width of abacus rods/runners when using traditional style
+\fp_new:N \l__atableau_box_col_dx_fp      % change in x-coordinate between columns in a tableau
+\fp_new:N \l__atableau_box_col_dy_fp      % change in y-coordinate between columns in a tableau
 \fp_new:N \l__atableau_box_ht_fp          % height of a tableau box
+\fp_new:N \l__atableau_box_row_dx_fp      % change in x-coordinate between rows in a tableau
+\fp_new:N \l__atableau_box_row_dy_fp      % change in y-coordinate between rows in a tableau
 \fp_new:N \l__atableau_box_wd_fp          % width of a tableau box
+\fp_new:N \l__atableau_rotate_fp          % rotation angle, set by rotate key
 \fp_new:N \l__atableau_rows_fp            % number of rows in abacus/tableau
-\fp_new:N \l__atableau_separation_fp      % distance between multitableau
 \fp_new:N \l__atableau_script_fp          % scaling when used as a subscript
-\fp_new:N \l__atableau_sscriptscript_fp   % scaling when used as a subsubscript
-\fp_new:N \l__atableau_tab_col_dx_fp      % change in x-coordinate between columns in a tableau
-\fp_new:N \l__atableau_tab_col_dy_fp      % change in y-coordinate between columns in a tableau
-\fp_new:N \l__atableau_tab_row_dx_fp      % change in x-coordinate between rows in a tableau
-\fp_new:N \l__atableau_tab_row_dy_fp      % change in y-coordinate between rows in a tableau
+\fp_new:N \l__atableau_scriptscript_fp    % scaling when used as a subsubscript
+\fp_new:N \l__atableau_separation_fp      % distance between multitableau
 \fp_new:N \l__atableau_tick_length_fp     % half the length of the abacus ticks
 \fp_new:N \l__atableau_x_fp               % x-coordinate of the origin of the diagram
 \fp_new:N \l__atableau_xa_fp              % scratch x-coordinate of a node/bead
@@ -228,6 +228,8 @@
 \int_new:N \l__atableau_row_int           % current row index
 \int_new:N \l__atableau_r_int             % scratch row counter
 \int_new:N \l__atableau_rows_int          % number of rows in abacus
+
+\prop_new:N \l__atableau_ribbon_prop      % border paths in a ribbon (no speed difference using \prop_new_linked:N)
 
 \seq_new:N \l__atableau_charge_seq        % sequences of charges = residue/content offset
 \seq_new:N \l__atableau_colours_seq       % tableau fill colours
@@ -283,7 +285,10 @@
 \tl_new:N \l__atableau_paths_tl           % ribbon paths to add to tableau/diagram
 \tl_new:N \l__atableau_prefix_tl          % prefix for node names
 \tl_new:N \l__atableau_ribbon_box_tl      % box entry for ribbons
-\tl_new:N \l__atableau_ribbon_last_tl     % the last ribbon specifier used to extend the ribbon
+\tl_new:N \l__atableau_ribbon_a_tl        % a corner on a cell being added to a ribbon
+\tl_new:N \l__atableau_ribbon_b_tl        % a corner on a cell being added to a ribbon
+\tl_new:N \l__atableau_ribbon_c_tl        % a corner on a cell being added to a ribbon
+\tl_new:N \l__atableau_ribbon_d_tl        % a corner on a cell being added to a ribbon
 \tl_new:N \l__atableau_ribbon_path_tl     % a ribbon in the ribbon tableau
 \tl_new:N \l__atableau_ribbon_style_tl    % optional style used for current path< ribbon or snob
 \tl_new:N \l__atableau_ribbon_type_tl     % the type of ribbon, which is either path, ribbon or snob
@@ -392,8 +397,8 @@
     % outer tableau wall
     borderStyle/.style = {
         % shifting allows us to use \__atableau_set_box_coordinates:nnn when drawing the border
-        shift = {(\fp_eval:n{-(\l__atableau_tab_row_dx_fp+\l__atableau_tab_col_dx_fp)*\l__atableau_box_wd_fp/2},
-                  \fp_eval:n{-(\l__atableau_tab_row_dy_fp+\l__atableau_tab_col_dy_fp)*\l__atableau_box_ht_fp/2})},
+        shift = {(\fp_eval:n{-(\l__atableau_box_row_dx_fp+\l__atableau_box_col_dx_fp)/2},
+                  \fp_eval:n{-(\l__atableau_box_row_dy_fp+\l__atableau_box_col_dy_fp)/2})},
         line~cap = rect,
         very~thick,
         draw = \l__atableau_outer_tl,
@@ -401,16 +406,16 @@
     % cover walls
     coverBorder/.style = {
         % shifting allows us to use \__atableau_set_box_coordinates:nnn when drawing the border
-        shift = {(\fp_eval:n{-(\l__atableau_tab_row_dx_fp+\l__atableau_tab_col_dx_fp)*\l__atableau_box_wd_fp/2},
-                  \fp_eval:n{-(\l__atableau_tab_row_dy_fp+\l__atableau_tab_col_dy_fp)*\l__atableau_box_ht_fp/2})},
+        shift = {(\fp_eval:n{-(\l__atableau_box_row_dx_fp+\l__atableau_box_col_dx_fp)/2},
+                  \fp_eval:n{-(\l__atableau_box_row_dy_fp+\l__atableau_box_col_dy_fp)/2})},
         draw  = \l__atableau_cover_border_tl,
         thick
     },
     % skew walls
     skewBorder/.style = {
         % shifting allows us to use \__atableau_set_box_coordinates:nnn when drawing the border
-        shift = {(\fp_eval:n{-(\l__atableau_tab_row_dx_fp+\l__atableau_tab_col_dx_fp)*\l__atableau_box_wd_fp/2},
-                  \fp_eval:n{-(\l__atableau_tab_row_dy_fp+\l__atableau_tab_col_dy_fp)*\l__atableau_box_ht_fp/2})},
+        shift = {(\fp_eval:n{-(\l__atableau_box_row_dx_fp+\l__atableau_box_col_dx_fp)/2},
+                  \fp_eval:n{-(\l__atableau_box_row_dy_fp+\l__atableau_box_col_dy_fp)/2})},
         draw  = \l__atableau_skew_border_tl,
         thick
     },
@@ -419,7 +424,7 @@
     aTableauBox/.style = {
         anchor         = center,
         inner~sep      = 0pt,
-        rotate         = \fp_use:N\l__atableau_rotate_fp,
+        rotate         = \fp_use:N \l__atableau_rotate_fp,
         minimum~height = \fp_use:N \l__atableau_box_ht_fp cm,
         minimum~width  = \fp_use:N \l__atableau_box_wd_fp cm,
         shape          = \l__atableau_box_shape_tl,
@@ -466,18 +471,24 @@
     % default ribbon style
     ribbonStyle/.style = {
         aTableau/innerWall,
+        % shifting allows us to use \__atableau_set_box_coordinates:nnn when drawing the wall
+        shift = {(\fp_eval:n{(\l__atableau_box_row_dx_fp+\l__atableau_box_col_dx_fp)/2},
+                  \fp_eval:n{(\l__atableau_box_row_dy_fp+\l__atableau_box_col_dy_fp)/2})},
         draw = \l__atableau_inner_tl,
     },
-    % default snob style
+    % default snob style = ribbon style
     snobStyle/.style = {
         aTableau/innerWall,
+        % shifting allows us to use \__atableau_set_box_coordinates:nnn when drawing the wall
+        shift = {(\fp_eval:n{(\l__atableau_box_row_dx_fp+\l__atableau_box_col_dx_fp)/2},
+                  \fp_eval:n{(\l__atableau_box_row_dy_fp+\l__atableau_box_col_dy_fp)/2})},
         draw = \l__atableau_inner_tl,
     },
     % -----------------------------------------------------------------------
     % label styles
     labelStyle/.style = {
-        shift = {(\fp_eval:n{-0.2*(\l__atableau_tab_row_dx_fp+\l__atableau_tab_col_dx_fp)*\l__atableau_box_wd_fp},
-                  \fp_eval:n{-0.2*(\l__atableau_tab_row_dy_fp+\l__atableau_tab_col_dy_fp)*\l__atableau_box_ht_fp})},
+        shift = {(\fp_eval:n{-0.2*(\l__atableau_box_row_dx_fp+\l__atableau_box_col_dx_fp)},
+                  \fp_eval:n{-0.2*(\l__atableau_box_row_dy_fp+\l__atableau_box_col_dy_fp)})},
         font=\scriptsize,
         text = \l__atableau_inner_tl,
     },
@@ -588,22 +599,26 @@
 % usage: \__atableau_set_xscale:n {x-scale} : rescale the x-dimension
 \cs_new_protected:Npn \__atableau_set_xscale:n #1
 {
-    \fp_set:Nn \l__atableau_xscale_fp      {#1} % make scale persistent
-    \fp_set:Nn \l__atableau_abacus_wd_fp   {#1*\l__atableau_abacus_wd_fp}
-    \fp_set:Nn \l__atableau_bead_width_fp  {#1*\l__atableau_bead_width_fp}
-    \fp_set:Nn \l__atableau_box_wd_fp      {#1*\l__atableau_box_wd_fp}
-    \fp_set:Nn \l__atableau_separation_fp  {#1*\l__atableau_separation_fp }
-    \fp_set:Nn \l__atableau_tick_length_fp {#1*\l__atableau_tick_length_fp }
-    \fp_set:Nn \l__atableau_beam_height_fp {#1*\l__atableau_beam_height_fp }
+    \fp_set:Nn \l__atableau_abacus_wd_fp   { #1*\l__atableau_abacus_wd_fp   }
+    \fp_set:Nn \l__atableau_bead_width_fp  { #1*\l__atableau_bead_width_fp  }
+    \fp_set:Nn \l__atableau_box_col_dx_fp  { #1*\l__atableau_box_col_dx_fp  }
+    \fp_set:Nn \l__atableau_box_row_dx_fp  { #1*\l__atableau_box_row_dx_fp  }
+    \fp_set:Nn \l__atableau_box_wd_fp      { #1*\l__atableau_box_wd_fp      }
+    \fp_set:Nn \l__atableau_separation_fp  { #1*\l__atableau_separation_fp  }
+    \fp_set:Nn \l__atableau_tick_length_fp { #1*\l__atableau_tick_length_fp }
+    \fp_set:Nn \l__atableau_xscale_fp      { #1 } % make scale persistent
 }
 
 % usage: \__atableau_set_yscale:n {y-scale} : rescale the y-dimension
-\cs_new_protected:Npn \__atableau_set_yscale:n #1
+\cs_new_protected:Npn \__atableau_set_yscale:n  #1
 {
-    \fp_set:Nn \l__atableau_yscale_fp      {#1} % make scale persistent
-    \fp_set:Nn \l__atableau_abacus_ht_fp   {#1*\l__atableau_abacus_ht_fp}
-    \fp_set:Nn \l__atableau_bead_height_fp {#1*\l__atableau_bead_height_fp}
-    \fp_set:Nn \l__atableau_box_ht_fp      {#1*\l__atableau_box_ht_fp}
+    \fp_set:Nn \l__atableau_abacus_ht_fp   { #1*\l__atableau_abacus_ht_fp   }
+    \fp_set:Nn \l__atableau_bead_height_fp { #1*\l__atableau_bead_height_fp }
+    \fp_set:Nn \l__atableau_beam_height_fp { #1*\l__atableau_beam_height_fp }
+    \fp_set:Nn \l__atableau_box_col_dy_fp  { #1*\l__atableau_box_col_dy_fp  }
+    \fp_set:Nn \l__atableau_box_ht_fp      { #1*\l__atableau_box_ht_fp      }
+    \fp_set:Nn \l__atableau_box_row_dy_fp  { #1*\l__atableau_box_row_dy_fp  }
+    \fp_set:Nn \l__atableau_yscale_fp      { #1 } % make scale persistent
 }
 
 % ---------------------------------------------------------------------------
@@ -613,42 +628,42 @@
 % Set the style/convention for tableaus
 \cs_new:Npn \__atableau_set_tableau_style:nnnn #1 #2 #3 #4
 {
-    \fp_set:Nn \l__atableau_tab_col_dx_fp {#1}
-    \fp_set:Nn \l__atableau_tab_col_dy_fp {#2}
-    \fp_set:Nn \l__atableau_tab_row_dx_fp {#3}
-    \fp_set:Nn \l__atableau_tab_row_dy_fp {#4}
+    \fp_set:Nn \l__atableau_box_col_dx_fp {#1*\l__atableau_box_wd_fp}
+    \fp_set:Nn \l__atableau_box_col_dy_fp {#2*\l__atableau_box_ht_fp}
+    \fp_set:Nn \l__atableau_box_row_dx_fp {#3*\l__atableau_box_wd_fp}
+    \fp_set:Nn \l__atableau_box_row_dy_fp {#4*\l__atableau_box_ht_fp}
 }
 
 \cs_new:Nn \__atableau_set_tableau_style_english:
 {
-    \__atableau_set_tableau_style:nnnn {1}{0}{0}{-1}
     \fp_set:Nn \l__atableau_box_ht_fp {\l__atableau_yscale_fp*0.5}
     \fp_set:Nn \l__atableau_box_wd_fp {\l__atableau_xscale_fp*0.5}
     \tl_set:Nn \l__atableau_box_shape_tl {rectangle}
+    \__atableau_set_tableau_style:nnnn {1}{0}{0}{-1}
 }
 
 \cs_new:Nn \__atableau_set_tableau_style_french:
 {
-    \__atableau_set_tableau_style:nnnn {1}{0}{0}{1}
     \fp_set:Nn \l__atableau_box_ht_fp {\l__atableau_yscale_fp*0.5}
     \fp_set:Nn \l__atableau_box_wd_fp {\l__atableau_xscale_fp*0.5}
     \tl_set:Nn \l__atableau_box_shape_tl {rectangle}
+    \__atableau_set_tableau_style:nnnn {1}{0}{0}{1}
 }
 
 \cs_new:Nn \__atableau_set_tableau_style_australian:
 {
-    \__atableau_set_tableau_style:nnnn {0.5}{-0.5}{-0.5}{-0.5}
     \fp_set:Nn \l__atableau_box_ht_fp {\l__atableau_yscale_fp*0.7012} % 1/sqrt(2)
     \fp_set:Nn \l__atableau_box_wd_fp {\l__atableau_xscale_fp*0.7012}
     \tl_set:Nn \l__atableau_box_shape_tl {diamond}
+    \__atableau_set_tableau_style:nnnn {0.5}{-0.5}{-0.5}{-0.5}
 }
 
 \cs_new:Nn \__atableau_set_tableau_style_ukrainian:
 {
-    \__atableau_set_tableau_style:nnnn {0.5}{0.5}{-0.5}{0.5}
     \fp_set:Nn \l__atableau_box_ht_fp {\l__atableau_yscale_fp*0.7012} % 1/sqrt(2)
     \fp_set:Nn \l__atableau_box_wd_fp {\l__atableau_xscale_fp*0.7012}
     \tl_set:Nn \l__atableau_box_shape_tl {diamond}
+    \__atableau_set_tableau_style:nnnn {0.5}{0.5}{-0.5}{0.5}
 }
 
 % ---------------------------------------------------------------------------
@@ -794,13 +809,14 @@
 
 \cs_generate_variant:Nn \__atableau_abacus_bead:nnn {enV}
 \cs_generate_variant:Nn \__atableau_count_row:n {x}
+\cs_generate_variant:Nn \__atableau_add_ribbon_edge:nn {oo,Vo,oV,ee,eV,Ve, VV}
 \cs_generate_variant:Nn \__atableau_draw_tableau:n {V}
 \cs_generate_variant:Nn \__atableau_define_html_colour:nn {no}
 \cs_generate_variant:Nn \__atableau_entry:n {x}
 \cs_generate_variant:Nn \__atableau_add_ribbon:nn {nV}
 \cs_generate_variant:Nn \__atableau_put_tikz_node:nnnnn {nnVnV, noVnV, noVno}
 \cs_generate_variant:Nn \__atableau_set_bead_coordinates:nnn {nVn, nVV, nnV, noo, non, nVo, noV, nno}
-\cs_generate_variant:Nn \__atableau_set_box_coordinates:nnn {nVV, nVn, noo, noV }
+\cs_generate_variant:Nn \__atableau_set_box_coordinates:nnn {nVV, nVn, noo, noV, nnV }
 \cs_generate_variant:Nn \__atableau_set_partition:nn {nV}
 \cs_generate_variant:Nn \__atableau_tikz_node:nnnn {nVno}
 \cs_generate_variant:Nn \__atableau_tl_put_right_braced:Nn { NV, Nx, No, Ne }
@@ -1379,12 +1395,12 @@
         \int_set:No \l__atableau_c_int   { 0\seq_item:NV \l__atableau_shape_seq \l__atableau_r_int }   % mu_r
 
         % shift in col-direction
-        \fp_set:Nn \l__atableau_xa_fp {\l__atableau_tab_col_dx_fp*\l__atableau_box_wd_fp}
-        \fp_set:Nn \l__atableau_ya_fp {\l__atableau_tab_col_dy_fp*\l__atableau_box_ht_fp}
+        \fp_set:Nn \l__atableau_xa_fp {\l__atableau_box_col_dx_fp}
+        \fp_set:Nn \l__atableau_ya_fp {\l__atableau_box_col_dy_fp}
 
         % shift in row-direction
-        \fp_set:Nn \l__atableau_xb_fp {\l__atableau_tab_row_dx_fp*\l__atableau_box_wd_fp}
-        \fp_set:Nn \l__atableau_yb_fp {\l__atableau_tab_row_dy_fp*\l__atableau_box_ht_fp}
+        \fp_set:Nn \l__atableau_xb_fp {\l__atableau_box_row_dx_fp}
+        \fp_set:Nn \l__atableau_yb_fp {\l__atableau_box_row_dy_fp}
 
         % a draw between the coordinates a, b, c, d
         \__atableau_set_box_coordinates:noo {l} {\l__atableau_row_int-1} {\l__atableau_col_int-1} % point b
@@ -1480,12 +1496,12 @@
         \int_set:No \l__atableau_r_int   { 0\seq_item:NV \l__atableau_conjugate_seq \l__atableau_c_int }   % mu_r
 
         % shift in col-direction
-        \fp_set:Nn \l__atableau_xa_fp {\l__atableau_tab_col_dx_fp*\l__atableau_box_wd_fp}
-        \fp_set:Nn \l__atableau_ya_fp {\l__atableau_tab_col_dy_fp*\l__atableau_box_ht_fp}
+        \fp_set:Nn \l__atableau_xa_fp {\l__atableau_box_col_dx_fp}
+        \fp_set:Nn \l__atableau_ya_fp {\l__atableau_box_col_dy_fp}
 
         % shift in row-direction
-        \fp_set:Nn \l__atableau_xb_fp {\l__atableau_tab_row_dx_fp*\l__atableau_box_wd_fp}
-        \fp_set:Nn \l__atableau_yb_fp {\l__atableau_tab_row_dy_fp*\l__atableau_box_ht_fp}
+        \fp_set:Nn \l__atableau_xb_fp {\l__atableau_box_row_dx_fp}
+        \fp_set:Nn \l__atableau_yb_fp {\l__atableau_box_row_dy_fp}
 
         % a draw between the coordinates a, b, c, d
         \__atableau_set_box_coordinates:noo {l} {\l__atableau_row_int-1} {\l__atableau_col_int-1} % point b
@@ -1564,8 +1580,8 @@
    \bool_if:nF { \seq_if_empty_p:N \l__atableau_skew_seq || \l__atableau_skew_border_bool }
    {   % attach label to the (1,skew_1)-box
        \tl_set:Nn \l_tmpa_tl { 0\seq_item:Nn \l__atableau_skew_seq {1} }
-       \fp_add:Nn \l__atableau_xa_fp {\l_tmpa_tl*\l__atableau_tab_col_dx_fp*\l__atableau_box_wd_fp}
-       \fp_add:Nn \l__atableau_ya_fp {\l_tmpa_tl*\l__atableau_tab_col_dy_fp*\l__atableau_box_wd_fp}
+       \fp_add:Nn \l__atableau_xa_fp {\l_tmpa_tl*\l__atableau_box_col_dx_fp}
+       \fp_add:Nn \l__atableau_ya_fp {\l_tmpa_tl*\l__atableau_box_col_dy_fp}
    }
    % add the label
    \node[aTableau/labelStyle] at (\fp_use:N\l__atableau_xa_fp,\fp_use:N\l__atableau_ya_fp) { \__atableau_entry:n{\l__atableau_label_tl} };
@@ -1629,12 +1645,12 @@
     \bool_if:NTF \l__atableau_conjugate_bool
     {
       % adding to the left-hand side
-      \fp_add:Nn \l__atableau_xa_fp {\l__atableau_tab_col_dx_fp*\l__atableau_box_wd_fp}
-      \fp_add:Nn \l__atableau_ya_fp {\l__atableau_tab_col_dy_fp*\l__atableau_box_ht_fp}
+      \fp_add:Nn \l__atableau_xa_fp {\l__atableau_box_col_dx_fp}
+      \fp_add:Nn \l__atableau_ya_fp {\l__atableau_box_col_dy_fp}
 
       % adding to the right-hand side
-      \fp_add:Nn \l__atableau_xb_fp {\l__atableau_tab_col_dx_fp*\l__atableau_box_wd_fp}
-      \fp_add:Nn \l__atableau_yb_fp {\l__atableau_tab_col_dy_fp*\l__atableau_box_ht_fp}
+      \fp_add:Nn \l__atableau_xb_fp {\l__atableau_box_col_dx_fp}
+      \fp_add:Nn \l__atableau_yb_fp {\l__atableau_box_col_dy_fp}
 
       \bool_if:NTF \l__atableau_tabloid_bool
       {
@@ -1648,12 +1664,12 @@
     }
     {
       % adding to  the left-hand side
-      \fp_add:Nn \l__atableau_xa_fp {\l__atableau_tab_row_dx_fp*\l__atableau_box_wd_fp}
-      \fp_add:Nn \l__atableau_ya_fp {\l__atableau_tab_row_dy_fp*\l__atableau_box_ht_fp}
+      \fp_add:Nn \l__atableau_xa_fp {\l__atableau_box_row_dx_fp}
+      \fp_add:Nn \l__atableau_ya_fp {\l__atableau_box_row_dy_fp}
 
       % adding to  the right-hand side
-      \fp_add:Nn \l__atableau_xb_fp {\l__atableau_tab_row_dx_fp*\l__atableau_box_wd_fp}
-      \fp_add:Nn \l__atableau_yb_fp {\l__atableau_tab_row_dy_fp*\l__atableau_box_ht_fp}
+      \fp_add:Nn \l__atableau_xb_fp {\l__atableau_box_row_dx_fp}
+      \fp_add:Nn \l__atableau_yb_fp {\l__atableau_box_row_dy_fp}
 
       \bool_if:NTF \l__atableau_tabloid_bool
       {
@@ -1782,8 +1798,8 @@
 \cs_new_protected:Npn \__atableau_set_box_coordinates_normal:nnn #1 #2 #3
 {
     \tl_set:Nx \l__atableau_name_tl {\l__atableau_prefix_tl-\int_eval:n{1+#2}-\int_eval:n {1+#3}}
-    \fp_set:cn {l__atableau_x#1_fp} {\l__atableau_x_fp+((#2+0.5)*\l__atableau_tab_row_dx_fp+(#3+0.5)*\l__atableau_tab_col_dx_fp)*\l__atableau_box_wd_fp }
-    \fp_set:cn {l__atableau_y#1_fp} {\l__atableau_y_fp+((#2+0.5)*\l__atableau_tab_row_dy_fp+(#3+0.5)*\l__atableau_tab_col_dy_fp)*\l__atableau_box_ht_fp }
+    \fp_set:cn {l__atableau_x#1_fp} {\l__atableau_x_fp+(#2+0.5)*\l__atableau_box_row_dx_fp+(#3+0.5)*\l__atableau_box_col_dx_fp }
+    \fp_set:cn {l__atableau_y#1_fp} {\l__atableau_y_fp+(#2+0.5)*\l__atableau_box_row_dy_fp+(#3+0.5)*\l__atableau_box_col_dy_fp }
     \__atableau_update_extrema:n #1
     \__atableau_debug:n {~-~box~coordinates:~\l__atableau_name_tl~=~(\fp_use:c{l__atableau_x#1_fp},~\fp_use:c{l__atableau_y#1_fp})}
 }
@@ -1797,8 +1813,8 @@
 \cs_new_protected:Npn \__atableau_set_box_coordinates_conjugate:nnn #1 #2 #3
 {
     \tl_set:Nx \l__atableau_name_tl {\l__atableau_prefix_tl-\int_eval:n{1+#3}-\int_eval:n {1+#2}}
-    \fp_set:cn {l__atableau_x#1_fp} {\l__atableau_x_fp+((#3+0.5)*\l__atableau_tab_row_dx_fp+(#2+0.5)*\l__atableau_tab_col_dx_fp)*\l__atableau_box_wd_fp }
-    \fp_set:cn {l__atableau_y#1_fp} {\l__atableau_y_fp+((#3+0.5)*\l__atableau_tab_row_dy_fp+(#2+0.5)*\l__atableau_tab_col_dy_fp)*\l__atableau_box_ht_fp }
+    \fp_set:cn {l__atableau_x#1_fp} {\l__atableau_x_fp+(#3+0.5)*\l__atableau_box_row_dx_fp+(#2+0.5)*\l__atableau_box_col_dx_fp }
+    \fp_set:cn {l__atableau_y#1_fp} {\l__atableau_y_fp+(#3+0.5)*\l__atableau_box_row_dy_fp+(#2+0.5)*\l__atableau_box_col_dy_fp }
     \__atableau_update_extrema:n #1
     \__atableau_debug:n {~-~conjugate~box~coordinates:~\l__atableau_name_tl~=~(\fp_use:c{l__atableau_x#1_fp},~\fp_use:c{l__atableau_y#1_fp})}
 }
@@ -1968,7 +1984,7 @@
 
     % keep track of min/max y-coordinates used and max x-coordinate
     \fp_set_eq:NN \l__atableau_xmax_fp \l__atableau_x_fp
-    \fp_set:Nn \l__atableau_ymax_fp {\l__atableau_y_fp + \l__atableau_tab_row_dy_fp*\l__atableau_box_ht_fp/2} % middle of box
+    \fp_set:Nn \l__atableau_ymax_fp {\l__atableau_y_fp + \l__atableau_box_row_dy_fp/2} % middle of box
     \fp_set_eq:NN \l__atableau_ymin_fp \l__atableau_ymax_fp
 
     \seq_map_inline:Nn \l__atableau_component_seq
@@ -2060,20 +2076,21 @@
             % the origin is c * col_dx units from the separator + xoffset
             \fp_add:Nn \l__atableau_x_fp
             {
-                abs(\l__atableau_c_int*\l__atableau_tab_row_dx_fp*\l__atableau_box_wd_fp) % number of columns
+                abs(\l__atableau_c_int*\l__atableau_box_row_dx_fp) % number of columns
                 + 0\seq_item:NV \l__atableau_xoffsets_seq \l__atableau_component_int  % x-offset
             }
             % the next separator is is r * row_dx units from the origin
-            \fp_set:Nn \l__atableau_xsep_fp {
-                abs(\l__atableau_r_int*\l__atableau_tab_col_dx_fp*\l__atableau_box_wd_fp)
+            \fp_set:Nn \l__atableau_xsep_fp
+            {
+                abs(\l__atableau_r_int*\l__atableau_box_col_dx_fp)
                 + \l__atableau_separation_fp
             }
 
             % compute maximum height of the diagram
             \fp_set:Nn \l__atableau_yb_fp
             {
-                \l__atableau_c_int*\l__atableau_tab_row_dy_fp*\l__atableau_box_ht_fp
-                  + \l__atableau_r_int*abs(\l__atableau_tab_col_dy_fp)*\l__atableau_box_ht_fp
+                \l__atableau_c_int*\l__atableau_box_row_dy_fp
+                  + \l__atableau_r_int*abs(\l__atableau_box_col_dy_fp)
                   + 0\seq_item:NV \l__atableau_yoffsets_seq \l__atableau_component_int
             }
         }
@@ -2081,20 +2098,20 @@
             % the origin is r * row_dx units from the separator + xoffset
             \fp_add:Nn \l__atableau_x_fp
             {
-                abs(\l__atableau_r_int*\l__atableau_tab_row_dx_fp*\l__atableau_box_wd_fp) % number of columns
+                abs(\l__atableau_r_int*\l__atableau_box_row_dx_fp) % number of columns
                 + 0\seq_item:NV \l__atableau_xoffsets_seq \l__atableau_component_int  % x-offset
             }
             % the next separator is is c * col_dx units from the origin
             \fp_set:Nn \l__atableau_xsep_fp
             {
-                abs(\l__atableau_c_int*\l__atableau_tab_col_dx_fp*\l__atableau_box_wd_fp) % number of columns
+                abs(\l__atableau_c_int*\l__atableau_box_col_dx_fp) % number of columns
                 + \l__atableau_separation_fp
             }
             % compute maximum height of the diagram
             \fp_set:Nn \l__atableau_yb_fp
             {
-                \l__atableau_r_int*\l__atableau_tab_row_dy_fp*\l__atableau_box_ht_fp
-                  + \l__atableau_c_int*\l__atableau_tab_col_dy_fp*\l__atableau_box_ht_fp
+                \l__atableau_r_int*\l__atableau_box_row_dy_fp
+                  + \l__atableau_c_int*\l__atableau_box_col_dy_fp
                   + 0\seq_item:NV \l__atableau_yoffsets_seq \l__atableau_component_int
              }
         }
@@ -2143,7 +2160,7 @@
       % need to adjust ymin and ymax by half the box height
       \fp_compare:nNnTF {\l__atableau_rows_fp} > {0}
       {
-        \fp_compare:nNnTF {\l__atableau_tab_row_dy_fp} > {0}
+        \fp_compare:nNnTF {\l__atableau_box_row_dy_fp} > {0}
         {
           \fp_add:Nn \l__atableau_ymax_fp {  (\l__atableau_rows_fp-0.5)*\l__atableau_box_ht_fp }
           \fp_add:Nn \l__atableau_ymin_fp {  -0.5*\l__atableau_box_ht_fp }
@@ -2257,7 +2274,7 @@
 
     % draw the ribbon tableau by drawing each of the ribbons
     \tl_set:Nn \l__atableau_ribbon_type_tl {ribbon} % change ribbon type to ribbon
-    \typeout{STARTING~NEW~RIBBON~TABLEAU}
+    \typeout{STARTING~NEW~RIBBON~TABLEAU:~"#1"}
     \__atableau_peek_ribbon:w #1 \q_recursion_tail \q_recursion_stop
     %\clist_map_inline:nn {#1} { \__atableau_add_ribbon:n  {##1} }
 
@@ -2272,7 +2289,6 @@
 {
     \typeout{ADDING~A~"#1"~with~"#2"}
     \tl_set:Nn \l__atableau_ribbon_type_tl {#1}   % change ribbon type to ribbon
-    \tl_set:Nn \l__atableau_ribbon_last_tl {init} % need to initialise the ribbon
     \__atableau_peek_ribbon:w #2 \q_recursion_tail \q_recursion_stop
 }
 
@@ -2332,28 +2348,40 @@
     }
 }
 
+% usage: \__atableau_set_ribbon_coordinates:nnnn #1 #2 #3 #4
+% Set the four ribbon coordinates ribbon_a_tl, ..., ribbon_d_tl equal to the
+% xy-coordinates of the four corners around box in row row_int and column
+% column_int, where ribbon_#1_tl is set to (r,c),, ribbon_#2_tl to (r,c-1),
+% ribbon_#3_tl to (r-1,c-1), and ribbon_#4_tl to (r-1,c). For this
+% we use \__atableau_set_box_coordinates:nnn, which is not particularly
+% efficient, but necessary because we have to allow for the four different
+% tableau conventions, as well as rotated coordinates. There is a shift in the
+% TikZ-style to move the coordinate from the centre of the boxes to their
+% borders.
+\cs_new_protected:Npn \__atableau_set_ribbon_coordinates:nnnn #1 #2 #3 #4
+{
+    \tl_set:ce {l__atableau_ribbon_#1_tl} {\int_use:N\l__atableau_row_int|\int_use:N\l__atableau_col_int}
+    \tl_set:ce {l__atableau_ribbon_#2_tl} {\int_eval:n{\l__atableau_row_int-1}|\int_use:N\l__atableau_col_int}
+    \tl_set:ce {l__atableau_ribbon_#3_tl} {\int_eval:n{\l__atableau_row_int-1}|\int_eval:n{\l__atableau_col_int-1}}
+    \tl_set:ce {l__atableau_ribbon_#4_tl} {\int_use:N\l__atableau_row_int|\int_eval:n{\l__atableau_col_int-1}}
+}
+
 % usage: \__atableau_initialise_ribbon_head:
 % Start constructing the token list \l__atableau_ribbon_path_tl for a ribbon
 \cs_new_protected:Nn \__atableau_initialise_ribbon_head:
 {
-    % 1. Make (xl,yl) the top corner of the ribbon and add it
-    \fp_add:Nn \l__atableau_xl_fp { 0.5*(\l__atableau_tab_col_dx_fp-\l__atableau_tab_row_dx_fp)*\l__atableau_box_wd_fp }
-    \fp_add:Nn \l__atableau_yl_fp { 0.5*(\l__atableau_tab_col_dy_fp-\l__atableau_tab_row_dy_fp)*\l__atableau_box_ht_fp }
-    \tl_set:Nx \l__atableau_ribbon_path_tl { (\fp_use:N\l__atableau_xl_fp,\fp_use:N\l__atableau_yl_fp) }
-
-    % 2. Make (xa,ya) the top left of the ribbon and add it on the left (decreasing column)
-    \fp_set:Nn \l__atableau_xa_fp {\l__atableau_xl_fp-\l__atableau_tab_col_dx_fp*\l__atableau_box_wd_fp}
-    \fp_set:Nn \l__atableau_ya_fp {\l__atableau_yl_fp-\l__atableau_tab_col_dy_fp*\l__atableau_box_ht_fp}
-    \tl_put_left:Nx \l__atableau_ribbon_path_tl { (\fp_use:N\l__atableau_xa_fp,\fp_use:N\l__atableau_ya_fp)-- }
-
-    % 3. Make (xb,yb) the bottom right corner and add it on the right (increasing row)
-    \fp_set:Nn \l__atableau_xb_fp {\l__atableau_xl_fp+\l__atableau_tab_row_dx_fp*\l__atableau_box_wd_fp}
-    \fp_set:Nn \l__atableau_yb_fp {\l__atableau_yl_fp+\l__atableau_tab_row_dy_fp*\l__atableau_box_ht_fp}
-    \tl_put_right:Nx \l__atableau_ribbon_path_tl { --(\fp_use:N\l__atableau_xb_fp,\fp_use:N\l__atableau_yb_fp) }
+    % Add directed edges (r,c) -> (r,c-1) -> (r-1,c-1) -> (r-1,c) -> (r,c)
+    \__atableau_set_ribbon_coordinates:nnnn a b c d
+    \prop_put:NVV \l__atableau_ribbon_prop \l__atableau_ribbon_a_tl \l__atableau_ribbon_b_tl
+    \prop_put:NVV \l__atableau_ribbon_prop \l__atableau_ribbon_b_tl \l__atableau_ribbon_c_tl
+    \prop_put:NVV \l__atableau_ribbon_prop \l__atableau_ribbon_c_tl \l__atableau_ribbon_d_tl
+    \prop_put:NVV \l__atableau_ribbon_prop \l__atableau_ribbon_d_tl \l__atableau_ribbon_a_tl
+    \typeout{Initialise~ribbon~head:~row=\int_use:N\l__atableau_row_int,~col=\int_use:N\l__atableau_col_int}
+    \prop_map_inline:Nn \l__atableau_ribbon_prop {\typeout{~-~##1 ~->~ ##2}}
 }
 
-% usage: \__atableau_save_ribbon_head:nnnn {path/ribbon} [style] {row index} {col index}
-% save the style, row and column indices for the head of the ribbon
+% usage: \__atableau_save_ribbon_head:nnn [style] {row index} {col index}
+% Save the style, row and column indices for the head of the ribbon
 % and then compute the coordinates of the three "external nodes" in the
 % head.
 \cs_new_protected:Npn \__atableau_save_ribbon_head:nnn [#1] #2 #3
@@ -2362,7 +2390,6 @@
     \quark_if_recursion_tail_stop_do:nn {#2} { \msg_error:nnn {aTableau} {invalid-ribbon-head} {no~x-coordinate~given~#1,#2,#3.} }
     \quark_if_recursion_tail_stop_do:nn {#3} { \msg_error:nnn {aTableau} {invalid-ribbon-head} {no~y-coordinate~given~#1,#2,#3.} }
 
-    \typeout{Head:~"#1",~"#2",~"#3".}
     % save any style
     \seq_put_right:Nx \l__atableau_styles_seq {#1}
 
@@ -2381,7 +2408,6 @@
     % initialise the start of the path/ribbon
     \use:c {__atableau_initialise_ \l__atableau_ribbon_type_tl _head:}
 
-    \typeout{Sending~to~peek~comma}
     \__atableau_peek_ribbon_comma:nnw {peek_ribbon_text:w} {}
 }
 
@@ -2396,7 +2422,6 @@
             % set the text of this box to empty
             \seq_put_right:Nn \l__atableau_texts_seq {}
             % look for next entry in the ribbon
-        \typeout{ribbon_text~to~style.}
             \__atableau_peek_ribbon_comma:nnw {peek_style:nw}  {save_ribbon:nn}
         }
     }
@@ -2415,7 +2440,6 @@
             \__atableau_peek_ribbon:w
         }
         {
-        \typeout{peek~comma:~#1,~#2.}
             \tl_if_empty:nTF {#2}
             { \use:c {__atableau_#1}      }
             { \use:c {__atableau_#1} {#2} }
@@ -2432,200 +2456,173 @@
     \__atableau_peek_ribbon_comma:nnw {peek_style:nw}  {save_ribbon:nn}
 }
 
-% We need separate commands for the 12 possible ways of extending ribbons:
-%    c_c, c_r, c_R, C_C, C_r, C_R, r_c, r_C, r_r, R_c, R_C, R_R
-% with the four specifications cC, Cc, rR and Rr being invalid. In addition,
-% the four specifications init_c, init_C, init_r, init_R are used to initialise the ribbon
-
-% usage: \__atableau_extend_ribbon_c_c:
-\cs_new_protected:Nn \__atableau_extend_ribbon_c_c:n #1
+% usage: \__atableau_add_ribbon_edge:nn {a} {b}
+% Add a directed edge between the vertices a and b, unless this edge already
+% exists in which case it is removed.
+\cs_new_protected:Nn \__atableau_add_ribbon_edge:nn
 {
-    \int_decr:N \l__atableau_col_int
-    % Move (xa,ya) back one column add it to the ribbon on the left
-    \fp_sub:Nn \l__atableau_xa_fp {\l__atableau_tab_col_dx_fp*\l__atableau_box_wd_fp}
-    \fp_sub:Nn \l__atableau_ya_fp {\l__atableau_tab_col_dy_fp*\l__atableau_box_ht_fp}
-    \tl_put_left:Nx \l__atableau_ribbon_path_tl { (\fp_use:N\l__atableau_xa_fp,\fp_use:N\l__atableau_ya_fp)-- }
-    % Move (xb,xb) back one column add it to the ribbon on the right
-    \fp_sub:Nn \l__atableau_xb_fp {\l__atableau_tab_col_dx_fp*\l__atableau_box_wd_fp}
-    \fp_sub:Nn \l__atableau_yb_fp {\l__atableau_tab_col_dy_fp*\l__atableau_box_ht_fp}
-    \tl_put_right:Nx \l__atableau_ribbon_path_tl { --(\fp_use:N\l__atableau_xb_fp,\fp_use:N\l__atableau_yb_fp) }
+    \bool_set_true:N \l_tmpa_bool % true if we still need to place the edge
+    \prop_get:NnNT \l__atableau_ribbon_prop {#1} \l_tmpa_tl
+    {
+        \tl_if_eq:nVT {#2} \l_tmpa_tl
+        {  % already have edge #1 -> #2, so delete it
+    \typeout{~_~removing~edge~#1~->#2}
+            \prop_remove:Nn \l__atableau_ribbon_prop {#1}
+            \bool_set_false:N \l_tmpa_bool % found the edge
+        }
+    }
+    \bool_if:NT \l_tmpa_bool
+    {
+        \prop_get:NnNT \l__atableau_ribbon_prop {#2} \l_tmpa_tl
+        {
+            \tl_if_eq:nVT {#1} \l_tmpa_tl
+            {   % already have edge #2 -> #1, so delete it
+    \typeout{~_~removing~edge~#2~->#1}
+                \prop_remove:Nn \l__atableau_ribbon_prop {#2}
+                \bool_set_false:N \l_tmpa_bool % found the edge
+            }
+        }
+    }
+    % if \l_tmpa_bool is still true we have to add an edge as we have not removed one
+    \bool_if:NT \l_tmpa_bool
+     {   % add an edge from #1 to #2
+    \typeout{~_~adding~edge~#1~->#2}
+         \prop_put:Noo \l__atableau_ribbon_prop {#1} {#2}
+    }
 }
 
-% usage: \__atableau_extend_ribbon_c_r:
-\cs_new_protected:Nn \__atableau_extend_ribbon_c_r:n #1
+% usage \__atableau_extend_ribbon_rc:
+% Extend \l__atableau_ribbon_path_tl by pushing the edge between
+% \l__atableau_ribbon_a_tl and \l__atableau_ribbon_b_tl and then adding
+% edges from ribbon_b_tl -> ribbon_c_tl -> ribbon_d_tl -> ribbon_a_tl.
+% Exactly which coordinates these is determined by the previous call to
+% \__atableau_set_ribbon_coordinates:nnnn.
+\cs_new_protected:Nn \__atableau_extend_ribbon_rc:
 {
-    \int_incr:N \l__atableau_row_int
-    % Move (xa,ya) back one column add it to the ribbon on the left
-    \fp_sub:Nn \l__atableau_xa_fp {\l__atableau_tab_col_dx_fp*\l__atableau_box_wd_fp}
-    \fp_sub:Nn \l__atableau_ya_fp {\l__atableau_tab_col_dy_fp*\l__atableau_box_ht_fp}
-    \tl_put_left:Nx \l__atableau_ribbon_path_tl { (\fp_use:N\l__atableau_xa_fp,\fp_use:N\l__atableau_ya_fp)-- }
-    % Move (xb,xb) forward one row add it to the ribbon on the left
-    \fp_add:Nn \l__atableau_xb_fp {\l__atableau_tab_row_dx_fp*\l__atableau_box_wd_fp}
-    \fp_add:Nn \l__atableau_yb_fp {\l__atableau_tab_row_dy_fp*\l__atableau_box_ht_fp}
-    \tl_put_left:Nx \l__atableau_ribbon_path_tl { (\fp_use:N\l__atableau_xb_fp,\fp_use:N\l__atableau_yb_fp)-- }
+\typeout{EXTENDING:~a=\l__atableau_ribbon_a_tl,~b=\l__atableau_ribbon_b_tl,~c=\l__atableau_ribbon_c_tl,~d=\l__atableau_ribbon_d_tl.}
+    \bool_set_true:N \l_tmpa_bool % true if we still need to place the edge
+    \prop_get:NVNT \l__atableau_ribbon_prop \l__atableau_ribbon_a_tl \l_tmpc_tl
+    {
+        \tl_if_eq:NNT \l_tmpc_tl \l__atableau_ribbon_b_tl
+        {   % there is an edge a -> b , so remove this and add edges a -> d -> c -> b -> a
+        \typeout{~-~there~is~an~edge:~\l__atableau_ribbon_a_tl~->~\l__atableau_ribbon_b_tl}
+            \prop_remove:NV \l__atableau_ribbon_prop \l__atableau_ribbon_a_tl
+            \__atableau_add_ribbon_edge:VV \l__atableau_ribbon_a_tl \l__atableau_ribbon_d_tl
+            \__atableau_add_ribbon_edge:VV \l__atableau_ribbon_d_tl \l__atableau_ribbon_c_tl
+            \__atableau_add_ribbon_edge:VV \l__atableau_ribbon_c_tl \l__atableau_ribbon_b_tl
+            \bool_set_false:N \l_tmpa_bool
+        }
+    }
+    \bool_if:NT \l_tmpa_bool
+    {
+        \prop_get:NVNT \l__atableau_ribbon_prop \l__atableau_ribbon_b_tl \l_tmpc_tl
+        {
+            \tl_if_eq:NNT \l_tmpc_tl \l__atableau_ribbon_a_tl
+            {   % there is an edge b -> a , so remove this and add edges b -> c -> d -> a -> b
+        \typeout{~-~there~is~an~edge:~\l__atableau_ribbon_b_tl~->~\l__atableau_ribbon_a_tl}
+                \prop_remove:NV \l__atableau_ribbon_prop \l__atableau_ribbon_b_tl
+                \__atableau_add_ribbon_edge:VV \l__atableau_ribbon_b_tl \l__atableau_ribbon_c_tl
+                \__atableau_add_ribbon_edge:VV \l__atableau_ribbon_c_tl \l__atableau_ribbon_d_tl
+                \__atableau_add_ribbon_edge:VV \l__atableau_ribbon_d_tl \l__atableau_ribbon_a_tl
+            }
+        }
+    }
+\typeout{Finished~adding~edges}
+\prop_map_inline:Nn \l__atableau_ribbon_prop {\typeout{~-~##1 ~->~ ##2}}
 }
 
-% usage: \__atableau_extend_ribbon_c_R:
-\cs_new_protected:Nn \__atableau_extend_ribbon_c_R:n #1
+% usage: \__atableau_extend_ribbon_c:
+% adjust the edges in \l__atableau_ribbon_prop by pushing through the c-edge
+\cs_new_protected:Nn \__atableau_extend_ribbon_c:
 {
-    \int_decr:N \l__atableau_row_int
-    % Move (xa,ya) back one column add it to the ribbon on the right
-    \fp_sub:Nn \l__atableau_xa_fp {\l__atableau_tab_col_dx_fp*\l__atableau_box_wd_fp}
-    \fp_sub:Nn \l__atableau_ya_fp {\l__atableau_tab_col_dy_fp*\l__atableau_box_ht_fp}
-    \tl_put_right:Nx \l__atableau_ribbon_path_tl { --(\fp_use:N\l__atableau_xa_fp,\fp_use:N\l__atableau_ya_fp) }
-    % Move (xb,xb) back one row add it to the ribbon on the right
-    \fp_sub:Nn \l__atableau_xb_fp {\l__atableau_tab_row_dx_fp*\l__atableau_box_wd_fp}
-    \fp_sub:Nn \l__atableau_yb_fp {\l__atableau_tab_row_dy_fp*\l__atableau_box_ht_fp}
-    \tl_put_right:Nx \l__atableau_ribbon_path_tl { --(\fp_use:N\l__atableau_xb_fp,\fp_use:N\l__atableau_yb_fp) }
+    \int_decr:N \l__atableau_col_int  % c -> c-1
+    \__atableau_set_ribbon_coordinates:nnnn a b c d
+    \__atableau_extend_ribbon_rc:
 }
 
-% usage: \__atableau_extend_ribbon_C_C:
-\cs_new_protected:Nn \__atableau_extend_ribbon_C_C:n #1
+% usage: \__atableau_extend_ribbon_C:
+% adjust the edges in \l__atableau_ribbon_prop by pushing through the C-edge
+\cs_new_protected:Nn \__atableau_extend_ribbon_C:
 {
-    \int_incr:N \l__atableau_col_int
-    % Move (xa,ya) forward one column add it to the ribbon on the left
-    \fp_add:Nn \l__atableau_xa_fp {\l__atableau_tab_col_dx_fp*\l__atableau_box_wd_fp}
-    \fp_add:Nn \l__atableau_ya_fp {\l__atableau_tab_col_dy_fp*\l__atableau_box_ht_fp}
-    \tl_put_left:Nx \l__atableau_ribbon_path_tl { (\fp_use:N\l__atableau_xa_fp,\fp_use:N\l__atableau_ya_fp)-- }
-    % Move (xb,xb) forward one column add it to the ribbon on the right
-    \fp_add:Nn \l__atableau_xb_fp {\l__atableau_tab_col_dx_fp*\l__atableau_box_wd_fp}
-    \fp_add:Nn \l__atableau_yb_fp {\l__atableau_tab_col_dy_fp*\l__atableau_box_ht_fp}
-    \tl_put_right:Nx \l__atableau_ribbon_path_tl { --(\fp_use:N\l__atableau_xb_fp,\fp_use:N\l__atableau_yb_fp) }
+    \int_incr:N \l__atableau_col_int  % c -> c+1
+    \__atableau_set_ribbon_coordinates:nnnn c d a b
+    \__atableau_extend_ribbon_rc:
 }
 
-% usage: \__atableau_extend_ribbon_C_r:
-\cs_new_protected:Nn \__atableau_extend_ribbon_C_r:n #1
+% usage: \__atableau_extend_ribbon_R:
+% adjust the edges in \l__atableau_ribbon_prop by pushing through the R-edge
+\cs_new_protected:Nn \__atableau_extend_ribbon_R:
 {
-    \int_incr:N \l__atableau_row_int
-    % Move (xa,ya) forward one column add it to the ribbon on the right
-    \fp_add:Nn \l__atableau_xa_fp {\l__atableau_tab_col_dx_fp*\l__atableau_box_wd_fp}
-    \fp_add:Nn \l__atableau_ya_fp {\l__atableau_tab_col_dy_fp*\l__atableau_box_ht_fp}
-    \tl_put_left:Nx \l__atableau_ribbon_path_tl { --(\fp_use:N\l__atableau_xa_fp,\fp_use:N\l__atableau_ya_fp) }
-    % Move (xb,xb) forward one row add it to the ribbon on the right
-    \fp_add:Nn \l__atableau_xb_fp {\l__atableau_tab_row_dx_fp*\l__atableau_box_wd_fp}
-    \fp_add:Nn \l__atableau_yb_fp {\l__atableau_tab_row_dy_fp*\l__atableau_box_ht_fp}
-    \tl_put_right:Nx \l__atableau_ribbon_path_tl { --(\fp_use:N\l__atableau_xb_fp,\fp_use:N\l__atableau_yb_fp) }
+    \int_decr:N \l__atableau_row_int  % r -> r-1
+    \__atableau_set_ribbon_coordinates:nnnn b c d a
+    \__atableau_extend_ribbon_rc:
 }
 
-% usage: \__atableau_extend_ribbon_C_c:
-\cs_new_protected:Nn \__atableau_extend_ribbon_C_R:n #1
+% usage: \__atableau_extend_ribbon_r:
+% adjust the edges in \l__atableau_ribbon_prop by pushing through the r-edge
+\cs_new_protected:Nn \__atableau_extend_ribbon_r:
 {
-    \int_decr:N \l__atableau_row_int
-    % Move (xa,ya) forward one column add it to the ribbon on the left
-    \fp_add:Nn \l__atableau_xa_fp {\l__atableau_tab_col_dx_fp*\l__atableau_box_wd_fp}
-    \fp_add:Nn \l__atableau_ya_fp {\l__atableau_tab_col_dy_fp*\l__atableau_box_ht_fp}
-    \tl_put_left:Nx \l__atableau_ribbon_path_tl { (\fp_use:N\l__atableau_xa_fp,\fp_use:N\l__atableau_ya_fp)-- }
-    % Move (xb,xb) back one row add it to the ribbon on the left
-    \fp_sub:Nn \l__atableau_xb_fp {\l__atableau_tab_row_dx_fp*\l__atableau_box_wd_fp}
-    \fp_sub:Nn \l__atableau_yb_fp {\l__atableau_tab_row_dy_fp*\l__atableau_box_ht_fp}
-    \tl_put_left:Nx \l__atableau_ribbon_path_tl { (\fp_use:N\l__atableau_xb_fp,\fp_use:N\l__atableau_yb_fp)-- }
-}
-
-% usage: \__atableau_extend_ribbon_r_c:
-\cs_new_protected:Nn \__atableau_extend_ribbon_r_c:n #1
-{
-    \int_decr:N \l__atableau_col_int
-}
-
-% usage: \__atableau_extend_ribbon_r_C:
-\cs_new_protected:Nn \__atableau_extend_ribbon_r_C:n #1
-{
-    \int_incr:N \l__atableau_col_int
-}
-
-% usage: \__atableau_extend_ribbon_r_r:
-\cs_new_protected:Nn \__atableau_extend_ribbon_r_r:n #1
-{
-    \int_incr:N \l__atableau_row_int
-    % Move (xa,ya) forward one row add it to the ribbon on the left
-    \fp_add:Nn \l__atableau_xa_fp {\l__atableau_tab_row_dx_fp*\l__atableau_box_wd_fp}
-    \fp_add:Nn \l__atableau_ya_fp {\l__atableau_tab_row_dy_fp*\l__atableau_box_ht_fp}
-    \tl_put_left:Nx \l__atableau_ribbon_path_tl { (\fp_use:N\l__atableau_xa_fp,\fp_use:N\l__atableau_ya_fp)-- }
-    % Move (xb,xb) forward one row add it to the ribbon on the right
-    \fp_add:Nn \l__atableau_xb_fp {\l__atableau_tab_row_dx_fp*\l__atableau_box_wd_fp}
-    \fp_add:Nn \l__atableau_yb_fp {\l__atableau_tab_row_dy_fp*\l__atableau_box_ht_fp}
-    \tl_put_right:Nx \l__atableau_ribbon_path_tl { --(\fp_use:N\l__atableau_xb_fp,\fp_use:N\l__atableau_yb_fp) }
-}
-
-% usage: \__atableau_extend_ribbon_R_c:
-\cs_new_protected:Nn \__atableau_extend_ribbon_R_c:n #1
-{
-    \int_decr:N \l__atableau_col_int
-}
-
-% usage: \__atableau_extend_ribbon_R_C:
-\cs_new_protected:Nn \__atableau_extend_ribbon_R_C:n #1
-{
-    \int_incr:N \l__atableau_col_int
-}
-
-% usage: \__atableau_extend_ribbon_R_R:
-\cs_new_protected:Nn \__atableau_extend_ribbon_R_R:n #1
-{
-    \int_incr:N \l__atableau_row_int
-    % Move (xa,ya) forward one row add it to the ribbon on the left
-    \fp_sub:Nn \l__atableau_xa_fp {\l__atableau_tab_row_dx_fp*\l__atableau_box_wd_fp}
-    \fp_sub:Nn \l__atableau_ya_fp {\l__atableau_tab_row_dy_fp*\l__atableau_box_ht_fp}
-    \tl_put_left:Nx \l__atableau_ribbon_path_tl { (\fp_use:N\l__atableau_xa_fp,\fp_use:N\l__atableau_ya_fp)-- }
-    % Move (xb,xb) forward one row add it to the ribbon on the right
-    \fp_sub:Nn \l__atableau_xb_fp {\l__atableau_tab_row_dx_fp*\l__atableau_box_wd_fp}
-    \fp_sub:Nn \l__atableau_yb_fp {\l__atableau_tab_row_dy_fp*\l__atableau_box_ht_fp}
-    \tl_put_right:Nx \l__atableau_ribbon_path_tl { --(\fp_use:N\l__atableau_xb_fp,\fp_use:N\l__atableau_yb_fp) }
+    \int_incr:N \l__atableau_row_int  % r -> r+1
+    \__atableau_set_ribbon_coordinates:nnnn d a b c
+    \__atableau_extend_ribbon_rc:
 }
 
 % usage: \__atableau_extend_ribbon:n {direction=}
-% Extend a ribbon path. Here #1 is either r or c and we look at
-% \l__atableau_ribbon_last_tl to determine which of the twelve
-% commands above to use to extend the ribbon
+% Extend a ribbon path. Here #1 is either c, C, r or R. We extend the edges of
+% the ribbon in \l__atableau_ribbon_prop using the four commands above.
 \cs_new_protected:Npn \__atableau_extend_ribbon:n #1
 {
-    \tl_if_eq:NnTF \l__atableau_ribbon_last_tl {#1}
-    {
-        \msg_error:nnx { invalid-ribbon-path} { \l__atableau_ribbon_last_tl #1}
+    \__atableau_debug:n {Extending~ribbon~to~#1}
+    \cs_if_exist_use:cF { __atableau_extend_ribbon_ #1: }
+    {   % error for invalid ribbon specification
+        \msg_error:nnn {aTableau} { invalid-ribbon-specification } {#1 }
     }
-    {
-        \cs_if_exist_use:cTF { __atableau_extend_ \l__atableau_ribbon_last_tl _ #1: }
-        {   % extend the ribbon
-            \tl_set:Nn \l__atableau_ribbon_last_tl {#1}
-        }
-        {   % error for invalid ribbon specification
-            \msg_error:nnn { invalid-ribbon-specification } {#1 }
-        }
-    }
+}
+
+% usage: \__atableau_extend_path_c:
+\cs_new_protected:Nn \__atableau_extend_path_c:
+{
+    \int_decr:N \l__atableau_col_int
+    \fp_sub:Nn \l__atableau_xl_fp {\l__atableau_box_col_dx_fp}
+    \fp_sub:Nn \l__atableau_yl_fp {\l__atableau_box_col_dy_fp}
+}
+
+% usage: \__atableau_extend_path_C:
+\cs_new_protected:Nn \__atableau_extend_path_C:
+{
+    \int_incr:N \l__atableau_col_int
+    \fp_add:Nn \l__atableau_xl_fp {\l__atableau_box_col_dx_fp}
+    \fp_add:Nn \l__atableau_yl_fp {\l__atableau_box_col_dy_fp}
+}
+
+% usage: \__atableau_extend_path_r:
+\cs_new_protected:Nn \__atableau_extend_path_r:
+{
+    \int_incr:N \l__atableau_row_int
+    \fp_add:Nn \l__atableau_xl_fp {\l__atableau_box_row_dx_fp}
+    \fp_add:Nn \l__atableau_yl_fp {\l__atableau_box_row_dy_fp}
+}
+
+% usage: \__atableau_extend_path_R:
+\cs_new_protected:Nn \__atableau_extend_path_R:
+{
+    \int_decr:N \l__atableau_row_int
+    \fp_sub:Nn \l__atableau_xl_fp {\l__atableau_box_row_dx_fp}
+    \fp_sub:Nn \l__atableau_yl_fp {\l__atableau_box_row_dy_fp}
 }
 
 % usage: \__atableau_add_to_path:n
 % Extend a ribbon path. Here #1 is either r or c
 \cs_new_protected:Npn \__atableau_extend_path:n #1
 {
-
-\typeout{Extend~path~=~"#1"}
-   % the ribbon hasn't finished, so move row and col according to the ribbon
-   % specification and update the nodes (xa,ya) and (xb,yb) in the ribbon
-   \str_case:enF {#1}
-   {
-      {c} { % move back one column
-            \int_decr:N \l__atableau_col_int
-
-            \fp_sub:Nn \l__atableau_xl_fp {\l__atableau_tab_col_dx_fp*\l__atableau_box_wd_fp}
-            \fp_sub:Nn \l__atableau_yl_fp {\l__atableau_tab_col_dy_fp*\l__atableau_box_ht_fp}
-            \tl_put_right:Nx \l__atableau_ribbon_path_tl
-            {
-                --(\fp_use:N\l__atableau_xl_fp,\fp_use:N\l__atableau_yl_fp)
-                    node[aTableau/pathBox,\l__atableau_ribbon_style_tl]{\__atableau_entry:n{\l__atableau_path_box_tl}}
-            }
-          }
-      {r} { % move forward one row
-            \int_incr:N \l__atableau_row_int
-
-            \fp_add:Nn \l__atableau_xl_fp {\l__atableau_tab_row_dx_fp*\l__atableau_box_wd_fp}
-            \fp_add:Nn \l__atableau_yl_fp {\l__atableau_tab_row_dy_fp*\l__atableau_box_ht_fp}
-            \tl_put_right:Nx \l__atableau_ribbon_path_tl
-            {
-                --(\fp_use:N\l__atableau_xl_fp,\fp_use:N\l__atableau_yl_fp)
-                  node[aTableau/pathBox,\l__atableau_ribbon_style_tl]{\__atableau_entry:n{\l__atableau_path_box_tl}}
-            }
-          }
+    \typeout{~-~extending~path~#1}
+    \cs_if_exist_use:cTF { __atableau_extend_path_ #1: }
+    {
+        \tl_put_right:Nx \l__atableau_ribbon_path_tl
+        {
+            --(\fp_use:N\l__atableau_xl_fp,\fp_use:N\l__atableau_yl_fp)
+              node[aTableau/pathBox,\l__atableau_ribbon_style_tl]{\__atableau_entry:n{\l__atableau_path_box_tl}}
+        }
     }
     {
        \msg_error:nnx {aTableau} {invalid-ribbon-specification} {#1}
@@ -2638,7 +2635,7 @@
 \cs_new_protected:Npn \__atableau_save_ribbon:nn [#1] #2
 {
     % draw the ribbon when we run out of nodes
-    \quark_if_recursion_tail_stop_do:nn {#2} { \typeout{about~to~draw} \__atableau_draw_ribbon: \typeout{just~drawn...}}
+    \quark_if_recursion_tail_stop_do:nn {#2} { \__atableau_draw_ribbon: }
     \typeout{SAVE~ribbon:~#1,~#2.}
 
     % Add the new coordinate(s) to \l__atableau_ribbon_path_tl. This is
@@ -2689,17 +2686,41 @@
     }
 }
 
+\cs_new_protected:Npn \__atableau_put_ribbon_coordinates:nn #1|#2|
+{
+\typeout{PUTTING:~#1~|~#2.}
+\__atableau_set_box_coordinates:nnn {a} {#1} {#2}
+    \tl_put_right:Ne \l__atableau_ribbon_path_tl {(\fp_use:N\l__atableau_xa_fp,\fp_use:N\l__atableau_ya_fp)}
+}
+
 % usage: \__atableau_finalise_ribbon:n
 % Add the final node to the ribbon
 \cs_new_protected:Nn \__atableau_finalise_ribbon:
 {
-    \tl_if_empty:NnTF \l__atableau_ribbon_last_tl {init}
-    {   % need to draw the box
-
-    }
+\typeout{finalising~with~ribbon~prop:}
+\prop_map_inline:Nn \l__atableau_ribbon_prop {\typeout{~-~##1 ~->~ ##2}}
+\int_set:Nn \l_tmpb_int {4}
+\tl_clear:N\l__atableau_ribbon_path_tl
+    \bool_do_while:nn { ! \prop_if_empty_p:N \l__atableau_ribbon_prop }
     {
-        % add a closing cycle
-        \tl_put_right:Nn \l__atableau_ribbon_path_tl {--cycle}
+        % Use \prop_map_inline:Nn to find a key in \l__atableau_ribbon_prop
+        \prop_map_inline:Nn \l__atableau_ribbon_prop
+        {
+            \__atableau_put_ribbon_coordinates:nn ##1|
+            \tl_set:No \l_tmpa_tl {##2}
+            \prop_remove:Ne \l__atableau_ribbon_prop {##1} % remove the key
+            \prop_map_break:
+        }
+\typeout{Breaking~with~\l_tmpa_tl}
+        % the path corresponding to the key k is k->ribbon_prop[k] -> ribbon_prop[ribbon_prop[k] -> ...
+        \bool_do_until:nn { \tl_if_eq_p:NN \l_tmpa_tl \q_no_value }
+        {
+            \tl_put_right:Ne \l__atableau_ribbon_path_tl {--}
+            \exp_last_unbraced:NV \__atableau_put_ribbon_coordinates:nn \l_tmpa_tl|
+            \prop_pop:NVN \l__atableau_ribbon_prop \l_tmpa_tl \l_tmpa_tl
+\typeout{Popped:~a=\tl_to_str:N\l_tmpa_tl,~ribbon="\l__atableau_ribbon_path_tl"}
+        }
+\typeout{FINALISE:~ribbon~path="\l__atableau_ribbon_path_tl"}
     }
 }
 
@@ -2719,7 +2740,11 @@
 \cs_new_protected:Nn \__atableau_draw_ribbon:
 {
 
+\typeout{DRAWING~ribbon}
     \use:c { __atableau_finalise_ \l__atableau_ribbon_type_tl :}
+
+    \typeout{RIBBON~PATH~=~"\l__atableau_ribbon_path_tl"}
+    \prop_map_inline:Nn \l__atableau_ribbon_prop {\typeout{~-~##1 ~->~ ##2}}
 
     % We want to first draw the ribbon, with its outline and any filling, and
     % then place the node with the default styling (or unstyled), and styled
@@ -3387,12 +3412,12 @@
         \fp_set:Nn \l_tmpa_fp { cosd(#1) } % cos(#1), with #1 in degrees
         \fp_set:Nn \l_tmpb_fp { sind(#1) } % sin(#1), with #1 in degrees
         % rotate the tableau coordinates
-        \fp_set:Nn \l__atableau_xa_fp {\l_tmpa_fp*\l__atableau_tab_col_dx_fp-\l_tmpb_fp*\l__atableau_tab_col_dy_fp}
-        \fp_set:Nn \l__atableau_tab_col_dy_fp {\l_tmpb_fp*\l__atableau_tab_col_dx_fp+\l_tmpa_fp*\l__atableau_tab_col_dy_fp}
-        \fp_set_eq:NN \l__atableau_tab_col_dx_fp \l__atableau_xa_fp
-        \fp_set:Nn \l__atableau_xa_fp {\l_tmpa_fp*\l__atableau_tab_row_dx_fp-\l_tmpb_fp*\l__atableau_tab_row_dy_fp}
-        \fp_set:Nn \l__atableau_tab_row_dy_fp {\l_tmpb_fp*\l__atableau_tab_row_dx_fp+\l_tmpa_fp*\l__atableau_tab_row_dy_fp}
-        \fp_set_eq:NN \l__atableau_tab_row_dx_fp \l__atableau_xa_fp
+        \fp_set:Nn \l__atableau_xa_fp {\l_tmpa_fp*\l__atableau_box_col_dx_fp-\l_tmpb_fp*\l__atableau_box_col_dy_fp}
+        \fp_set:Nn \l__atableau_box_col_dy_fp {\l_tmpb_fp*\l__atableau_box_col_dx_fp+\l_tmpa_fp*\l__atableau_box_col_dy_fp}
+        \fp_set_eq:NN \l__atableau_box_col_dx_fp \l__atableau_xa_fp
+        \fp_set:Nn \l__atableau_xa_fp {\l_tmpa_fp*\l__atableau_box_row_dx_fp-\l_tmpb_fp*\l__atableau_box_row_dy_fp}
+        \fp_set:Nn \l__atableau_box_row_dy_fp {\l_tmpb_fp*\l__atableau_box_row_dx_fp+\l_tmpa_fp*\l__atableau_box_row_dy_fp}
+        \fp_set_eq:NN \l__atableau_box_row_dx_fp \l__atableau_xa_fp
         % rotate the abacus coordinates
         \fp_set:Nn \l__atableau_xa_fp {\l_tmpa_fp*\l__atableau_abacus_col_dx_fp-\l_tmpb_fp*\l__atableau_abacus_col_dy_fp}
         \fp_set:Nn \l__atableau_abacus_col_dy_fp {\l_tmpb_fp*\l__atableau_abacus_col_dx_fp+\l_tmpa_fp*\l__atableau_abacus_col_dy_fp}
@@ -3496,11 +3521,19 @@
     border~style .value_required:n = true,
 
     % node height and width
-    box~height .fp_set:N = \l__atableau_box_ht_fp,
+    box~height .code:n = {
+        \fp_set:Nn \l__atableau_box_col_dy_fp { \l__atableau_box_col_dy_fp*#1/\l__atableau_box_ht_fp}
+        \fp_set:Nn \l__atableau_box_row_dy_fp { \l__atableau_box_row_dy_fp*#1/\l__atableau_box_ht_fp}
+        \fp_set:Nn \l__atableau_box_ht_fp {#1}
+    },
     box~height .value_required:n = true,
     box~height .initial:n = 0.5,
 
-    box~width .fp_set:N = \l__atableau_box_wd_fp,
+    box~width .code:n = {
+        \fp_set:Nn \l__atableau_box_col_dx_fp { \l__atableau_box_col_dx_fp*#1/\l__atableau_box_wd_fp}
+        \fp_set:Nn \l__atableau_box_row_dx_fp { \l__atableau_box_row_dx_fp*#1/\l__atableau_box_wd_fp}
+        \fp_set:Nn \l__atableau_box_wd_fp {#1}
+    },
     box~width .value_required:n = true,
     box~width .initial:n = 0.5,
 
@@ -3937,72 +3970,6 @@
 % then ensures that the requested diagram is drawn inside a tikzpicture
 % environment.
 
-% \Abacus (x,y) [style] {#runners} {partition}
-\NewDocumentCommand\Abacus{ d() O{} m m }
-{
-    \__atableau_tikzpicture:nnn {#2} {#1} { \__atableau_abacus:nn {#3} {#4} }
-}
-
-% \Diagram (x,y) [style] {shape}
-\NewDocumentCommand\Diagram{ d() O{} m }
-{
-    \__atableau_tikzpicture:nnn {#2} {#1} { \__atableau_draw_diagram:n {#3} }
-}
-
-% \Multidiagram (x,y) [style] {entries}
-\NewDocumentCommand\Multidiagram{ d() O{} m }
-{
-    \__atableau_tikzpicture:nnn {#2} {#1} { \__atableau_multidiagram:n {#3} }
-}
-
-% \Multitableau (x,y) [style] {entries}
-\NewDocumentCommand\Multitableau{ d() O{} m }
-{
-    \__atableau_tikzpicture:nnn {#2} {#1} { \__atableau_multitableau:n {#3} }
-}
-
-% \RibbonTableau (x,y) [style] {entries}
-\NewDocumentCommand\RibbonTableau{ d() O{} m }
-{
-    \__atableau_tikzpicture:nnn {#2} {#1} { \__atableau_ribbon_tableau:n {#3} }
-}
-
-% \ShiftedDiagram (x,y) [style] {entries}
-\NewDocumentCommand\ShiftedDiagram{ d() O{} m }
-{
-    \__atableau_tikzpicture:nnn {shifted,#2} {#1} { \__atableau_draw_diagram:n {#3} }
-}
-
-% \ShiftedTableau (x,y) [style] {entries}
-\NewDocumentCommand\ShiftedTableau{ d() O{} m }
-{
-    \__atableau_tikzpicture:nnn {shifted,#2} {#1} { \__atableau_draw_tableau:n {#3} }
-}
-
-% \SkewDiagram (x,y) [style] {skew shape} {entries}
-\NewDocumentCommand\SkewDiagram{ d() O{} m m }
-{
-    \__atableau_tikzpicture:nnn {skew={#3},#2} {#1} { \__atableau_draw_diagram:n {#4} }
-}
-
-% \SkewTableau (x,y) [style] {skew shape} {entries}
-\NewDocumentCommand\SkewTableau{ d() O{} m m }
-{
-    \__atableau_tikzpicture:nnn {skew={#3},#2} {#1} { \__atableau_draw_tableau:n {#4} }
-}
-
-% \Tableau (x,y) [style] {entries}
-\NewDocumentCommand\Tableau{ d() O{} m }
-{
-    \__atableau_tikzpicture:nnn {#2} {#1} { \__atableau_draw_tableau:n {#3} }
-}
-
-% \Tabloid (x,y) [style] {entries}
-\NewDocumentCommand\Tabloid{ d() O{} m }
-{
-    \__atableau_tikzpicture:nnn {tabloid,#2} {#1} { \__atableau_draw_tableau:n {#3} }
-}
-
 % Define custom aTableau commands
 % \NewATableauCommand \Commmand {tableau command name} {keys}
 \NewDocumentCommand\NewATableauCommand{ mmm }
@@ -4010,98 +3977,111 @@
     \str_case:nnF {#2}
     {
         {Abacus}
-        {
+          {
             % \NewAbacusCommand (x,y) [style] {#runners} {partition}
             \NewDocumentCommand#1{ d() O{} m m }
             {
                 \__atableau_tikzpicture:nnn {#3,##2} {##1} { \__atableau_abacus:nn {##3} {##4} }
             }
-        }
+          }
         {Diagram}
-        {
+          {
             % \NewDiagramCommand (x,y) [style] {entries}
             \NewDocumentCommand#1{ d() O{} m }
             {
                 \__atableau_tikzpicture:nnn {#3,##2} {##1} { \__atableau_draw_diagram:n {##3} }
             }
-        }
+          }
         {Multidiagram}
-        {
+          {
             % \Multidiagram (x,y) [style] {entries}
             \NewDocumentCommand#1{ d() O{} m }
             {
-                \__atableau_tikzpicture:nnn {#3,##2} {#1} { \__atableau_multidiagram:n {#3} }
+                \__atableau_tikzpicture:nnn {#3,##2} {##1} { \__atableau_multidiagram:n {##3} }
             }
-        }
+          }
         {Multitableau}
-        {
+          {
             % \Multitableau (x,y) [style] {entries}
             \NewDocumentCommand#1{ d() O{} m }
             {
                 \__atableau_tikzpicture:nnn {#3,##2} {##1} { \__atableau_multitableau:n {##3} }
             }
-        }
+          }
         {RibbonTableau}
-        {
+          {
             % \RibbonTableau (x,y) [style] {entries}
             \NewDocumentCommand#1{ d() O{} m }
             {
                 \__atableau_tikzpicture:nnn {#3,##2} {##1} { \__atableau_ribbon_tableau:n {##3} }
             }
-        }
+          }
         {ShiftedDiagram}
-        {
+          {
             % \ShiftedDiagram (x,y) [style] {entries}
             \NewDocumentCommand#1{ d() O{} m }
             {
                 \__atableau_tikzpicture:nnn {shifted,#3,##2} {##1} { \__atableau_draw_diagram:n {##3} }
             }
-        }
+          }
         {ShiftedTableau}
-        {
+          {
             % \ShiftedTableau (x,y) [style] {entries}
             \NewDocumentCommand#1{ d() O{} m }
             {
                 \__atableau_tikzpicture:nnn {shifted,#3,##2} {##1} { \__atableau_draw_tableau:n {##3} }
             }
-        }
+          }
         {SkewDiagram}
-        {
+          {
             % \SkewDiagram (x,y) [style] {skew shape} {entries}
             \NewDocumentCommand#1{ d() O{} m m }
             {
                 \__atableau_tikzpicture:nnn {skew={##3},#3,##2} {##1} { \__atableau_draw_diagram:n {##4} }
             }
-        }
+          }
         {SkewTableau}
-        {
+          {
             % \SkewTableau (x,y) [style] {skew shape} {entries}
             \NewDocumentCommand#1{ d() O{} m m }
             {
                 \__atableau_tikzpicture:nnn {skew={##3},#3,##2} {##1} { \__atableau_draw_tableau:n {##4} }
             }
-        }
+          }
         {Tableau}
-        {
+          {
             % \NewTableauCommand (x,y) [style] {entries}
             \NewDocumentCommand#1{ d() O{} m }
             {
                 \__atableau_tikzpicture:nnn {#3,##2} {##1} { \__atableau_draw_tableau:n {##3} }
             }
-        }
-        {Tabloid}
-        {
-          % \Tabloid (x,y) [style] {entries}
-          \NewDocumentCommand#1{ d() O{} m }
-          {
-              \__atableau_tikzpicture:nnn {tabloid,#3,##2} {##1} { \__atableau_draw_tableau:n {##3} }
           }
-        }
+        {Tabloid}
+          {
+            % \Tabloid (x,y) [style] {entries}
+            \NewDocumentCommand#1{ d() O{} m }
+            {
+                \__atableau_tikzpicture:nnn {tabloid,#3,##2} {##1} { \__atableau_draw_tableau:n {##3} }
+            }
+          }
     }
     {
        \msg_error:nnx {aTableau} {unrecognised-atableau-command} {#2}
     }
 }
+
+% use \NewATableauCommand command to define the aTableau commands
+\NewATableauCommand\Abacus{Abacus}{}
+\NewATableauCommand\Diagram{Diagram}{}
+\NewATableauCommand\Multidiagram{Multidiagram}{}
+\NewATableauCommand\Multitableau{Multitableau}{}
+\NewATableauCommand\RibbonTableau{RibbonTableau}{}
+\NewATableauCommand\ShiftedDiagram{ShiftedDiagram}{}
+\NewATableauCommand\ShiftedTableau{ShiftedTableau}{}
+\NewATableauCommand\SkewDiagram{SkewDiagram}{}
+\NewATableauCommand\SkewTableau{SkewTableau}{}
+\NewATableauCommand\Tableau{Tableau}{}
+\NewATableauCommand\Tabloid{Tabloid}{}
 
 \NewDocumentCommand\aTabset{ m }{ \keys_set:nn { atableau } {#1} }
 
@@ -4136,7 +4116,7 @@
 %       atableau.pdf
 %       atableau.sty
 %       atableau.tex
-%       atableau_readme.png
+%       atableau_readme.webp
 %       LICENSE
 %       README.md
 %       CHANGES.md

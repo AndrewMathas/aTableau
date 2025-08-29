@@ -1,11 +1,13 @@
 #! /usr/bin/env bash
 
-# In an attempt to control speed regressions, this script records how long it
-# takes to compile the atableau manual in manual_times, together with the date,
-# version number and number of pages. When the times are being saved we compile
-# twice so that we get the "real" compile time. For comparison purposes, the
-# same computer should be used because, for example, the manual takes more than
-# twice as long to compile on an older imac than on a macbook pro M4.
+# In an attempt to control speed regressions, this script determines how
+# long it takes to compile the aTableau manual and, optionally, records
+# this in manual_times, together with the date, version number and
+# number of pages in the manual. When the times are being saved we
+# compile twice so that we get the "real" compile time. For comparison
+# purposes, the same computer should be used because, for example, the
+# manual takes more than twice as long to compile on an older imac than
+# on a macbook pro M4.
 
 # Andrew Mathas April, 2025
 
@@ -13,7 +15,7 @@ RECORD_IN="manual_times"
 
 usage() {
   cat <<END
-usage: record+compile_time [-h] [--record]
+usage: record+compile_time [-h] [--record] [--silent]
 
 Determine the compile time for the current version of the aTableau manual.
 
@@ -24,20 +26,26 @@ END
 
 record_times( ) {
   start_time=$(date "+%s.%N")
-  $1 atableau > /dev/null
+  if [ "$silent" = true ] ; then
+    $1 atableau > /dev/null
+  else
+    $1 atableau
+  fi
   end_time=$(date "+%s.%N")
   time=$(printf "%.1f" $(bc -l -e "$end_time-$start_time"))
   pages=$(gawk '/Output written on atableau/ {print substr($5,2,2)}' atableau.log)
-  tpage=$(printf "%.1f" $(bc -l -e "$pages/$time"))
+  tpage=$(printf "%.2f" $(bc -l -e "$time/$pages"))
   record=$(date "+%Y-%m-%d:  $(git describe --tag --abbrev=0)     ${pages}  ${time}    $tpage" )
 }
 
 save_record=false
+silent=false
 
 # parse command line arguments
 while [[ $# -ne 0 ]]; do
   case $1 in
-    --record) shift && save_record=true ;;
+    --record) shift && save_record=true && silent=true;;
+    --silent) shift && silient=true;;
     *) usage && exit ;;
   esac
 done
@@ -45,7 +53,7 @@ done
 
 cat << MESG
 Compiling aTableau manual
-Recording the compile time: ${save_record}
+Recording the compile time: ${save_record} (silent: $silent)
 MESG
 
 if [ "$save_record" = true ]; then

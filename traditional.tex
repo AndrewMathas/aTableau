@@ -1,11 +1,100 @@
 \documentclass{amsart}
 \usepackage[svgnames]{xcolor}
 \usepackage{atableau}
-\usetikzlibrary{shapes.misc}
+\usetikzlibrary{shapes.misc,fit}
 
 \begin{document}
 
-  \aTabset{align=top}
+  \aTabset{align=bottom, no border}
+
+  \RibbonTableau[shape=7^5]{12rrCCRrCCRR}
+
+  \RibbonTableau[shape=7^5]{12rrCCRrCCRRc}
+
+  \RibbonTableau[shape=7^5]{12rrCCRrCCRRcc}
+
+  \RibbonTableau[shape=7^5]{12rrCCRrCCRRccc}
+
+  \RibbonTableau[shape=7^5]{12rrCCRrCCRRcccc}
+
+\end{document}
+
+  \RibbonTableau[shape=5^5]{(fill=blue!30)44ccrrCC}
+
+  \RibbonTableau[shape=5^5]{(fill=blue!30)44ccrrCCR}
+
+  \typeout{44r --------------------------------------------}
+
+  44r \RibbonTableau[shape=5^5]{44CCCCrrcc}
+
+  44r \RibbonTableau[shape=5^5]{44r}
+
+  \typeout{44rc --------------------------------------------}
+  44rc \RibbonTableau[shape=5^5]{44rc}
+
+  44rcc \RibbonTableau[shape=5^5]{44rcc}
+
+  44rccR \RibbonTableau[shape=5^5]{44rccR}
+
+  44rccRR \RibbonTableau[shape=5^5]{44rccRR}
+
+  44rccRRC \RibbonTableau[shape=5^5]{44rccRRC}
+
+  44rccRRCC \RibbonTableau[shape=5^5]{44rccRRCC}
+
+  %\Diagram[ribbons={23crrCCRRc}]{4^4}
+
+  \begin{tikzpicture}
+  \Diagram(0,0){4^4}
+  \node[draw=orange,fill=red!20,fit=(A-1-2)(A-2-2)(A-1-2)(A-2-3)(A-3-2)]{};
+  \end{tikzpicture}
+
+
+   RibbonTableau[shape=5 5]{23rccCrRC}
+
+  \RibbonTableau[shape=5^5]{23}
+  \RibbonTableau[shape=5^5]{23r}
+  \RibbonTableau[shape=5^5]{23rc}
+  \RibbonTableau[shape=5^5]{23rcc}
+  \RibbonTableau[shape=5^5]{23rccC}
+  \RibbonTableau[shape=5^5]{23rccCr}
+  \RibbonTableau[shape=5^5]{23rccCrR}
+  \RibbonTableau[shape=5^5]{23rccCrRC}
+
+   RibbonTableau{62RcRCRrRr}
+  \RibbonTableau{62_1}
+  \RibbonTableau{62_1R_2}
+  \RibbonTableau{62_1R_2c_3}
+  \RibbonTableau{62_1R_2c_3R_4}
+  \RibbonTableau{62_1R_2c_3R_4C_5}
+  \RibbonTableau{62_1R_2c_3R_4C_5R_6}
+  \RibbonTableau{62_1R_2c_3R_4C_5R_6r_8}
+  \RibbonTableau{62_1R_2c_3R_4C_5R_6r_8R_9}
+  \RibbonTableau{62_1R_2c_3R_4C_5R_6r_8R_9r_*}
+
+   RibbonTableau{44CcCrCRCC}
+  \RibbonTableau{44CcCrCRCC}
+
+   RibbonTableau{33crcRcccC}
+  \RibbonTableau{33crcRcccC}
+
+   RibbonTableau{16rcrCrrR}
+  \RibbonTableau{16rcrCrrR}
+
+  \RibbonTableau[shape={5^5}]{24_1c_2c_3r_4r_5C_6C_7R_8c_9}
+
+  \RibbonTableau[shape={5^5}]{24_1C_2C_3R_4R_5c_6c_7r_8C_9}
+
+  \RibbonTableau[shape={5^5}]{24_1c_2c_3r_4r_5C_6C_7R_8c_9}
+  \RibbonTableau[shape={5^5}]{24_1c_2c_3r_4r_5C_6C_7R_8c_9}
+
+  \Tableau[styles={R={red,thick}, C={cyan,thick}},
+     paths={(R)14ccrc,(C)23rcc}]{1234,567,89{10}}
+
+  \Tableau[styles={R={red,thick}, C={cyan,thick}},
+     paths={(R)14ccrc,(C)23rcc}]{1234,567,89{10}}
+\end{document}
+
 
   \typeout{Ribbon tableau}
   \RibbonTableau{

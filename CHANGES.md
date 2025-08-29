@@ -7,18 +7,19 @@
 
 ### Version 2.2.0 - 2025-?
   - abacuses can now be specified by quotients
+  - the ribbon tableau code has been completely rewritten to allow c, C, r and R ribbon specifications that increase/descrease the column and row indices, respectively
+  - rewrite the tableaux parsing code so that "complex" styles can be enetered as [...], instead of [{...}]
   - adds the `colour theme` key, which gives a choice of three colour schemes
   - adds the `colours` key, which sets a cyclic list of fill colours for tableaux
-  - adds the `cover` key for tableau
-  - adds the `framed` key for abacuses
-  - adds the `rotate` key
+  - adds the `cover` key for covering tableaux and diagrams
+  - adds the `framed` key for framing abacuses
+  - adds the `rotate` key for rotating aTableau pictures
   - adds the `shape` key for `\RibbonTableau`
-  - adds the `traditional` key for abacuses
+  - adds the `traditional` key for "traditional" abacuses that have rods and beads
   - adds the `\NewATableauCommand` commands for creating custom pictures
   - adds error messages whenever an aTableau command is not properly
     contained inside, or outside, of a tikzpicture environment
-  - adds support for multidirectional ribbons (still incomplete)
-  - removed the requirement that "complex" styles be entered as [{...}] for tableaux (still needs updating for abacuses)
+
   - fixes bug in `beta numbers` key for abacuses
   - many improvements and corrections to the manual
 
