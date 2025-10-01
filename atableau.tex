@@ -1,6 +1,6 @@
 % ----------------------------------------------------------------------
 % aTableau - Andrew Mathas (C) 2022-2025
-% Modified: 22:44 Wednesday, 01 October 2025
+% Modified: 23:32 Wednesday, 01 October 2025
 % ----------------------------------------------------------------------
 \documentclass{amsart}
 \usepackage[svgnames,table]{xcolor}
@@ -42,6 +42,8 @@
 \def\@oddfoot {\color{aTableauMain} Version \aTableau@version~(\aTableau@release)\hfill\thepage}
 \def\@evenfoot{\color{aTableauMain} \thepage\hfill Version \aTableau@version~(\aTableau@release)}
 \makeatother
+
+\newcommand\heading[1]{\textcolor{MidnightBlue}{\textsf{\large#1}}}
 
 % ----------------------------------------------------------------------
 \newcommand\aTableauColour[1]{%
@@ -372,8 +374,10 @@
 \newcommand\aTableau{\textcolor{aTableauMain}{\sffamily aTableau}\xspace}
 
 % hyperref links to ctan
-\newcommand\ctan[1]{\href{https://www.ctan.org/pkg/#1}{\texttt{#1}}}
+\newcommand\TeXLive{\href{https://www.tug.org/texlive/}{TeXLive}\xspace}
 \newcommand\TikZ{\href{https://www.ctan.org/pkg/tikz}{Ti\textit{k}Z}\xspace}
+\newcommand\arXiv{\href{https://arxiv.org/}{arXiv}\xspace}
+\newcommand\ctan[1]{\href{https://www.ctan.org/pkg/#1}{\texttt{#1}}}
 
 \lstdefinestyle{aTableau}
 {
@@ -588,33 +592,27 @@
   #1
 }
 
+%   varwidth boxed title*=-3cm,
+
 \NewTColorBox[]{slide}{ O{} }
 {
   enhanced,
-  height=0.22\linewidth,
+  before skip=-2mm,
+  %after skip=2mm,
+  attach boxed title to top left={xshift=0cm,yshift*=0mm-\tcboxedtitleheight},
+  boxed title style={sharp corners=uphill, colback=Azure},
+  arc is curved,
+  arc = 1.5mm,
+  boxrule=0.6pt,
+  height=0.25\linewidth,
   width=0.3\linewidth,
   after=\hfill,
   before=\hfill,
-  fonttitle=\tiny,
-  colback=Cornsilk,
+  fonttitle=\tiny\sffamily,
+  colback=GhostWhite,
   colbacktitle=RoyalBlue!10!white,
   colframe=RoyalBlue!30,
   coltitle=NavyBlue,
-  fonttitle=\bfseries,
-  attach boxed title to bottom right={xshift=-1em,yshift=2.5mm},
-  boxed title style={
-    size=tight,
-    arc=1mm,
-    bottom=1mm,
-    rounded corners=southwest,
-    sharp corners=northwest,
-    sharp corners=southwest,
-    interior style={
-        fill=none,
-        bottom color=Cornsilk!50!white,
-        top color=Cornsilk
-    }
-  },
   #1
 }
 
@@ -904,12 +902,46 @@
   detail about using these coordinates for tableaux and abacuses,
   respectively.
 
+  The \aTableau package provides the following commands for drawing
+  pictures:
+
+  \begin{center}
+    \rowcolors{2}{LightSkyBlue!10}{}
+    \begin{tabular}{Lll}\toprule
+      \large\sffamily\color{MidnightBlue}Command
+                     & \large\sffamily\color{MidnightBlue} Picture
+                     & \large\sffamily\color{MidnightBlue} Section \\\midrule
+      Abacus         & An abacus for a partition         & \autoref{S:Abacus}\\
+      Diagram        & A Young diagram for a partition   & \autoref{S:Diagram}\\
+      Multidiagram   & An $\ell$-tuple of Young diagrams & \autoref{S:Multitableau} \\
+      Multitableau   & An  $\ell$-tuple of tableaux      & \autoref{S:Multitableau} \\
+      RibbonTableau  & A ribbon tableau                  & \autoref{S:RibbonTableaux} \\
+      ShiftedDiagram & A shifted Young diagram           & \autoref{S:Shifted} \\
+      ShiftedTableau & A shifted tableau                 & \autoref{S:Shifted} \\
+      SkewDiagram    & A skew Young diagram              & \autoref{S:Skew} \\
+      SkewTableau    & A skew tableau                    & \autoref{S:Skew} \\
+      Tableau        & A tableau                         & \autoref{S:Tableau} \\
+      Tabloid        & A tabloid                         & \autoref{S:Tabloid} \\
+      \bottomrule
+    \end{tabular}
+  \end{center}
+
+  In addition to the picture commands, \aTableau provides the following
+  non-picture commands:
+  \begin{itemize}[nosep]
+    \item \keyword{\aTabset} for setting default values for the \aTableau keys
+    \item \keyword{\NewATableauCommand} for defining custom \aTableau commands;
+    see \autoref{SS:NewTableau}
+    \item \keyword{\shortminus} for shorter minus signs, which are used
+    for contents in tableaux (see \options{entries=contents}).
+  \end{itemize}
+
   The key-value \emph{options}, or \emph{keys}, control the style and
   appearance of an \aTableau picture. The keys are optional and are
   described in detail below, with examples. This section emphasises only
   some of these options. Every key can be set ``globally'' (inside the
   current \LaTeX\ group), by using \keyword{\aTabset{...options...}}, or
-  ``locally'', for the current picture. As mentioning already, the
+  ``locally'', for the current picture. As mentioned already, the
   default options for the entire document can also be set via
   \keyword{\usepackage[options]{aTableau}}.\indexcmd{aTabset}
 
@@ -920,7 +952,7 @@
 
   The following keys\footnote{Throughout the manual, each key name is a
   hyperlink to the (first) description of the key in the manual.}
-  can be use with all \aTableau commands:
+  can be used with all \aTableau commands:
 
   \begin{options}
     \item[align]\index{align}
@@ -4614,46 +4646,12 @@
   \end{example}
 
   % --------------------------------------------------------------
-  \section{Summary of \aTableau commands and options}\label{S:keys}
+  \section{Customising \aTableau}\label{S:keys}
   \rowcolors{2}{LightSkyBlue!10}{}
 
   This section compactly lists the \aTableau commands and their options.
   The earlier sections describe these commands and show how their
   options, or keys, are used with many examples.
-
-  \subsection{\aTableau commands}
-
-  The \aTableau package provides the following commands:
-
-  \begin{center}
-    \begin{tabular}{Lll}\toprule
-      \large\sffamily\color{MidnightBlue}Command
-                     & \large\sffamily\color{MidnightBlue} Picture
-                     & \large\sffamily\color{MidnightBlue} Section \\\midrule
-      Abacus         & An abacus for a partition         & \autoref{S:Abacus}\\
-      Diagram        & A Young diagram for a partition   & \autoref{S:Diagram}\\
-      Multidiagram   & An $\ell$-tuple of Young diagrams & \autoref{S:Multitableau} \\
-      Multitableau   & An  $\ell$-tuple of tableaux      & \autoref{S:Multitableau} \\
-      RibbonTableau  & A ribbon tableau                  & \autoref{S:RibbonTableaux} \\
-      ShiftedDiagram & A shifted Young diagram           & \autoref{S:Shifted} \\
-      ShiftedTableau & A shifted tableau                 & \autoref{S:Shifted} \\
-      SkewDiagram    & A skew Young diagram              & \autoref{S:Skew} \\
-      SkewTableau    & A skew tableau                    & \autoref{S:Skew} \\
-      Tableau        & A tableau                         & \autoref{S:Tableau} \\
-      Tabloid        & A tabloid                         & \autoref{S:Tabloid} \\
-      \bottomrule
-    \end{tabular}
-  \end{center}
-
-  In addition to the picture commands, \aTableau provides the
-  non-drawing commands:
-  \begin{itemize}
-    \item \keyword{\aTabset} for setting default values for the \aTableau keys
-    \item \keyword{\NewATableauCommand} for defining custom \aTableau commands;
-    see \autoref{SS:NewTableau}
-    \item \keyword{\shortminus} for shorter minus signs, which are used
-    for contents in tableaux.
-  \end{itemize}
 
   % --------------------------------------------------------------
   \subsection{Custom \aTableau commands}\label{SS:NewTableau}
@@ -4786,9 +4784,50 @@
   pairs of commands are equivalent.
 
   \begin{Example}[listing only]
-  \Abacus<4,5>[beamer=uncover]{3,2}     \Tableau<2-4>[beamer=invisible]{12345,789}
+  \Abacus<4,5>[beamer=uncover]{3,2}      \Tableau<2-4>[beamer=invisible]{12345,789}
   \uncover<4,5>{\Multidiagram{3,2|1^2}}  \invisble<2-4>{\Tabloid<2->{12345,789}}
   \end{Example}
+
+  % --------------------------------------------------------------
+  \subsection{\aTableau colour themes}\label{S:Colours}
+  \label{S:ColourTheme}
+  \index{colour theme}
+
+  The colours in \aTableau pictures are controlled by the six base colours:
+  \begin{center}
+    \begin{tabular}{*3l}
+    aTableauMain      &
+    aTableauInner     &
+    aTableauStarStyle \\
+    aTableauSkew      &
+    aTableauSkewFill  &
+    aTableauRod
+    \end{tabular}
+  \end{center}
+
+  Creating a good colour scheme is difficult, and it is partly
+  subjective. \aTableau provides three different colour themes in the
+  hope that one of these themes will appeal. The \option{colour theme}
+  key sets the colour theme.
+
+  It is sometimes useful to use the \aTableau colour names directly in
+  style specifications, and with \LaTeX\ colour commands. For example,
+  you can write \keyword{\textcolor{aTableauMain}{text}}. The \aTableau
+  colours are defined as HTML colours using the \keyword{\definecolor}
+  command provided by \ctan{xcolor}. In addition to changing the colour
+  theme, the key-value interface allows you to set the colours of
+  individual components in the pictures produced by \aTableau.
+
+  {\samepage
+
+    \option[default]{colour theme}{default,classic,natural}
+  }
+
+    \begin{itemize}
+      \item \ColourTheme{default}
+      \item \ColourTheme{classic}
+      \item \ColourTheme{natural}
+    \end{itemize}
 
   % --------------------------------------------------------------
   \subsection{\aTableau keys}
@@ -4803,7 +4842,6 @@
   Here, and throughout the manual, the key names (and the green ticks
   below) are hyperlinks to the relevant sections of the manual.
 
-  \newcommand\heading[1]{\textcolor{MidnightBlue}{\textsf{\large#1}}}
   \rowcolors{2}{LightSkyBlue!10}{}
   \begin{xltabular}{0.9\textwidth}{l>{\raggedright}Xcc}\toprule
     \heading{Key} & \heading{Meaning} & \heading{Tableau} & \heading{Abacus} \\
@@ -4920,47 +4958,6 @@
   ignored.
 
   % --------------------------------------------------------------
-  \subsection{\aTableau Colours}\label{S:Colours}
-  \label{S:ColourTheme}
-  \index{colour theme}
-
-  The colours in \aTableau pictures are controlled by the six base colours:
-  \begin{center}
-    \begin{tabular}{*3l}
-    aTableauMain      &
-    aTableauInner     &
-    aTableauStarStyle \\
-    aTableauSkew      &
-    aTableauSkewFill  &
-    aTableauRod
-    \end{tabular}
-  \end{center}
-
-  Creating a good colour scheme is difficult, and it is partly
-  subjective. \aTableau provides three different colour themes in the
-  hope that one of these themes will appeal. The \option{colour theme}
-  key sets the colour theme.
-
-  It is sometimes useful to use the \aTableau colour names directly in
-  style specifications, and with \LaTeX\ colour commands. For example,
-  you can write \keyword{\textcolor{aTableauMain}{text}}. The \aTableau
-  colours are defined as HTML colours using the \keyword{\definecolor}
-  command provided by \ctan{xcolor}. In addition to changing the colour
-  theme, the key-value interface allows you to set the colours of
-  individual components in the pictures produced by \aTableau.
-
-  {\samepage
-
-    \option[default]{colour theme}{default,classic,natural}
-  }
-
-    \begin{itemize}
-      \item \ColourTheme{default}
-      \item \ColourTheme{classic}
-      \item \ColourTheme{natural}
-    \end{itemize}
-
-  % --------------------------------------------------------------
   \subsection{\aTableau styles}\label{S:TikZStyles}
 
   This package is little more than a glorified interface to some \TikZ
@@ -5024,6 +5021,24 @@
 
 
   % --------------------------------------------------------------
+  \subsection{\aTableau and the \arXiv}
+
+  For the reasons explained in their
+  \href{https://info.arxiv.org/help/faq/texlive.html}{Frequently Asked Questions},
+  the \LaTeX\ distribution on the \arXiv is typically 1-2 years behind
+  the latest \LaTeX\ release. The \aTableau package relies on recent
+  advances in the \LaTeX3 programming environment. In particular, it
+  requires \TeX Live 2024, or later to compile.
+
+  As of October 2025, the \arXiv is working to update their \LaTeX\
+  distribution to \TeXLive 2025. It will  not possible to compile
+  \LaTeX\ files using the package \aTableau on the \arXiv until they do
+  this. You can, however, email
+  \href{mailto:arxivservice@gmail.com}{arxivservice@gmail.com} to
+  request permission to upload a PDF file for your paper.
+
+
+  % ----------------------------------------------------------
   \subsection{Examples from the literature}
 
   This section shows how to draw some tableaux that appear in the
@@ -5157,8 +5172,8 @@
 \end{tikzpicture}
 \end{Example}
 
-The final example shows how to draw the KLRW diagram associated to a
-multipartition~\cite{Bowman:ManyCellular}.
+The final example shows how to draw a multipartition and its associated
+KLRW diagram~\cite{Bowman:ManyCellular}.
 
 \begin{Example}[label=Ex:KLRW]
 \begin{tikzpicture}[red string/.style={red, ultra thick},
