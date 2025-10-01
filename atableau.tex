@@ -1,10 +1,10 @@
 % ----------------------------------------------------------------------
-% atableau - Andrew Mathas (C) 2022-2025
-% Modified: 11:47 Wednesday, 10 September 2025
+% aTableau - Andrew Mathas (C) 2022-2025
+% Modified: 14:32 Wednesday, 01 October 2025
 % ----------------------------------------------------------------------
 \documentclass{amsart}
 \usepackage[svgnames,table]{xcolor}
-\usepackage{atableau}
+\usepackage{aTableau}
 
 \usepackage{booktabs}
 \usepackage{cite}
@@ -39,8 +39,8 @@
 \makeatletter
 \def\@evenhead{\hfill\aTableau\hfill}
 \let\@oddhead\@evenhead
-\def\@oddfoot {\color{aTableauMain} Version \atableau@version~(\atableau@release)\hfill\thepage}
-\def\@evenfoot{\color{aTableauMain} \thepage\hfill Version \atableau@version~(\atableau@release)}
+\def\@oddfoot {\color{aTableauMain} Version \aTableau@version~(\aTableau@release)\hfill\thepage}
+\def\@evenfoot{\color{aTableauMain} \thepage\hfill Version \aTableau@version~(\aTableau@release)}
 \makeatother
 
 % ----------------------------------------------------------------------
@@ -85,32 +85,32 @@
 
 % Add hyperlinks for (new displayed) options
 \tl_new:N \g_lastlink_tl
-\prop_new:N \l__atableau_options_prop
+\prop_new:N \l__aTableau_options_prop
 \NewDocumentCommand\AddKeyLink{m}
 {
    \tl_gset:Nx \g_lastlink_tl {Key:\str_lowercase:f{#1}}
-   \prop_if_in:NVF \l__atableau_options_prop \g_lastlink_tl
+   \prop_if_in:NVF \l__aTableau_options_prop \g_lastlink_tl
    {
       \phantomsection\exp_args:Nf\label{Key:\str_lowercase:f{#1}}% add a label for references
-      \prop_put:NVn \l__atableau_options_prop \g_lastlink_tl {}
+      \prop_put:NVn \l__aTableau_options_prop \g_lastlink_tl {}
    }
 }
 
 % Add an index entry for a key. The *-form underlines the page number,
 % indicating that it is the definition of the key, and records this in
-% \l__atableau_index_prop. When the * is not present, we check to make
+% \l__aTableau_index_prop. When the * is not present, we check to make
 % sure that an underlined entry has not already been added for this
 % page.
-\prop_new:N \l__atableau_index_prop
+\prop_new:N \l__aTableau_index_prop
 \NewDocumentCommand\AddIndexEntry{ sm }
 {
     \tl_set:No \l_tmpc_tl {#2-\thepage}
     \IfBooleanTF{#1}
     {
-        \prop_put:NVn \l__atableau_index_prop \l_tmpc_tl {}
+        \prop_put:NVn \l__aTableau_index_prop \l_tmpc_tl {}
         \index{#2|underline}
     }
-    { \prop_if_in:NVF \l__atableau_index_prop \l_tmpc_tl { \index{#2} } }
+    { \prop_if_in:NVF \l__aTableau_index_prop \l_tmpc_tl { \index{#2} } }
 }
 
 % \option*[default value]{option name}[accepted values]<hyperlink context>(link name)
@@ -197,12 +197,12 @@
       \toprule
       \heading{Colour} & \heading{Name} & \heading{HTML}\\
        \midrule
-       \aTableauColour{Main}      & aTableauMain      & \prop_item:Nn \l__atableau_colour_theme_prop {#1_Main} \\
-       \aTableauColour{Inner}     & aTableauInner     & \prop_item:Nn \l__atableau_colour_theme_prop {#1_Inner}\\
-       \aTableauColour{StarStyle} & aTableauStarStyle & \prop_item:Nn \l__atableau_colour_theme_prop {#1_StarStyle}\\
-       \aTableauColour{Skew}      & aTableauSkew      & \prop_item:Nn \l__atableau_colour_theme_prop {#1_Skew} \\
-       \aTableauColour{SkewFill}  & aTableauSkewFill  & \prop_item:Nn \l__atableau_colour_theme_prop {#1_SkewFill}\\
-       \aTableauColour{Rod}       & aTableauRod       & \prop_item:Nn \l__atableau_colour_theme_prop {#1_Rod}\\
+       \aTableauColour{Main}      & aTableauMain      & \prop_item:Nn \l__aTableau_colour_theme_prop {#1_Main} \\
+       \aTableauColour{Inner}     & aTableauInner     & \prop_item:Nn \l__aTableau_colour_theme_prop {#1_Inner}\\
+       \aTableauColour{StarStyle} & aTableauStarStyle & \prop_item:Nn \l__aTableau_colour_theme_prop {#1_StarStyle}\\
+       \aTableauColour{Skew}      & aTableauSkew      & \prop_item:Nn \l__aTableau_colour_theme_prop {#1_Skew} \\
+       \aTableauColour{SkewFill}  & aTableauSkewFill  & \prop_item:Nn \l__aTableau_colour_theme_prop {#1_SkewFill}\\
+       \aTableauColour{Rod}       & aTableauRod       & \prop_item:Nn \l__aTableau_colour_theme_prop {#1_Rod}\\
        \bottomrule
     \end{tabular}
     \hfill
@@ -226,8 +226,8 @@
 % Define a list of the keys used by aTableau. This was initially used
 % for syntax highlighting of the aTableau keys, but this is currently
 % disabled because listings does not support multiword keywords.
-\clist_new:N \l_atableau_keys_clist
-\clist_set:Nn \l_atableau_keys_clist
+\clist_new:N \l_aTableau_keys_clist
+\clist_set:Nn \l_aTableau_keys_clist
 {
   Australian,
   English,
@@ -289,7 +289,7 @@
 }
 \NewDocumentCommand\HighlightKeys{m}
 {
-        \clist_if_in:NnTF \l_atableau_keys_clist {#1}
+        \clist_if_in:NnTF \l_aTableau_keys_clist {#1}
         {
             \textcolor{orange}{#1}
         }
@@ -375,7 +375,7 @@
 \newcommand\ctan[1]{\href{https://www.ctan.org/pkg/#1}{\texttt{#1}}}
 \newcommand\TikZ{\href{https://www.ctan.org/pkg/tikz}{Ti\textit{k}Z}\xspace}
 
-\lstdefinestyle{atableau}
+\lstdefinestyle{aTableau}
 {
   style=tcblatex,
   classoffset=0,
@@ -397,6 +397,7 @@
     Tableau,
     Tabloid,
   },%
+% Highlighting of multi-word keys is not possible, so we do not highlight the keys
 %  classoffset=1, % aTableau package options
 %  keywordstyle=\color{aTableauInner},%
 %  morekeywords={
@@ -543,7 +544,7 @@
   sharp corners=northeast,
   parbox=false,
   lefthand width=0.34\textwidth,
-  listing style=atableau,
+  listing style=aTableau,
   parbox=false,
   parskip=4mm
   sidebyside,
@@ -579,7 +580,7 @@
   title={\tiny\thetcbcounter},
   sharp corners=northeast,
   parbox=false,
-  listing style=atableau,
+  listing style=aTableau,
   text and listing,
   listing above text,
   %text outside listing,
@@ -627,7 +628,7 @@
   }
 }
 
-% define the heading as a command because it contains \atableau@version
+% define the heading as a command because it contains \aTableau@version
 \newcommand\aTableauHeader{%
   \begin{center}
     \begin{tikzpicture}
@@ -645,7 +646,7 @@
         \Diagram(11,2)[ribbons={11,13,21,23,31,33,41,43,51,52,53}]{}        % U
       \end{scope}
       \node[anchor=west,boxes] at (4cm,0cm) {Andrew Mathas};
-      \node[anchor=east,boxes] at (\paperwidth-4cm,0) {Version \atableau@version};
+      \node[anchor=east,boxes] at (\paperwidth-4cm,0) {Version \aTableau@version};
     \end{tikzpicture}
   \end{center}
 }
@@ -658,7 +659,7 @@
     Keywords={ Algebraic combinatorics, representation theory, abacus, Young diagram, tableau, symmetric groups  },
     License ={ LaTeX Project Public License v1.3c or later },
     Subject ={ LaTeXing tableaux and friends },
-    Title   ={ ATableau - \atableau@version }
+    Title   ={ ATableau - \aTableau@version }
   },
   colorlinks=true,
   linkcolor=blue,
@@ -828,7 +829,7 @@
 
   \indexcmd{usepackage}
   \begin{quote}
-    \keyword{\usepackage[options]{atableau}}
+    \keyword{\usepackage[options]{aTableau}}
   \end{quote}
 
   Here, the \textit{options} is an optional comma-separated list of
@@ -838,7 +839,7 @@
   default, you could write:
 
   \begin{quote}
-    \keyword{\usepackage[french]{atableau}}
+    \keyword{\usepackage[french]{aTableau}}
   \end{quote}
 
   You can change the default options at any point in your document using
@@ -880,7 +881,7 @@
   current \LaTeX\ group), by using \keyword{\aTabset{...options...}}, or
   ``locally'', for the current picture. As mentioning already, the
   default options for the entire document can also be set via
-  \keyword{\usepackage[options]{atableau}}.\indexcmd{aTabset}
+  \keyword{\usepackage[options]{aTableau}}.\indexcmd{aTabset}
 
   Many of the \aTableau options are specific to the particular pictures
   being drawn. A concise list of the \aTableau commands and their options is
@@ -1321,7 +1322,7 @@
   entries in the tableau.
 
   Omitting some technicalities, each box in a tableau is constructed as
-  a \TikZ node, so any \TikZ-styling specifications for a \TikZ node can be
+  a \TikZ node, so any \TikZ-style specifications for a \TikZ node can be
   used.  This example shows that some care is needed when changing the
   style because simply giving a colour changes both the colour used to
   \textit{fill} the box and the \textit{text colour}, which is why some
@@ -1429,8 +1430,9 @@
   environment, in which case $(x,y)$ gives the coordinates of the
   ``outside corner'' of the box in row~$1$ and column~$1$ of the
   tableau. The following example shows how tableaux are placed using
-  $(x,y)$-coordinates inside a \keyword{tikzpicture} environment. The example
-  also shows that, by default, the tableau boxes are square and half a unit wide.
+  $(x,y)$-coordinates inside a \keyword{tikzpicture} environment. The
+  example also shows that, by default, the tableau boxes are square with
+  side lengths of half a unit.
 
   \tikzset{
     add grid/.code = {
@@ -1465,13 +1467,13 @@
 
   The optional $*$-styles and $[\ldots]$-styles are the main mechanism
   for styling the individual boxes in a tableau. Using a key-value
-  syntax, you can change aspects of the tableau produced by the
+  syntax, you can change the appearance of the tableau produced by the
   \keyword{\Tableau} command.  The rest of this section describes these
   keys, their default values, and gives examples of their usage.  Keys
   are mostly, listed in alphabetical order except that some related keys
   are grouped together.
 
-  The options below can be applied to the \keyword{\Tableau}
+  The options, or keys, below can be applied to the \keyword{\Tableau}
   command by giving them as a comma-separated list inside square
   brackets:
   \begin{center}
@@ -1485,7 +1487,7 @@
   that particular tableau. Most of these options, or keys, can also be
   used in the \keyword{\aTabset} command, to change the default settings
   of all subsequent tableaux in the same \LaTeX\ group, or as optional arguments in
-  \keyword{\usepackage[..]{atableau}}, to change the default settings
+  \keyword{\usepackage[..]{aTableau}}, to change the default settings
   for the entire document.  For example, if you put the command
   \keyword{\aTabset[ukrainian]} in the preamble of your document then,
   by default, all tableaux and Young diagrams will be drawn
@@ -1528,7 +1530,7 @@
   \keyword{English}\!, \keyword{French}\!, and \keyword{Ukrainian}\!, are also
   recognised. If, for example, your document is only going to draw
   \option{french} tableaux and diagrams, then you can specify this when
-  you load the package using \keyword{\usepackage[french]{atableau}}\!,
+  you load the package using \keyword{\usepackage[french]{aTableau}}\!,
   or by adding \keyword{\aTabset{french}} to your document preamble.
 
   \option[centre]{align=value}[centre/bottom/top]
@@ -1884,8 +1886,8 @@
   different \option{name}. If you only have one tableau, then you do
   not normally need to change the default prefix for the node names. See
   \autoref{E:NodeNames} for a description of the extended anchor names.
-  For examples using node names and anchors see \autoref{Ex:ABnames},
-  \autoref{Ex:pointing}, and \autoref{Ex:waves}.
+  For other examples using node names and anchors see \autoref{Ex:ABnames},
+  \autoref{Ex:pointing}, \autoref{Ex:waves} and \autoref{Ex:KLRW}.
 
   \option[]{paths=ribbon specifications}[list of paths]
   \option*[]{path style=style}[\TikZ-styling]
@@ -2117,6 +2119,19 @@
     set the \option{box height} and \option{box width} sizes if you only
     want to change the default sizes of the diagrams and tableaux in
     your document.
+  \end{warning}
+
+  \begin{warning}
+    If you use an \aTableau command inside a \keyword{tikpicture}
+    \textit{scaled} environment of the form
+    \begin{quote}
+    \keyword{\begin{tikzpicture}[scale=?]...\end{tikzpicture}}
+    \end{quote}
+    then you will almost certainly need to use the same \option{scale}
+    key with the \aTableau command because the \TikZ \keyword{scale} key
+    does not scale individual objects in the environment.
+    Alternatively, you use \keyword{ransform canvas={scale=?}} in the
+    \keyword{tikzpicture}.
   \end{warning}
 
   \option[0.5]{script=value}[decimal number]
@@ -2684,7 +2699,7 @@
   \end{example}
 
   \noindent\AddKeyLink{cartan}\AddKeyLink{e}% By default, residue
-  sequences for affine type $A^{(1)}_e$, which correspond to the
+  sequences for affine type $A^{(1)}_{e-1}$, which correspond to the
   symmetric group and friends, are used. Residues in affine types
   $C^{(1)}_e$, $A^{(2)}_{2e}$ and $D^{(2)}_e$, are available
   \option{cartan=C}, \option{cartan=AA}, and \option{cartan=DD},
@@ -3216,9 +3231,8 @@
   diagrams and tableaux, the ribbon specifications also accept
   \textsf{R}'s' and~\textsf{C}'s, which \textit{decrease the row index} and
   \textit{increase the column index}, respectively. That is, when using
-  the English convention, the direction that \textsf{c}, \textsf{C},
-  \textsf{r} and \textsf{R} move the box in the ribbon specification is
-  given by:
+  the English convention, the ribbon specifications \textsf{c}, \textsf{C},
+  \textsf{r} and \textsf{R} move the (generalised) ribbon in the following directions:
 
   \begin{center}
     \Diagram[styles={A={thick,red,->},L={text=aTableauMain}},
@@ -3231,7 +3245,8 @@
     }]{1}
   \end{center}
 
-  Using this enhanced syntax it is possible, for example, to draw pictures like the following:
+  Using this enhanced syntax it is possible, for example, to draw fancy
+  pictures like the following:
 
   \begin{Example}
   \RibbonTableau[shape=5^5]{23rcCrRC}  \qquad\RibbonTableau[shape=5^5]{24rrccRRCr}\qquad
@@ -3253,10 +3268,10 @@
     entries in the ribbon are specified by a sequence of \textsf{r}'s, \textsf{R}'s,
     \textsf{c}'s and \textsf{C}'s, where:
     \begin{itemize}[nosep]
-      \item\textsf{r} increases the row index by $1$
-      \item\textsf{R} decreases the row index by $1$
       \item\textsf{c} decreases the column index by $1$
+      \item\textsf{r} increases the row index by $1$
       \item\textsf{C} increases the column index by $1$.
+      \item\textsf{R} decreases the row index by $1$
     \end{itemize}
     \item Each box in the ribbon, including the head, can be
     given \TikZ-styling by prefixing it with a $*$, which gives the
@@ -3560,10 +3575,10 @@
   \index{multitableau!residue}
 
   The \option{entries} key automatically adds particular types of
-  entries for a tableau of the specified shape.  Use \option{charge} to
+  entries to a tableau of the specified shape.  Use \option{charge} to
   provide offsets in each component when using \option{entries=contents}
-  and \option{entries=residues} {(}the \option{charge} is ignored when
-  using \option{entries=first} and \option{entries=last}).
+  and \option{entries=residues} {(}the \option{charge} is ignored by other
+  using \option{entries}).
 
   \nopagebreak[0]
   The possible choices are:
@@ -3601,8 +3616,8 @@
     column index.
 
   \begin{example}
-  \Multidiagram[entries=contents,
-    charge={0|2}] {3,2,1|2^2}
+  \Multidiagram[entries=contents, charge={0|2}]
+    {3,2,1|2^2}
   \end{example}
 
     As shown, the \option{charge} offsets the contents in each
@@ -3941,7 +3956,6 @@
   \option{math boxes} and \option{text boxes}.
   \index{math boxes!abacus}
   \index{text boxes!abacus}
-
   Finally, we note that a more traditional abacus display is drawn when
   the \option{traditional} key is used.
 
@@ -4258,7 +4272,7 @@
     {6}{9,8,5,4,3^3,2}
   \end{example}
 
-  As with tableaux, consecutive rows and columns are treated together.
+  As with tableaux, consecutive rows and columns are merged.
 
   \begin{example}
   \Abacus[dotted rows={1,2,3}]{4}{8,5,4,3,2,1} \qquad
@@ -4268,8 +4282,8 @@
   Comparing these two examples shows that the beads and runners in the
   dotted rows and columns are removed by \option{dotted rows}<abacus>
   and \option{dotted cols}<abacus>, respectively. Named coordinates,
-  for use with \option{name}<abacus>, are not created for the bead and
-  tick positions on the dotted rows and columns.
+  for use with \option{name}<abacus>, are not created for the omitted beads and
+  ticks.
 
   The \option{dotted cols}<abacus> ad \option{dotted rows}<abacus> keys
   can be used together, in which case the \option{dotted rows}<abacus>
@@ -4310,7 +4324,7 @@
 
     \item\option{entries=beads}:\index{entries!beta}\index{beta numbers!entries}
     \label{beta numbers!abacuses}
-    Labels the beads by the corresponding \emph{beta numbers}, or bead
+    Label each bead with the corresponding \emph{beta numbers}, or bead
     positions.
   \begin{example}
   \Abacus[entries=beads]{3}{3,2^2,0^2} \qquad
@@ -4318,7 +4332,7 @@
   \end{example}
 
   \item\option{entries=residues}:\index{entries!residues}
-  Labels the beads by their residues.
+  Label each bead with its residues.
   \begin{example}
   \Abacus[entries=residues,]{3}{3,2^2,0^2} \qquad
   \Abacus[entries=residues, cartan=C]
@@ -4337,7 +4351,7 @@
   type. You can override this by setting \option{e}<abacus> manually.
 
   \item\option{entries=rows}:\index{entries!rows}
-  Labels the beads by their rows index of the corresponding part in the
+  Label each beads with the row index of the corresponding part in the
   partition.
   \begin{example}
   \Abacus[entries=rows]{3}{3,2^2,0^2} \qquad
@@ -4349,7 +4363,8 @@
   in partition for such beads.
 
   \item\option{entries=shape}:\index{entries!partition}
-  Labels the beads by their shape. That is, each bead is labelled by the
+  Label each bead with it the length of the corresponding row in the
+  partition. That is, each bead is labelled by the
   the corresponding part of the partition.
   \begin{example}
   \Abacus[entries=shape]{3}{3,2^2,0^2} \qquad
@@ -4377,9 +4392,10 @@
   of the abacus.
 
   \begin{warning}
-    For abacuses, both the row and column indexing starts from~$0$. For
-    example, after \option{name=X} the bead and tick names take the
-    form~$(\mathsf{X{-}r{-}c})$.
+    After \option{name=X}, the bead and tick names take the
+    form~$(\mathsf{X{-}r{-}c})$, for the bead or tick in row~\keyword{r}
+    and column~\keyword{c}.  For abacuses, both the row and column
+    indexing starts from~$0$.
   \end{warning}
 
   \begin{Example}[label=Ex:BeadPositions]
@@ -4398,7 +4414,7 @@
   \keyword{shading=ball}.  As noted in \autoref{Ex:NoShade}, you can
   disable the \TikZ-ball shading for individual beads using the \TikZ-style \keyword{no bead}. The
   \option{no bead} key disables the ball shading for \emph{all} beads,
-  which allows you to fully customise how the abacus beads are
+  making it possible to fully customise how the abacus beads are
   displayed.
 
   \begin{example}
@@ -4411,12 +4427,12 @@
   you need to define a new style for the abacus beads. As the second
   example shows, rather than using \option{no bead} as an
   \keyword{\Abacus} key, you can use it inside \option{bead style} as a
-  \TikZ-style. (We include the \option{no bead} option partly for
-  convenience and partly to advertise how to use it.)
+  \TikZ-style.
 
   \begin{warning}
     The \option{no bead} key is \textit{not} a boolean key. In
-    particular, there is no inverse key \textcolor{aTableauInner}{shade}.
+    particular, the \option{no bead} key is \textit{not} an inverse key to
+    \option{bead}.
   \end{warning}
 
 
@@ -4471,7 +4487,7 @@
     minimum size=2.5mm}] {4}{5,3,2^2,0^2}
   \end{example}
 
-  As with the \option{label} key for tableau, , by default, the runner
+  As with the \option{label} key for tableau, by default, the runner
   labels are typeset in mathematics mode.
 
   \option[\aTableauColour{Inner}]{tick=colour}[a \LaTeX\ colour]
@@ -4929,7 +4945,7 @@
     {12,9,8^2,5,3}
   \end{example}
 
-  Mendes~ \cite{Mendes:hooks} uses tableaux like those below to give a new
+  Mendes~\cite{Mendes:hooks} uses tableaux like the two below to give a new
   proof of the Murnaghan-Nakayama rule.
 
   \begin{example}
@@ -4947,6 +4963,8 @@
   The following ribbon tableau comes from a nice paper by
   Fayers~\cite{Fayers:DyckTilings}, which is uses Dyck tilings to
   understand homogeneous Garnir relations for KLR algebras of type~$A$.
+  (This paper was one of the motivations for implementing ribbon
+  tableaux.)
 
   \begin{example}
   \RibbonTableau[skew={1^2}, ukrainian, scale=0.7,
@@ -5033,6 +5051,30 @@
 \end{tikzpicture}
 \end{Example}
 
+The final example shows how to draw the KLRW diagram associated to a
+multipartition~\cite{Bowman:ManyCellular}.
+
+\begin{Example}[label=Ex:KLRW]
+\begin{tikzpicture}[red string/.style={red, ultra thick},
+                    solid/.style={blue, thick},
+                    ghost/.style={gray}]
+  \Multidiagram(0,1.3) % the multipartition, filled with residues
+   [scale=0.7, ukrainian, entries=residues, e=3, scale=1.4,
+    rotate=4, no separators]{2^2,1|3,2,1}
+  % the red strings, projected from the (1,1)-boxes
+  \draw[red string]([shift={(0.1,0)}]A-1-1-1 |- 0,0)node[below]{$\kappa_1$} --++(0,1);
+  \draw[red string]([shift={(0.1,0)}]A-2-1-1 |- 0,0)node[below]{$\kappa_2$} --++(0,1);
+  \foreach \k/\r/\c in
+    {1/1/1,1/1/2,1/2/1,1/2/2,1/3/1,2/1/1,2/1/2,2/1/3,2/2/1,2/2/2,2/3/1}
+  { % add solids, ghosts and lines from the tableau to the KLRW idempotent
+    \draw[thin, DarkViolet](A-\k-\r-\c) -- (A-\k-\r-\c |- 0,0);
+    \draw[solid](A-\k-\r-\c |- 0,0)--++(0,1);
+    \draw[ghost]([xshift=2.8mm]A-\k-\r-\c |- 0,0)--++(0,1);
+  }
+\end{tikzpicture}
+\end{Example}
+
+
   % --------------------------------------------------------------
   \section{Feature requests and bug reports}
 
@@ -5048,94 +5090,24 @@
   demonstrates the problem and compiles---unless you are reporting a
   problem that gives a compilation error, in which case your code example
   should give the error. This is necessary because it is very difficult
-  to fix a problem if we cannot reproduce it.
+  to fix a problem if you cannot reproduce it.
 
   % --------------------------------------------------------------
   \subsection*{Acknowledgements}
 
   Several features in \aTableau have benefited from posts on
-  \href{https://tex.stackexchange.com}{tex.stackexchange.com}. In particular, I thank
+  \href{https://tex.stackexchange.com}{tex.stackexchange.com}. Although
+  it may surprise them, I thank
     Max Chernoff,
     Lars Madsen,
-    Clea F. Rees,
+    Clea Rees,
   and
-    Jonathan P. Spratte.
+    Jonathan Spratte.
 
 % ----------------------------------------------------------------------
 % bibliography
-%\bibliography{papers}
-%\bibliographystyle{andrew}
-
-\begin{thebibliography}{10}
-
-\bibitem{bowman2023quiverpresentationsisomorphismshecke}
-\textsc{C.~Bowman, M.~D. Visscher, A.~Hazi, and C.~Stroppel},
-  \href{https://arxiv.org/abs/2309.13695}{\textit{Quiver presentations and
-  isomorphisms of Hecke categories and Khovanov arc algebras}}, 2023.
-\newblock \href{http://arxiv.org/abs/2309.13695}{arXiv:2309.13695}.
-
-\bibitem{DJM:cyc}
-\textsc{R.~Dipper, G.~James, and A.~Mathas},
-  \href{http://dx.doi.org/10.1007/PL00004665}{\textit{Cyclotomic {$q$}-{S}chur
-  algebras}}, Math. Z., \textbf{229} (1998), 385--416.
-
-\bibitem{EvseevMathas:DeformedKLR}
-\textsc{A.~Evseev and A.~Mathas},
-  \href{http://dx.doi.org/10.5802/art.8}{\textit{Content systems and
-  deformations of cyclotomic {KLR} algebras of type~$A$ and~$C$}}, Annals of
-  Representation Theory, \textbf{1} (2024), 193--297.
-\newblock \href{http://arxiv.org/abs/2209.00134}{arXiv:2209.00134}.
-
-\bibitem{Fayers:DyckTilings}
-\textsc{M.~Fayers}, \textit{Dyck tilings and the homogeneous Garnir relations
-  for graded Specht modules},
-  J. Algebraic Combin., \textbf{45} (2017), 1041–1082.
-\newblock \href{http://arxiv.org/abs/1309.6467}{arXiv:1309.6467}.
-
-\bibitem{James:YoungD}
-\textsc{G.~James}, \textit{Some combinatorial results involving {Y}oung
-  diagrams}, Math. Proc. Cambridge Philos. Soc., \textbf{83} (1978), 1--10.
-
-\bibitem{KMR:UniversalSpecht}
-\textsc{A.~Kleshchev, A.~Mathas, and A.~Ram},
-  \href{http://dx.doi.org/10.1112/plms/pds019}{\textit{Universal graded
-  {S}pecht modules for cyclotomic {H}ecke algebras}}, Proc. Lond. Math. Soc.
-  (3), \textbf{105} (2012), 1245--1289.
-\newblock \href{http://arxiv.org/abs/1102.3519}{arXiv:1102.3519}.
-
-\bibitem{Konvalinka:ShiftedHookLengths}
-\textsc{M.~z. Konvalinka}, \href{http://dx.doi.org/10.37236/588}{\textit{The
-  weighted hook length formula {III}: {S}hifted tableaux}}, Electron. J.
-  Combin., \textbf{18} (2011), Paper 101, 29.
-
-\bibitem{Macdonald}
-\textsc{I.~G. Macdonald}, \textit{Symmetric functions and {H}all polynomials},
-  Oxford Mathematical Monographs, The Clarendon Press Oxford University Press,
-  New York, second~ed., 1995.
-\newblock With contributions by A. Zelevinsky, Oxford Science Publications.
-
-\bibitem{Mathas:ULect}
-\textsc{A.~Mathas},
-  \href{http://dx.doi.org/10.1090/ulect/015}{\textit{Iwahori-{H}ecke algebras
-  and {S}chur algebras of the symmetric group}}, University Lecture Series,
-  \textbf{15}, American Mathematical Society, Providence, RI, 1999.
-
-\bibitem{MathasTubbenhauer:BAD}
-\textsc{A.~Mathas and D.~Tubbenhauer},
-  \href{http://dx.doi.org/https://doi.org/10.1112/jlms.12706}{\textit{Cellularity
-  for weighted KLRW algebras of types $B$, $A^{(2)}$, $D^{(2)}$}}, Journal of
-  the London Mathematical Society, \textbf{107} (2023), 1002--1044.
-\newblock \href{http://arxiv.org/abs/2201.01998}{arXiv:2201.01998}.
-
-\bibitem{Mendes:hooks}
-\textsc{A.~Mendes}, \textit{The combinatorics of rim hook tableaux}, Australas.
-  J. Combin., \textbf{73} (2019), 132--148.
-
-\bibitem{Muniz}
-\textsc{B. Muniz}, \textit{Symplectic Branching through Crystals},
-preprint, 2025.\newblock
-\href{https://arxiv.org/abs/2505.21738}, {arxiv.org/abs/2505.21738}.
-\end{thebibliography}
+\bibliography{papers}
+\bibliographystyle{andrew}
 
 % ----------------------------------------------------------------------
 % indices

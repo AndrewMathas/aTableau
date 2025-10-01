@@ -1,6 +1,6 @@
 % ---------------------------------------------------------------------------
 % aTableau - Andrew Mathas (C) 2022-2025
-% Modified: 21:58 Tuesday, 23 September 2025
+% Modified: 14:30 Wednesday, 01 October 2025
 % ---------------------------------------------------------------------------
 %
 % A LaTeX package for symmetric group combinatorics:
@@ -23,8 +23,8 @@
 
 % ---------------------------------------------------------------------------
 % aTableau release date and version number
-\def\atableau@version{2.2.0-b0}
-\def\atableau@release{2025-04-30} % PENDING...
+\def\aTableau@version{2.2.0-b0}
+\def\aTableau@release{2025-04-30} % PENDING...
 
 % ---------------------------------------------------------------------------
 % load TikZ early to avoid \ExplSyntaxOn...\ExplSyntaxOff wrappers
@@ -50,12 +50,12 @@
 % ---------------------------------------------------------------------------
 \providecommand\DeclareRelease[3]{}
 \providecommand\DeclareCurrentRelease[2]{}
-\DeclareRelease{\atableau@version}{\atableau@release}{atableau.sty}
-\DeclareCurrentRelease{}{\atableau@release}
+\DeclareRelease{\aTableau@version}{\atableau@release}{atableau.sty}
+\DeclareCurrentRelease{}{\aTableau@release}
 
 \ProvidesExplPackage{atableau}
-  {\atableau@release}
-  {\atableau@version}
+  {\aTableau@release}
+  {\aTableau@version}
   {A package for symmetric group combinatorics}
 
 % ---------------------------------------------------------------------------
@@ -180,6 +180,8 @@
 \bool_new:N \l__aTableau_tabloid_bool     % true if a tabloid
 \bool_new:N \l__aTableau_traditional_bool % true if a traditional abacus
 
+\clist_new:N \l__aTableau_adjacent_edges_clist  % list of possible adjacent edges in a ribbon
+
 \fp_new:N \l__aTableau_abacus_bottom_fp   % row index of the bottom of the abacus
 \fp_new:N \l__aTableau_abacus_col_dx_fp   % change in x-coordinate between columns in an abacus
 \fp_new:N \l__aTableau_abacus_col_dy_fp   % change in y-coordinate between columns in an abacus
@@ -229,6 +231,7 @@
 \int_new:N \l__aTableau_r_int             % scratch row counter
 \int_new:N \l__aTableau_rows_int          % number of rows in abacus
 
+\prop_new:N \l__aTableau_colour_theme_prop% colour theme specifications
 \prop_new:N \l__aTableau_ribbon_prop      % border paths in a ribbon (no speed difference using \prop_new_linked:N)
 
 \seq_new:N \l__aTableau_charge_seq        % sequences of charges = residue/content offset
@@ -317,7 +320,6 @@
 % easily add them in the manual without manually copying them across
 % do we need these?
 
-\prop_new:N \l__aTableau_colour_theme_prop
 \prop_set_from_keyval:Nn \l__aTableau_colour_theme_prop
 {
   % default theme
@@ -814,7 +816,6 @@
 
 \cs_generate_variant:Nn \__aTableau_abacus_bead:nnn {enV}
 \cs_generate_variant:Nn \__aTableau_count_row:n {x}
-\cs_generate_variant:Nn \__aTableau_add_ribbon_edge:nn {oo,Vo,oV,ee,eV,Ve, VV}
 \cs_generate_variant:Nn \__aTableau_draw_tableau:n {V}
 \cs_generate_variant:Nn \__aTableau_define_html_colour:nn {no}
 \cs_generate_variant:Nn \__aTableau_entry:n {x}
@@ -2354,35 +2355,63 @@
 }
 
 % usage: \__aTableau_set_ribbon_coordinates:nnnn #1 #2 #3 #4
-% Set the four ribbon coordinates ribbon_a_tl, ..., ribbon_d_tl equal to the
-% xy-coordinates of the four corners around box in row row_int and column
-% column_int, where ribbon_#1_tl is set to (r,c),, ribbon_#2_tl to (r,c-1),
-% ribbon_#3_tl to (r-1,c-1), and ribbon_#4_tl to (r-1,c). For this
-% we use \__aTableau_set_box_coordinates:nnn, which is not particularly
-% efficient, but necessary because we have to allow for the four different
-% tableau conventions, as well as rotated coordinates. There is a shift in the
-% TikZ-style to move the coordinate from the centre of the boxes to their
-% borders.
-\cs_new_protected:Npn \__aTableau_set_ribbon_coordinates:nnnn #1 #2 #3 #4
+% Define the four ribbon coordinates:
+%   - \l__aTableau_ribbon_a_tl = (r,c)                    c----b
+%   - \l__aTableau_ribbon_b_tl = (r-1,c)                  |    |
+%   - \l__aTableau_ribbon_c_tl = (r-1,c-1)                |    |
+%   - \l__aTableau_ribbon_d_tl = (r,c-1)                  d----a
+\cs_new_protected:Nn \__aTableau_set_ribbon_coordinates:
 {
-    \tl_set:ce {l__aTableau_ribbon_#1_tl} {\int_use:N\l__aTableau_row_int|\int_use:N\l__aTableau_col_int}
-    \tl_set:ce {l__aTableau_ribbon_#2_tl} {\int_eval:n{\l__aTableau_row_int-1}|\int_use:N\l__aTableau_col_int}
-    \tl_set:ce {l__aTableau_ribbon_#3_tl} {\int_eval:n{\l__aTableau_row_int-1}|\int_eval:n{\l__aTableau_col_int-1}}
-    \tl_set:ce {l__aTableau_ribbon_#4_tl} {\int_use:N\l__aTableau_row_int|\int_eval:n{\l__aTableau_col_int-1}}
+    \tl_set:Ne \l__aTableau_ribbon_a_tl {\int_use:N\l__aTableau_row_int|\int_use:N\l__aTableau_col_int}
+    \tl_set:Ne \l__aTableau_ribbon_b_tl {\int_eval:n{\l__aTableau_row_int-1}|\int_use:N\l__aTableau_col_int}
+    \tl_set:Ne \l__aTableau_ribbon_c_tl {\int_eval:n{\l__aTableau_row_int-1}|\int_eval:n{\l__aTableau_col_int-1}}
+    \tl_set:Ne \l__aTableau_ribbon_d_tl {\int_use:N\l__aTableau_row_int|\int_eval:n{\l__aTableau_col_int-1}}
+    \typeout{Coordinates~:~a=\l__aTableau_ribbon_a_tl,~b=\l__aTableau_ribbon_b_tl,~c=\l__aTableau_ribbon_c_tl,~d=\l__aTableau_ribbon_d_tl.}
+}
+
+% usage: \__aTableau_add_edges_to_ribbon:
+% The edges on the boundary of the ribbon are stored in \l__aTableau_ribbon_prop,
+% where the edge is the key and the values is empty. We use a property list
+% because this is the only data structure that allows us to easily add and
+% remove entries. The edge joining (r1,c1) and (r1,c2) is stored as
+%     r1|c1|r2|c2 if (r1,c1) > (r2,c2)
+%     r2|c2|r1|c1 if (r2,c2) > (r1,c1)
+% As the vertices are ordered, we do not need to check to see if there is an
+% edge from X to Y, or an edge from Y to X.
+\cs_new_protected:Nn \__aTableau_add_edges_to_ribbon:
+{
+    % add edge a->b
+    \tl_set:Ne \l_tmpa_tl {\l__aTableau_ribbon_a_tl|\l__aTableau_ribbon_b_tl}
+    \prop_get:NVNTF \l__aTableau_ribbon_prop \l_tmpa_tl \l_tmpv_tl
+    { \prop_remove:NV \l__aTableau_ribbon_prop \l_tmpa_tl }
+    { \prop_put:NVn \l__aTableau_ribbon_prop \l_tmpa_tl {} }
+    % add edge b->c
+    \tl_set:Ne \l_tmpa_tl {\l__aTableau_ribbon_b_tl|\l__aTableau_ribbon_c_tl}
+    \prop_get:NVNTF \l__aTableau_ribbon_prop \l_tmpa_tl \l_tmpv_tl
+    { \prop_remove:NV \l__aTableau_ribbon_prop \l_tmpa_tl }
+    { \prop_put:NVn \l__aTableau_ribbon_prop \l_tmpa_tl {} }
+    % add edge d->c
+    \tl_set:Ne \l_tmpa_tl {\l__aTableau_ribbon_d_tl|\l__aTableau_ribbon_c_tl}
+    \prop_get:NVNTF \l__aTableau_ribbon_prop \l_tmpa_tl \l_tmpv_tl
+    { \prop_remove:NV \l__aTableau_ribbon_prop \l_tmpa_tl }
+    { \prop_put:NVn \l__aTableau_ribbon_prop \l_tmpa_tl {} }
+    % add edge a->d
+    \tl_set:Ne \l_tmpa_tl {\l__aTableau_ribbon_a_tl|\l__aTableau_ribbon_d_tl}
+    \prop_get:NVNTF \l__aTableau_ribbon_prop \l_tmpa_tl \l_tmpv_tl
+    { \prop_remove:NV \l__aTableau_ribbon_prop \l_tmpa_tl }
+    { \prop_put:NVn \l__aTableau_ribbon_prop \l_tmpa_tl {} }
+    \typeout{Ribbon~edges:}
+    \prop_log:N  \l__aTableau_ribbon_prop
 }
 
 % usage: \__aTableau_initialise_ribbon_head:
-% Start constructing the token list \l__aTableau_ribbon_path_tl for a ribbon
+% Initialise a ribbon by adding the first four edges to the
+% \l__aTableau_ribbon_prop
 \cs_new_protected:Nn \__aTableau_initialise_ribbon_head:
 {
-    % Add directed edges (r,c) -> (r,c-1) -> (r-1,c-1) -> (r-1,c) -> (r,c)
-    \__aTableau_set_ribbon_coordinates:nnnn a b c d
-    \prop_put:NVV \l__aTableau_ribbon_prop {\l__aTableau_ribbon_a_tl|\l__aTableau_ribbon_b_tl} {}
-    \prop_put:NVV \l__aTableau_ribbon_prop {\l__aTableau_ribbon_b_tl|\l__aTableau_ribbon_c_tl} {}
-    \prop_put:NVV \l__aTableau_ribbon_prop {\l__aTableau_ribbon_c_tl|\l__aTableau_ribbon_d_tl} {}
-    \prop_put:NVV \l__aTableau_ribbon_prop {\l__aTableau_ribbon_d_tl|\l__aTableau_ribbon_a_tl} {}
-    \typeout{Initialise~ribbon~head:~row=\int_use:N\l__aTableau_row_int,~col=\int_use:N\l__aTableau_col_int}
-    \prop_log:N \l__aTableau_ribbon_prop
+    \prop_clear:N \l__aTableau_ribbon_prop
+    \__aTableau_set_ribbon_coordinates:
+    \__aTableau_add_edges_to_ribbon:
 }
 
 % usage: \__aTableau_save_ribbon_head:nnn [style] {row index} {col index}
@@ -2407,7 +2436,7 @@
     % update the shape to include the head node (#3,#4)
     \__aTableau_update_shape:
 
-    % add initial coordinates to \l__aTableau_ribbon_path_tl
+    % make (xl,yl) point to the initial box coordinates (is this necessary??)
     \__aTableau_set_box_coordinates:nVV {l} \l__aTableau_row_int \l__aTableau_col_int
 
     % initialise the start of the path/ribbon
@@ -2461,73 +2490,16 @@
     \__aTableau_peek_ribbon_comma:nnw {peek_style:nw}  {save_ribbon:nn}
 }
 
-% usage: \__aTableau_add_ribbon_edge:nn {a} {b}
-% Add a directed edge between the vertices a and b, unless this edge already
-% exists in which case it is removed.
-\cs_new_protected:Nn \__aTableau_add_ribbon_edge:nn
-{
-    \bool_set_true:N \l_tmpa_bool % true if we still need to place the edge
-    \prop_get:NoNTF \l__aTableau_ribbon_prop {#1|#2} \l_tmpa_tl
-    {
-        \prop_remove:Nn \l__aTableau_ribbon_prop {#1|#2}
-    }
-    {
-        \prop_get:NnNTF \l__aTableau_ribbon_prop {#2|#1} \l_tmpa_tl
-        {
-            \prop_remove:Nn \l__aTableau_ribbon_prop {#2|#1}
-        }
-        {   % add an edge from #1 to #2
-    \typeout{~_~adding~edge~#1~->#2}
-            \prop_put:Noo \l__aTableau_ribbon_prop {#1|#2} {}
-        }
-    }
-}
-
-% usage \__aTableau_extend_ribbon_rc:
-% Extend \l__aTableau_ribbon_path_tl by pushing the edge between
-% \l__aTableau_ribbon_a_tl and \l__aTableau_ribbon_b_tl and then adding
-% edges from ribbon_b_tl -> ribbon_c_tl -> ribbon_d_tl -> ribbon_a_tl.
-% Exactly which coordinates these is determined by the previous call to
-% \__aTableau_set_ribbon_coordinates:nnnn.
-
-% QUESTION: Can we make the property list have entries:
-%      x1|y1|x2|y2 -> x2|y2|x3|y3
-% The tricky part is modifying the values when edges are deleted
-
-\cs_new_protected:Nn \__aTableau_extend_ribbon_rc:
-{
-\typeout{EXTENDING:~a=\l__aTableau_ribbon_a_tl,~b=\l__aTableau_ribbon_b_tl,~c=\l__aTableau_ribbon_c_tl,~d=\l__aTableau_ribbon_d_tl.}
-    \bool_set_true:N \l_tmpa_bool % true if we still need to place the edge
-    \prop_get:NeNTF \l__aTableau_ribbon_prop {\l__aTableau_ribbon_a_tl|\l__aTableau_ribbon_b_tl} \l_tmpc_tl
-    {
-        \typeout{~-~there~is~an~edge:~\l__aTableau_ribbon_a_tl~->~\l__aTableau_ribbon_b_tl}
-        \prop_remove:Ne \l__aTableau_ribbon_prop {\l__aTableau_ribbon_a_tl|\l__aTableau_ribbon_b_tl}
-        \__aTableau_add_ribbon_edge:VV {\l__aTableau_ribbon_a_tl|\l__aTableau_ribbon_d_tl} {}
-        \__aTableau_add_ribbon_edge:VV {\l__aTableau_ribbon_d_tl|\l__aTableau_ribbon_c_tl} {}
-        \__aTableau_add_ribbon_edge:VV {\l__aTableau_ribbon_c_tl|\l__aTableau_ribbon_b_tl} {}
-    }
-    {
-        \prop_get:NeNT \l__aTableau_ribbon_prop {\l__aTableau_ribbon_b_tl|\l__aTableau_ribbon_a_tl} \l_tmpc_tl
-        {
-        \typeout{~-~there~is~an~edge:~\l__aTableau_ribbon_b_tl~->~\l__aTableau_ribbon_a_tl}
-            \prop_remove:NV \l__aTableau_ribbon_prop {\l__aTableau_ribbon_b_tl|\l__aTableau_ribbon_a_tl}
-            \__aTableau_add_ribbon_edge:VV {\l__aTableau_ribbon_b_tl|\l__aTableau_ribbon_c_tl} {}
-            \__aTableau_add_ribbon_edge:VV {\l__aTableau_ribbon_c_tl|\l__aTableau_ribbon_d_tl} {}
-            \__aTableau_add_ribbon_edge:VV {\l__aTableau_ribbon_d_tl|\l__aTableau_ribbon_a_tl} {}
-        }
-    }
-\typeout{Finished~adding~edges}
-\prop_log:N \l__aTableau_ribbon_prop
-
-}
-
 % usage: \__aTableau_extend_ribbon_c:
 % adjust the edges in \l__aTableau_ribbon_prop by pushing through the c-edge
 \cs_new_protected:Nn \__aTableau_extend_ribbon_c:
 {
     \int_decr:N \l__aTableau_col_int  % c -> c-1
-    \__aTableau_set_ribbon_coordinates:nnnn a b c d
-    \__aTableau_extend_ribbon_rc:
+    \__aTableau_set_ribbon_coordinates:
+    \prop_get:NeNT \l__aTableau_ribbon_prop {\l__aTableau_ribbon_a_tl|\l__aTableau_ribbon_b_tl} \l_tmpc_tl
+    {
+        \__aTableau_add_edges_to_ribbon:
+    }
 }
 
 % usage: \__aTableau_extend_ribbon_C:
@@ -2535,8 +2507,11 @@
 \cs_new_protected:Nn \__aTableau_extend_ribbon_C:
 {
     \int_incr:N \l__aTableau_col_int  % c -> c+1
-    \__aTableau_set_ribbon_coordinates:nnnn c d a b
-    \__aTableau_extend_ribbon_rc:
+    \__aTableau_set_ribbon_coordinates:
+    \prop_get:NeNT \l__aTableau_ribbon_prop {\l__aTableau_ribbon_d_tl|\l__aTableau_ribbon_c_tl} \l_tmpc_tl
+    {
+        \__aTableau_add_edges_to_ribbon:
+    }
 }
 
 % usage: \__aTableau_extend_ribbon_R:
@@ -2544,8 +2519,11 @@
 \cs_new_protected:Nn \__aTableau_extend_ribbon_R:
 {
     \int_decr:N \l__aTableau_row_int  % r -> r-1
-    \__aTableau_set_ribbon_coordinates:nnnn b c d a
-    \__aTableau_extend_ribbon_rc:
+    \__aTableau_set_ribbon_coordinates:
+    \prop_get:NeNT \l__aTableau_ribbon_prop {\l__aTableau_ribbon_a_tl|\l__aTableau_ribbon_d_tl} \l_tmpc_tl
+    {
+        \__aTableau_add_edges_to_ribbon:
+    }
 }
 
 % usage: \__aTableau_extend_ribbon_r:
@@ -2553,8 +2531,11 @@
 \cs_new_protected:Nn \__aTableau_extend_ribbon_r:
 {
     \int_incr:N \l__aTableau_row_int  % r -> r+1
-    \__aTableau_set_ribbon_coordinates:nnnn d a b c
-    \__aTableau_extend_ribbon_rc:
+    \__aTableau_set_ribbon_coordinates:
+    \prop_get:NeNT \l__aTableau_ribbon_prop {\l__aTableau_ribbon_b_tl|\l__aTableau_ribbon_c_tl} \l_tmpc_tl
+    {
+        \__aTableau_add_edges_to_ribbon:
+    }
 }
 
 % usage: \__aTableau_extend_ribbon:n {direction=}
@@ -2645,7 +2626,7 @@
     % \l__aTableau_styled_nodes_tl and l__aTableau_unstyled_nodes_tl so
     % that the data can be printed as soon as the ribbon is read. This
     % should be faster because it will remove the need to store the
-    % ribbon data in the \l__atabeleau_capture_*_seq sequences and then
+    % ribbon data in the \l__aTabeleau_capture_*_seq sequences and then
     % retrieve this information later in \__aTableau_draw_ribbon:
 
     % check to see if this node has any text
@@ -2676,39 +2657,92 @@
     }
 }
 
-\cs_new_protected:Npn \__aTableau_put_ribbon_coordinates:nn #1|#2|
+% usage: \__aTableau_start_ribbon_path:nnnn r1|c1|r2|c2
+% Start a (new connected component of) the path around the boundary of a ribbon
+% by adding the edge (r1,c1)--(r2,c2) to \l__aTableau_ribbon_path_tl. Set
+% \l_tmpc_tl to (r2,c2) and set \l__aTableau_adjacent_edges_clist equal to the
+% list of possible edges in the ribbon boundary that are connected to (r2,c2).
+% We then search
+\cs_new_protected:Npn \__aTableau_start_ribbon_path:nnnn #1|#2|#3|#4|
 {
-\typeout{PUTTING:~#1~|~#2.}
-\__aTableau_set_box_coordinates:nnn {a} {#1} {#2}
-    \tl_put_right:Ne \l__aTableau_ribbon_path_tl {(\fp_use:N\l__aTableau_xa_fp,\fp_use:N\l__aTableau_ya_fp)}
+    \__aTableau_set_box_coordinates:nnn {a} {#1} {#2}
+    \__aTableau_set_box_coordinates:nnn {b} {#3} {#4}
+    \tl_put_right:Ne \l__aTableau_ribbon_path_tl {(\fp_use:N\l__aTableau_xa_fp,\fp_use:N\l__aTableau_ya_fp)--(\fp_use:N\l__aTableau_xb_fp,\fp_use:N\l__aTableau_yb_fp)}
+    \clist_set:Ne \l__aTableau_adjacent_edges_clist { #3|#4|\int_eval:n{#3-1}|#4, \int_eval:n{#3+1}|#4|#3|#4, #3|#4|#3|\int_eval:n{#4-1}, #3|\int_eval:n{#4+1}|#3|#4}
+    \tl_set:Nn \l_tmpc_tl {#3|#4} % last placed coordinate is #3|#4
+    \typeout{~-~adjacent:~\clist_use:Nn \l__aTableau_adjacent_edges_clist {,~},~edge~=~#1#2~->#3#4~:~ c=\l_tmpc_tl.}
+    \typeout{~-~path=\l__aTableau_ribbon_path_tl.}
 }
 
-% usage: \__aTableau_finalise_ribbon:n
-% Add the final node to the ribbon
+% usage: \__aTableau_start_ribbon_path:nnnn r1|c1|r2|c2
+% Add the next edge to \l__aTableau_ribbon_path_tl in  a (connected component
+% of) the path around the boundary of a ribbon. To determine whether the next
+% vertex is (r1,c1) or (r2,c2) we look at \l_tmpc_tl, which is the last vertex
+% that was added. Finally,  update \l_tmpc_tl to point to the last vertex, and
+% set \l__aTableau_adjacent_edges_clist equal to the list of possible adjacent
+% edges that care connected to \l_tmpc_tl.
+\cs_new_protected:Npn \__aTableau_add_to_ribbon_path:nnnn #1|#2|#3|#4|
+{
+\typeout{PUTTING:~#1|#2~~-->~#3|#4~c=\l_tmpc_tl.}
+    \tl_if_eq:VnTF \l_tmpc_tl {#1|#2}
+    { % the last placed coordinate was #1|#2, so the new vertex is #3|#4
+      \__aTableau_set_box_coordinates:nnn {a} {#3} {#4}
+      \tl_put_right:Ne \l__aTableau_ribbon_path_tl {--(\fp_use:N\l__aTableau_xa_fp,\fp_use:N\l__aTableau_ya_fp)}
+      \tl_set:Nn \l_tmpc_tl {#3|#4} % last vertex in boundary is #3|#4
+      % create list of the edges that can connect to \l_tmpc_tl
+      \clist_set:Ne \l__aTableau_adjacent_edges_clist { #3|#4|\int_eval:n{#3-1}|#4, \int_eval:n{#3+1}|#4|#3|#4, #3|#4|#3|\int_eval:n{#4-1}, #3|\int_eval:n{#4+1}|#3|#4}
+    }
+    { % the last placed coordinate was #3|#4, so the new vertex is #1|#2
+      \__aTableau_set_box_coordinates:nnn {a} {#1} {#2}
+      \tl_put_right:Ne \l__aTableau_ribbon_path_tl {--(\fp_use:N\l__aTableau_xa_fp,\fp_use:N\l__aTableau_ya_fp)}
+      \tl_set:Nn \l_tmpc_tl {#1|#2} % last vertex in boundary is #1|#2
+      % create list of edges that can connect to \l_tmpc_tl
+      \clist_set:Ne \l__aTableau_adjacent_edges_clist { #1|#2|\int_eval:n{#1-1}|#2, \int_eval:n{#1+1}|#2|#1|#2, #1|#2|#1|\int_eval:n{#2-1}, #1|\int_eval:n{#2+1}|#1|#2}
+    }
+    \typeout{~-~adjacent:~\clist_use:Nn \l__aTableau_adjacent_edges_clist {,~},~edge~=~#1#2~->#3#4~:~ c=\l_tmpc_tl.}
+    \typeout{~-~path=\l__aTableau_ribbon_path_tl.}
+}
+
+% usage: \__aTableau_finalise_ribbon:
+% The edges around the ribbon boundary are stored as keys in \l__aTableau_ribbon_prop.
+% We pick any edge in the boundary, using \prop_map_inline:Nn, and then add a
+% connected circuit of edges to \l__aTableau_ribbon_path_tl by searching for
+% adjacent edges in \l__aTableau_ribbon_prop. As the boundary is a union of
+% circles, if there are two connected edges it does not matter which edge we
+% choose.
 \cs_new_protected:Nn \__aTableau_finalise_ribbon:
 {
 \typeout{finalising~with~ribbon~prop:}
-\prop_log:N \l__aTableau_ribbon_prop
-\int_set:Nn \l_tmpb_int {4}
-\tl_clear:N\l__aTableau_ribbon_path_tl
+    \tl_clear:N\l__aTableau_ribbon_path_tl  % will become the border of the ribbon
     \bool_do_while:nn { ! \prop_if_empty_p:N \l__aTableau_ribbon_prop }
     {
         % Use \prop_map_inline:Nn to find a key in \l__aTableau_ribbon_prop
         \prop_map_inline:Nn \l__aTableau_ribbon_prop
         {
-            \__aTableau_put_ribbon_coordinates:nn ##1|
-            \tl_set:No \l_tmpa_tl {##2}
+            \tl_clear:N \l_tmpc_tl  % used to determine the next vertex
+            \__aTableau_start_ribbon_path:nnnn ##1|
             \prop_remove:Ne \l__aTableau_ribbon_prop {##1} % remove the key
             \prop_map_break:
         }
-\typeout{Breaking~with~\l_tmpa_tl}
+
+        \bool_set_true:N \l_tmpa_bool
         % the path corresponding to the key k is k->ribbon_prop[k] -> ribbon_prop[ribbon_prop[k] -> ...
-        \bool_do_until:nn { \tl_if_eq_p:NN \l_tmpa_tl \q_no_value }
+        \bool_do_while:Nn \l_tmpa_bool
         {
-            \tl_put_right:Ne \l__aTableau_ribbon_path_tl {--}
-            \exp_last_unbraced:NV \__aTableau_put_ribbon_coordinates:nn \l_tmpa_tl|
-            \prop_pop:NVN \l__aTableau_ribbon_prop \l_tmpa_tl \l_tmpa_tl
-\typeout{Popped:~a=\tl_to_str:N\l_tmpa_tl,~ribbon="\l__aTableau_ribbon_path_tl"}
+            \prop_log:N\l__aTableau_ribbon_prop
+            \clist_map_inline:Nn \l__aTableau_adjacent_edges_clist
+            {
+                \bool_set_false:N \l_tmpa_bool
+                \prop_get:NnNT \l__aTableau_ribbon_prop {##1} \l_tmpa_tl
+                {
+                    \bool_set_true:N \l_tmpa_bool  % found an edge
+                    \typeout{~-~found~##1}
+%                   \tl_put_right:Ne \l__aTableau_ribbon_path_tl {--}
+                    \__aTableau_add_to_ribbon_path:nnnn ##1|
+                    \prop_remove:Ne \l__aTableau_ribbon_prop {##1} % remove the key
+                    \clist_map_break:
+                }
+            }
         }
 \typeout{FINALISE:~ribbon~path="\l__aTableau_ribbon_path_tl"}
     }
@@ -2734,7 +2768,7 @@
     \use:c { __aTableau_finalise_ \l__aTableau_ribbon_type_tl :}
 
     \typeout{RIBBON~PATH~=~"\l__aTableau_ribbon_path_tl"}
-    \prop_log:N \l__aTableau_ribbon_prop
+    \prop_map_inline:Nn \l__aTableau_ribbon_prop {\typeout{~-~##1 ~->~ ##2}}
 
     % We want to first draw the ribbon, with its outline and any filling, and
     % then place the node with the default styling (or unstyled), and styled
@@ -3094,12 +3128,12 @@
     \tl_if_eq:VnT \l__aTableau_show_tl {residues}
     {
           % if it is not set already, then set e based on the number of runners and the Cartan type
-          \int_compare:nNnT {\l__aTableau_e_int} = {0}
+          \int_compare:nNnF {\l__aTableau_e_int} < {1000}
           {
               \str_case:Vn \l__aTableau_cartan_tl
               {
-                  {A } { \int_set_eq:NN \l__aTableau_e_int \l__aTableau_cols_int         }
-                  {C } { \int_set:Nn    \l__aTableau_e_int {\l__aTableau_cols_int/2}     }
+                  {A}  { \int_set_eq:NN \l__aTableau_e_int \l__aTableau_cols_int         }
+                  {C}  { \int_set:Nn    \l__aTableau_e_int {\l__aTableau_cols_int/2}     }
                   {AA} { \int_set:Nn    \l__aTableau_e_int {(\l__aTableau_cols_int-1)/2} }
                   {DD} { \int_set:Nn    \l__aTableau_e_int {\l__aTableau_cols_int/2-1}   }
               }

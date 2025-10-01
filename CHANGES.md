@@ -10,6 +10,7 @@
   - rewrites the ribbon tableau code to allow c, C, r and R ribbon specifications
   - rewrites the tableaux parsing code so that "complex" styles can be entered as [...], instead of [{...}]
   - abacuses can now be specified by *quotients*
+  - adds optional *overlay specifications* for use with beamer when this class is used
   - adds the `colour theme` key, which gives a choice of three colour schemes
   - adds the `colours` key, which sets a cyclic list of fill colours for tableaux
   - adds the `cover` key for covering tableaux and diagrams
