@@ -4,24 +4,49 @@
 \usetikzlibrary{shapes.misc,fit}
 
 \begin{document}
+  \Abacus[entries=residues,]{3}{3,2^2,0^2}
 
   \aTabset{align=bottom, no border}
 
+% \Diagram[ribbons={(red,ultra thick)23crrCCCCRRccr}]{7^5}
+
+
+
+
+  \typeout{FINAL: 44}
+  \RibbonTableau[shape=7^5]{44}
+
+  \typeout{FINAL: 44r}
+  \RibbonTableau[shape=7^5]{44r}
+
+  \typeout{FINAL: 44rr}
+  \RibbonTableau[shape=7^5]{44rr}
+
+  \typeout{FINAL: 44rrC}
+  \RibbonTableau[shape=7^5]{44rrC}
+
+  \typeout{FINAL: 44rrCC}
+  \RibbonTableau[shape=7^5]{44rrCC}
+
+  \typeout{FINAL: 44rrCCR}
+  \RibbonTableau[shape=7^5]{44rrCCR}
+
+
+  \RibbonTableau[shape=7^5]{12rrCCRC}
+
+  \RibbonTableau[shape=7^5]{12rrCCRrCC}
+  \RibbonTableau[shape=7^5]{12rrCCRrCCR}
+
   \RibbonTableau[shape=7^5]{12rrCCRrCCRR}
 
-  \typeout{--------------------}
 
   \RibbonTableau[shape=7^5]{12rrCCRrCCRRc}
-
-  \typeout{--------------------}
 
   \RibbonTableau[shape=7^5]{12rrCCRrCCRRcc}
 
   \RibbonTableau[shape=7^5]{12rrCCRrCCRRccc}
 
   \RibbonTableau[shape=7^5]{12rrCCRrCCRRcccc}
-
-\end{document}
 
   \RibbonTableau[shape=5^5]{(fill=blue!30)44ccrrCC}
 

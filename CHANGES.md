@@ -8,9 +8,9 @@
 ### Version 2.2.0 - 2025-?
   - implements traditional abacuses, with rods and beads, via the `traditional` key
   - rewrites the ribbon tableau code to allow c, C, r and R ribbon specifications
-  - rewrites the tableaux parsing code so that "complex" styles can be entered as [...], instead of [{...}]
+  - rewrites the tableaux parsing code so that "complex" styles can be entered as `[...]`, instead of `[{...}]`
   - abacuses can now be specified by *quotients*
-  - adds optional *overlay specifications* for use with beamer when this class is used
+  - adds optional *overlay specifications* for use with beamer
   - adds the `colour theme` key, which gives a choice of three colour schemes
   - adds the `colours` key, which sets a cyclic list of fill colours for tableaux
   - adds the `cover` key for covering tableaux and diagrams
@@ -18,8 +18,7 @@
   - adds the `rotate` key for rotating aTableau pictures
   - adds the `shape` key for `\RibbonTableau`
   - adds the `\NewATableauCommand` commands for creating custom pictures
-  - adds error messages whenever an aTableau command is not properly
-    contained inside a tikzpicture environment
+  - adds error messages whenever an aTableau command is not properly contained inside a tikzpicture environment
   - fixes bug in `beta numbers` key for abacuses
   - many improvements and corrections to the manual
 

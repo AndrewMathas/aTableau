@@ -13,8 +13,8 @@
   - Find a way for the path, ribbon and snob boxes to inherit colour from the ribbon style
   - Make `\__atableau_abacus:nn` peek for commas rather than using
     `\clist_map_inline:nn`. Currently braces are needed for "complex"
-    style specifications in abacuses `[{...}]`. (This has alr4ady been
-    changed for (ribbon) tableau)
+    style specifications in abacuses `[{...}]`. (This has already been
+    done for (ribbon) tableau.)
 
 ### Documentation
   - Add an example showing how to use dotted rows and columns for multitableaux

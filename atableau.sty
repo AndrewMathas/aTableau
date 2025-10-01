@@ -1,6 +1,6 @@
 % ---------------------------------------------------------------------------
 % aTableau - Andrew Mathas (C) 2022-2025
-% Modified: 14:30 Wednesday, 01 October 2025
+% Modified: 22:24 Wednesday, 01 October 2025
 % ---------------------------------------------------------------------------
 %
 % A LaTeX package for symmetric group combinatorics:
@@ -138,6 +138,10 @@
   { Unrecognised~abacus~ends~setting:~'#1' }
   { The~supported~ends~for~the~top/bottom~of~the~abacus~are:~-,~\c_underscore_str~,.~,|,~and~>}
 
+\msg_new:nnnn { aTableau } { unknown-beamer }
+  { Unsupported~beamer~command~'#1' }
+  { The~supported~beamer~commands~are~invisible,~only,~onslide,~uncover~and~visible,~all~of~which~should~be~entered~WITHOUT~a~backslash }
+
 \msg_new:nnnn { aTableau } { unknown-cartan }
   { Unrecognised~Cartan~type~'#1' }
   { The~supported~Cartan~types~are~(affine)~types~A,~AA,~C~and~DD}
@@ -265,6 +269,7 @@
 \tl_new:N \l__aTableau_bead_shape_tl      % shape of abacus beads
 \tl_new:N \l__aTableau_bead_text_tl       % text colour of abacus beads
 \tl_new:N \l__aTableau_bead_tl            % abacus head colour
+\tl_new:N \l__aTableau_beamer_tl          % name of beamer overlay command
 \tl_new:N \l__aTableau_border_tl          % diagram border
 \tl_new:N \l__aTableau_box_fill_tl        % fill colour for tableau boxes
 \tl_new:N \l__aTableau_box_font_tl        % font for tableau boxes
@@ -366,7 +371,6 @@
     {
         \int_set:No \l__aTableau_e_int { \l__aTableau_e_int-1 }
     }
-    \typeout{colours:~e=\int_use:N\l__aTableau_e_int}
 }
 
 \cs_set_eq:NN \l__aTableau_set_box_fill:nn  \use_none:nn
@@ -717,26 +721,6 @@
     \fp_set:Nn \l__aTableau_abacus_col_dy_fp {#2}
     \fp_set:Nn \l__aTableau_abacus_row_dx_fp {#3}
     \fp_set:Nn \l__aTableau_abacus_row_dy_fp {#4}
-}
-
-\cs_new:Nn \__aTableau_set_abacus_style_south:
-{
-    \__aTableau_set_abacus_style:nnnn {1}{0}{0}{-1}
-}
-
-\cs_new:Nn \__aTableau_set_abacus_style_north:
-{
-    \__aTableau_set_abacus_style:nnnn {1}{0}{0}{1}
-}
-
-\cs_new:Nn \__aTableau_set_abacus_style_east:
-{
-    \__aTableau_set_abacus_style:nnnn {0}{-1}{1}{0}
-}
-
-\cs_new:Nn \__aTableau_set_abacus_style_west:
-{
-    \__aTableau_set_abacus_style:nnnn {0}{1}{-1}{0}
 }
 
 % ---------------------------------------------------------------------------
@@ -1747,7 +1731,6 @@
     \tl_if_empty:VF \l__aTableau_paths_tl { \__aTableau_add_ribbon:nV {path} \l__aTableau_paths_tl }
 
     % add ribbons
-    \typeout{RIBBONS=\tl_to_str:N\l__aTableau_ribbons_tl}
     \tl_if_empty:VF \l__aTableau_ribbons_tl { \__aTableau_add_ribbon:nV {ribbon} \l__aTableau_ribbons_tl }
 
     % paths and ribbons are inside the delimiters, but snobs are not
@@ -1807,7 +1790,7 @@
     \fp_set:cn {l__aTableau_x#1_fp} {\l__aTableau_x_fp+(#2+0.5)*\l__aTableau_box_row_dx_fp+(#3+0.5)*\l__aTableau_box_col_dx_fp }
     \fp_set:cn {l__aTableau_y#1_fp} {\l__aTableau_y_fp+(#2+0.5)*\l__aTableau_box_row_dy_fp+(#3+0.5)*\l__aTableau_box_col_dy_fp }
     \__aTableau_update_extrema:n #1
-    \__aTableau_debug:n {~-~box~coordinates:~\l__aTableau_name_tl~=~(\fp_use:c{l__aTableau_x#1_fp},~\fp_use:c{l__aTableau_y#1_fp})}
+%   \__aTableau_debug:n {~-~box~coordinates:~\l__aTableau_name_tl~=~(\fp_use:c{l__aTableau_x#1_fp},~\fp_use:c{l__aTableau_y#1_fp})}
 }
 
 % usage: \__aTableau_set_box_coordinates_conjugate:nnn <letter> <row> <col>: given the row and columns
@@ -1822,7 +1805,7 @@
     \fp_set:cn {l__aTableau_x#1_fp} {\l__aTableau_x_fp+(#3+0.5)*\l__aTableau_box_row_dx_fp+(#2+0.5)*\l__aTableau_box_col_dx_fp }
     \fp_set:cn {l__aTableau_y#1_fp} {\l__aTableau_y_fp+(#3+0.5)*\l__aTableau_box_row_dy_fp+(#2+0.5)*\l__aTableau_box_col_dy_fp }
     \__aTableau_update_extrema:n #1
-    \__aTableau_debug:n {~-~conjugate~box~coordinates:~\l__aTableau_name_tl~=~(\fp_use:c{l__aTableau_x#1_fp},~\fp_use:c{l__aTableau_y#1_fp})}
+%   \__aTableau_debug:n {~-~conjugate~box~coordinates:~\l__aTableau_name_tl~=~(\fp_use:c{l__aTableau_x#1_fp},~\fp_use:c{l__aTableau_y#1_fp})}
 }
 
 % by default , normal coordinates are used
@@ -1841,7 +1824,7 @@
     \tl_set:Nx \l__aTableau_name_tl {\l__aTableau_prefix_tl-\fp_to_int:n{#2}-\fp_to_int:n{#3}}
     \fp_set:cn {l__aTableau_x#1_fp} {\l__aTableau_x_fp+((#2+\l__aTableau_abacus_top_fp)*\l__aTableau_abacus_row_dx_fp+(#3)*\l__aTableau_abacus_col_dx_fp)*\l__aTableau_abacus_wd_fp }
     \fp_set:cn {l__aTableau_y#1_fp} {\l__aTableau_y_fp+((#2+\l__aTableau_abacus_top_fp)*\l__aTableau_abacus_row_dy_fp+(#3)*\l__aTableau_abacus_col_dy_fp)*\l__aTableau_abacus_ht_fp }
-    \__aTableau_debug:n {~-~bead~coordinates:~\l__aTableau_name_tl~=~(\fp_use:c{l__aTableau_x#1_fp},~\fp_use:c{l__aTableau_y#1_fp})}
+%   \__aTableau_debug:n {~-~bead~coordinates:~\l__aTableau_name_tl~=~(\fp_use:c{l__aTableau_x#1_fp},~\fp_use:c{l__aTableau_y#1_fp})}
 }
 
 % ---------------------------------------------------------------------------
@@ -2280,7 +2263,6 @@
 
     % draw the ribbon tableau by drawing each of the ribbons
     \tl_set:Nn \l__aTableau_ribbon_type_tl {ribbon} % change ribbon type to ribbon
-    \typeout{STARTING~NEW~RIBBON~TABLEAU:~"#1"}
     \__aTableau_peek_ribbon:w #1 \q_recursion_tail \q_recursion_stop
     %\clist_map_inline:nn {#1} { \__aTableau_add_ribbon:n  {##1} }
 
@@ -2293,7 +2275,6 @@
 % \l__aTableau_ribbbon_sty[e is equal to 'ribbon' or 'path'
 \cs_new_protected:Npn \__aTableau_add_ribbon:nn #1 #2
 {
-    \typeout{ADDING~A~"#1"~with~"#2"}
     \tl_set:Nn \l__aTableau_ribbon_type_tl {#1}   % change ribbon type to ribbon
     \__aTableau_peek_ribbon:w #2 \q_recursion_tail \q_recursion_stop
 }
@@ -2307,11 +2288,9 @@
         \peek_charcode_remove:NTF ,
         {
             % look for the next ribbon
-            \typeout{PEEKING~AGAIN}
             \__aTableau_peek_ribbon:w
          }
          {
-         \typeout{resetting}
             % reset the sequences that store the ribbon specifications
             \seq_clear:N \l__aTableau_texts_seq  % will contain node text
             \seq_clear:N \l__aTableau_styles_seq % will contain node styles
@@ -2338,7 +2317,6 @@
 % and then peek for [style]rc...
 \cs_new_protected:Npn \__aTableau_save_ribbon_style:n (#1)
 {
-\typeout{ribbon~style="#1"}
     \tl_set:Nn \l__aTableau_ribbon_style_tl {#1}
     \__aTableau_peek_style:nw {save_ribbon_head:nnn}
 }
@@ -2366,7 +2344,6 @@
     \tl_set:Ne \l__aTableau_ribbon_b_tl {\int_eval:n{\l__aTableau_row_int-1}|\int_use:N\l__aTableau_col_int}
     \tl_set:Ne \l__aTableau_ribbon_c_tl {\int_eval:n{\l__aTableau_row_int-1}|\int_eval:n{\l__aTableau_col_int-1}}
     \tl_set:Ne \l__aTableau_ribbon_d_tl {\int_use:N\l__aTableau_row_int|\int_eval:n{\l__aTableau_col_int-1}}
-    \typeout{Coordinates~:~a=\l__aTableau_ribbon_a_tl,~b=\l__aTableau_ribbon_b_tl,~c=\l__aTableau_ribbon_c_tl,~d=\l__aTableau_ribbon_d_tl.}
 }
 
 % usage: \__aTableau_add_edges_to_ribbon:
@@ -2400,8 +2377,6 @@
     \prop_get:NVNTF \l__aTableau_ribbon_prop \l_tmpa_tl \l_tmpv_tl
     { \prop_remove:NV \l__aTableau_ribbon_prop \l_tmpa_tl }
     { \prop_put:NVn \l__aTableau_ribbon_prop \l_tmpa_tl {} }
-    \typeout{Ribbon~edges:}
-    \prop_log:N  \l__aTableau_ribbon_prop
 }
 
 % usage: \__aTableau_initialise_ribbon_head:
@@ -2543,7 +2518,6 @@
 % the ribbon in \l__aTableau_ribbon_prop using the four commands above.
 \cs_new_protected:Npn \__aTableau_extend_ribbon:n #1
 {
-    \__aTableau_debug:n {Extending~ribbon~to~#1}
     \cs_if_exist_use:cF { __aTableau_extend_ribbon_ #1: }
     {   % error for invalid ribbon specification
         \msg_error:nnn {aTableau} { invalid-ribbon-specification } {#1 }
@@ -2586,7 +2560,6 @@
 % Extend a ribbon path. Here #1 is either r or c
 \cs_new_protected:Npn \__aTableau_extend_path:n #1
 {
-    \typeout{~-~extending~path~#1}
     \cs_if_exist_use:cTF { __aTableau_extend_path_ #1: }
     {
         \tl_put_right:Nx \l__aTableau_ribbon_path_tl
@@ -2607,7 +2580,6 @@
 {
     % draw the ribbon when we run out of nodes
     \quark_if_recursion_tail_stop_do:nn {#2} { \__aTableau_draw_ribbon: }
-    \typeout{SAVE~ribbon:~#1,~#2.}
 
     % Add the new coordinate(s) to \l__aTableau_ribbon_path_tl. This is
     % different for ribbons and paths
@@ -2670,8 +2642,6 @@
     \tl_put_right:Ne \l__aTableau_ribbon_path_tl {(\fp_use:N\l__aTableau_xa_fp,\fp_use:N\l__aTableau_ya_fp)--(\fp_use:N\l__aTableau_xb_fp,\fp_use:N\l__aTableau_yb_fp)}
     \clist_set:Ne \l__aTableau_adjacent_edges_clist { #3|#4|\int_eval:n{#3-1}|#4, \int_eval:n{#3+1}|#4|#3|#4, #3|#4|#3|\int_eval:n{#4-1}, #3|\int_eval:n{#4+1}|#3|#4}
     \tl_set:Nn \l_tmpc_tl {#3|#4} % last placed coordinate is #3|#4
-    \typeout{~-~adjacent:~\clist_use:Nn \l__aTableau_adjacent_edges_clist {,~},~edge~=~#1#2~->#3#4~:~ c=\l_tmpc_tl.}
-    \typeout{~-~path=\l__aTableau_ribbon_path_tl.}
 }
 
 % usage: \__aTableau_start_ribbon_path:nnnn r1|c1|r2|c2
@@ -2683,7 +2653,6 @@
 % edges that care connected to \l_tmpc_tl.
 \cs_new_protected:Npn \__aTableau_add_to_ribbon_path:nnnn #1|#2|#3|#4|
 {
-\typeout{PUTTING:~#1|#2~~-->~#3|#4~c=\l_tmpc_tl.}
     \tl_if_eq:VnTF \l_tmpc_tl {#1|#2}
     { % the last placed coordinate was #1|#2, so the new vertex is #3|#4
       \__aTableau_set_box_coordinates:nnn {a} {#3} {#4}
@@ -2699,8 +2668,6 @@
       % create list of edges that can connect to \l_tmpc_tl
       \clist_set:Ne \l__aTableau_adjacent_edges_clist { #1|#2|\int_eval:n{#1-1}|#2, \int_eval:n{#1+1}|#2|#1|#2, #1|#2|#1|\int_eval:n{#2-1}, #1|\int_eval:n{#2+1}|#1|#2}
     }
-    \typeout{~-~adjacent:~\clist_use:Nn \l__aTableau_adjacent_edges_clist {,~},~edge~=~#1#2~->#3#4~:~ c=\l_tmpc_tl.}
-    \typeout{~-~path=\l__aTableau_ribbon_path_tl.}
 }
 
 % usage: \__aTableau_finalise_ribbon:
@@ -2712,7 +2679,6 @@
 % choose.
 \cs_new_protected:Nn \__aTableau_finalise_ribbon:
 {
-\typeout{finalising~with~ribbon~prop:}
     \tl_clear:N\l__aTableau_ribbon_path_tl  % will become the border of the ribbon
     \bool_do_while:nn { ! \prop_if_empty_p:N \l__aTableau_ribbon_prop }
     {
@@ -2729,22 +2695,18 @@
         % the path corresponding to the key k is k->ribbon_prop[k] -> ribbon_prop[ribbon_prop[k] -> ...
         \bool_do_while:Nn \l_tmpa_bool
         {
-            \prop_log:N\l__aTableau_ribbon_prop
             \clist_map_inline:Nn \l__aTableau_adjacent_edges_clist
             {
                 \bool_set_false:N \l_tmpa_bool
                 \prop_get:NnNT \l__aTableau_ribbon_prop {##1} \l_tmpa_tl
                 {
                     \bool_set_true:N \l_tmpa_bool  % found an edge
-                    \typeout{~-~found~##1}
-%                   \tl_put_right:Ne \l__aTableau_ribbon_path_tl {--}
                     \__aTableau_add_to_ribbon_path:nnnn ##1|
                     \prop_remove:Ne \l__aTableau_ribbon_prop {##1} % remove the key
                     \clist_map_break:
                 }
             }
         }
-\typeout{FINALISE:~ribbon~path="\l__aTableau_ribbon_path_tl"}
     }
 }
 
@@ -2764,11 +2726,7 @@
 \cs_new_protected:Nn \__aTableau_draw_ribbon:
 {
 
-\typeout{DRAWING~ribbon}
     \use:c { __aTableau_finalise_ \l__aTableau_ribbon_type_tl :}
-
-    \typeout{RIBBON~PATH~=~"\l__aTableau_ribbon_path_tl"}
-    \prop_map_inline:Nn \l__aTableau_ribbon_prop {\typeout{~-~##1 ~->~ ##2}}
 
     % We want to first draw the ribbon, with its outline and any filling, and
     % then place the node with the default styling (or unstyled), and styled
@@ -2777,11 +2735,8 @@
     % two types of nodes
     \tl_clear:N \l__aTableau_styled_nodes_tl
     \tl_clear:N \l__aTableau_unstyled_nodes_tl
-    \typeout{one}
     % use ribbon_box, snob_box or path_box
     \tl_set_eq:Nc \l_tmpc_tl { l__aTableau_\l__aTableau_ribbon_type_tl  _box_tl }
-
-    \__aTableau_debug:n{Ribbon~lengths: ~texts=\seq_count:N\l__aTableau_texts_seq, ~styles=\seq_count:N\l__aTableau_styles_seq, ~rcs=\seq_count:N\l__aTableau_rcs_seq.}
 
     \seq_map_inline:Nn \l__aTableau_styles_seq
     {
@@ -3346,10 +3301,13 @@
 \keys_define:nn { aTableau }
 {
     % ---------------------------------------------------------------------------
-    % general settings
-    unknown .code:n = { \msg_error:nnn {aTableau} {invalid-key} {#1} },
+    % print an error for non-empty unknown keys
+    unknown .code:n = { \tl_if_empty:nF {#1} { \msg_error:nnn {aTableau} {invalid-key} {#1} } },
 
-    % tableaux alignment
+    % ---------------------------------------------------------------------------
+    % general settings
+
+    % picture alignment
     align .choice:,
     align/top    .code:n = { \tikzset{baseline=(current~bounding~box.north)} },
     align/north  .code:n = { \tikzset{baseline=(current~bounding~box.north)} },
@@ -3359,6 +3317,14 @@
     align/south  .code:n = { \tikzset{baseline=(current~bounding~box.south)} },
     align/unknown .code:n = { \msg_error:nnn { aTableau } { unknown-baseline } {#1} },
     align .initial:n     = centre,
+
+    % set the beamer command \only, \uncover, ...
+    beamer .choices:nn = { invisible, only, onslide, uncover, visible }{
+        \tl_set:Nn \l__aTableau_beamer_tl {#1}
+    },
+    beamer .unknown .code:n = { \msg_error:nne { aTableau } { unknown-beamer } {#1} },
+    beamer .value_required:n = true,
+    beamer .initial:n = only,
 
     % set the Cartan type
     cartan .choices:nn = { A, C, AA, DD }
@@ -3785,17 +3751,17 @@
     % ---------------------------------------------------------------------------
     % abacus keys
 
-    south .code:n = \__aTableau_set_abacus_style_south:,
+    south .code:n = \__aTableau_set_abacus_style:nnnn {1}{0}{0}{-1},
     south .value_required:n = false,
     south .initial:n =, % use south by default
 
-    east  .code:n = \__aTableau_set_abacus_style_east:,
+    east  .code:n = \__aTableau_set_abacus_style:nnnn {0}{-1}{1}{0},
     east .value_required:n = false,
 
-    north .code:n = \__aTableau_set_abacus_style_north:,
+    north .code:n = \__aTableau_set_abacus_style:nnnn {1}{0}{0}{1},
     north .value_required:n = false,
 
-    west  .code:n = \__aTableau_set_abacus_style_west:,
+    west  .code:n = \__aTableau_set_abacus_style:nnnn {0}{1}{-1}{0},
     west .value_required:n = false,
 
     % abacus style
@@ -3921,63 +3887,89 @@
     \fp_set:Nn \l__aTableau_y_fp {#2}
 }
 
-% usage: \__aTableau_tikzpicture:nnn {settings} {origin} {aTableau command}
-%  - #1: settings are a comma separated list of aTableau settings
-%  - #2: origin are Cartesian coordinates in the form x,y, or NoValue
-%  - #3: an internal aTableau command with parameters for drawing something
-% Apply settings and wrap an aTableau command inside a tikzpicture environment.
-% Add any tikzpicture environments settings and before and after TikZ commands
-\cs_new_protected:Npn \__aTableau_tikzpicture:nnn #1 #2 #3
+% usage: \__aTableau_tikzpicture:nnn {origin} {aTableau command}
+%  - #1: origin are Cartesian coordinates in the form x,y, or NoValue
+%  - #2: an internal aTableau command with parameters for drawing something
+\cs_new_protected:Npn \__aTableau_tikzpicture:nn #1 #2
 {
+      \IfNoValueTF {#1}
+      {   % Wrap inside a tikzpicture environment, placing the picture at (0,0).
+          % Checking for the existence of the \draw command is a proxy for
+          % determining whether we are inside a tikzpicture environment since
+          % it is only defined when we are
+          \if_cs_exist:N \draw \msg_error:nn {aTableau} { inside-tikzpicture} \fi:
+
+          \__aTableau_set_origin:nn (0,0)
+          \mode_if_math:TF
+          {
+              % We want to automatically rescale when used as a subscript, which
+              % we do by putting the tikz code inside a box and then using
+              % \mathchoice to adjust for script size, using an idea of cfr's
+
+              \hbox_set:Nw \l_tmpa_box
+                  \exp_last_unbraced:Ne \tikz{[\l__aTableau_tikzpicture_tl]}
+                    { \l__aTableau_tikz_before_tl #2 \l__aTableau_tikz_after_tl }
+              \hbox_set_end:
+
+              \mathchoice
+              {   % display style: do nothing
+                  \box_use:N \l_tmpa_box
+              }
+              {   % text style: do nothing
+                  \box_use:N \l_tmpa_box
+              }
+              {   % script style => rescale using \l__aTableau_script_fp
+                  \box_scale:Nnn \l_tmpa_box {\l__aTableau_script_fp*\l__aTableau_xscale_fp}
+                                             {\l__aTableau_script_fp*\l__aTableau_yscale_fp}
+                  \box_use:N \l_tmpa_box
+              }
+              {   % scriptscript style => rescale using \l__aTableau_scriptscript_fp
+                  \box_scale:Nnn \l_tmpa_box {\l__aTableau_scriptscript_fp*\l__aTableau_xscale_fp}
+                                             {\l__aTableau_scriptscript_fp*\l__aTableau_yscale_fp}
+                  \box_use:N \l_tmpa_box
+              }
+          }
+          {   % Not in maths-mode. In the manual, tcolorbox objects to using a box here
+              \exp_last_unbraced:Ne \tikz{[\l__aTableau_tikzpicture_tl]}
+                { \l__aTableau_tikz_before_tl #2 \l__aTableau_tikz_after_tl }
+          }
+      }
+      {   % already inside a tikzpicture environment
+          \if_cs_exist:N \draw \else: \msg_error:nn {aTableau} { outside-tikzpicture} \fi:
+          \__aTableau_set_origin:nn (#1)
+          \l__aTableau_tikz_before_tl #2 \l__aTableau_tikz_after_tl
+      }
+}
+
+% The next two commands both apply the settings inside a group, to keep changes local.
+% They then call \__aTableau_tikzpicture:nn to ensure that the aTableau command is run inside a tikzpicture
+% environment. We do it this way so that the commands are beamer enabled only
+% if beamer is being used. We call the settings below so that the aTableau
+% settings can change the beamer that is used.
+
+% usage: \__aTableau_command_wrapper:nnn {settings} {origin} {aTableau command}
+\cs_new_protected:Npn \__aTableau_command_wrapper:nnn #1 #2 #3
+{
+    % keep changes to settings local by working inside a group
     \group_begin:
         % keep changes to settings local by working inside a group
         \keys_set:nn {aTableau} {#1}
-        \IfNoValueTF {#2}
-        {   % Wrap inside a tikzpicture environment, placing the picture at (0,0).
-            % Checking for the existence of the \draw command is a proxy for
-            % determining whether we are inside a tikzpicture environment since
-            % it is only defined when we are
-            \if_cs_exist:N \draw \msg_error:nn {aTableau} { inside-tikzpicture} \fi:
+        \__aTableau_tikzpicture:nn {#2} {#3}
+    \group_end:
+}
 
-            \__aTableau_set_origin:nn (0,0)
-            \mode_if_math:TF
-            {
-                % We want to automatically rescale when used as a subscript, which
-                % we do by putting the tikz code inside a box and then using
-                % \mathchoice to adjust for script size, using an idea of cfr's
-
-                \hbox_set:Nw \l_tmpa_box
-                    \exp_last_unbraced:Ne \tikz{[\l__aTableau_tikzpicture_tl]}
-                      { \l__aTableau_tikz_before_tl #3 \l__aTableau_tikz_after_tl }
-                \hbox_set_end:
-
-                \mathchoice
-                {   % display style: do nothing
-                    \box_use:N \l_tmpa_box
-                }
-                {   % text style: do nothing
-                    \box_use:N \l_tmpa_box
-                }
-                {   % script style => rescale using \l__aTableau_script_fp
-                    \box_scale:Nnn \l_tmpa_box {\l__aTableau_script_fp*\l__aTableau_xscale_fp}
-                                               {\l__aTableau_script_fp*\l__aTableau_yscale_fp}
-                    \box_use:N \l_tmpa_box
-                }
-                {   % scriptscript style => rescale using \l__aTableau_scriptscript_fp
-                    \box_scale:Nnn \l_tmpa_box {\l__aTableau_scriptscript_fp*\l__aTableau_xscale_fp}
-                                               {\l__aTableau_scriptscript_fp*\l__aTableau_yscale_fp}
-                    \box_use:N \l_tmpa_box
-                }
-            }
-            {   % Not in maths-mode. In the manual, tcolorbox objects to using a box here
-                \exp_last_unbraced:Ne \tikz{[\l__aTableau_tikzpicture_tl]}
-                  { \l__aTableau_tikz_before_tl #3 \l__aTableau_tikz_after_tl }
-            }
+% usage: \__aTableau_beamer_wrapper:nnnn {overlay specification} {settings} {origin} {aTableau command}
+\cs_new_protected:Npn \__aTableau_beamer_wrapper:nnnn #1 #2 #3 #4
+{
+    % keep changes to settings local by working inside a group
+    \group_begin:
+        \keys_set:nn {aTableau} {#2}
+        \IfNoValueTF {#1}
+        {
+            \__aTableau_tikzpicture:nn {#3} {#4}
         }
-        {   % already inside a tikzpicture environment
-            \if_cs_exist:N \draw \else: \msg_error:nn {aTableau} { outside-tikzpicture} \fi:
-            \__aTableau_set_origin:nn (#2)
-            \l__aTableau_tikz_before_tl #3 \l__aTableau_tikz_after_tl
+        {
+            \cs:w \l__aTableau_beamer_tl \cs_end: <#1> { \__aTableau_tikzpicture:nn {#3} {#4} }
         }
     \group_end:
 }
@@ -3992,96 +3984,209 @@
 
 % Define custom aTableau commands
 % \NewATableauCommand \Commmand {tableau command name} {keys}
+% We could shorten the definition of this command by having only one
+% \IfClassLoadedTF at the top, but it isbetter to keep the normal and beamer
+% versions of each command close together to easier comparison
 \NewDocumentCommand\NewATableauCommand{ mmm }
 {
     \str_case:nnF {#2}
     {
         {Abacus}
           {
-            % \NewAbacusCommand (x,y) [style] {#runners} {partition}
-            \NewDocumentCommand#1{ d() O{} m m }
+            \IfClassLoadedTF {beamer}
             {
-                \__aTableau_tikzpicture:nnn {#3,##2} {##1} { \__aTableau_abacus:nn {##3} {##4} }
+                % \AbacusCommand <overlay specs> (x,y) [style] {#runners} {partition}
+                \NewDocumentCommand#1{ d<> d() O{} m m }
+                {
+                    \__aTableau_beamer_wrapper:nnnn {##1} {#3,##3} {##2} { \__aTableau_abacus:nn {##4} {##5} }
+                }
+            }
+            {
+                % \AbacusCommand (x,y) [style] {#runners} {partition}
+                \NewDocumentCommand#1{ d() O{} m m }
+                {
+                    \__aTableau_command_wrapper:nnn {#3,##2} {##1} { \__aTableau_abacus:nn {##3} {##4} }
+                }
             }
           }
         {Diagram}
           {
-            % \NewDiagramCommand (x,y) [style] {entries}
-            \NewDocumentCommand#1{ d() O{} m }
+            \IfClassLoadedTF {beamer}
             {
-                \__aTableau_tikzpicture:nnn {#3,##2} {##1} { \__aTableau_draw_diagram:n {##3} }
+                % \DiagramCommand <overlay specs> (x,y) [style] {entries}
+                \NewDocumentCommand#1{ d<> d() O{} m }
+                {
+                    \__aTableau_beamer_wrapper:nnnn {##1} {#3,##3} {##2} { \__aTableau_draw_diagram:n {##4} }
+                }
+            }
+            {
+                % \DiagramCommand (x,y) [style] {entries}
+                \NewDocumentCommand#1{ d() O{} m }
+                {
+                    \__aTableau_command_wrapper:nnn {#3,##2} {##1} { \__aTableau_draw_diagram:n {##3} }
+                }
             }
           }
         {Multidiagram}
           {
-            % \Multidiagram (x,y) [style] {entries}
-            \NewDocumentCommand#1{ d() O{} m }
+            \IfClassLoadedTF {beamer}
             {
-                \__aTableau_tikzpicture:nnn {#3,##2} {##1} { \__aTableau_multidiagram:n {##3} }
+                % \MultidiagramCommand <overlay specs> (x,y) [style] {entries}
+                \NewDocumentCommand#1{ d<> d() O{} m }
+                {
+                    \__aTableau_beamer_wrapper:nnnn {##1} {#3,##3} {##2} { \__aTableau_multidiagram:n {##4} }
+                }
+            }
+            {
+                % \MultidiagramCommand (x,y) [style] {entries}
+                \NewDocumentCommand#1{ d() O{} m }
+                {
+                    \__aTableau_command_wrapper:nnn {#3,##2} {##1} { \__aTableau_multidiagram:n {##3} }
+                }
             }
           }
         {Multitableau}
           {
-            % \Multitableau (x,y) [style] {entries}
-            \NewDocumentCommand#1{ d() O{} m }
+            \IfClassLoadedTF {beamer}
             {
-                \__aTableau_tikzpicture:nnn {#3,##2} {##1} { \__aTableau_multitableau:n {##3} }
+                % \MultitableauCommand <overlay specs> (x,y) [style] {entries}
+                \NewDocumentCommand#1{ d<> d() O{} m }
+                {
+                    \__aTableau_beamer_wrapper:nnnn {##1} {#3,##3} {##2} { \__aTableau_multitableau:n {##4} }
+                }
+            }
+            {
+                % \MultitableauCommand (x,y) [style] {entries}
+                \NewDocumentCommand#1{ d() O{} m }
+                {
+                    \__aTableau_command_wrapper:nnn {#3,##2} {##1} { \__aTableau_multitableau:n {##3} }
+                }
             }
           }
         {RibbonTableau}
           {
-            % \RibbonTableau (x,y) [style] {entries}
-            \NewDocumentCommand#1{ d() O{} m }
+            \IfClassLoadedTF {beamer}
             {
-                \__aTableau_tikzpicture:nnn {#3,##2} {##1} { \__aTableau_ribbon_tableau:n {##3} }
+                % \RibbonTableauCommand <overlay specs> (x,y) [style] {entries}
+                \NewDocumentCommand#1{ d<> d() O{} m }
+                {
+                    \__aTableau_beamer_wrapper:nnnn {##1} {#3,##3} {##2} { \__aTableau_ribbon_tableau:n {##4} }
+                }
+            }
+            {
+                % \RibbonTableauCommand (x,y) [style] {entries}
+                \NewDocumentCommand#1{ d() O{} m }
+                {
+                    \__aTableau_command_wrapper:nnn {#3,##2} {##1} { \__aTableau_ribbon_tableau:n {##3} }
+                }
             }
           }
         {ShiftedDiagram}
           {
-            % \ShiftedDiagram (x,y) [style] {entries}
-            \NewDocumentCommand#1{ d() O{} m }
+            \IfClassLoadedTF {beamer}
             {
-                \__aTableau_tikzpicture:nnn {shifted,#3,##2} {##1} { \__aTableau_draw_diagram:n {##3} }
+                % \ShiftedDiagramCommand <overlay specs> (x,y) [style] {entries}
+                \NewDocumentCommand#1{ d<> d() O{} m }
+                {
+                    \__aTableau_beamer_wrapper:nnnn {##1} {shifted,#3,##3} {##2} { \__aTableau_draw_diagram:n {##4} }
+                }
+            }
+            {
+                % \ShiftedDiagramCommand (x,y) [style] {entries}
+                \NewDocumentCommand#1{ d() O{} m }
+                {
+                    \__aTableau_command_wrapper:nnn {shifted,#3,##2} {##1} { \__aTableau_draw_diagram:n {##3} }
+                }
             }
           }
         {ShiftedTableau}
           {
-            % \ShiftedTableau (x,y) [style] {entries}
-            \NewDocumentCommand#1{ d() O{} m }
+            \IfClassLoadedTF {beamer}
             {
-                \__aTableau_tikzpicture:nnn {shifted,#3,##2} {##1} { \__aTableau_draw_tableau:n {##3} }
+                % \ShiftedTableauCommand <overlay specs> (x,y) [style] {entries}
+                \NewDocumentCommand#1{ d<> d() O{} m }
+                {
+                    \__aTableau_beamer_wrapper:nnnn {##1} {shifted,#3,##3} {##2} { \__aTableau_draw_tableau:n {##4} }
+                }
+            }
+            {
+                % \ShiftedTableauCommand (x,y) [style] {entries}
+                \NewDocumentCommand#1{ d<> d() O{} m }
+                {
+                    \__aTableau_command_wrapper:nnn {shifted,#3,##2} {##1} { \__aTableau_draw_tableau:n {##3} }
+                }
             }
           }
         {SkewDiagram}
           {
-            % \SkewDiagram (x,y) [style] {skew shape} {entries}
-            \NewDocumentCommand#1{ d() O{} m m }
+            \IfClassLoadedTF {beamer}
             {
-                \__aTableau_tikzpicture:nnn {skew={##3},#3,##2} {##1} { \__aTableau_draw_diagram:n {##4} }
+                % \SkewDiagramCommand <overlay specs> (x,y) [style] {skew shape} {entries}
+                \NewDocumentCommand#1{ d<> d() O{} m m }
+                {
+                    \__aTableau_beamer_wrapper:nnnn {##1} {skew={##4},#3,##3} {##2} { \__aTableau_draw_diagram:n {##5} }
+                }
+            }
+            {
+                % \SkewDiagramCommand (x,y) [style] {skew shape} {entries}
+                \NewDocumentCommand#1{ d() O{} m m }
+                {
+                    \__aTableau_command_wrapper:nnn {skew={##3},#3,##2} {##1} { \__aTableau_draw_diagram:n {##4} }
+                }
             }
           }
         {SkewTableau}
           {
-            % \SkewTableau (x,y) [style] {skew shape} {entries}
-            \NewDocumentCommand#1{ d() O{} m m }
+            \IfClassLoadedTF {beamer}
             {
-                \__aTableau_tikzpicture:nnn {skew={##3},#3,##2} {##1} { \__aTableau_draw_tableau:n {##4} }
+                % \SkewTableauCommand <overlay specs> (x,y) [style] {skew shape} {entries}
+                \NewDocumentCommand#1{ d<> d() O{} m m }
+                {
+                    \__aTableau_beamer_wrapper:nnnn {##1} {skew={##4},#3,##3} {##2} { \__aTableau_draw_tableau:n {##5} }
+                }
+            }
+            {
+                % \SkewTableauCommand (x,y) [style] {skew shape} {entries}
+                \NewDocumentCommand#1{ d() O{} m m }
+                {
+                    \__aTableau_command_wrapper:nnn {skew={##3},#3,##2} {##1} { \__aTableau_draw_tableau:n {##4} }
+                }
             }
           }
         {Tableau}
           {
-            % \NewTableauCommand (x,y) [style] {entries}
-            \NewDocumentCommand#1{ d() O{} m }
+            \IfClassLoadedTF {beamer}
             {
-                \__aTableau_tikzpicture:nnn {#3,##2} {##1} { \__aTableau_draw_tableau:n {##3} }
+                % \TableauCommandCommand <overlay specs> (x,y) [style] {entries}
+                \NewDocumentCommand#1{ d<> d() O{} m }
+                {
+                    \__aTableau_beamer_wrapper:nnnn {##1} {#3,##3} {##2} { \__aTableau_draw_tableau:n {##4} }
+                }
+            }
+            {
+                % \TableauCommandCommand (x,y) [style] {entries}
+                \NewDocumentCommand#1{ d() O{} m }
+                {
+                    \__aTableau_command_wrapper:nnn {#3,##2} {##1} { \__aTableau_draw_tableau:n {##3} }
+                }
             }
           }
         {Tabloid}
           {
-            % \Tabloid (x,y) [style] {entries}
-            \NewDocumentCommand#1{ d() O{} m }
+            \IfClassLoadedTF {beamer}
             {
-                \__aTableau_tikzpicture:nnn {tabloid,#3,##2} {##1} { \__aTableau_draw_tableau:n {##3} }
+                % \TabloidCommand <overlay specs> (x,y) [style] {entries}
+                \NewDocumentCommand#1{ d<> d() O{} m }
+                {
+                    \__aTableau_beamer_wrapper:nnnn {##1} {tabloid,#3,##3} {##2} { \__aTableau_draw_tableau:n {##4} }
+                }
+            }
+            {
+                % \TabloidCommand (x,y) [style] {entries}
+                \NewDocumentCommand#1{ d() O{} m }
+                {
+                    \__aTableau_command_wrapper:nnn {tabloid,#3,##2} {##1} { \__aTableau_draw_tableau:n {##3} }
+                }
             }
           }
     }
@@ -4090,7 +4195,7 @@
     }
 }
 
-% use \NewATableauCommand command to define the aTableau commands
+% Use \NewATableauCommand command to define the aTableau commands
 \NewATableauCommand\Abacus{Abacus}{}
 \NewATableauCommand\Diagram{Diagram}{}
 \NewATableauCommand\Multidiagram{Multidiagram}{}

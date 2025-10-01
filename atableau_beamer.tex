@@ -1,0 +1,19 @@
+\documentclass{beamer}
+\usepackage{atableau}
+
+\begin{document}
+
+  \begin{frame}[fragile]{aTableau plays with beamer}
+    % these two are equivalent
+    \Tableau<1,3>{123,45}
+    \only<1,3>{ \Tableau{123,45} }
+    \Tableau<2>[styles={R={red}}]{123,4[R]5}
+
+    \begin{tikzpicture}
+      \Abacus<3>(1,1)[traditional, beamer=uncover]{3}{3,2,2,1}
+    \end{tikzpicture}
+
+    \Diagram<2>[entries=residues, e=3]{12,4^3}
+  \end{frame}
+
+\end{document}

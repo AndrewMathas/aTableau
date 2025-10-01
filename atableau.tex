@@ -1,6 +1,6 @@
 % ----------------------------------------------------------------------
 % aTableau - Andrew Mathas (C) 2022-2025
-% Modified: 14:32 Wednesday, 01 October 2025
+% Modified: 22:44 Wednesday, 01 October 2025
 % ----------------------------------------------------------------------
 \documentclass{amsart}
 \usepackage[svgnames,table]{xcolor}
@@ -588,6 +588,36 @@
   #1
 }
 
+\NewTColorBox[]{slide}{ O{} }
+{
+  enhanced,
+  height=0.22\linewidth,
+  width=0.3\linewidth,
+  after=\hfill,
+  before=\hfill,
+  fonttitle=\tiny,
+  colback=Cornsilk,
+  colbacktitle=RoyalBlue!10!white,
+  colframe=RoyalBlue!30,
+  coltitle=NavyBlue,
+  fonttitle=\bfseries,
+  attach boxed title to bottom right={xshift=-1em,yshift=2.5mm},
+  boxed title style={
+    size=tight,
+    arc=1mm,
+    bottom=1mm,
+    rounded corners=southwest,
+    sharp corners=northwest,
+    sharp corners=southwest,
+    interior style={
+        fill=none,
+        bottom color=Cornsilk!50!white,
+        top color=Cornsilk
+    }
+  },
+  #1
+}
+
 % ---------------------------------------------------------------------------
 \NewDocumentCommand\set{ O{} >{\SplitArgument{1}{|}}m }{#1\{\,\SetContents{#1}#2\,#1\}}
 \NewDocumentCommand\SetContents{mmm}{\IfNoValueTF{#3}{#2}{#2\,#1|\,\mathopen{}#3}}
@@ -899,6 +929,9 @@
     \keyword{align=bottom} align the baseline of the diagram
     with the top, centre or bottom of the surrounding objects,
     respectively. By default, all \aTableau pictures are centred.
+
+    \item[beamer] Set the \ctan{beamer} overlay command. See
+    \autoref{SS:Beamer} for details.
 
     \item[colour theme]
     The \aTableau pictures use a range of different colours for tableaux
@@ -1487,7 +1520,7 @@
   that particular tableau. Most of these options, or keys, can also be
   used in the \keyword{\aTabset} command, to change the default settings
   of all subsequent tableaux in the same \LaTeX\ group, or as optional arguments in
-  \keyword{\usepackage[..]{aTableau}}, to change the default settings
+  \keyword{\usepackage[..]{atableau}}, to change the default settings
   for the entire document.  For example, if you put the command
   \keyword{\aTabset[ukrainian]} in the preamble of your document then,
   by default, all tableaux and Young diagrams will be drawn
@@ -1530,7 +1563,7 @@
   \keyword{English}\!, \keyword{French}\!, and \keyword{Ukrainian}\!, are also
   recognised. If, for example, your document is only going to draw
   \option{french} tableaux and diagrams, then you can specify this when
-  you load the package using \keyword{\usepackage[french]{aTableau}}\!,
+  you load the package using \keyword{\usepackage[french]{atableau}}\!,
   or by adding \keyword{\aTabset{french}} to your document preamble.
 
   \option[centre]{align=value}[centre/bottom/top]
@@ -3578,7 +3611,7 @@
   entries to a tableau of the specified shape.  Use \option{charge} to
   provide offsets in each component when using \option{entries=contents}
   and \option{entries=residues} {(}the \option{charge} is ignored by other
-  using \option{entries}).
+  \option{entries}).
 
   \nopagebreak[0]
   The possible choices are:
@@ -4622,15 +4655,150 @@
     for contents in tableaux.
   \end{itemize}
 
+  % --------------------------------------------------------------
+  \subsection{Custom \aTableau commands}\label{SS:NewTableau}
+  \indexcmd{NewATableauCommand}
+
+  Sometimes, it is necessary to use multiple tableau styles within a
+  single document. While it is possible to apply the required key-value
+  settings manually to each picture using the commands and keys
+  described above, a better approach is to define custom commands for
+  these pictures using:
+
+  \begin{quote}
+  \keyword{\NewATableauCommand \Commmand {<tableau command name>} {keys}}
+  \end{quote}
+
+  Of course, you should replace $\langle$\keyword{\Command}$\rangle$
+  with whatever name you want to call your command. The $\langle$tableau
+  command name$\rangle$ can be any of the \aTableau picture commands:
+  \begin{center}
+    \begin{tabular}{*4l}
+      Abacus& Diagram& Multidiagram& Multitableau\\
+      RibbonTableau&ShiftedDiagram&ShiftedTableau& SkewDiagram\\
+      SkewTableau& Tableau& Tabloid
+    \end{tabular}
+  \end{center}
+  The $\langle$keys$\rangle$ are a comma separated list of \aTableau
+  keys that define your custom command.  Defining custom commands helps
+  to ensure consistency throughout your document, and it also makes it
+  easier to modify the ``design specifications'' of your custom
+  \aTableau picture because these specifications appear only in the
+  definition of your custom command, rather than at several places in
+  your document.
+
+  The \keyword{\NewATableauCommand} command creates custom \aTableau
+  commands. These commands are used in exactly the same ways as the
+  \aTableau picture commands that they emulate. In particular, they can
+  be used inside and outside \keyword{tikzpicture} environments, they
+  accept \aTableau key-value settings as an optional argument, and
+  tableau entries can be styled.
+
+  \begin{example}
+  \NewATableauCommand\MyTableau{Tableau}
+    {french,border colour=orange,
+     box style={draw=orange,circle,
+        text=white, fill=red!40!white}}
+  \MyTableau{123,45} \quad
+  \MyTableau[border colour=red]{123,[fill=red]45}
+  \end{example}
+
+  Similarly, we can use these commands inside \keyword{tikzpicture}
+  environments:
+
+  \begin{example}
+  \NewATableauCommand\MyDiagram{Diagram}
+    {ukrainian, box fill=yellow!40,shifted}
+  \begin{tikzpicture}
+    \MyDiagram(0,0){3,2}
+    \MyDiagram(3,0)[shifted]{3,2,1}
+  \end{tikzpicture}
+  \end{example}
+
+  These commands are mainly provided for convenience because it is
+  possible to define such commands ``by hand'' using
+  \keyword{\NewDocumentCommand}.
+
+  % --------------------------------------------------------------
+  \subsection{Beamer}\label{SS:Beamer}
+  \index{beamer}
+  \index{overlay specifications}
+
+  When the \ctan{beamer} document class is used, all of the
+  \aTableau commands support the following extended syntax for use with
+  \ctan{beamer} overlay commands.
+
+  \begin{quote}
+    \keyword{\Command <overlay specifications> (x,y) [options] {...specifications...}}
+  \end{quote}
+
+  This enhanced syntax is automatically available whenever the \ctan{beamer}
+  document class is being used, and it is not available otherwise.
+
+  The \ctan{beamer }\textit{overlay specifications} are described in
+  section 3.10 of it manual. The basic idea is that they allow you to
+  specify those slides of a \ctan{beamer} presentation where particular
+  content appears, or does not appear.
+
+  \begin{Example}[text only, listing style=LaTeX]
+    \lstinputlisting{atableau_beamer.tex}
+  \begin{slide}[title=Slide 1]
+    \includegraphics[width=0.98\textwidth,page=1]{atableau_beamer.pdf}
+  \end{slide}
+  \begin{slide}[title=Slide 2]
+    \includegraphics[width=0.98\textwidth,page=2]{atableau_beamer.pdf}
+  \end{slide}
+  \begin{slide}[title=Slide 3]
+    \includegraphics[width=0.98\textwidth,page=3]{atableau_beamer.pdf}
+  \end{slide}
+  \end{Example}
+
+  See the \ctan{beamer} manual for a description of overlay
+  specifications and how to use them.
+
+  In practice, the \aTableau overlay specifications are just a wrapper
+  around the corresponding \ctan{beamer} commands. More precisely, the
+  following pairs of commands are equivalent:
+
+  \begin{Example}[listing only]
+  \Multidiagram<1->{3,2|1^2}         \Tabloid<2-4>{3,1^2}{12345,789,{10}{11}}
+  \only<1->{\Multidiagram{3,2|1^2}}  \only<2-4>{\Tabloid<2->{3,1^2}{12345,789,{10}{11}}}
+  \end{Example}
+
+  The only advantage of using the \aTableau overlay specification
+  extensions, rather than the \ctan{beamer} commands, is that the code
+  is slightly easier to read and slightly easier to type.
+
+  \option[only]{beamer}[invisible,only,onslide,uncover,visible]
+
+  The \ctan{beamer} document class provides the following five commands
+  for working with overlay specifications:
+  \begin{quote}
+    \keyword{\invisible}\qquad
+    \keyword{\only}\qquad
+    \keyword{\onslide}\qquad
+    \keyword{\uncover}\qquad
+    \keyword{\visible}
+  \end{quote}
+
+  By default, the \aTableau commands use \keyword{\only}, but this can
+  be changed using the \option{beamer} key. As an example, the following
+  pairs of commands are equivalent.
+
+  \begin{Example}[listing only]
+  \Abacus<4,5>[beamer=uncover]{3,2}     \Tableau<2-4>[beamer=invisible]{12345,789}
+  \uncover<4,5>{\Multidiagram{3,2|1^2}}  \invisble<2-4>{\Tabloid<2->{12345,789}}
+  \end{Example}
+
+  % --------------------------------------------------------------
   \subsection{\aTableau keys}
-  For easy reference, here is the complete list of \aTableau keys,
-  together with a quick explanation of what they do. The last two
-  columns indicate whether the options apply to tableau (and diagrams),
-  or to abacuses~--- or both!  Options starting with \keyword{(no)} are
-  a pair of boolean options and their inverses. If not given a true or
-  false value then they are implicitly set to true. Although not
-  explicitly listed, spelling variations of keys from the American
-  dialect of English are condoned.
+  This section gives the list of \aTableau keys, together with a quick
+  explanation of what they do. The last two columns indicate whether the
+  options apply to tableau (and diagrams), or to abacuses~--- or both!
+  Options starting with \keyword{(no)} are a pair of boolean options and
+  their inverses. If not given a true or false value then they are
+  implicitly set to true. Although not explicitly listed, spelling
+  variations of keys from the American dialect of English are condoned.
 
   Here, and throughout the manual, the key names (and the green ticks
   below) are hyperlinks to the relevant sections of the manual.
@@ -4653,6 +4821,7 @@
     \option{bead size}         & The diameter of the abacus beads                    & \No  & \Yes \\
     \option{bead style}        & Set the style of the abacus beads                   & \No  & \Yes \\
     \option{bead text}         & Set the colour of the abacus bead labels            & \No  & \Yes \\
+    \option{beamer}            & Sets the beamer overlay specifications command      & \Yes & \Yes \\
     \option{beta numbers}      & Enter bead specification as beta numbers            & \No  & \Yes \\
     \option*{border}           & Draw the tableau border                             & \Yes & \No \\
     \option{border colour}     & Set tableau border colour                           & \Yes & \No \\
@@ -4749,70 +4918,6 @@
   All keys can be used with all \aTableau pictures. In most cases, keys
   that are not intended to be applied to a given picture are silently
   ignored.
-
-  % --------------------------------------------------------------
-  \subsection{Custom tableau and diagram commands}\label{SS:NewTableau}
-  \indexcmd{NewATableauCommand}
-
-  Sometimes, it is necessary to use multiple tableau styles within a
-  single document. While it is possible to apply the required key-value
-  settings manually to each picture using the commands and keys
-  described above, a better approach is to define custom commands for
-  these pictures using:
-
-  \begin{quote}
-  \keyword{\NewATableauCommand \Commmand {<tableau command name>} {keys}}
-  \end{quote}
-
-  Of course, you should replace $\langle$\keyword{\Command}$\rangle$
-  with whatever name you want to call your command. The $\langle$tableau
-  command name$\rangle$ can be any of the \aTableau picture commands:
-  \begin{center}
-    \begin{tabular}{*4l}
-      Abacus& Diagram& Multidiagram& Multitableau\\
-      RibbonTableau&ShiftedDiagram&ShiftedTableau& SkewDiagram\\
-      SkewTableau& Tableau& Tabloid
-    \end{tabular}
-  \end{center}
-  The $\langle$keys$\rangle$ are a comma separated list of \aTableau
-  keys that define your custom command.  Defining custom commands helps
-  to ensure consistency throughout your document, and it also makes it
-  easier to modify the ``design specifications'' of your custom
-  \aTableau picture because these specifications appear only in the
-  definition of your custom command, rather than at several places in
-  your document.
-
-  The \keyword{\NewATableauCommand} command creates custom \aTableau
-  commands. These commands are used in exactly the same ways as the
-  \aTableau picture commands that they emulate. In particular, they can
-  be used inside and outside \keyword{tikzpicture} environments, they
-  accept \aTableau key-value settings as an optional argument, and
-  tableau entries can be styled.
-
-  \begin{example}
-  \NewATableauCommand\MyTableau{Tableau}
-    {french,border colour=orange,
-     box style={draw=orange,circle,
-        text=white, fill=red!40!white}}
-  \MyTableau{123,45} \quad
-  \MyTableau[border colour=red]{123,[fill=red]45}
-  \end{example}
-
-  Similarly, we can use these commands inside \keyword{tikzpicture}
-  environments:
-
-  \begin{example}
-  \NewATableauCommand\MyDiagram{Diagram}
-    {ukrainian, box fill=yellow!40,shifted}
-  \begin{tikzpicture}
-    \MyDiagram(0,0){3,2}
-    \MyDiagram(3,0)[shifted]{3,2,1}
-  \end{tikzpicture}
-  \end{example}
-
-  These commands are mainly provided for convenience because it is
-  possible to define such commands ``by hand'' using
-  \keyword{\NewDocumentCommand}.
 
   % --------------------------------------------------------------
   \subsection{\aTableau Colours}\label{S:Colours}
@@ -5002,13 +5107,14 @@
   \cite{bowman2023quiverpresentationsisomorphismshecke}, is a little
   more involved. Most of the diagram is drawn using \emph{pics} from
   \TikZ, which are a good way to add repeating features to a
-  \keyword{tikzpicture}. In the code below, \emph{pics} are used to add
-  the up and down strings to this drawing, taking as input the string
+  \keyword{tikzpicture}. Two very similar \emph{pics} are used to add
+  the up and down strings to this picture, taking as input the string
   colour, the starting box, the list of the boxes that the string goes
-  through, and the final box. From the \aTableau
-  perspective, the most interesting feature of this picture is that it
-  is a non-trivial example using the named nodes for the tableaux boxes;
-  see \autoref{E:NodeNames}.
+  through, and the final box.
+
+  From the \aTableau perspective, the most interesting feature of the
+  next two pictures is that they give non-trivial examples of who to use
+  the named nodes for the tableaux boxes; see \autoref{E:NodeNames}.
 
 \begin{Example}[label=Ex:waves]
 \tikzset{% reusable keys for drawing the strings in the diagram using named nodes
@@ -5106,8 +5212,88 @@ multipartition~\cite{Bowman:ManyCellular}.
 
 % ----------------------------------------------------------------------
 % bibliography
-\bibliography{papers}
-\bibliographystyle{andrew}
+% \bibliography{papers}
+% \bibliographystyle{andrew}
+
+
+\begin{thebibliography}{10}
+
+\bibitem{Bowman:ManyCellular}
+\textsc{C.~Bowman}, \href{http://dx.doi.org/10.1353/ajm.2022.0008}{\textit{The
+  many integral graded cellular bases of {H}ecke algebras of complex reflection
+  groups}}, Amer. J. Math., \textbf{144} (2022), 437--504.
+\newblock \href{http://arxiv.org/abs/1702.06579}{arXiv:1702.06579}.
+
+\bibitem{bowman2023quiverpresentationsisomorphismshecke}
+\textsc{C.~Bowman, M.~D. Visscher, A.~Hazi, and C.~Stroppel},
+  \href{https://arxiv.org/abs/2309.13695}{\textit{Quiver presentations and
+  isomorphisms of Hecke categories and Khovanov arc algebras}}, 2023.
+\newblock \href{http://arxiv.org/abs/2309.13695}{arXiv:2309.13695}.
+
+\bibitem{DJM:cyc}
+\textsc{R.~Dipper, G.~James, and A.~Mathas},
+  \href{http://dx.doi.org/10.1007/PL00004665}{\textit{Cyclotomic {$q$}-{S}chur
+  algebras}}, Math. Z., \textbf{229} (1998), 385--416.
+
+\bibitem{EvseevMathas:DeformedKLR}
+\textsc{A.~Evseev and A.~Mathas},
+  \href{http://dx.doi.org/10.5802/art.8}{\textit{Content systems and
+  deformations of cyclotomic {KLR} algebras of type~$A$ and~$C$}}, Annals of
+  Representation Theory, \textbf{1} (2024), 193--297.
+\newblock \href{http://arxiv.org/abs/2209.00134}{arXiv:2209.00134}.
+
+\bibitem{Fayers:DyckTilings}
+\textsc{M.~Fayers},
+  \href{http://dx.doi.org/10.1007/s10801-016-0734-2}{\textit{Dyck tilings and
+  the homogeneous {G}arnir relations for graded {S}pecht modules}}, J.
+  Algebraic Combin., \textbf{45} (2017), 1041--1082.
+\newblock \href{http://arxiv.org/abs/1309.6467}{arXiv:1309.6467}.
+
+\bibitem{James:YoungD}
+\textsc{G.~James}, \textit{Some combinatorial results involving {Y}oung
+  diagrams}, Math. Proc. Cambridge Philos. Soc., \textbf{83} (1978), 1--10.
+
+\bibitem{KMR:UniversalSpecht}
+\textsc{A.~Kleshchev, A.~Mathas, and A.~Ram},
+  \href{http://dx.doi.org/10.1112/plms/pds019}{\textit{Universal graded
+  {S}pecht modules for cyclotomic {H}ecke algebras}}, Proc. Lond. Math. Soc.
+  (3), \textbf{105} (2012), 1245--1289.
+\newblock \href{http://arxiv.org/abs/1102.3519}{arXiv:1102.3519}.
+
+\bibitem{Konvalinka:ShiftedHookLengths}
+\textsc{M.~z. Konvalinka}, \href{http://dx.doi.org/10.37236/588}{\textit{The
+  weighted hook length formula {III}: {S}hifted tableaux}}, Electron. J.
+  Combin., \textbf{18} (2011), Paper 101, 29.
+
+\bibitem{Macdonald}
+\textsc{I.~G. Macdonald}, \textit{Symmetric functions and {H}all polynomials},
+  Oxford Mathematical Monographs, The Clarendon Press Oxford University Press,
+  New York, second~ed., 1995.
+\newblock With contributions by A. Zelevinsky, Oxford Science Publications.
+
+\bibitem{Mathas:ULect}
+\textsc{A.~Mathas},
+  \href{http://dx.doi.org/10.1090/ulect/015}{\textit{Iwahori-{H}ecke algebras
+  and {S}chur algebras of the symmetric group}}, University Lecture Series,
+  \textbf{15}, American Mathematical Society, Providence, RI, 1999.
+
+\bibitem{MathasTubbenhauer:BAD}
+\textsc{A.~Mathas and D.~Tubbenhauer},
+  \href{http://dx.doi.org/https://doi.org/10.1112/jlms.12706}{\textit{Cellularity
+  for weighted KLRW algebras of types $B$, $A^{(2)}$, $D^{(2)}$}}, Journal of
+  the London Mathematical Society, \textbf{107} (2023), 1002--1044.
+\newblock \href{http://arxiv.org/abs/2201.01998}{arXiv:2201.01998}.
+
+\bibitem{Mendes:hooks}
+\textsc{A.~Mendes}, \textit{The combinatorics of rim hook tableaux}, Australas.
+  J. Combin., \textbf{73} (2019), 132--148.
+
+\bibitem{Muniz}
+\textsc{B.~Muniz}, \href{https://arxiv.org/abs/2505.21738}{\textit{Symplectic
+  Branching through Crystals}}, 2025.
+\newblock \href{http://arxiv.org/abs/2505.21738}{arXiv:2505.21738}.
+
+\end{thebibliography}
 
 % ----------------------------------------------------------------------
 % indices

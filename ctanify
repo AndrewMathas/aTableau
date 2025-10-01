@@ -20,7 +20,7 @@ fi
 gsed '/__atableau_debug:n/d' atableau-dev.sty > atableau.sty
 
 # create the tar file for ctan
-$CTANIFY --no-tds atableau.{ini,sty,pdf,tex} {CHANGES,README,TODO}.md LICENSE
+$CTANIFY --no-tds atableau.{ini,sty,pdf,tex,webp} {CHANGES,README,TODO}.md LICENSE
 
 # restore the debug commands
 /bin/mv atableau-dev.sty atableau.sty
