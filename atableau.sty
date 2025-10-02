@@ -1,6 +1,6 @@
 % ---------------------------------------------------------------------------
 % aTableau - Andrew Mathas (C) 2022-2025
-% Modified: 14:11 Thursday, 02 October 2025
+% Modified: 00:55 Saturday, 04 October 2025
 % ---------------------------------------------------------------------------
 %
 % A LaTeX package for symmetric group combinatorics:
@@ -23,8 +23,8 @@
 
 % ---------------------------------------------------------------------------
 % aTableau release date and version number
-\def\aTableau@version{2.2.0-b0}
-\def\aTableau@release{2025-04-30} % PENDING...
+\def\aTableau@version{2.2.0-r0}
+\def\aTableau@release{2025-10-02} % PENDING...
 
 % ---------------------------------------------------------------------------
 % load TikZ early to avoid \ExplSyntaxOn...\ExplSyntaxOff wrappers
@@ -56,7 +56,7 @@
 \ProvidesExplPackage{atableau}
   {\aTableau@release}
   {\aTableau@version}
-  {A package for symmetric group combinatorics}
+  {for symmetric group combinatorics}
 
 % ---------------------------------------------------------------------------
 % Give a warning if the LaTeX installation is older than TeXLive 2024
@@ -83,12 +83,12 @@
   { Empty~tableau~rows~are~not~supported}
 
 \msg_new:nnnn { aTableau } { missing-runner-labels }
-{ Your~abacus~has~a~different~number~of~runners~and~runner~labels }
-{ The~number~of~labels~given~to~the~'runner~labels'~must~match~the~number~of~abacus~runners }
+  { Your~abacus~has~a~different~number~of~runners~and~runner~labels }
+  { The~number~of~labels~given~to~the~'runner~labels'~must~match~the~number~of~abacus~runners }
 
 \msg_new:nnnn { aTableau } { missing-style }
-{ The~'#1'~styles~key~is~missing~a~value }
-{ The~styles~key~accepts~a~comma~separated~list~of~key-value~pairs~for~defining~TikZ~styles }
+  { The~'#1'~styles~key~is~missing~a~value }
+  { The~styles~key~accepts~a~comma~separated~list~of~key-value~pairs~for~defining~TikZ~styles }
 
 \msg_new:nnnn { aTableau } { invalid-dots}
   { Invalid~specifications~for~dotted~rows~or~dotted~cols }
@@ -163,7 +163,7 @@
   { The~supported~valign~options~are~bottom,~centre~and~top }
 
 \msg_new:nnnn { aTableau } { unsupported-abacus-end }
-  { Traditional~abacuses~are~not~compatible with~'#1'~abacus~ends }
+  { Traditional~abacuses~are~not~compatible~with~'#1'~abacus~ends }
   { Traditional~abacuses~only~support~the~-,~_~and~|~abacus~end~styles~}
 
 % ---------------------------------------------------------------------------
@@ -321,9 +321,8 @@
 % ---------------------------------------------------------------------------
 % aTableau colour themes
 
-% We put the colour definitions into a property list mainly so that we can
-% easily add them in the manual without manually copying them across
-% do we need these?
+% We put the colour definitions into a property list so that we can easily add
+% them in the manual without manually copying them across
 
 \prop_set_from_keyval:Nn \l__aTableau_colour_theme_prop
 {
@@ -388,7 +387,7 @@
 
 \tikzset{
   % -----------------------------------------------------------------------
-  % Allow ball shading to be disabled by the 'unshaded' style
+  % Allow ball shading to be disabled by the 'unshaded' styl
   % The essential idea comes from https://tex.stackexchange.com/a/85750/234252
   unshaded/.code={ \tikz@addmode{\tikz@mode@shadefalse } },
   %
@@ -806,7 +805,7 @@
 \cs_generate_variant:Nn \__aTableau_define_html_colour:nn {no}
 \cs_generate_variant:Nn \__aTableau_entry:n {x}
 \cs_generate_variant:Nn \__aTableau_add_ribbon:nn {nV}
-\cs_generate_variant:Nn \__aTableau_put_tikz_node:nnnnn {nnVnV, noVnV, noVno}
+\cs_generate_variant:Nn \__aTableau_put_tikz_node:nnnnn {neVnV,noVno}
 \cs_generate_variant:Nn \__aTableau_set_bead_coordinates:nnn {nVn, nVV, nnV, noo, non, nVo, noV, nno}
 \cs_generate_variant:Nn \__aTableau_set_box_coordinates:nnn {nVV, nVn, noo, noV, nnV }
 \cs_generate_variant:Nn \__aTableau_set_partition:nn {nV}
@@ -1552,7 +1551,7 @@
     \node[#1] (#2) at (\fp_use:c {l__aTableau_x#3_fp}, \fp_use:c {l__aTableau_y#3_fp}) { \__aTableau_entry:n {#4} };
 }
 
-% usage: \__aTableau_put_tikz_node:Nnnnn {token list} {style} {label} {fp-coordinate name} {entry}
+% usage: \__aTableau_put_tikz_node:nnnnn {token list} {style} {label} {fp-coordinate name} {entry}
 % Like \__aTableau_put_tikz_node:nVno except that we append the node to the
 % token list given by #1
 \cs_new_protected:Nn \__aTableau_put_tikz_node:nnnnn
@@ -1810,7 +1809,7 @@
 %   \__aTableau_debug:n {~-~conjugate~box~coordinates:~\l__aTableau_name_tl~=~(\fp_use:c{l__aTableau_x#1_fp},~\fp_use:c{l__aTableau_y#1_fp})}
 }
 
-% by default , normal coordinates are used
+% by default, normal coordinates are used
 \cs_set_eq:NN \__aTableau_set_box_coordinates:nnn \__aTableau_set_box_coordinates_normal:nnn
 
 % usage: \__aTableau_set_bead_coordinates:nnn <letter> <row> <col>: given the row and columns
@@ -2266,7 +2265,6 @@
     % draw the ribbon tableau by drawing each of the ribbons
     \tl_set:Nn \l__aTableau_ribbon_type_tl {ribbon} % change ribbon type to ribbon
     \__aTableau_peek_ribbon:w #1 \q_recursion_tail \q_recursion_stop
-    %\clist_map_inline:nn {#1} { \__aTableau_add_ribbon:n  {##1} }
 
     % draw the tableau border, adding associated bells and whistles
     \__aTableau_finalise_tableau:
@@ -2362,23 +2360,23 @@
     % add edge a->b
     \tl_set:Ne \l_tmpa_tl {\l__aTableau_ribbon_a_tl|\l__aTableau_ribbon_b_tl}
     \prop_get:NVNTF \l__aTableau_ribbon_prop \l_tmpa_tl \l_tmpv_tl
-    { \prop_remove:NV \l__aTableau_ribbon_prop \l_tmpa_tl }
-    { \prop_put:NVn \l__aTableau_ribbon_prop \l_tmpa_tl {} }
+      { \prop_remove:NV \l__aTableau_ribbon_prop \l_tmpa_tl }
+      { \prop_put:NVn \l__aTableau_ribbon_prop \l_tmpa_tl {} }
     % add edge b->c
     \tl_set:Ne \l_tmpa_tl {\l__aTableau_ribbon_b_tl|\l__aTableau_ribbon_c_tl}
     \prop_get:NVNTF \l__aTableau_ribbon_prop \l_tmpa_tl \l_tmpv_tl
-    { \prop_remove:NV \l__aTableau_ribbon_prop \l_tmpa_tl }
-    { \prop_put:NVn \l__aTableau_ribbon_prop \l_tmpa_tl {} }
+      { \prop_remove:NV \l__aTableau_ribbon_prop \l_tmpa_tl }
+      { \prop_put:NVn \l__aTableau_ribbon_prop \l_tmpa_tl {} }
     % add edge d->c
     \tl_set:Ne \l_tmpa_tl {\l__aTableau_ribbon_d_tl|\l__aTableau_ribbon_c_tl}
     \prop_get:NVNTF \l__aTableau_ribbon_prop \l_tmpa_tl \l_tmpv_tl
-    { \prop_remove:NV \l__aTableau_ribbon_prop \l_tmpa_tl }
-    { \prop_put:NVn \l__aTableau_ribbon_prop \l_tmpa_tl {} }
+      { \prop_remove:NV \l__aTableau_ribbon_prop \l_tmpa_tl }
+      { \prop_put:NVn \l__aTableau_ribbon_prop \l_tmpa_tl {} }
     % add edge a->d
     \tl_set:Ne \l_tmpa_tl {\l__aTableau_ribbon_a_tl|\l__aTableau_ribbon_d_tl}
     \prop_get:NVNTF \l__aTableau_ribbon_prop \l_tmpa_tl \l_tmpv_tl
-    { \prop_remove:NV \l__aTableau_ribbon_prop \l_tmpa_tl }
-    { \prop_put:NVn \l__aTableau_ribbon_prop \l_tmpa_tl {} }
+      { \prop_remove:NV \l__aTableau_ribbon_prop \l_tmpa_tl }
+      { \prop_put:NVn \l__aTableau_ribbon_prop \l_tmpa_tl {} }
 }
 
 % usage: \__aTableau_initialise_ribbon_head:
@@ -2426,8 +2424,9 @@
 % peek for subscripted text _{text} in the ribbon
 \cs_new_protected:Npn \__aTableau_peek_ribbon_text:w
 {
-    \peek_remove_spaces:n { % ignore spaces
-        \peek_charcode_remove:NTF _
+    \peek_remove_spaces:n
+    { % ignore spaces
+      \peek_charcode_remove:NTF _
         { \__aTableau_save_ribbon_text:n } % set the text of this box
         {
             % set the text of this box to empty
@@ -2442,7 +2441,8 @@
 % usage: \__aTableau_peek_ribbon_comma:nnw {next function} {parameters}
 \cs_new_protected:Npn \__aTableau_peek_ribbon_comma:nnw #1 #2
 {
-    \peek_remove_spaces:n { % ignore spaces
+    \peek_remove_spaces:n
+    { % ignore spaces
         \peek_charcode_remove:NTF ,
         {
             % if there is no _ indicating following text, then we might see a
@@ -2600,7 +2600,7 @@
     % \l__aTableau_styled_nodes_tl and l__aTableau_unstyled_nodes_tl so
     % that the data can be printed as soon as the ribbon is read. This
     % should be faster because it will remove the need to store the
-    % ribbon data in the \l__aTabeleau_capture_*_seq sequences and then
+    % ribbon data in the \l__aTableau_capture_*_seq sequences and then
     % retrieve this information later in \__aTableau_draw_ribbon:
 
     % check to see if this node has any text
@@ -2727,14 +2727,16 @@
 % finally, add the nodes with custom styling or text.
 \cs_new_protected:Nn \__aTableau_draw_ribbon:
 {
-
+    % construct the ribbon boundary in \l__aTableau_ribbon_path_tl
     \use:c { __aTableau_finalise_ \l__aTableau_ribbon_type_tl :}
 
-    % We want to first draw the ribbon, with its outline and any filling, and
-    % then place the node with the default styling (or unstyled), and styled
-    % nodes in the ribbon. To do this we build the two token lists
-    % \l__aTableau_unstyled_nodes_tl and \l__aTableau_styled_nodes_tl for these
-    % two types of nodes
+    % draw the ribbon boundary, applying any style
+    \exp_last_unbraced:Ne \draw { [aTableau/\l__aTableau_ribbon_type_tl Style,\l__aTableau_ribbon_style_tl] } \l__aTableau_ribbon_path_tl;
+
+    % Now we add the nodes in the ribbon with the default styling (or
+    % unstyled), and styled nodes in the ribbon. To do this we build the two
+    % token lists \l__aTableau_unstyled_nodes_tl and
+    % \l__aTableau_styled_nodes_tl for these two types of nodes
     \tl_clear:N \l__aTableau_styled_nodes_tl
     \tl_clear:N \l__aTableau_unstyled_nodes_tl
     % use ribbon_box, snob_box or path_box
@@ -2756,15 +2758,12 @@
         \__aTableau_set_box_coordinates:nVV {l} \l__aTableau_row_int \l__aTableau_col_int
         \tl_if_empty:oTF {##1\l_tmpa_tl}
         {   % nodes with default style and no text are added to \l__aTableau_unstyled_nodes_tl
-            \__aTableau_put_tikz_node:noVnV {unstyled_nodes} {aTableau/\l__aTableau_ribbon_type_tl Box} \l__aTableau_name_tl {l} \l_tmpc_tl
+            \__aTableau_put_tikz_node:neVnV {unstyled_nodes} {aTableau/\l__aTableau_ribbon_type_tl Box,\l__aTableau_ribbon_style_tl} \l__aTableau_name_tl {l} \l_tmpc_tl
         }
         {   % nodes with styling are added to \l__aTableau_styled_nodes_tl
-            \__aTableau_put_tikz_node:noVnV {styled_nodes} {aTableau/\l__aTableau_ribbon_type_tl Box,##1} \l__aTableau_name_tl {l} \l_tmpa_tl
+            \__aTableau_put_tikz_node:neVnV {styled_nodes} {aTableau/\l__aTableau_ribbon_type_tl Box,\l__aTableau_ribbon_style_tl,##1} \l__aTableau_name_tl {l} \l_tmpa_tl
         }
     }
-
-    % draw the ribbon, applying any style
-    \exp_last_unbraced:Ne \draw { [aTableau/\l__aTableau_ribbon_type_tl Style,\l__aTableau_ribbon_style_tl] } \l__aTableau_ribbon_path_tl;
 
     % finally, add the unstyled and the styled nodes on top of the ribbon
     \l__aTableau_unstyled_nodes_tl
@@ -2823,8 +2822,7 @@
 {
     \bool_if:NT \l__aTableau_traditional_bool
     {
-    \typeout{traditional~abacus~with~end~="#1"}
-        \tl_if_empty:nF {#1} { \msg_warning:nnV {aTableau} {unsupported-abacus-end} #1 }
+        \tl_if_in:nVF {-_|} #1 { \msg_warning:nnV {aTableau} {unsupported-abacus-end} #1 }
     }
     \int_step_inline:nnn {0} {\l__aTableau_cols_int-1}
     {
@@ -2843,13 +2841,13 @@
     \fp_set:Nn \l_tmpa_fp {#3-1.4}
 }
 
-% usage: \__aTableau_insert_abacus_end:Vnn {abacus_top/abacus_bottom} {row index} {±1}
+% usage: \__aTableau_add_abacus_end:Vnn {abacus_top/abacus_bottom} {row index} {±1}
 % Draw the top/bottom on the abacus. Here:
 %   - #1 is either % \l__aTableau_abacus_top_tl  or \l__aTableau_abacus_bottom_tl
 %   - #2 is the row index for the line we will draw
 %   - #3, which is ±1, determines whether arrows go up or down
 % either 0, for top, or the row index of the last row, for bottom
-\cs_new_protected:Npn \__aTableau_insert_abacus_end:Vnn #1 #2 #3
+\cs_new_protected:Npn \__aTableau_add_abacus_end:Vnn #1 #2 #3
 {
     \str_case:Vn #1
     {
@@ -2893,8 +2891,8 @@
             { \__aTableau_draw_runner_ends:nnnn {#1} {dotted,<-} {#2} {#3} }
 
 
-        {|} % draw an extended line
-            { \__aTableau_draw_runner_ends:nnnn {#1} {} {#2} {#3} }
+        {|} % no extra decoration % draw an extended line
+        { } % \__aTableau_draw_runner_ends:nnnn {#1} {} {#2} {#3} }
     }
 }
 
@@ -2949,7 +2947,7 @@
     \int_zero:N  \l__aTableau_beads_int  % the number of beads
     \int_zero:N  \l__aTableau_row_int    % the maximum beta number
 
-    % Read the partition/beta numbers and the style settings The beta numbers
+    % Read the partition/beta numbers and the style settings. The beta numbers
     % for the abacus will be stored in \l__aTableau_shape_seq
     \tl_if_in:nnTF {#2} {|}
     {   % the quotient is given as a |-separated list, which we need to unpack
@@ -2978,7 +2976,7 @@
                 \__aTableau_peek_style:nw {record_style:nn} ####1  \q_recursion_tail \q_recursion_stop
             }
             \int_incr:N \l__aTableau_c_int % increment runner offset
-            % check that the maximium beta number has not changed
+            % check that the maximum beta number has not changed
             \tl_set:No \l_tmpa_tl { \seq_item:Nn \l__aTableau_shape_seq {-1} }
             \int_compare:oNnT { \l_tmpa_tl } > { \l__aTableau_row_int }
             {
@@ -3012,7 +3010,9 @@
     \int_zero:N \l__aTableau_col_int
     % compute the change in x and y coordinates when we move to the end of the runner,
     % which we store as (xl_fp, yl_fp) for use in \__aTableau_draw_abacus_runner:nnn
-    \fp_set:Nn \l_tmpa_fp {\l__aTableau_abacus_top_fp+\l__aTableau_rows_int+\l__aTableau_abacus_bottom_fp}
+    \int_log:N\l__aTableau_rows_int
+    \seq_log:N \l__aTableau_shape_seq
+    \fp_set:Nn \l_tmpa_fp {\l__aTableau_abacus_top_fp+\l__aTableau_rows_int+\l__aTableau_abacus_bottom_fp-0.5}
     \fp_set:Nn \l__aTableau_xl_fp { \l_tmpa_fp*\l__aTableau_abacus_row_dx_fp*\l__aTableau_abacus_wd_fp }
     \fp_set:Nn \l__aTableau_yl_fp { \l_tmpa_fp*\l__aTableau_abacus_row_dy_fp*\l__aTableau_abacus_ht_fp }
     % similarly, set (xb_fp, yb_fp) to the half the tick length
@@ -3070,7 +3070,7 @@
     }
 
     % draw the top of the abacus
-    \__aTableau_insert_abacus_end:Vnn \l__aTableau_abacus_top_tl {-\l__aTableau_abacus_top_fp} {1}
+    \__aTableau_add_abacus_end:Vnn \l__aTableau_abacus_top_tl {-\l__aTableau_abacus_top_fp} {1}
 
     % add any abacus labels
     \bool_if:NT \l__aTableau_traditional_bool
@@ -3080,7 +3080,7 @@
     \__aTableau_abacus_labels:n \l_tmpa_fp
 
     % draw the bottom of the abacus
-    \__aTableau_insert_abacus_end:Vnn \l__aTableau_abacus_bottom_tl {\l__aTableau_rows_int+\l__aTableau_abacus_bottom_fp} {-1}
+    \__aTableau_add_abacus_end:Vnn \l__aTableau_abacus_bottom_tl {\l__aTableau_rows_int+\l__aTableau_abacus_bottom_fp-0.5} {-1}
 
     % set e when entries=residues
     \tl_if_eq:VnT \l__aTableau_show_tl {residues}
@@ -3202,7 +3202,7 @@
 
         % now draw the dots
         \int_zero:N \l__aTableau_row_int
-        \int_step_inline:nn {\l__aTableau_rows_int}
+        \int_step_inline:nn {\l__aTableau_rows_int-1}
         {
             \fp_add:Nn \l__aTableau_xa_fp {\l_tmpa_fp}
             \fp_add:Nn \l__aTableau_ya_fp {\l_tmpb_fp}
@@ -3261,7 +3261,7 @@
               { \bool_set_false:N \l_tmpa_bool }
           }
 
-          \__aTableau_set_bead_coordinates:non {l} { \int_eval:n{\l__aTableau_row_int+1} } { 0 }
+          \__aTableau_set_bead_coordinates:nnn {l} { \l__aTableau_row_int } { 0 }
 
           % set (xa,ya) and (xb,yb) to the "left" and "right" hand coordinates that we want remove
           \fp_set:Nn \l__aTableau_xa_fp {\l__aTableau_xl_fp-0.35*\l__aTableau_abacus_row_dx_fp*\l__aTableau_abacus_wd_fp}
@@ -3270,10 +3270,10 @@
           \fp_set:Nn \l__aTableau_yb_fp {\l__aTableau_yl_fp+(\l__aTableau_r_int-\l__aTableau_row_int-0.65)*\l__aTableau_abacus_row_dy_fp*\l__aTableau_abacus_ht_fp}
 
           \draw[aTableau/clearBoxes]
-              (\fp_eval:n{\l__aTableau_xa_fp-0.12*\l_tmpa_fp}, \fp_eval:n{\l__aTableau_ya_fp-0.12*\l_tmpb_fp})
-              --++(\fp_eval:n{(\l__aTableau_cols_int+0.24)*\l_tmpa_fp},\fp_eval:n{(\l__aTableau_cols_int+0.24)*\l_tmpb_fp})
-              --(\fp_eval:n{\l__aTableau_xb_fp+(\l__aTableau_cols_int+0.12)*\l_tmpa_fp}, \fp_eval:n{\l__aTableau_yb_fp+(\l__aTableau_cols_int+0.12)*\l_tmpb_fp})
-              --(\fp_eval:n{\l__aTableau_xb_fp-0.12*\l_tmpa_fp}, \fp_eval:n{\l__aTableau_yb_fp-0.12*\l_tmpb_fp})
+          (\fp_eval:n{\l__aTableau_xa_fp-0.12*\l_tmpa_fp-\l__aTableau_tick_length_fp}, \fp_eval:n{\l__aTableau_ya_fp-0.12*\l_tmpb_fp})
+              --++(\fp_eval:n{(\l__aTableau_cols_int+0.24)*\l_tmpa_fp-\l__aTableau_tick_length_fp},\fp_eval:n{(\l__aTableau_cols_int+0.24)*\l_tmpb_fp})
+              --(\fp_eval:n{\l__aTableau_xb_fp+(\l__aTableau_cols_int-0.12)*\l_tmpa_fp-\l__aTableau_tick_length_fp}, \fp_eval:n{\l__aTableau_yb_fp+(\l__aTableau_cols_int+0.12)*\l_tmpb_fp})
+              --(\fp_eval:n{\l__aTableau_xb_fp-0.12*\l_tmpa_fp-\l__aTableau_tick_length_fp}, \fp_eval:n{\l__aTableau_yb_fp-0.12*\l_tmpb_fp})
               --cycle
           ;
           % first blank out the possible header line and replace with dots
@@ -3777,7 +3777,7 @@
 
     abacus~bottom .fp_set:N = \l__aTableau_abacus_bottom_fp,
     abacus~bottom .value_required:n = true,
-    abacus~bottom .initial:n = 0,
+    abacus~bottom .initial:n = 0.1,
 
     abacus~top .code:n = \fp_set:Nn \l__aTableau_abacus_top_fp {1-#1},
     abacus~top .value_required:n = true,
@@ -3977,7 +3977,7 @@
         {
             \__aTableau_tikzpicture:nn {#3} {#4}
         }
-        {
+        {   % apply beamer overlay command
             \cs:w \l__aTableau_beamer_tl \cs_end: <#1> { \__aTableau_tikzpicture:nn {#3} {#4} }
         }
     \group_end:
@@ -3986,12 +3986,7 @@
 % ---------------------------------------------------------------------------
 % Public facing aTableau commands
 
-% Except for \aTabset, all public-facing commands use \__aTableau_tikzpicture:nnn,
-% which applies the settings, sets the coordinates of the picture origin and
-% then ensures that the requested diagram is drawn inside a tikzpicture
-% environment.
-
-% usage: \NewATableauCommand \Commmand {tableau command name} {keys}
+% usage: \NewATableauCommand \Commmand {aTableau command name} {keys}
 % Define custom aTableau commands.  We could shorten the definition of this
 % command by having only one \IfClassLoadedTF at the top, but it is better to
 % keep the normal and beamer versions of each command close together for easier

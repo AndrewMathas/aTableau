@@ -31,9 +31,9 @@
   - adds warnings about using older versions of LaTeX3
 
 ### Version 2.0.0 - 2025-01-22
-  - completely rewritten using LaTeX3
-  - key interface for the **aTableau** options
-  - allow commands to be used both in and outside `tikzpicture` environments
+  - package completely rewritten using LaTeX3
+  - key-value interface added for the **aTableau** options
+  - allowed commands to be used both in and outside `tikzpicture` environments
   - a quark-based interface allows styles to be applied to tableau and abacus entries
   - support for different tableau (english, french, ukrainian, australian) and abacus (south, west, north, east) conventions
   - support diagrams, tableaux, including tabloids, skew and shifted tableaux and ribbon tableaux
@@ -41,4 +41,4 @@
 
 ### Version 1.0.0 - 2023-10-06
   - initial version
-  - basic implementation of Young diagrams, tabloids, tableaux, shifted tableaux, Ukrainian tableaux, abacuses, braids
+  - basic implementation of Young diagrams, tabloids, tableaux, shifted tableaux, Ukrainian tableaux, abacuses

@@ -7,12 +7,9 @@
 # aTableau - ToDo list
 
 ### Bugs:
- - fix warning messages when compiling manual
- - fix dotted rows and dotted columns for abacuses
-
+  - the abacus runners look like they are one row too long
 
 ### Features being implemented
-  - Find a way for the path, ribbon and snob boxes to inherit colour from the ribbon style
   - Make `\__atableau_abacus:nn` peek for commas rather than using
     `\clist_map_inline:nn`. Currently braces are needed for "complex"
     style specifications in abacuses `[{...}]`. (This has already been
