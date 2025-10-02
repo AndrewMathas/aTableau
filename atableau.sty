@@ -1,6 +1,6 @@
 % ---------------------------------------------------------------------------
 % aTableau - Andrew Mathas (C) 2022-2025
-% Modified: 22:24 Wednesday, 01 October 2025
+% Modified: 14:11 Thursday, 02 October 2025
 % ---------------------------------------------------------------------------
 %
 % A LaTeX package for symmetric group combinatorics:
@@ -388,11 +388,13 @@
 
 \tikzset{
   % -----------------------------------------------------------------------
-  % Allow ball shading to be disabled by the 'no head' style
+  % Allow ball shading to be disabled by the 'unshaded' style
   % The essential idea comes from https://tex.stackexchange.com/a/85750/234252
-  no~bead/.code={ \tikz@addmode{\tikz@mode@shadefalse } },
-  % make a shorthand, bead=<colour>, for setting the ball colour
+  unshaded/.code={ \tikz@addmode{\tikz@mode@shadefalse } },
+  %
+  % a shorthand, bead=<colour>, for setting the ball colour
   bead/.style={ball~color=#1},
+  %
   % -----------------------------------------------------------------------
   % aTableau settings are in the aTableau family
   aTableau/.is~family,
@@ -2821,7 +2823,8 @@
 {
     \bool_if:NT \l__aTableau_traditional_bool
     {
-        \tl_if_empty:nF {#1} { \msg_warning:nn {aTableau} {unsupported-abacus-end} {#1} }
+    \typeout{traditional~abacus~with~end~="#1"}
+        \tl_if_empty:nF {#1} { \msg_warning:nnV {aTableau} {unsupported-abacus-end} #1 }
     }
     \int_step_inline:nnn {0} {\l__aTableau_cols_int-1}
     {
@@ -3832,9 +3835,6 @@
     framed .default:n = true,
     framed .initial:n = false,
 
-    no~bead .code:n = { \__aTableau_tikzset_append:nn {abacusBead} {no~bead} },
-    no~bead .value_required:n = false,
-
     runner .tl_set:N = \l__aTableau_runner_tl, % runner colour
     runner .value_required:n = true,
 
@@ -3874,6 +3874,9 @@
     traditional .value_required:n = false,
     traditional .default:n = true,
     traditional .initial:n = false,
+
+    unshaded .code:n = { \__aTableau_tikzset_append:nn {abacusBead} {unshaded} },
+    unshaded .value_required:n = false,
 }
 
 % ---------------------------------------------------------------------------
@@ -3890,6 +3893,9 @@
 % usage: \__aTableau_tikzpicture:nnn {origin} {aTableau command}
 %  - #1: origin are Cartesian coordinates in the form x,y, or NoValue
 %  - #2: an internal aTableau command with parameters for drawing something
+% Except for \aTabset and \NewATableauCommand, all public-facing commands
+% use \__aTableau_tikzpicture:nnn, which ensures that the command is
+% run inside a tikzpicture environment
 \cs_new_protected:Npn \__aTableau_tikzpicture:nn #1 #2
 {
       \IfNoValueTF {#1}
@@ -3941,11 +3947,12 @@
       }
 }
 
-% The next two commands both apply the settings inside a group, to keep changes local.
-% They then call \__aTableau_tikzpicture:nn to ensure that the aTableau command is run inside a tikzpicture
-% environment. We do it this way so that the commands are beamer enabled only
-% if beamer is being used. We call the settings below so that the aTableau
-% settings can change the beamer that is used.
+% The next two wrapper commands apply the settings inside a group, to keep
+% changes local.  They then call \__aTableau_tikzpicture:nn to ensure that the
+% aTableau command is run inside a tikzpicture environment. We do it this way
+% so that the commands are beamer enabled only if beamer is being used. We call
+% the settings below so that the aTableau settings can change the beamer that
+% is used.
 
 % usage: \__aTableau_command_wrapper:nnn {settings} {origin} {aTableau command}
 \cs_new_protected:Npn \__aTableau_command_wrapper:nnn #1 #2 #3
@@ -3961,7 +3968,9 @@
 % usage: \__aTableau_beamer_wrapper:nnnn {overlay specification} {settings} {origin} {aTableau command}
 \cs_new_protected:Npn \__aTableau_beamer_wrapper:nnnn #1 #2 #3 #4
 {
-    % keep changes to settings local by working inside a group
+    % Keep changes to settings local by working inside a group
+    % Process the keys before invoking \__aTableau_tikzpicture:nn so
+    % that the beamer key can change the beamer overlay command
     \group_begin:
         \keys_set:nn {aTableau} {#2}
         \IfNoValueTF {#1}
@@ -3982,11 +3991,11 @@
 % then ensures that the requested diagram is drawn inside a tikzpicture
 % environment.
 
-% Define custom aTableau commands
-% \NewATableauCommand \Commmand {tableau command name} {keys}
-% We could shorten the definition of this command by having only one
-% \IfClassLoadedTF at the top, but it isbetter to keep the normal and beamer
-% versions of each command close together to easier comparison
+% usage: \NewATableauCommand \Commmand {tableau command name} {keys}
+% Define custom aTableau commands.  We could shorten the definition of this
+% command by having only one \IfClassLoadedTF at the top, but it is better to
+% keep the normal and beamer versions of each command close together for easier
+% comparison.
 \NewDocumentCommand\NewATableauCommand{ mmm }
 {
     \str_case:nnF {#2}
@@ -4111,7 +4120,7 @@
             }
             {
                 % \ShiftedTableauCommand (x,y) [style] {entries}
-                \NewDocumentCommand#1{ d<> d() O{} m }
+                \NewDocumentCommand#1{ d() O{} m }
                 {
                     \__aTableau_command_wrapper:nnn {shifted,#3,##2} {##1} { \__aTableau_draw_tableau:n {##3} }
                 }
@@ -4214,7 +4223,7 @@
 % ---------------------------------------------------------------------------
 % Finally, now that everything is defined, process the package options.
 
-\ProcessKeyOptions[ atableau ]
+\ProcessKeyOptions[ aTableau ]
 
 \endinput
 
@@ -4237,6 +4246,8 @@
 %       atableau.pdf
 %       atableau.sty
 %       atableau.tex
+%       atableau_beamer.pdf
+%       atableau_beamer.tex
 %       atableau_readme.webp
 %       LICENSE
 %       README.md

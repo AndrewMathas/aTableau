@@ -7,6 +7,8 @@
 # aTableau - ToDo list
 
 ### Bugs:
+ - fix warning messages when compiling manual
+ - fix dotted rows and dotted columns for abacuses
 
 
 ### Features being implemented
@@ -15,6 +17,7 @@
     `\clist_map_inline:nn`. Currently braces are needed for "complex"
     style specifications in abacuses `[{...}]`. (This has already been
     done for (ribbon) tableau.)
+  - check Cartan conventions
 
 ### Documentation
   - Add an example showing how to use dotted rows and columns for multitableaux

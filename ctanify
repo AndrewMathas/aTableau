@@ -4,7 +4,7 @@
 # In particular, this deletes the \__atableau_debug:n commands from
 # atableau.sty
 
-CTANIFY="/Library/TeX/texbin/ctanify"
+CTANIFY="ctanify -p atableau -nos"
 
 TAR=$(tar --version)
 GTAR=$(gtar --version)
@@ -20,7 +20,7 @@ fi
 gsed '/__atableau_debug:n/d' atableau-dev.sty > atableau.sty
 
 # create the tar file for ctan
-$CTANIFY --no-tds atableau.{ini,sty,pdf,tex,webp} {CHANGES,README,TODO}.md LICENSE
+$CTANIFY atableau.{ini,sty,pdf,tex} atableau_readme.webp atableau_beamer.{pdf,tex} {CHANGES,README,TODO}.md LICENSE
 
 # restore the debug commands
 /bin/mv atableau-dev.sty atableau.sty

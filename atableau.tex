@@ -1,33 +1,46 @@
 % ----------------------------------------------------------------------
 % aTableau - Andrew Mathas (C) 2022-2025
-% Modified: 23:32 Wednesday, 01 October 2025
+% Modified: 14:46 Thursday, 02 October 2025
 % ----------------------------------------------------------------------
 \documentclass{amsart}
 \usepackage[svgnames,table]{xcolor}
 \usepackage{aTableau}
 
+\usepackage{bbding}
+\usepackage{bm}
 \usepackage{booktabs}
 \usepackage{cite}
+\usepackage{cprotect}
 \usepackage{longtable}
 \usepackage{manfnt}
+\usepackage{mathtools}
+\usepackage{MnSymbol}
 \usepackage{siunitx}
 \usepackage{xltabular}
 \usepackage{xspace}
-\usepackage{cprotect}
-\usepackage{MnSymbol}
 
+% ----------------------------------------------------------------------
 \usepackage{array}
 \newcolumntype{L}{>{\sffamily\color{MidnightBlue}\textbackslash}l}
 \newcolumntype{O}{>{\sffamily\color{aTableauInner}}l}
 
-% ----------------------------------------------------------------------
-\usepackage{bm}
-\usepackage{mathtools}
+% ---------------------------------------------------------------------------
+\usepackage{enumitem}
+\setlist{itemsep=2mm, parsep=2mm}
+\newlist{options}{description}{1}
+% remove the colon from the description label by redefining \makelabel
+\setlist[options]{
+  before=\let\makelabel\optionlabel,
+  labelwidth=\textwidth,
+  nosep,
+}
 
-% ----------------------------------------------------------------------
-\usepackage{bbding}
-\newcommand\No{\textcolor{red}{\XSolidBrush}}
-% \Yes, which adds a hyperlink, is defined below
+% ---------------------------------------------------------------------------
+% the index
+\usepackage{imakeidx}
+\indexsetup{level=\section*, toclevel=section, noclearpage}
+\makeindex[columns=3]
+\renewcommand*{\seename}{see}
 
 % ----------------------------------------------------------------------
 \usepackage[a4paper,hmargin=24mm, vmargin=18mm, footskip=10mm]{geometry}
@@ -43,14 +56,33 @@
 \def\@evenfoot{\color{aTableauMain} \thepage\hfill Version \aTableau@version~(\aTableau@release)}
 \makeatother
 
-\newcommand\heading[1]{\textcolor{MidnightBlue}{\textsf{\large#1}}}
 
 % ----------------------------------------------------------------------
 \newcommand\aTableauColour[1]{%
-  \tikz[baseline={(current bounding box.south)}]\node[minimum width=8mm, minimum height=2ex,fill=aTableau#1]{};%
+  \tikz[baseline={(current bounding box.south)}]\node[minimum width=3ex, minimum height=2ex,fill=aTableau#1]{};%
 }
 
+% ----------------------------------------------------------------------
 \ExplSyntaxOn
+
+% In the table summarising the keys, \Yes and \No are used to show where
+% the keys applies to tableaux or abacuses( or both), with \Yes adding a
+% hyperlink when it does.
+
+\newcommand\No{\textcolor{red}{\XSolidBrush}}
+\NewDocumentCommand\Yes{o d()}
+{
+  \IfNoValueTF{#1}
+  {
+    \IfNoValueTF{#2}
+    { \hyperref[\g_lastlink_tl]{\textcolor{ForestGreen}{\CheckmarkBold}} }
+    { \hyperref[Key:#2]{\textcolor{ForestGreen}{\CheckmarkBold}} }
+  }
+  {
+    \hyperref[\g_lastlink_tl-\str_lowercase:f{#1}]{\textcolor{ForestGreen}{\CheckmarkBold}}
+  }
+}
+
 % \optionlabel applies \option to the csv in #1 except in the case
 % when #1 starts with a * when the rest of #1 is printed
 \NewDocumentCommand\optionlabel{ m }
@@ -70,19 +102,6 @@
         }
     }
     \l_tmpb_tl\hss
-}
-
-\NewDocumentCommand\Yes{o d()}
-{
-  \IfNoValueTF{#1}
-  {
-    \IfNoValueTF{#2}
-    { \hyperref[\g_lastlink_tl]{\textcolor{ForestGreen}{\CheckmarkBold}} }
-    { \hyperref[Key:#2]{\textcolor{ForestGreen}{\CheckmarkBold}} }
-  }
-  {
-    \hyperref[\g_lastlink_tl-\str_lowercase:f{#1}]{\textcolor{ForestGreen}{\CheckmarkBold}}
-  }
 }
 
 % Add hyperlinks for (new displayed) options
@@ -177,7 +196,7 @@
 }
 
 % index command ignoring the backslash and capitalisation
-\cs_new_protected:Npn \__addto_index:nn #1#2 {\typeout{INDEX:~1=#1,2=#2.} \index{#2@\textbackslash #1} }
+\cs_new_protected:Npn \__addto_index:nn #1#2 { \index{#2@\textbackslash #1} }
 \cs_generate_variant:Nn \__addto_index:nn {nV}
 \NewDocumentCommand\indexcmd{m}
 {
@@ -186,15 +205,21 @@
 }
 
 % ---------------------------------------------------------------------------
+
+% heading linesin tabular environments
+\newcommand\heading[1]{\textcolor{MidnightBlue}{\textsf{\large#1}}}
+
+% set alternating row colours in tabular environments
+\rowcolors{2}{LightSkyBlue!10}{}
+
 % displaying a colour theme
 \NewDocumentCommand\ColourTheme{ m }
 {
   \begin{samepage}
     \option{colour~theme=#1}
     \aTabset{colour~theme=#1, align=top}
-    \index{colour theme!#1}
+    \index{colour~theme!#1}
     \par
-    \rowcolors{2}{LightSkyBlue!10}{}
     \begin{tabular}[t]{lll}
       \toprule
       \heading{Colour} & \heading{Name} & \heading{HTML}\\
@@ -302,25 +327,6 @@
 \ExplSyntaxOff
 
 % ---------------------------------------------------------------------------
-\usepackage{enumitem}
-\setlist{itemsep=2mm, parsep=2mm}
-\newlist{options}{description}{1}
-% remove the colon from the description label by redefining \makelabel
-\setlist[options]{
-  before=\let\makelabel\optionlabel,
-  labelwidth=\textwidth,
-  nosep,
-}
-
-% ---------------------------------------------------------------------------
-% the index
-
-\usepackage{imakeidx}
-\indexsetup{level=\section*, toclevel=section, noclearpage}
-\makeindex[columns=3]
-\renewcommand*{\seename}{see}
-
-% ---------------------------------------------------------------------------
 %\renewcommand\thesubsection{\thesection\Alph{subsection}}
 \setcounter{secnumdepth}{3}
 \setcounter{tocdepth}{3}
@@ -337,8 +343,9 @@
 %\renewcommand\tabularxcolumn[1]{m{#1}}% for vertical centering text in X column
 %\NewDocumentEnvironment{warning}{+b}{\begin{tabularx}{\textwidth}{cX}\textcolor{red}{\textdbend}&#1\end{tabularx}}{}
 \newenvironment{warning}{%
-    \list{\raisebox{-2ex}[0pt][0pt]{\textcolor{red}{\textdbend}}\quad}%
-    {\leftmargin=3em}\item%
+    \list{\raisebox{-2ex}[0pt][0pt]{\textcolor{red}{\textdbend}}}%
+         {\leftmargin=3em}%
+         \item%
 }{\endlist}
 
 % ---------------------------------------------------------------------------
@@ -594,7 +601,7 @@
 
 %   varwidth boxed title*=-3cm,
 
-\NewTColorBox[]{slide}{ O{} }
+\NewTColorBox{slide}{ O{} }
 {
   enhanced,
   before skip=-2mm,
@@ -711,7 +718,7 @@
 
     \aTableauHeader
 
-    \kern-4mm
+    \kern-2mm
     \begin{quote}
       A \LaTeX\ package for symmetric group combinatorics, including
         abacuses,
@@ -722,10 +729,11 @@
         multitableaux,
         shifted tableaux,
       and
-        ribbon tableau.
+        ribbon tableaux.
+      Requires \TeXLive2024 or later.
     \end{quote}
 
-    \kern-4mm
+    \kern-2mm
     \aTabset{scale=0.6}
     \tikzset{
       B/.style={fill=blue!40, text=yellow},
@@ -857,7 +865,7 @@
 
   \indexcmd{usepackage}
   \begin{quote}
-    \keyword{\usepackage[options]{aTableau}}
+    \keyword{\usepackage[options]{atableau}}
   \end{quote}
 
   Here, the \textit{options} is an optional comma-separated list of
@@ -867,7 +875,7 @@
   default, you could write:
 
   \begin{quote}
-    \keyword{\usepackage[french]{aTableau}}
+    \keyword{\usepackage[french]{atableau}}
   \end{quote}
 
   You can change the default options at any point in your document using
@@ -906,11 +914,10 @@
   pictures:
 
   \begin{center}
-    \rowcolors{2}{LightSkyBlue!10}{}
-    \begin{tabular}{Lll}\toprule
-      \large\sffamily\color{MidnightBlue}Command
-                     & \large\sffamily\color{MidnightBlue} Picture
-                     & \large\sffamily\color{MidnightBlue} Section \\\midrule
+    \begin{tabular}{Lll}
+      \toprule
+      \heading{Command} & \heading{Picture}              & \heading{Section}\\
+      \midrule
       Abacus         & An abacus for a partition         & \autoref{S:Abacus}\\
       Diagram        & A Young diagram for a partition   & \autoref{S:Diagram}\\
       Multidiagram   & An $\ell$-tuple of Young diagrams & \autoref{S:Multitableau} \\
@@ -929,11 +936,11 @@
   In addition to the picture commands, \aTableau provides the following
   non-picture commands:
   \begin{itemize}[nosep]
-    \item \keyword{\aTabset} for setting default values for the \aTableau keys
+    \item \keyword{\aTabset} for setting default values for \aTableau keys
     \item \keyword{\NewATableauCommand} for defining custom \aTableau commands;
     see \autoref{SS:NewTableau}
     \item \keyword{\shortminus} for shorter minus signs, which are used
-    for contents in tableaux (see \options{entries=contents}).
+    with \option{entries=contents} in tableaux
   \end{itemize}
 
   The key-value \emph{options}, or \emph{keys}, control the style and
@@ -943,7 +950,7 @@
   current \LaTeX\ group), by using \keyword{\aTabset{...options...}}, or
   ``locally'', for the current picture. As mentioned already, the
   default options for the entire document can also be set via
-  \keyword{\usepackage[options]{aTableau}}.\indexcmd{aTabset}
+  \keyword{\usepackage[options]{atableau}}.\indexcmd{aTabset}
 
   Many of the \aTableau options are specific to the particular pictures
   being drawn. A concise list of the \aTableau commands and their options is
@@ -962,8 +969,8 @@
     with the top, centre or bottom of the surrounding objects,
     respectively. By default, all \aTableau pictures are centred.
 
-    \item[beamer] Set the \ctan{beamer} overlay command. See
-    \autoref{SS:Beamer} for details.
+    \item[beamer]\index{beamer}
+    Set the \ctan{beamer} overlay command. See \autoref{SS:Beamer} for details.
 
     \item[colour theme]
     The \aTableau pictures use a range of different colours for tableaux
@@ -1449,7 +1456,7 @@
   This example shows that modifying the borders of a box is problematic
   because boxes placed later are likely to overwrite the new border
   style (see \autoref{SS:order}). As a result, modifying the borders of
-  the boxes is often not a good way to add emphasis to a tableau,  so
+  individual boxes is often not a good way to add emphasis to a tableau,  so
   use this sparingly. In addition, the orange circle in this example
   is too big, but it is what we asked for because the diameter of the
   circle is the horizontal width of the box. The next example shows that
@@ -1585,7 +1592,7 @@
   \end{example}
 
   \begin{example}[lefthand width=0.3\textwidth]
-  \Tableau[australian, styles={B={fill=brown!20, text=yellow}}]
+  \Tableau[australian, styles={B={fill=brown!20, text=red}}]
     {12[B]3,45}
   \end{example}
 
@@ -3999,10 +4006,10 @@
   will spill into the abacus. Traditionally, abacus beads are not labelled,
   but you can give labels to as many beads as you like.
 
-  You can remove beads that you have placed on the abacus using the \emph{no bead} style%
-  \footnote{The \emph{no bead} style actually disables an existing
+  You can remove beads that you have placed on the abacus using the \emph{unshaded} style%
+  \footnote{The \emph{unshaded} style disables an existing
   \TikZ-shading on a node. Out of the box, \TikZ \emph{does not} provide
-  a way to do this.  The \emph{no bead} style, which is based on a
+  a way to do this.  The \emph{unshaded} style, which is based on a
   \href{https://tex.stackexchange.com/a/85750/234252}{stack exchange
   post}, is available whenever the \aTableau package is loaded.}.
   The point of being able to remove beads in this way is that this
@@ -4011,10 +4018,10 @@
   because this is white by default.
 
   \begin{example}[label=Ex:NoShade]
-  \Abacus[styles={C={no bead,text=red}}]
+  \Abacus[styles={C={unshaded,text=red}}]
     {5}{8^2_-,7_+,5_a,4^2_b,[C]1_\bullet^3,1_d}
   \end{example}
-  \index{no bead}
+  \index{unshaded}
 
   As with tableau boxes, the bead labels are typeset in
   mathematics~mode by default. This can changed using
@@ -4137,7 +4144,6 @@
   following:
 
   \begin{quote}
-    \rowcolors{2}{LightSkyBlue!10}{}
     \begin{tabular}{Oll} \toprule
       \multicolumn1l{\textsf{Character}} & \textsf{Symbol} & \textsf{Meaning} \\ \midrule
       $-$    & dash         & Draw a horizontal line that extends slightly past the first and last runners\\
@@ -4284,7 +4290,7 @@
 
   \begin{example}
   \Abacus[bead style={shading=axis}, bead text=red] {3}{3_3,2^2,1^3} \qquad
-  \Abacus[bead style={no bead, fill=aTableauMain}] {3}{3_3,2^2,1^3}
+  \Abacus[bead style={unshaded, fill=aTableauMain}] {3}{3_3,2^2,1^3}
   \end{example}
 
   By default, the beads look like balls (they use the
@@ -4473,34 +4479,6 @@
     }]{3}{4^3,1^2}
   \end{Example}
 
-  \option[]{no bead}
-
-  The abacus balls are drawn with the \TikZ style
-  \keyword{shading=ball}.  As noted in \autoref{Ex:NoShade}, you can
-  disable the \TikZ-ball shading for individual beads using the \TikZ-style \keyword{no bead}. The
-  \option{no bead} key disables the ball shading for \emph{all} beads,
-  making it possible to fully customise how the abacus beads are
-  displayed.
-
-  \begin{example}
-  \Abacus[no bead, bead text=red]{3}{3_1,2_2,2_3} \qquad
-  \Abacus[bead style={no bead, shape=diamond,
-    fill=brown, text=yellow}]{3}{3_1,2_2,2_3,0^2}
-  \end{example}
-
-  As the first example shows, if you use the \option{no bead} key then
-  you need to define a new style for the abacus beads. As the second
-  example shows, rather than using \option{no bead} as an
-  \keyword{\Abacus} key, you can use it inside \option{bead style} as a
-  \TikZ-style.
-
-  \begin{warning}
-    The \option{no bead} key is \textit{not} a boolean key. In
-    particular, the \option{no bead} key is \textit{not} an inverse key to
-    \option{bead}.
-  \end{warning}
-
-
   \option[]{rows=row index}[non-negative integer]<abacus>
 
   By default, the \keyword{\Abacus} command uses the smallest number of
@@ -4570,6 +4548,27 @@
   \Abacus[tick length=0.3]{3}{6,4,3,1,0} \qquad
   \Abacus[tick style={ultra thick,orange}]{3}{6,4,3,1,0}
   \end{example}
+
+  \option[]{unshaded}
+
+  The abacus balls are drawn with the \TikZ style
+  \keyword{shading=ball}.  As noted in \autoref{Ex:NoShade}, you can
+  disable the \TikZ-ball shading for individual beads using the \TikZ-style \keyword{unshaded}. The
+  \option{unshaded} key disables the ball shading for \emph{all} beads,
+  making it possible to fully customise how the abacus beads are
+  displayed.
+
+  \begin{example}
+  \Abacus[unshaded, bead text=red]{3}{3_1,2_2,2_3} \qquad
+  \Abacus[bead style={unshaded, shape=diamond,
+    fill=brown, text=yellow}]{3}{3_1,2_2,2_3,0^2}
+  \end{example}
+
+  As the first example shows, if you use the \option{unshaded} key then
+  you need to define a new style for the abacus beads. As the second
+  example shows, rather than using \option{unshaded} as an
+  \keyword{\Abacus} key, you can use it inside \option{bead style} as a
+  \TikZ-style.
 
   \subsection{Traditional abacuses}\label{SS:Traditional}
   \index{traditional}
@@ -4647,7 +4646,6 @@
 
   % --------------------------------------------------------------
   \section{Customising \aTableau}\label{S:keys}
-  \rowcolors{2}{LightSkyBlue!10}{}
 
   This section compactly lists the \aTableau commands and their options.
   The earlier sections describe these commands and show how their
@@ -4780,7 +4778,8 @@
   \end{quote}
 
   By default, the \aTableau commands use \keyword{\only}, but this can
-  be changed using the \option{beamer} key. As an example, the following
+  be changed using the \option{beamer} key.  Of course, you also use
+  \keyword{\aTabset{beamer=uncover}}.  As an example, the following
   pairs of commands are equivalent.
 
   \begin{Example}[listing only]
@@ -4792,6 +4791,7 @@
   \subsection{\aTableau colour themes}\label{S:Colours}
   \label{S:ColourTheme}
   \index{colour theme}
+  \index{colours}
 
   The colours in \aTableau pictures are controlled by the six base colours:
   \begin{center}
@@ -4842,15 +4842,14 @@
   Here, and throughout the manual, the key names (and the green ticks
   below) are hyperlinks to the relevant sections of the manual.
 
-  \rowcolors{2}{LightSkyBlue!10}{}
   \begin{xltabular}{0.9\textwidth}{l>{\raggedright}Xcc}\toprule
     \heading{Key} & \heading{Meaning} & \heading{Tableau} & \heading{Abacus} \\
     \midrule
     \endhead
-    \option{abacus ends}       & Set the top and bottom of the abacus                & \No  & \Yes\\
-    \option{abacus ends style} & Set the style of the top and bottom of the abacus   & \No  & \Yes\\
-    \option{abacus bottom}     & Set the offset for the bottom of the abacus         & \No  & \Yes\\
-    \option{abacus top}        & Set the offset for the top of the abacus            & \No  & \Yes\\
+    \option{abacus ends}       & Set the top and bottom of the abacus                & \No  & \Yes \\
+    \option{abacus ends style} & Set the style of the top and bottom of the abacus   & \No  & \Yes \\
+    \option{abacus bottom}     & Set the offset for the bottom of the abacus         & \No  & \Yes \\
+    \option{abacus top}        & Set the offset for the top of the abacus            & \No  & \Yes \\
     \option{align}             & Set baseline alignment of \aTableau diagram         & \Yes & \Yes[abacus]\\
     \option{australian}        & Use the Australian convention for tableaux          & \Yes & \No \\
     \option{bead}              & Set the colour of the abacus beads                  & \No  & \Yes \\
@@ -4874,7 +4873,7 @@
     \option{colours}           & Set a cyclic list of box fill colours               & \Yes & \Yes \\
     \option{conjugate}         & Draw the conjugate tableau/diagram                  & \Yes & \No \\
     \option{cover}             & Draw a covering partition                           & \Yes & \No \\
-    \option*{cover border}     & Set cover border colour                             & \Yes & \No \\
+    \option*{cover border}     & Draw border of covering tableau                     & \Yes & \No \\
     \option{cover border style}& Set \TikZ-style of the cover border                 & \Yes & \No \\
     \option*{cover boxes}      & Enable drawing of cover boxes                       & \Yes & \No \\
     \option{cover box style}   & Set \TikZ-style of the cover boxes                  & \Yes & \No \\
@@ -4894,7 +4893,7 @@
     \option{label}             & Set tableau label                                   & \Yes & \No \\
     \option{label style}       & Set style of tableau labels                         & \Yes & \No \\
     \option{left delimiter}    & Set left delimiter for a multitableau               & \Yes & \No \\
-    \option{math boxes}      & Typeset box and label entries in math-mode          & \Yes & \Yes[abacus] \\
+    \option{math boxes}        & Typeset box and label entries in math-mode          & \Yes & \Yes[abacus] \\
     \option{name}              & Prefix of named nodes                               & \Yes & \Yes[abacus] \\
     \option{north}             & Make abacus grow towards the north                  & \No  & \Yes\\
     \option{paths}             & Add paths to a diagram or tableau                   & \Yes & \No \\
@@ -4906,7 +4905,7 @@
     \option{ribbon style}      & Set the ribbon style                                & \Yes & \No \\
     \option{ribbon box style}  & Sets style of boxes on each ribbon                  & \Yes & \No \\
     \option{right delimiter}   & Set right delimiter for a multitableau              & \No  & \Yes \\
-    \option{rotate}            & Rotate the picture anti-clockwise                   & \Yes & \Yes[abacus] \\
+    \option{rotate}            & Rotate the picture anti-clockwise                   & \Yes & \Yes \\
     \option{rows}              & Set number of rows in a multitableau or abacus      & \Yes & \Yes[abacus] \\
     \option{runner}            & Set the colour of the abacus runners                & \No  & \Yes \\
     \option{runner labels}     & List of labels for the abacus runners               & \No  & \Yes \\
@@ -4935,7 +4934,7 @@
     \option{star style}        & Set \TikZ-style of tableau $*$-nodes                & \Yes & \No \\
     \option{styles}            & Short-hand for defining single use \TikZ-styles     & \Yes & \Yes[abacus] \\
     \option{tabloid}           & True for a shifted tableau                          & \Yes & \No \\
-    \option{text boxes}      & Typeset box and label entries in text-mode          & \Yes & \Yes[abacus] \\
+    \option{text boxes}      & Typeset box and label entries in text-mode            & \Yes & \Yes[abacus] \\
     \option{tick}              & Set the colour of the ticks on the abacus runner    & \No  & \Yes \\
     \option{tick length}       & Set the length of the ticks on the abacus runners   & \No  & \Yes \\
     \option{tick style}        & Set the style of the ticks on the abacus runners    & \No  & \Yes \\
@@ -4944,6 +4943,7 @@
     \option{tikzpicture}       & Sets tikzpicture environment keys                   & \Yes & \No \\
     \option{traditional}       & Use the traditional abacus style                    & \No  & \Yes \\
     \option{ukrainian}         & Use the Ukrainian convention for tableaux           & \Yes & \No \\
+    \option{unshaded}          & Removes shading from the abacus beads               & \No  & \Yes \\
     \option{valign}            & Set vertical alignment                              & \Yes & \Yes[abacus] \\
     \option{west}              & Make abacus grow towards the west                   & \Yes & \No \\
     \option{xoffsets}          & Set the $x$-offsets for components in a multitableau& \Yes & \No \\
@@ -4990,13 +4990,13 @@
        aTableau/dottedLine       & Adds dotted lines. Used by \option{dotted rows} and \option{dotted cols}\\
        aTableau/innerWall        & Inner tableau walls\\
        aTableau/labelStyle       & Tableau labels \\
-       aTableau/leftDelimiter    & Left delimiter in multitableau\\
-       aTableau/namedTick        & Named nodes for abacus beads and ticks\\
+       aTableau/leftDelimiter    & Left delimiter in a multitableau\\
+       aTableau/namedTick        & Named nodes for abacus ticks\\
        aTableau/pathBox          & Boxes in paths \\
        aTableau/pathStyle        & Paths \\
        aTableau/ribbonBox        & Boxes in ribbons \\
        aTableau/ribbonStyle      & Ribbons \\
-       aTableau/rightDelimiter   & Right delimiter in multitableau\\
+       aTableau/rightDelimiter   & Right delimiter in a multitableau\\
        aTableau/runnerLabelStyle & Style of abacus runner labels\\
        aTableau/separatorLine    & Separator lines in multitableau\\
        aTableau/separatorSymbol  & Separators in multitableau\\
@@ -5229,7 +5229,6 @@ KLRW diagram~\cite{Bowman:ManyCellular}.
 % bibliography
 % \bibliography{papers}
 % \bibliographystyle{andrew}
-
 
 \begin{thebibliography}{10}
 
