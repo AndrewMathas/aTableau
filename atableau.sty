@@ -1,6 +1,6 @@
 % ---------------------------------------------------------------------------
 % aTableau - Andrew Mathas (C) 2022-2025
-% Modified: 00:55 Saturday, 04 October 2025
+% Modified: 10:16 Sunday, 05 October 2025
 % ---------------------------------------------------------------------------
 %
 % A LaTeX package for symmetric group combinatorics:
@@ -254,6 +254,7 @@
 \seq_new:N \l__aTableau_multiskew_seq     % a sequence of skew partitions for multi shapes
 \seq_new:N \l__aTableau_multisnobs_seq    % a sequence of snobs for multi shapes
 \seq_new:N \l__aTableau_rcs_seq           % ribbon row, column indices
+\seq_new:N \l__aTableau_row_labels_seq    % labels for the abacus rows
 \seq_new:N \l__aTableau_runner_labels_seq % labels for the abacus runners
 \seq_new:N \l__aTableau_shape_seq         % a partition
 \seq_new:N \l__aTableau_skew_seq          % the inner partition for a skew shape
@@ -327,28 +328,28 @@
 \prop_set_from_keyval:Nn \l__aTableau_colour_theme_prop
 {
   % default theme
-  default_Main      = 00008B,
-  default_Inner     = 0073E6,
-  default_StarStyle = E6F7FF,
-  default_Skew      = 818589,
-  default_SkewFill  = F8F8F8,
-  default_Rod       = B3B3c2,
+  default_Main  = 00008B,
+  default_Inner = 0073E6,
+  default_Star  = E6F7FF,
+  default_Skew  = 818589,
+  default_Fill  = F8F8F8,
+  default_Rod   = B3B3c2,
 
   % classic theme
-  classic_Main      = 2C2C2C,
-  classic_Inner     = 555555,
-  classic_StarStyle = D6D6D6,
-  classic_Skew      = 777777,
-  classic_SkewFill  = EAEAEA,
-  classic_Rod       = A0A0A0,
+  classic_Main  = 2C2C2C,
+  classic_Inner = 555555,
+  classic_Star  = D6D6D6,
+  classic_Skew  = 777777,
+  classic_Fill  = EAEAEA,
+  classic_Rod   = A0A0A0,
 
   % natural theme
-  natural_Main      = 5C3D2E,
-  natural_Inner     = E6C29F,
-  natural_StarStyle = FFF2E5,
-  natural_Skew      = A48C74,
-  natural_SkewFill  = FFF8F2,
-  natural_Rod       = C4A484, % AD6434
+  natural_Main  = 5C3D2E,
+  natural_Inner = E6C29F,
+  natural_Star  = FFF2E5,
+  natural_Skew  = A48C74,
+  natural_Fill  = FFF8F2,
+  natural_Rod   = C4A484, % AD6434
 }
 
 % usage: \__aTableau_define_html_colour:nn {theme name} {html colour}
@@ -407,7 +408,7 @@
         thin,
     },
     % outer tableau wall
-    borderStyle/.style = {
+    border/.style = {
         % shifting allows us to use \__aTableau_set_box_coordinates:nnn when drawing the border
         shift = {(\fp_eval:n{-(\l__aTableau_box_row_dx_fp+\l__aTableau_box_col_dx_fp)/2},
                   \fp_eval:n{-(\l__aTableau_box_row_dy_fp+\l__aTableau_box_col_dy_fp)/2})},
@@ -443,7 +444,7 @@
         font           = \l__aTableau_box_font_tl,
         text           = \l__aTableau_box_text_tl,
     },
-    boxStyle/.style = {
+    tableauBox/.style = {
         aTableau/aTableauBox,
         aTableau/innerWall,
         draw = \l__aTableau_inner_tl,
@@ -454,14 +455,14 @@
         aTableau/aTableauBox,
         aTableau/innerWall,
         draw  = \l__aTableau_cover_border_tl,
-        fill  = aTableauSkewFill,
+        fill  = aTableauFill,
     },
     % default skew box style
     skewBox/.style = {
         aTableau/aTableauBox,
         aTableau/innerWall,
         draw  = \l__aTableau_skew_border_tl,
-        fill  = aTableauSkewFill,
+        fill  = aTableauFill,
     },
     % -----------------------------------------------------------------------
     % box styles for paths, ribbons and snobs
@@ -477,11 +478,11 @@
     },
     % -----------------------------------------------------------------------
     % default path style
-    pathStyle/.style = {
+    path/.style = {
         draw = \l__aTableau_inner_tl,
     },
     % default ribbon style
-    ribbonStyle/.style = {
+    ribbon/.style = {
         aTableau/innerWall,
         % shifting allows us to use \__aTableau_set_box_coordinates:nnn when drawing the wall
         shift = {(\fp_eval:n{(\l__aTableau_box_row_dx_fp+\l__aTableau_box_col_dx_fp)/2},
@@ -489,7 +490,7 @@
         draw = \l__aTableau_inner_tl,
     },
     % default snob style = ribbon style
-    snobStyle/.style = {
+    snob/.style = {
         aTableau/innerWall,
         % shifting allows us to use \__aTableau_set_box_coordinates:nnn when drawing the wall
         shift = {(\fp_eval:n{(\l__aTableau_box_row_dx_fp+\l__aTableau_box_col_dx_fp)/2},
@@ -498,7 +499,7 @@
     },
     % -----------------------------------------------------------------------
     % label styles
-    labelStyle/.style = {
+    label/.style = {
         shift = {(\fp_eval:n{-0.2*(\l__aTableau_box_row_dx_fp+\l__aTableau_box_col_dx_fp)},
                   \fp_eval:n{-0.2*(\l__aTableau_box_row_dy_fp+\l__aTableau_box_col_dy_fp)})},
         font=\scriptsize,
@@ -506,8 +507,8 @@
     },
     % -----------------------------------------------------------------------
     % tableau star style
-    tableauStarStyle/.style = {
-        fill = aTableauStarStyle,
+    tableauStar/.style = {
+        fill = aTableauStar,
         text = \l__aTableau_box_text_tl,
     },
     % -----------------------------------------------------------------------
@@ -535,7 +536,7 @@
     },
     % Delimiters around multitableaux and multidiagrams. To change the colour
     % of the delimiters we need to use \path[aTableau/delimiterPath] (x,y) node...
-    delimiterStyle/.style = {
+    delimiter/.style = {
         align = center,
         inner~sep = 0pt,
         minimum~height = \fp_use:N\l__aTableau_ymax_fp cm,
@@ -545,12 +546,12 @@
         every~delimiter/.style = { \l__aTableau_separator_fg_tl, },
     },
     leftDelimiter/.style = {
-        aTableau/delimiterStyle,
+        aTableau/delimiter,
         left~delimiter = \l__aTableau_left_delimiter_tl,
         xshift = 2pt,
     },
     rightDelimiter/.style = {
-        aTableau/delimiterStyle,
+        aTableau/delimiter,
         right~delimiter = \l__aTableau_right_delimiter_tl,
         xshift = -2pt,
     },
@@ -563,9 +564,9 @@
         >=stealth,
     },
     % abacus star style
-    abacusStarStyle/.style = {
+    abacusStar/.style = {
         text = aTableauMain,
-        ball~color = aTableauStarStyle,
+        ball~color = aTableauStar,
     },
     abacusRunner/.style = {
         draw = \l__aTableau_runner_tl,
@@ -578,10 +579,20 @@
         draw = \l__aTableau_tick_tl,
         semithick,
     },
-    runnerLabelStyle/.style = {
-        aTableau/aTableauBox,
+    Label/.style = {
+        anchor = center,
+        draw = none,
+        font = \scriptsize,
+        inner~sep = 3pt,
+        minimum~height = 1ex,
+        minimum~width  = 1ex,
         text = aTableauInner,
-        font = \scriptsize
+    },
+    rowLabel/.style = {
+        aTableau/Label,
+    },
+    runnerLabel/.style = {
+        aTableau/Label,
     },
     % -----------------------------------------------------------------------
     % the named coordinate for an abacus tick
@@ -1575,7 +1586,7 @@
        \fp_add:Nn \l__aTableau_ya_fp {\l_tmpa_tl*\l__aTableau_box_col_dy_fp}
    }
    % add the label
-   \node[aTableau/labelStyle] at (\fp_use:N\l__aTableau_xa_fp,\fp_use:N\l__aTableau_ya_fp) { \__aTableau_entry:n{\l__aTableau_label_tl} };
+   \node[aTableau/label] at (\fp_use:N\l__aTableau_xa_fp,\fp_use:N\l__aTableau_ya_fp) { \__aTableau_entry:n{\l__aTableau_label_tl} };
 }
 
 % usage: \__aTableau_draw_cover_boxes:
@@ -1585,7 +1596,7 @@
    \group_begin:
      % override the ribbon style inside this group
      \tikzset{aTableau/ribbonBox/.style=aTableau/coverBox}
-     \tikzset{aTableau/ribbonStyle/.style={draw=none,fill=none}}
+     \tikzset{aTableau/ribbon/.style={draw=none,fill=none}}
      \int_zero:N \l__aTableau_r_int
      \seq_map_inline:Nn \l__aTableau_cover_seq
      {
@@ -1610,7 +1621,7 @@
    \group_begin:
      % override the ribbon style inside this group
      \tikzset{aTableau/ribbonBox/.style=aTableau/skewBox}
-     \tikzset{aTableau/ribbonStyle/.style={draw=none,fill=none}}
+     \tikzset{aTableau/ribbon/.style={draw=none,fill=none}}
      \int_zero:N \l__aTableau_r_int
      \seq_map_inline:Nn \l__aTableau_skew_seq
      {
@@ -1683,10 +1694,10 @@
 \cs_new_protected:Npn \__aTableau_draw_tableau:n #1
 {
     % set the star style
-    \tl_set:Nn \l__aTableau_starstyle_tl {aTableau/tableauStarStyle}
+    \tl_set:Nn \l__aTableau_starstyle_tl {aTableau/tableauStar}
 
     % disable interior boxes if boxes_bool is false
-    \bool_if:NF \l__aTableau_boxes_bool { \__aTableau_tikzset_append:nn {boxStyle} {draw=none} }
+    \bool_if:NF \l__aTableau_boxes_bool { \__aTableau_tikzset_append:nn {tableauBox} {draw=none} }
 
     % initialise the skew shape for a shifted tableaux
     \bool_if:NT \l__aTableau_shifted_bool
@@ -1746,7 +1757,7 @@
     }
     \bool_if:NT \l__aTableau_skew_boxes_bool  { \__aTableau_draw_skew_boxes: }
     \bool_if:NT \l__aTableau_skew_border_bool { \__aTableau_draw_border:nn {skew}  {skewBorder}  }
-    \bool_if:NT \l__aTableau_border_bool      { \__aTableau_draw_border:nn {shape} {borderStyle} }
+    \bool_if:NT \l__aTableau_border_bool      { \__aTableau_draw_border:nn {shape} {border} }
 
     % remove dotted rows and columns
     \seq_if_empty:NF \l__aTableau_dotted_rows_seq \__aTableau_remove_dotted_tableau_rows:
@@ -1897,12 +1908,12 @@
 
     \tl_if_empty:nTF {#1}
     {   % draw box if it has the default styling
-        \node[aTableau/boxStyle] (\l__aTableau_name_tl)
+        \node[aTableau/tableauBox] (\l__aTableau_name_tl)
             at (\fp_use:N\l__aTableau_xl_fp, \fp_use:N\l__aTableau_yl_fp)
             {\__aTableau_entry:n{#2}};
     }
     {   % save the node to \l__aTableau_styled_nodes_tl if it is styled
-        \__aTableau_put_tikz_node:noVno {styled_nodes} {aTableau/boxStyle,#1} \l__aTableau_name_tl {l} {#2}
+        \__aTableau_put_tikz_node:noVno {styled_nodes} {aTableau/tableauBox,#1} \l__aTableau_name_tl {l} {#2}
     }
     % look for the next entry, or finish
     \int_incr:N \l__aTableau_col_int
@@ -2250,7 +2261,7 @@
 \cs_new_protected:Npn \__aTableau_ribbon_tableau:n #1
 {
     % set the star style
-    \tl_set:Nn \l__aTableau_starstyle_tl {aTableau/tableauStarStyle}
+    \tl_set:Nn \l__aTableau_starstyle_tl {aTableau/tableauStar}
 
     \seq_if_empty:NTF \l__aTableau_shape_seq
     {
@@ -2731,7 +2742,7 @@
     \use:c { __aTableau_finalise_ \l__aTableau_ribbon_type_tl :}
 
     % draw the ribbon boundary, applying any style
-    \exp_last_unbraced:Ne \draw { [aTableau/\l__aTableau_ribbon_type_tl Style,\l__aTableau_ribbon_style_tl] } \l__aTableau_ribbon_path_tl;
+    \exp_last_unbraced:Ne \draw { [aTableau/\l__aTableau_ribbon_type_tl, \l__aTableau_ribbon_style_tl] } \l__aTableau_ribbon_path_tl;
 
     % Now we add the nodes in the ribbon with the default styling (or
     % unstyled), and styled nodes in the ribbon. To do this we build the two
@@ -2897,17 +2908,35 @@
 }
 
 
-% usage: \__aTableau_abacus_labels:n { height }
-\cs_new_protected:Npn \__aTableau_abacus_labels:n #1
+% usage: \__aTableau_abacus_row_labels:
+% Add nodes containing the row labels
+\cs_new_protected:Nn \__aTableau_abacus_row_labels:
+{
+        % add the runner labels using the "row height" #1, which is set by \__aTableau_draw_abacus_end:Vnn
+        \int_zero:N \l__aTableau_r_int
+        \seq_map_inline:Nn \l__aTableau_row_labels_seq
+        {
+            \__aTableau_set_bead_coordinates:nVn {a} \l__aTableau_r_int {-1}
+            \seq_if_in:NVF \l__aTableau_dotted_rows_seq \l__aTableau_r_int
+            {
+                \node[aTableau/rowLabel] at (\fp_use:N\l__aTableau_xa_fp,\fp_use:N\l__aTableau_ya_fp){ \__aTableau_entry:n{##1} };
+            }
+            \int_incr:N \l__aTableau_r_int
+        }
+}
+
+% usage: \__aTableau_abacus_runner_labels:n { height }
+% Add nodes containing the runner labels
+\cs_new_protected:Npn \__aTableau_abacus_runner_labels:n #1
 {
         % add the runner labels using the "row height" #1, which is set by \__aTableau_draw_abacus_end:Vnn
         \int_zero:N \l__aTableau_c_int
         \seq_map_inline:Nn \l__aTableau_runner_labels_seq
         {
-            \__aTableau_set_bead_coordinates:nnV {a} {#1}\l__aTableau_c_int
+            \__aTableau_set_bead_coordinates:nnV {a} {#1} \l__aTableau_c_int
             \seq_if_in:NVF \l__aTableau_dotted_cols_seq \l__aTableau_c_int
             {
-                \node[aTableau/runnerLabelStyle] at (\fp_use:N\l__aTableau_xa_fp,\fp_use:N\l__aTableau_ya_fp){ \__aTableau_entry:n{##1} };
+                \node[aTableau/runnerLabel] at (\fp_use:N\l__aTableau_xa_fp,\fp_use:N\l__aTableau_ya_fp){ \__aTableau_entry:n{##1} };
             }
             \int_incr:N \l__aTableau_c_int
         }
@@ -2918,7 +2947,7 @@
 \cs_new_protected:Npn \__aTableau_abacus:nn #1 #2
 {
     % set the star style
-    \tl_set:Nn \l__aTableau_starstyle_tl {aTableau/abacusStarStyle}
+    \tl_set:Nn \l__aTableau_starstyle_tl {aTableau/abacusStar}
 
     % record the number of runners in cols_int
     \int_set:Nn \l__aTableau_cols_int {#1}
@@ -3072,12 +3101,15 @@
     % draw the top of the abacus
     \__aTableau_add_abacus_end:Vnn \l__aTableau_abacus_top_tl {-\l__aTableau_abacus_top_fp} {1}
 
-    % add any abacus labels
+    % add any abacus runner labels
     \bool_if:NT \l__aTableau_traditional_bool
     {
         \fp_add:Nn \l_tmpa_fp {-\l__aTableau_beam_height_fp/\l__aTableau_abacus_ht_fp}
     }
-    \__aTableau_abacus_labels:n \l_tmpa_fp
+    \__aTableau_abacus_runner_labels:n \l_tmpa_fp
+
+    % add any abacus row labels
+    \__aTableau_abacus_row_labels:
 
     % draw the bottom of the abacus
     \__aTableau_add_abacus_end:Vnn \l__aTableau_abacus_bottom_tl {\l__aTableau_rows_int+\l__aTableau_abacus_bottom_fp-0.5} {-1}
@@ -3353,7 +3385,7 @@
     % change the colour theme
     colour~theme .choices:nn = { default, classic, natural }
     {
-        \clist_map_inline:nn {Main,Inner,Skew,SkewFill,StarStyle,Rod}
+        \clist_map_inline:nn {Main,Inner,Skew,Fill,Star,Rod}
         {
             \__aTableau_define_html_colour:no {####1} { \prop_item:Nn \l__aTableau_colour_theme_prop {#1_####1} }
         }
@@ -3434,7 +3466,7 @@
     scriptscript .value_required:n = true,
     scriptscript .initial:n = 0.4,
 
-    star~style .code:n = { \__aTableau_tikzset_append:nn {tableauStarStyle} {#1} },
+    star~style .code:n = { \__aTableau_tikzset_append:nn {tableauStar} {#1} },
     star~style .value_required:n = true,
 
     % shortcut for setting TikZ styles, following a suggestion of Skillmon to use \keyval_parse:nnn
@@ -3506,7 +3538,7 @@
     border~colour .value_required:n = true,
     border~colour .initial:n = aTableauMain,
 
-    border~style .code:n = { \__aTableau_tikzset_append:nn {borderStyle} {#1} },
+    border~style .code:n = { \__aTableau_tikzset_append:nn {border} {#1} },
     border~style .value_required:n = true,
 
     % node height and width
@@ -3543,7 +3575,7 @@
     box~text .value_required:n = true,
     box~text .initial:n = aTableauMain,
 
-    box~style .code:n = { \__aTableau_tikzset_append:nn {boxStyle} {#1} },
+    box~style .code:n = { \__aTableau_tikzset_append:nn {tableauBox} {#1} },
     box~style .value_required:n = true,
 
     boxes .bool_set:N = \l__aTableau_boxes_bool,
@@ -3584,14 +3616,14 @@
     % label
     label .code:n = { \__aTableau_set_multi_tl_key:nn {label} {#1} },
 
-    label~style .code:n = { \__aTableau_tikzset_append:nn {labelStyle} {#1} },
+    label~style .code:n = { \__aTableau_tikzset_append:nn {label} {#1} },
     label~style .value_required:n = true,
 
     % -- paths ---------------------------------------
     paths .code:n = { \__aTableau_set_multi_tl_key:nn {paths} {#1} },
     paths .initial:n = ,
 
-    path~style .code:n = { \__aTableau_tikzset_append:nn {pathStyle} {#1} },
+    path~style .code:n = { \__aTableau_tikzset_append:nn {path} {#1} },
     path~style .value_required:n = true,
     path~style .initial:n =,
 
@@ -3606,7 +3638,7 @@
     ribbons .code:n = { \__aTableau_set_multi_tl_key:nn {ribbons} {#1} },
     ribbons .initial:n = ,
 
-    ribbon~style .code:n = { \__aTableau_tikzset_append:nn {ribbonStyle} {#1} },
+    ribbon~style .code:n = { \__aTableau_tikzset_append:nn {ribbon} {#1} },
     ribbon~style .value_required:n = true,
     ribbon~style .initial:n =,
 
@@ -3623,7 +3655,7 @@
     snobs .code:n = { \__aTableau_set_multi_tl_key:nn {snobs} {#1} },
     snobs .initial:n = ,
 
-    snob~style .code:n = { \__aTableau_tikzset_append:nn {snobStyle} {#1} },
+    snob~style .code:n = { \__aTableau_tikzset_append:nn {snob} {#1} },
     snob~style .value_required:n = true,
     snob~style .initial:n =,
 
@@ -3655,7 +3687,7 @@
 
     cover~boxes .bool_set:N = \l__aTableau_cover_boxes_bool,
     cover~boxes .default:n  = true,
-    cover~boxes .initial:n  = false,
+    cover~boxes .initial:n  = true,
 
     no~cover~boxes .bool_set_inverse:N = \l__aTableau_cover_boxes_bool,
 
@@ -3783,7 +3815,7 @@
     abacus~top .value_required:n = true,
     abacus~top .initial:n = 0.4,
 
-    abacus~star~style .code:n = { \__aTableau_tikzset_append:nn {abacusStarStyle} {#1} },
+    abacus~star~style .code:n = { \__aTableau_tikzset_append:nn {abacusStar} {#1} },
     abacus~star~style .value_required:n = true,
 
     bead .tl_set:N = \l__aTableau_bead_tl, % bead colour
@@ -3835,6 +3867,12 @@
     framed .default:n = true,
     framed .initial:n = false,
 
+    row~labels .code:n = { \seq_set_split:Nnn \l__aTableau_row_labels_seq {,} {#1} },
+    row~labels .value_required:n = true,
+
+    row~label~style .code:n = { \__aTableau_tikzset_append:nn {rowLabel} {#1} },
+    row~label~style .value_required:n = true,
+
     runner .tl_set:N = \l__aTableau_runner_tl, % runner colour
     runner .value_required:n = true,
 
@@ -3844,7 +3882,7 @@
     runner~labels .code:n = { \seq_set_split:Nnn \l__aTableau_runner_labels_seq {,} {#1} },
     runner~labels .value_required:n = true,
 
-    runner~label~style .code:n = { \__aTableau_tikzset_append:nn {runnerLabelStyle} {#1} },
+    runner~label~style .code:n = { \__aTableau_tikzset_append:nn {runnerLabel} {#1} },
     runner~label~style .value_required:n = true,
 
     runner~sep .fp_set:N = \l__aTableau_abacus_wd_fp, % runner separation

@@ -7,7 +7,7 @@
 
 ### Version 2.2.0 - 2025-?
   - implements traditional abacuses, with rods and beads, via the `traditional` key
-  - rewrites the ribbon tableau code to allow c, C, r and R ribbon specifications
+  - implements generalised ribbon tableaux with `c`, `C`, `r` and `R` specifications
   - rewrites the tableaux parsing code so that "complex" styles can be entered as `[...]`, instead of `[{...}]`
   - adds `\NewATableauCommand` for creating custom aTableau commands
   - abacuses can now be specified by *quotients*
@@ -17,9 +17,10 @@
   - adds the `cover` key for covering tableaux and diagrams
   - adds the `framed` key for framing abacuses
   - adds the `rotate` key for rotating aTableau pictures
+  - adds the `row labels` key for abacses
   - adds the `shape` key for `\RibbonTableau`
   - adds error messages whenever an aTableau command is not properly contained inside a tikzpicture environment
-  - fixes bug in `beta numbers` key for abacuses
+  - fixes bug in the `beta numbers` key for abacuses
   - many improvements and corrections to the manual
 
 ### Version 2.1.1 - 2025-02-14

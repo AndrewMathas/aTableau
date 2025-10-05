@@ -7,7 +7,6 @@
 # aTableau - ToDo list
 
 ### Bugs:
-  - the abacus runners look like they are one row too long
 
 ### Features being implemented
   - Make `\__atableau_abacus:nn` peek for commas rather than using
@@ -29,4 +28,4 @@
   - Redesign the example environment to automate a testing framework
     using image diffs
 
-AM August 2025
+AM October 2025
