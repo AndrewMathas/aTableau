@@ -9,10 +9,6 @@
 ### Bugs:
 
 ### Features being implemented
-  - Make `\__atableau_abacus:nn` peek for commas rather than using
-    `\clist_map_inline:nn`. Currently braces are needed for "complex"
-    style specifications in abacuses `[{...}]`. (This has already been
-    done for (ribbon) tableau.)
   - check Cartan conventions
 
 ### Documentation

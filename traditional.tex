@@ -4,272 +4,37 @@
 \usetikzlibrary{shapes.misc,fit}
 
 \begin{document}
-  \Abacus[entries=residues,]{3}{3,2^2,0^2}
+
+  \Abacus[entries=shape]{3}{3,2^2,0^2}
+
+  \Abacus[entries=shape]{4}{3,2^2,1^3,0^2}
+
+  \Abacus[entries=rows]{3}{3,2^2,0^2}
+
+  \Abacus[entries=rows]{4}{3,2^2,1^3,0^2}
+
+
+  \Abacus[entries=beads]{3}{3,2^2,0^2}
+
+  \Abacus[entries=beads]{4}{3,2^2,1^3,0^2}
+
+  \Abacus[beads=8]{3}{4^2,2}
+
+  \Abacus[beads=4]{4}{3^2|1^3||2,1^2}
+
+\Abacus[beads=7]{3}{5,3,2}
+
+\Abacus[beads=1]{4}{1,0||2,1}
+
+   One: \Abacus[entries=residues,]{3}{3,2^2,0^2}
 
   \aTabset{align=bottom, no border}
 
-% \Diagram[ribbons={(red,ultra thick)23crrCCCCRRccr}]{7^5}
 
+  \vspace*{20mm}
 
+  Two: \Abacus[abacus ends=--]{3}{2,1^2,0^3}\quad
 
-
-  \typeout{FINAL: 44}
-  \RibbonTableau[shape=7^5]{44}
-
-  \typeout{FINAL: 44r}
-  \RibbonTableau[shape=7^5]{44r}
-
-  \typeout{FINAL: 44rr}
-  \RibbonTableau[shape=7^5]{44rr}
-
-  \typeout{FINAL: 44rrC}
-  \RibbonTableau[shape=7^5]{44rrC}
-
-  \typeout{FINAL: 44rrCC}
-  \RibbonTableau[shape=7^5]{44rrCC}
-
-  \typeout{FINAL: 44rrCCR}
-  \RibbonTableau[shape=7^5]{44rrCCR}
-
-
-  \RibbonTableau[shape=7^5]{12rrCCRC}
-
-  \RibbonTableau[shape=7^5]{12rrCCRrCC}
-  \RibbonTableau[shape=7^5]{12rrCCRrCCR}
-
-  \RibbonTableau[shape=7^5]{12rrCCRrCCRR}
-
-
-  \RibbonTableau[shape=7^5]{12rrCCRrCCRRc}
-
-  \RibbonTableau[shape=7^5]{12rrCCRrCCRRcc}
-
-  \RibbonTableau[shape=7^5]{12rrCCRrCCRRccc}
-
-  \RibbonTableau[shape=7^5]{12rrCCRrCCRRcccc}
-
-  \RibbonTableau[shape=5^5]{(fill=blue!30)44ccrrCC}
-
-  \RibbonTableau[shape=5^5]{(fill=blue!30)44ccrrCCR}
-
-  \typeout{44r --------------------------------------------}
-
-  44r \RibbonTableau[shape=5^5]{44CCCCrrcc}
-
-  44r \RibbonTableau[shape=5^5]{44r}
-
-  \typeout{44rc --------------------------------------------}
-  44rc \RibbonTableau[shape=5^5]{44rc}
-
-  44rcc \RibbonTableau[shape=5^5]{44rcc}
-
-  44rccR \RibbonTableau[shape=5^5]{44rccR}
-
-  44rccRR \RibbonTableau[shape=5^5]{44rccRR}
-
-  44rccRRC \RibbonTableau[shape=5^5]{44rccRRC}
-
-  44rccRRCC \RibbonTableau[shape=5^5]{44rccRRCC}
-
-  %\Diagram[ribbons={23crrCCRRc}]{4^4}
-
-  \begin{tikzpicture}
-  \Diagram(0,0){4^4}
-  \node[draw=orange,fill=red!20,fit=(A-1-2)(A-2-2)(A-1-2)(A-2-3)(A-3-2)]{};
-  \end{tikzpicture}
-
-
-   RibbonTableau[shape=5 5]{23rccCrRC}
-
-  \RibbonTableau[shape=5^5]{23}
-  \RibbonTableau[shape=5^5]{23r}
-  \RibbonTableau[shape=5^5]{23rc}
-  \RibbonTableau[shape=5^5]{23rcc}
-  \RibbonTableau[shape=5^5]{23rccC}
-  \RibbonTableau[shape=5^5]{23rccCr}
-  \RibbonTableau[shape=5^5]{23rccCrR}
-  \RibbonTableau[shape=5^5]{23rccCrRC}
-
-   RibbonTableau{62RcRCRrRr}
-  \RibbonTableau{62_1}
-  \RibbonTableau{62_1R_2}
-  \RibbonTableau{62_1R_2c_3}
-  \RibbonTableau{62_1R_2c_3R_4}
-  \RibbonTableau{62_1R_2c_3R_4C_5}
-  \RibbonTableau{62_1R_2c_3R_4C_5R_6}
-  \RibbonTableau{62_1R_2c_3R_4C_5R_6r_8}
-  \RibbonTableau{62_1R_2c_3R_4C_5R_6r_8R_9}
-  \RibbonTableau{62_1R_2c_3R_4C_5R_6r_8R_9r_*}
-
-   RibbonTableau{44CcCrCRCC}
-  \RibbonTableau{44CcCrCRCC}
-
-   RibbonTableau{33crcRcccC}
-  \RibbonTableau{33crcRcccC}
-
-   RibbonTableau{16rcrCrrR}
-  \RibbonTableau{16rcrCrrR}
-
-  \RibbonTableau[shape={5^5}]{24_1c_2c_3r_4r_5C_6C_7R_8c_9}
-
-  \RibbonTableau[shape={5^5}]{24_1C_2C_3R_4R_5c_6c_7r_8C_9}
-
-  \RibbonTableau[shape={5^5}]{24_1c_2c_3r_4r_5C_6C_7R_8c_9}
-  \RibbonTableau[shape={5^5}]{24_1c_2c_3r_4r_5C_6C_7R_8c_9}
-
-  \Tableau[styles={R={red,thick}, C={cyan,thick}},
-     paths={(R)14ccrc,(C)23rcc}]{1234,567,89{10}}
-
-  \Tableau[styles={R={red,thick}, C={cyan,thick}},
-     paths={(R)14ccrc,(C)23rcc}]{1234,567,89{10}}
-\end{document}
-
-
-  \typeout{Ribbon tableau}
-  \RibbonTableau{
-      *1{10}c*rc*rc*rc*rc*cc*cc,
-      *18c[fill=red]rc[fill=blue]rc*rc*cc[fill=teal]c,
-      [fill=green]16c*rc*rc*cc,
-      *14c[draw=purple,ultra thick]cc[fill=orange]r,
-      [fill=yellow,draw=red,ultra thick]23
-  }
-
-  \begin{tikzpicture}
-        \Diagram(4,2) [ribbons={11,12,13,21,23,31,32,33,41,43,51,53}]{}     % A
-        \Diagram(5,2) [ribbons={11,12,13,22,32,42,52}]{}                    % T
-        \Diagram(6,2) [ribbons={11,12,13,21,23,31,32,33,41,43,51,53}]{}     % A
-        \Diagram(7,2) [ribbons={11,12,13,21,23,31,32,33,41,43,51,52,53}]{}  % B
-        \Diagram(8,2) [ribbons={11,21,31,41,51,52,53}]{}                    % L
-        \Diagram(9,2) [ribbons={11,12,13,21,31,32,33,41,51,52,53}]{}        % E
-        \Diagram(10,2)[ribbons={11,12,13,21,23,31,32,33,41,43,51,53}]{}     % A
-        \Diagram(11,2)[ribbons={11,13,21,23,31,33,41,43,51,52,53}]{}        % U
-  \end{tikzpicture}
-
-\end{document}
-
-  \Multidiagram{3,2^2|...|1}
-  \Multitableau[box font=\tiny]
-    {123,45,67 | ... | {12}{13}{14}}
-
-  \Tableau[cover={4^2,3}]{123,45,67} \qquad
-  \Tableau[skew={2,1}]{123,45,67}
-
-  \tikzset{Fill/.style={fill=#1!20!white},
-    B/.style={Fill=blue}, R/.style={Fill=red}, Y/.style={Fill=yellow}}
-
-  \RibbonTableau{ [B]12_1  [R]c_2   [Y]r_3} \qquad
-  \RibbonTableau{ [B]12_1, [R]11_2, [Y]21_3 } \qquad
-
-  \typeout{Ribbons in tableaux}
-
-\end{document}
-
-  framed:
-
-  \Abacus[framed ]{4}{8^2_-,7_+,5_a,4^2_b,1_\times^3,1_d} \qquad
-  \Abacus[framed, traditional]{4}{8^2_-,7_+,5_a,4^2_b,1_\times^3,1_d}
-
-  \Abacus[framed, runner labels={0,1,2,3} ]{4}{8^2_-,7_+,5_a,4^2_b,1_\times^3,1_d} \qquad
-  \Abacus[framed, traditional, runner labels={0,1,2,3}]{4}{8^2_-,7_+,5_a,4^2_b,1_\times^3,1_d}
-
-\end{document}
-
-  \tikzset{
-    add grid/.code = {
-      % draw coordinate axes
-      \draw[help lines, step=0.5,thin, LightGrey](-0.5,-1.5) grid (4,2.5);
-      \draw[help lines, step=1,thin, Grey](-0.5,-1.5) grid (4,2.5);
-      \foreach \pt in {0,...,3} {
-        \node[below,font=\tiny] at (\pt,-1.5){$\pt$};
-      }
-      \foreach \pt in {-1,...,2} {
-        \node[left, font=\tiny] at (-0.5,\pt){$\pt$};
-      }
-    }
-  }
-
-  dash
-  \Abacus[abacus ends=--]{3}{2,1^2,0^3}\quad
-  \Abacus[abacus ends=-_]{3}{2,1^2,0^3}\quad
-  \Abacus[abacus ends=-.]{3}{2,1^2,0^3}\quad
-  \Abacus[abacus ends=-*]{3}{2,1^2,0^3}\quad
-  \Abacus[abacus ends=-|]{3}{2,1^2,0^3}\quad
-  \Abacus[abacus ends=->]{3}{2,1^2,0^3}
-
-  underline
-  \Abacus[abacus ends=_-]{3}{2,1^2,0^3}\quad
-  \Abacus[abacus ends=__]{3}{2,1^2,0^3}\quad
-  \Abacus[abacus ends=_.]{3}{2,1^2,0^3}\quad
-  \Abacus[abacus ends=_*]{3}{2,1^2,0^3}\quad
-  \Abacus[abacus ends=_|]{3}{2,1^2,0^3}\quad
-  \Abacus[abacus ends=_>]{3}{2,1^2,0^3}
-
-  dot
-  \Abacus[abacus ends=.-]{3}{2,1^2,0^3}\quad
-  \Abacus[abacus ends=._]{3}{2,1^2,0^3}\quad
-  \Abacus[abacus ends=..]{3}{2,1^2,0^3}\quad
-  \Abacus[abacus ends=.*]{3}{2,1^2,0^3}\quad
-  \Abacus[abacus ends=.|]{3}{2,1^2,0^3}\quad
-  \Abacus[abacus ends=.>]{3}{2,1^2,0^3}
-
-  star
-  \Abacus[abacus ends=*-]{3}{2,1^2,0^3}\quad
-  \Abacus[abacus ends=*_]{3}{2,1^2,0^3}\quad
-  \Abacus[abacus ends=*.]{3}{2,1^2,0^3}\quad
-  \Abacus[abacus ends=**]{3}{2,1^2,0^3}\quad
-  \Abacus[abacus ends=*|]{3}{2,1^2,0^3}\quad
-  \Abacus[abacus ends=*>]{3}{2,1^2,0^3}
-
-  pipe
-  \Abacus[abacus ends=|-]{3}{2,1^2,0^3}\quad
-  \Abacus[abacus ends=|_]{3}{2,1^2,0^3}\quad
-  \Abacus[abacus ends=|.]{3}{2,1^2,0^3}\quad
-  \Abacus[abacus ends=|*]{3}{2,1^2,0^3}\quad
-  \Abacus[abacus ends=||]{3}{2,1^2,0^3}\quad
-  \Abacus[abacus ends=|>]{3}{2,1^2,0^3}
-
-  arrow
-  \Abacus[abacus ends=>-]{3}{2,1^2,0^3}\quad
-  \Abacus[abacus ends=>_]{3}{2,1^2,0^3}\quad
-  \Abacus[abacus ends=>.]{3}{2,1^2,0^3}\quad
-  \Abacus[abacus ends=>*]{3}{2,1^2,0^3}\quad
-  \Abacus[abacus ends=>|]{3}{2,1^2,0^3}\quad
-  \Abacus[abacus ends=>>]{3}{2,1^2,0^3}
-
-\bigskip
-
-  \Abacus[traditional,abacus ends=--]{3}{2,1^2,0^3}\quad\Abacus[traditional,abacus ends=-_]{3}{2,1^2,0^3}\quad
-  \Abacus[traditional,abacus ends=-_]{3}{2,1^2,0^3}\quad\Abacus[traditional,abacus ends=>>]{3}{2,1^2,0^3}\quad
-
-\bigskip
-
-  \Abacus[traditional,abacus ends=_-]{3}{2,1^2,0^3}\quad\Abacus[traditional,abacus ends=>>]{3}{2,1^2,0^3}\quad
-  \Abacus[traditional,abacus ends=__]{3}{2,1^2,0^3}\quad\Abacus[traditional,abacus ends=>>]{3}{2,1^2,0^3}\quad
-
-\bigskip
-
-  \Abacus[traditional,abacus ends=-|]{3}{2,1^2,0^3}\quad\Abacus[traditional,abacus ends=>>]{3}{2,1^2,0^3}\quad
-  \Abacus[traditional,abacus ends=|-]{3}{2,1^2,0^3}\quad\Abacus[traditional,abacus ends=>>]{3}{2,1^2,0^3}\quad
-
-\bigskip
-
-  \Abacus[traditional,abacus ends=_|]{3}{2,1^2,0^3}\quad\Abacus[traditional,abacus ends=>>]{3}{2,1^2,0^3}\quad
-  \Abacus[traditional,abacus ends=|_]{3}{2,1^2,0^3}\quad\Abacus[traditional,abacus ends=>>]{3}{2,1^2,0^3}\quad
-
-    \bigskip
-
-    \bigskip
-
-    \Abacus[traditional, scale=0.6]{3}{6,4,3,1,0} \qquad
-    \Abacus[traditional, runner=brown, bead=blue]
-      {3}{6,4,3,[ball color=red]0^2}
-
-    \bigskip
-
-  \Abacus[traditional, styles={b={ball color=blue},r={ball color=red},w={ball color=white}},abacus ends=--,scale=1.4]{3}{[b]9,[w]8,[r]8,[b]6,[b]6,[r]2,[b]1} \qquad
-  \Abacus[traditional]{2}{5_5, 4_4, 3_3, 2_2,0_0} \qquad
-  \Abacus[traditional,styles={R={ball color=red, text=yellow}}]{3}{*5^2_5, [R]4^3_4, 3, 2_2,*0^2_{oo}} \qquad
-  \Abacus[traditional]{4}{8^2_-,7_+,5_a,4^2_b,1_\times^3,1_d}
 
 
 \end{document}

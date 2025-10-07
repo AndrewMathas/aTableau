@@ -1,6 +1,6 @@
 % ----------------------------------------------------------------------
 % aTableau - Andrew Mathas (C) 2022-2025
-% Modified: 10:45 Monday, 06 October 2025
+% Modified: 16:21 Tuesday, 07 October 2025
 % ----------------------------------------------------------------------
 \documentclass{amsart}
 \usepackage[svgnames,table]{xcolor}
@@ -4155,7 +4155,7 @@
   \option{entries=beads}<abacus> to label the beads in these abacuses by
   their bead positions, or \emph{beta numbers}.
 
-  \option[$-|$]{abacus ends}  [any pair of: $-$, \_\!\_, ., *, $|$, \textgreater]
+  \option[$-|$]{abacus ends}[any pair of: $-$, \_\!\_, ., *, $|$, \textgreater]
   \option*[very thick, draw=\aTableauColour{Inner}]{abacus ends style=style}[\TikZ-styling]
 
   The \option{abacus ends} key sets the style used for the top and
@@ -4331,6 +4331,23 @@
   \Abacus[bead=blue, bead text=yellow] {3}{3_3,2^2,1^3}
   \end{example}
 
+  \option[-]{beads}[non-negative integer]
+
+  Set the number of beads in the abacus. Normally, the number of beads
+  on the abacus is automatically set to be the number of parts, or beta
+  numbers, given to the \keyword{\Abacus} command. You can increase the
+  number of beads by adding $0$'s to the partition, or, increasing the
+  beta numbers. Alternatively, you can set the number of beads using
+  \option{beads}. When the partition is entered as a quotient,
+  \option{beads} set the number of beads on each runner.
+
+  \begin{example}
+  \Abacus[beads=15]{3}{4^2,2}\qquad
+  \Abacus[beads=4]{4}{3^2|1^3||2,1^2}
+  \end{example}
+
+  The \option{beads} is incompatible with \option{beta numbers}.
+
   \option[false]{beta numbers}[false/true]
 
   When \option{beta numbers} is set, the numbers in the bead
@@ -4479,7 +4496,7 @@
   \Abacus[framed]{3}{3,2^2,0^2} \qquad
   \end{example}
 
-  The \option{framed} key overrides the \option{abacus ends key}.
+  The \option{framed} key overrides the \option{abacus ends} key.
   Using the \option{framed} key works better with the
   \option{traditional} abacuses, not least because \option{traditional}
   abacuses only support the $-$ and~\_\!\_ settings for
@@ -4812,9 +4829,9 @@
   \only<1->{\Multidiagram{3,2|1^2}}  \only<2-4>{\Tabloid<2->{3,1^2}{12345,789,{10}{11}}}
   \end{Example}
 
-  The only advantage of using the \aTableau overlay specification
-  extensions, rather than the \ctan{beamer} commands, is that the code
-  is slightly easier to read and slightly easier to type.
+  The only advantage of using the \aTableau overlay specification,
+  rather than the \ctan{beamer} commands, is that the \aTableau code is
+  easier to read and easier to type.
 
   \option[only]{beamer}[invisible,only,onslide,uncover,visible]
 
@@ -4870,6 +4887,7 @@
   theme, the key-value interface allows you to set the colours of
   individual components in the pictures produced by \aTableau.
 
+  \newpage[4]
   {\samepage
 
     \option[default]{colour theme}{default,classic,natural}
@@ -4904,7 +4922,7 @@
     \option{abacus ends}       & Set the top and bottom of the abacus                & \No  & \Yes \\
     \option{abacus ends style} & Set the style of the top and bottom of the abacus   & \No  & \Yes \\
     \option{abacus bottom}     & Set the offset for the bottom of the abacus         & \No  & \Yes \\
-    \option{abacus star stle}  & Set the abacus star style                           & \No  & \Yes \\
+    \option{abacus star style} & Set the abacus star style                           & \No  & \Yes \\
     \option{abacus top}        & Set the offset for the top of the abacus            & \No  & \Yes \\
     \option{align}             & Set baseline alignment of \aTableau diagram         & \Yes & \Yes[abacus]\\
     \option{australian}        & Use the Australian convention for tableaux          & \Yes & \No \\
@@ -4914,6 +4932,7 @@
     \option{bead size}         & The diameter of the abacus beads                    & \No  & \Yes \\
     \option{bead style}        & Set the style of the abacus beads                   & \No  & \Yes \\
     \option{bead text}         & Set the colour of the abacus bead labels            & \No  & \Yes \\
+    \option{beads}             & Set the number of beads on the abacus                & \No  & \Yes \\
     \option{beamer}            & Sets the beamer overlay specifications command      & \Yes & \Yes \\
     \option{beta numbers}      & Abacus bead specifications entered as beta numbers  & \No  & \Yes \\
     \option*{border}           & Draw the tableau border                             & \Yes & \No \\
@@ -5028,7 +5047,7 @@
   \keyword{\tikzset}, but we recommend not doing this because there is
   a risk of breaking the corresponding \aTableau commands. If you do
   change these styles directly, we strongly recommend that you
-  \emph{append} to these styles rather than setting them directly.
+  \emph{append} to these styles, rather than setting them directly.
 
   \begin{center}
     \rowcolors{2}{}{LightSkyBlue!10}
@@ -5090,18 +5109,17 @@
   The \arXiv now uses \TeXLive2025 by default, so papers using \aTableau
   should compile on the \arXiv. Unfortunately, the \arXiv only has
   version 2.1.0 of \aTableau installed, as this is what shipped with
-  \TeXLive2025. If \aTableau causes difficulties when compiling your file
-  on the \arXiv, then you may need to upload the latest \aTableau style
-  file,
+  \TeXLive2025. If your document does not compile on the \arXiv because
+  of \aTableau, you may need to upload the latest \aTableau style file,
   \href{https://mirrors.ctan.org/graphics/pgf/contrib/atableau/atableau.sty}{atableau.sty},
-  with your submission.
+  as part of your \arXiv submission.
 
   % ----------------------------------------------------------
   \section{Examples from the literature}
 
-  This section shows how to draw some tableaux that appear in the
-  literature using the \aTableau package, with the aim being to show how to
-  use the package by using real examples.
+  This section shows how to draw tableaux that appear in the literature
+  using the \aTableau package, with the aim of demonstrating how to use
+  the package to construct some non-trivial, real-world  examples.
 
   The first example, from \cite{Muniz}, is notable mainly for the
   right-hand tableau, which is not of skew shape.
@@ -5112,12 +5130,12 @@
   \SkewTableau{4,2}{1,112,[R]1223,[R]234,4}\qquad
   \SkewTableau[snobs={22_1}]{4,3}{1,12,22[P]3,334,4}
   \end{Example}
-  Notice also the use of \option{snobs} to draw a phantom box in the
+  Notice the use of \option{snobs} to draw a phantom box in the
   $(1,1)$-position of the second tableau, with the result that this
   tableau aligns correctly with the other tableaux.
 
-  Diagrams like the following are common. Note the use of
-  \option{ribbons} to add the $\alpha$ in row~$4$ and column~$8$.
+  Diagrams like the following are common. Again, \option{ribbons} is
+  used to add the $\alpha$ in row~$4$ and column~$8$.
 
   \begin{example}
   \Diagram[french, no boxes, ribbons={*48_\alpha}]
@@ -5178,17 +5196,17 @@
   \end{example}
 
   From the \aTableau perspective, the most interesting feature of the
-  next two pictures is that they give non-trivial examples of how to use
-  the named nodes for the tableaux boxes; see \autoref{E:NodeNames}.
+  next two pictures is that they show how to use named nodes for the
+  tableaux boxes; see \autoref{E:NodeNames}.
 
   The first of these examples, which is also from
   \cite{bowman2023quiverpresentationsisomorphismshecke}, is a little
   more involved. Most of the diagram is drawn using \emph{pics} from
   \TikZ, which are a good way to add repeating features to a
-  \keyword{tikzpicture}. Two very similar \emph{pics} are used to add
-  the up and down strings to this picture, taking as input the string
-  colour, the starting box, the list of the boxes that the string goes
-  through, and the final box.
+  \keyword{tikzpicture}. To draw the up and down strings in this picture
+  we define two very similar pics \textit{ustring} and \textit{dstring},
+  which take as input the string colour, the starting box, the list of
+  the boxes that the string goes through, and the final box.
 
 \begin{Example}[label=Ex:waves]
 \tikzset{% reusable keys for drawing the strings in the diagram using named nodes
@@ -5233,7 +5251,8 @@
 
 The final example shows how to draw a multipartition and its associated
 KLRW diagram~\cite{Bowman:ManyCellular}. Once again, the issue is that
-we need to draw a tableau, connecting it with other combinatorial data.
+we need to draw a tableau and connect it with other combinatorial data
+in the picture.
 
 \begin{Example}[label=Ex:KLRW]
 \begin{tikzpicture}[red string/.style={red, ultra thick},
