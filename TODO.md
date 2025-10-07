@@ -7,6 +7,7 @@
 # aTableau - ToDo list
 
 ### Bugs:
+  - check dot placement in `\Multidiagram[french]{3,2^2|...|1}`
 
 ### Features being implemented
   - check Cartan conventions

@@ -2,8 +2,10 @@
   Compile times for the aTableau manual
 ==========================================
 
-These times were obtained using a Macbook pro M4. These times are
-indicative only as they vary wildly between machines.
+These times are indicative only because  the page length is only a rough
+proxy for the complexity of each page. Compilation times are heavily
+dependent on the computer used to compile the manual. The times below
+were obtained on a Macbook pro M4.
 
 Date        Version  Pages  Time  s/page
 -----------------------------------------

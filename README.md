@@ -38,8 +38,8 @@ A LaTeX package for **symmetric group combinatorics**, with commands for:
 ### Dependencies
 [LaTeX3](https://www.latex-project.org/latex3/) and [TikZ](https://tikz.net/)
 
-**aTableau** relies heavily on recent features of the LaTeX3 programming environment.
-*Requires TexLive 2024 or later*
+The **aTableau** package requires TexLive 2024 or later as it relies heavily on the LaTeX3 programming environment
+
 
 ## Author
 Andrew Mathas <br>

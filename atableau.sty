@@ -1,6 +1,6 @@
 % ---------------------------------------------------------------------------
 % aTableau - Andrew Mathas (C) 2022-2025
-% Modified: 16:27 Tuesday, 07 October 2025
+% Modified: 23:17 Tuesday, 07 October 2025
 % ---------------------------------------------------------------------------
 %
 % A LaTeX package for symmetric group combinatorics:
@@ -23,8 +23,8 @@
 
 % ---------------------------------------------------------------------------
 % aTableau release date and version number
-\def\aTableau@version{2.2.0-r1}
-\def\aTableau@release{2025-10-07} % PENDING...
+\def\aTableau@version{2.2.0}
+\def\aTableau@release{2025-10-10} % PENDING...
 
 % ---------------------------------------------------------------------------
 % load TikZ early to avoid \ExplSyntaxOn...\ExplSyntaxOff wrappers
@@ -121,6 +121,10 @@
 \msg_new:nnnn { aTableau } { many-beads }
   { You~have~set~'beads=\int_use:N\l__aTableau_beads_int',~yet~your~abacus~requires~'#1'~beads }
   { This~is~just~a~warning~message~because~your~abacus~has~more~beads~than~expected.}
+
+\msg_new:nnnn { aTableau } { many-rows }
+  { You~have~set~'rows=\int_use:N\l__aTableau_beads_int',~yet~your~abacus~requires~'#1'~rows }
+  { This~is~just~a~warning~message~because~your~abacus~has~more~rows~than~expected.}
 
 \msg_new:nnnn { aTableau } { quotient-components }
   { The~quotient~has~too~many~components:~#1 }
@@ -2929,8 +2933,55 @@
         }
 }
 
+% usage: \__aTableau_extend_beta_numbers:
+% This is a helper function to when parsing gthe abacus bead specifications. It
+% extends the length of the partition, or sequence of beta numbers, if it is
+% shorter than \l__aTableau_beads_int by appropriately modifying the sequences
+% \l__aTableau_rcs_seq, \l__aTableau_texts_seq and \l__aTableau_styles_seq
+\cs_new_protected:Nn \__aTableau_extend_beta_numbers:
+{
+    \tl_set:No \l_tmpa_tl { \seq_count:N \l__aTableau_rcs_seq }
+    \int_compare:nNnTF {\l__aTableau_beads_int} > {\l_tmpa_tl}
+    {
+        \bool_if:nTF \l__aTableau_beta_numbers_bool
+        {   % need to increment the existing beta numbers
+            \seq_set_eq:NN \l_tmpa_seq \l__aTableau_rcs_seq
+            \int_set:Nn \l_tmpa_int { \l__aTableau_beads_int-\l_tmpa_tl }
+            \seq_clear:N \l__aTableau_rcs_seq
+            \seq_map_inline:Nn \l_tmpa_seq
+            {
+                \seq_put_right:Ne \l__aTableau_rcs_seq { \int_eval:n {##1+\l_tmpa_int}}
+            }
+            % now need to add some more beads
+            \int_step_inline:nnnn {\l_tmpa_int-1} (-1) {0}
+            {
+              \seq_put_right:Nn \l__aTableau_rcs_seq   {##1}
+              \seq_put_right:Nn \l__aTableau_texts_seq  {}
+              \seq_put_right:Nn \l__aTableau_styles_seq {}
+            }
+        }
+        {   % need to add extra zeros to the partition
+            \int_step_inline:nnn {\l_tmpa_tl} {\l__aTableau_beads_int-1}
+            {
+              \seq_put_right:Nn \l__aTableau_rcs_seq   {0}
+              \seq_put_right:Nn \l__aTableau_texts_seq  {}
+              \seq_put_right:Nn \l__aTableau_styles_seq {}
+            }
+        }
+    }
+    {   % give a warning if there are more beads than l__aTableau_beads_int
+        \int_compare:nNnT {\l__aTableau_beads_int} > {0}
+        {
+            \msg_warning:nnV {aTableau} {many-beads} \l_tmpa_tl
+            \int_set:NV \l__aTableau_beads_int \l_tmpa_tl
+        }
+    }
+}
 
 % usage: \__aTableau_abacus:nn { #runners } { bead specifications }
+% This is the main routine for the \Abacus command. It parses the abacus
+% specifications by calling the peeking functions above, then draws the
+% runners, frame and beads
 \cs_new_protected:Npn \__aTableau_abacus:nn #1 #2
 {
     % set the star style
@@ -2983,37 +3034,21 @@
         \int_zero:N \l__aTableau_c_int % offset for each runner
         \seq_map_inline:Nn \l__aTableau_component_seq
         {
-           \seq_clear:N \l__aTableau_rcs_seq
-            % add the entries in the quotient, peeking between commas
+            \seq_clear:N \l__aTableau_rcs_seq
 
-            \tl_if_blank:nF {##1} { \__aTableau_peek_style:nw {record_style:nn} ##1 \q_recursion_tail \q_recursion_stop }
-
-            % Set the number of beads, which is the length of \l__aTableau_shape_seq
-            % unless the abacus was defined using a partition and the number of beads
-            % has already been set
-            \bool_if:nF { \l__aTableau_beta_numbers_bool || \int_compare_p:nNn {\l__aTableau_beads_int} = {0} }
+            \tl_if_blank:nF {##1}
             {
-                \tl_set:No \l_tmpa_tl { \seq_count:N \l__aTableau_rcs_seq }
-                \int_compare:nNnTF {\l_tmpa_tl} > {\l__aTableau_beads_int}
-                {   % the abacus already has more beads, so just print a warning
-                    \msg_warning:nnV {aTableau} {many-beads} \l_tmpa_tl
-                }
-                {  % need to add some beads
-                    \int_step_inline:nnn {\l_tmpa_tl} {\l__aTableau_beads_int-1}
-                    {
-                      \seq_put_right:Nn \l__aTableau_rcs_seq   {0}
-                      \seq_put_right:Nn \l__aTableau_texts_seq  {}
-                      \seq_put_right:Nn \l__aTableau_styles_seq {}
-                    }
-                }
-            }
+                % add the entries in the quotient, peeking between commas
+                \__aTableau_peek_style:nw {record_style:nn} ##1 \q_recursion_tail \q_recursion_stop
 
-            % convert the sequence in \l__aTableau_rcs_seq into beta numbers
-            \seq_if_empty:NF \l__aTableau_rcs_seq
-            {
+                % Extend the length of the partition, or sequence of beta numbers, if
+                % it is shorter than \l__aTableau_beads_int
+                \__aTableau_extend_beta_numbers:
+
+                % convert the sequence in \l__aTableau_rcs_seq into beta numbers and add to \l__aTableau_shape_seq
                 \bool_if:NTF \l__aTableau_beta_numbers_bool
                 {   % entered as beta numbers, so just need to multiply by e = \l__aTableau_cols_int
-                    \int_set:No \l_tmpa_int { \l__aTableau_cols_int * (\seq_item:Nn \l__aTableau_rcs_seq {1})}
+                    \int_set:No \l_tmpa_int { \l__aTableau_cols_int * (\seq_item:Nn \l__aTableau_rcs_seq {1})} % maximum beta number
                     \seq_map_inline:Nn \l__aTableau_rcs_seq
                     { \seq_put_right:Ne \l__aTableau_shape_seq { \int_eval:n {\l__aTableau_c_int+\l__aTableau_cols_int*####1} } }
                 }
@@ -3048,37 +3083,20 @@
         % specifications as [{...}]. Now we peek for the commas and the style
         % simultaneously.
         \seq_clear:N \l__aTableau_rcs_seq   % initially store beta numbers here and then move to \l__aTableau_shape_seq
-        \tl_if_blank:nF {#2} { \__aTableau_peek_style:nw {record_style:nn} #2 \q_recursion_tail \q_recursion_stop }
-
-        % Set the number of beads, which is the length of \l__aTableau_shape_seq
-        % unless the abacus was defined using a partition and the number of beads
-        % has already been set
-        \bool_if:nTF { \l__aTableau_beta_numbers_bool || \int_compare_p:nNn {\l__aTableau_beads_int} = {0} }
-        { \int_set:No \l__aTableau_beads_int { \seq_count:N \l__aTableau_rcs_seq } }
+        \tl_if_blank:nF {#2}
         {
-            \tl_set:No \l_tmpa_tl { \seq_count:N \l__aTableau_rcs_seq }
-            \int_compare:nNnTF {\l_tmpa_tl} > {\l__aTableau_beads_int}
-            {   % the abacus already has more beads, so just print a warning
-                \msg_warning:nnV {aTableau} {many-beads} \l_tmpa_tl
-                \int_set:NV \l__aTableau_beads_int \l_tmpa_tl
-            }
-            {  % need to add some beads
-                \int_step_inline:nnn {\l_tmpa_tl} {\l__aTableau_beads_int-1}
-                {
-                  \seq_put_right:Nn \l__aTableau_rcs_seq   {0}
-                  \seq_put_right:Nn \l__aTableau_texts_seq  {}
-                  \seq_put_right:Nn \l__aTableau_styles_seq {}
-                }
-            }
-        }
+            \__aTableau_peek_style:nw {record_style:nn} #2 \q_recursion_tail \q_recursion_stop
 
+            % Extend the length of the partition, or sequence of beta numbers, if
+            % it is shorter than \l__aTableau_beads_int
+            \__aTableau_extend_beta_numbers:
+            \int_set:No \l__aTableau_beads_int { \seq_count:N \l__aTableau_rcs_seq }
 
-
-        % convert \l__aTableau_rcs_seq to beta numbers in % \l__aTableau_shape_seq
-        \seq_if_empty:NF \l__aTableau_rcs_seq
-        {
+            % convert \l__aTableau_rcs_seq to beta numbers in \l__aTableau_shape_seq
             \bool_if:NTF \l__aTableau_beta_numbers_bool
-            { \typeout{~-~setting shape=skew }\seq_set_eq:NN \l__aTableau_shape_seq \l__aTableau_rcs_seq }
+            {
+                \seq_set_eq:NN \l__aTableau_shape_seq \l__aTableau_rcs_seq
+            }
             {
                 \int_set:Nn \l__aTableau_r_int {\l__aTableau_beads_int-1} % the offset to the beta numbers in each row
                 \seq_map_inline:Nn \l__aTableau_rcs_seq
@@ -3093,10 +3111,15 @@
     }
 
 
-    % unless it has already been set, determine the number of abacus rows
-    \int_compare:nNnT {\l__aTableau_rows_int} = {0}
+    % determine the number of abacus rows required
+    \int_set:Nn \l_tmpa_int { 1+\int_div_truncate:nn {\l__aTableau_row_int} {#1} }
+    \int_compare:nNnT {\l__aTableau_rows_int} < { \l_tmpa_tl }
     {
-        \int_set:Nn \l__aTableau_rows_int { 1+\int_div_truncate:nn {\l__aTableau_row_int} {#1} }
+        % give a warning if we need more rows than \l__aTableau_rows_int
+        \int_compare:nNnT {\l__aTableau_rows_int} > {0}
+        { \msg_warning:nne {aTableau} {many-rows} {\int_use:N\l_tmpa_int} }
+        % set the number of rows
+        \int_set_eq:NN \l__aTableau_rows_int \l_tmpa_int
     }
 
     % draw the abacus runners

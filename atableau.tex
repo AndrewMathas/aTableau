@@ -1,6 +1,6 @@
 % ----------------------------------------------------------------------
 % aTableau - Andrew Mathas (C) 2022-2025
-% Modified: 16:21 Tuesday, 07 October 2025
+% Modified: 23:42 Tuesday, 07 October 2025
 % ----------------------------------------------------------------------
 \documentclass{amsart}
 \usepackage[svgnames,table]{xcolor}
@@ -743,7 +743,7 @@
         shifted tableaux,
       and
         ribbon tableaux.
-      Requires \TeXLive2024 or later.
+      This package requires \TeXLive2024 or later.
     \end{quote}
 
     \kern-2mm
@@ -784,7 +784,7 @@
 
   The \aTableau package provides commands for drawing common objects in algebraic
   combinatorics and representation theory, together with styling options
-  and a key-value interface for additional customization.  Under the
+  and a key-value interface for additional customisation.  Under the
   hood, everything is drawn using \TikZ (and \LaTeX3).  These commands
   can be used either as standalone commands or as part of a
   \keyword{tikzpicture} environment.  This package started as code for
@@ -3992,7 +3992,7 @@
   as with the \keyword{\Tableau} command, each of the beads can be given
   optional styling, which can either be given by prepending a
   \keyword{*}, which applies the \option{abacus star style}, or by
-  giving \TikZ stye-keys inside square brackets \keyword{[...]}.
+  giving \TikZ style-keys inside square brackets \keyword{[...]}.
   When exponential notation is used, the styles are applied to all of the
   associated beads.
 
@@ -4331,22 +4331,21 @@
   \Abacus[bead=blue, bead text=yellow] {3}{3_3,2^2,1^3}
   \end{example}
 
-  \option[-]{beads}[non-negative integer]
+  \option[0]{beads=number of beads}[non-negative integer]
 
-  Set the number of beads in the abacus. Normally, the number of beads
-  on the abacus is automatically set to be the number of parts, or beta
-  numbers, given to the \keyword{\Abacus} command. You can increase the
-  number of beads by adding $0$'s to the partition, or, increasing the
-  beta numbers. Alternatively, you can set the number of beads using
-  \option{beads}. When the partition is entered as a quotient,
-  \option{beads} set the number of beads on each runner.
+  Set the (minimum) number of beads in the abacus. By default, the
+  number of beads is equal to the length of the partition, including
+  zeros, or the length of the sequence of beta numbers.  You can
+  increase the number of beads by adding $0$'s to the end of the
+  partition, or by increasing the number of beta numbers.
+  Alternatively, you can set the number of beads using \option{beads}.
+  When the partition is entered as a quotient, \option{beads} sets the
+  minimum number of beads on each runner.
 
   \begin{example}
   \Abacus[beads=15]{3}{4^2,2}\qquad
   \Abacus[beads=4]{4}{3^2|1^3||2,1^2}
   \end{example}
-
-  The \option{beads} is incompatible with \option{beta numbers}.
 
   \option[false]{beta numbers}[false/true]
 
@@ -4405,15 +4404,14 @@
   columns overlap.  For example, consider the abacus:
 
   \begin{example}
-  \Abacus[dotted cols={2,3},
-          dotted rows={2,3}
-  ]{6}{26,21^2,5^2,3,2^2,0^2}
+  \Abacus[dotted cols={2,3}, dotted rows={2,3}]
+    {6}{26,21^2,5^2,3,2^2,0^2}
   \end{example}
 
   The cross-hatched dots in the centre of the abacus are not ideal. The
-  following example addresses this:
+  following example shows one way of addressing this:
 
-  \begin{example}[lefthand width=0.16\textwidth, label=Ex:DottedAbacus]
+  \begin{example}[lefthand width=0.2\textwidth, label=Ex:DottedAbacus]
   \Abacus[dotted cols={2,3}, dotted rows={2,3},
     tikz after = {
       \draw[aTableau/clearBoxes]
@@ -4423,9 +4421,9 @@
   \end{example}
 
   Notice the use of the styles \keyword{aTableau/clearBoxes} and
-  \keyword{aTableau/dottedLine} to draw over, or
-  erase, the cross-hatched dots and to draw the dotted lines,
-  respectively
+  \keyword{aTableau/dottedLine} to draw over, or erase, the
+  cross-hatched dots and then draw the dotted lines. (The
+  \aTableau styles are listed in \autoref{S:TikZStyles}.)
 
   \option[]{entries=value}[betas, residues, rows, shape]<abacus>
 
@@ -4494,12 +4492,12 @@
 
   \begin{example}
   \Abacus[framed]{3}{3,2^2,0^2} \qquad
+  \Abacus[framed,traditional]{3}{3,2^2,0^2}
   \end{example}
 
-  The \option{framed} key overrides the \option{abacus ends} key.
   Using the \option{framed} key works better with the
   \option{traditional} abacuses, not least because \option{traditional}
-  abacuses only support the $-$ and~\_\!\_ settings for
+  abacuses only support the $\mid$, $-$ and~\_\!\_ settings for
   \option{abacus ends}.
 
   \option[A]{name=text}[text]
@@ -4545,13 +4543,12 @@
   As with the \option{label} key for tableaux, by default, the row
   labels are typeset in mathematics mode.
 
-  \option[]{rows=row index}[non-negative integer]<abacus>
+  \option[0]{rows=number of rows}[non-negative integer]<abacus>
 
+  The \option{rows} key sets the (minimum) number of rows in the abacus.
   By default, the \keyword{\Abacus} command uses the smallest number of
-  rows necessary to display all of the beads on the abacus. Use
-  \option{rows}<abacus> to change the number of rows displayed. If you use
-  the \option{rows}<abacus> key, then it is your responsibility to ensure that
-  the abacus has enough rows to display all of the beads.
+  rows necessary to display all of the beads on the abacus, but this can
+  be increased using \option{rows}.
 
   \begin{example}
   \Abacus{3}{3,2^2,0^2} \qquad
@@ -4887,7 +4884,7 @@
   theme, the key-value interface allows you to set the colours of
   individual components in the pictures produced by \aTableau.
 
-  \newpage[4]
+  %\newpage[4]
   {\samepage
 
     \option[default]{colour theme}{default,classic,natural}
@@ -5106,11 +5103,12 @@
   % --------------------------------------------------------------
   \subsection{\aTableau and the \arXiv}
 
-  The \arXiv now uses \TeXLive2025 by default, so papers using \aTableau
-  should compile on the \arXiv. Unfortunately, the \arXiv only has
-  version 2.1.0 of \aTableau installed, as this is what shipped with
-  \TeXLive2025. If your document does not compile on the \arXiv because
-  of \aTableau, you may need to upload the latest \aTableau style file,
+  As of writing, the \arXiv now uses \TeXLive2025 by default, so papers
+  using \aTableau should compile on the \arXiv. Unfortunately, the
+  \arXiv only has version 2.1.0 of \aTableau installed, as this is what
+  shipped with \TeXLive2025. If your document does not compile on the
+  \arXiv because of \aTableau, you almost certainly need to upload the
+  latest \aTableau style file,
   \href{https://mirrors.ctan.org/graphics/pgf/contrib/atableau/atableau.sty}{atableau.sty},
   as part of your \arXiv submission.
 
