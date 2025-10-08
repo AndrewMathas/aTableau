@@ -407,7 +407,7 @@ Important Recommendations
    files of the Work near the copyright notice of each file or by
    using a line such as:
 
-    % This work consists of all files listed in manifest.txt.
+   % This work consists of all files listed in manifest.txt.
 
    in that place.  In the absence of an unequivocal list it might be
    impossible for the licensee to determine what is considered by you

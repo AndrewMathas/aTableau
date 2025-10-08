@@ -11,13 +11,13 @@
 A LaTeX package for **symmetric group combinatorics**, with commands for:
 
   - Young diagrams
-  - tableaux
-  - tabloids
-  - skew tableaux
-  - shifted tableaux
-  - ribbon tableaux
-  - multitableaux
-  - abacuses
+  - Tableaux
+  - Tabloids
+  - Skew tableaux
+  - Shifted tableaux
+  - Ribbon tableaux
+  - Multitableaux
+  - Abacuses
 
 ``` latex
 \Tableau{12345,678,9{10},{11}}
@@ -38,7 +38,7 @@ A LaTeX package for **symmetric group combinatorics**, with commands for:
 ### Dependencies
 [LaTeX3](https://www.latex-project.org/latex3/) and [TikZ](https://tikz.net/)
 
-The **aTableau** package requires TexLive 2024 or later as it relies heavily on the LaTeX3 programming environment
+The **aTableau** package requires Tex Live 2024, or later, as it relies heavily on the LaTeX3 programming environment
 
 
 ## Author

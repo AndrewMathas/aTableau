@@ -1,3 +1,6 @@
 atableau.listing
 tikz.*
 s.*
+tests/*.tex
+tests/*.webp
+**-1.cpt

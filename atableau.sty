@@ -1,6 +1,6 @@
 % ---------------------------------------------------------------------------
 % aTableau - Andrew Mathas (C) 2022-2025
-% Modified: 23:17 Tuesday, 07 October 2025
+% Modified: 15:19 Thursday, 09 October 2025
 % ---------------------------------------------------------------------------
 %
 % A LaTeX package for symmetric group combinatorics:
@@ -24,7 +24,7 @@
 % ---------------------------------------------------------------------------
 % aTableau release date and version number
 \def\aTableau@version{2.2.0}
-\def\aTableau@release{2025-10-10} % PENDING...
+\def\aTableau@release{2025-10-10}
 
 % ---------------------------------------------------------------------------
 % load TikZ early to avoid \ExplSyntaxOn...\ExplSyntaxOff wrappers
@@ -123,7 +123,7 @@
   { This~is~just~a~warning~message~because~your~abacus~has~more~beads~than~expected.}
 
 \msg_new:nnnn { aTableau } { many-rows }
-  { You~have~set~'rows=\int_use:N\l__aTableau_beads_int',~yet~your~abacus~requires~'#1'~rows }
+  { You~have~set~'rows=\int_use:N\l__aTableau_rows_int',~yet~your~abacus~requires~'#1'~rows }
   { This~is~just~a~warning~message~because~your~abacus~has~more~rows~than~expected.}
 
 \msg_new:nnnn { aTableau } { quotient-components }
@@ -3113,11 +3113,12 @@
 
     % determine the number of abacus rows required
     \int_set:Nn \l_tmpa_int { 1+\int_div_truncate:nn {\l__aTableau_row_int} {#1} }
-    \int_compare:nNnT {\l__aTableau_rows_int} < { \l_tmpa_tl }
+    \int_compare:nNnT {\l__aTableau_rows_int} < { \l_tmpa_int }
     {
         % give a warning if we need more rows than \l__aTableau_rows_int
         \int_compare:nNnT {\l__aTableau_rows_int} > {0}
         { \msg_warning:nne {aTableau} {many-rows} {\int_use:N\l_tmpa_int} }
+
         % set the number of rows
         \int_set_eq:NN \l__aTableau_rows_int \l_tmpa_int
     }
@@ -3589,8 +3590,9 @@
     scriptscript .value_required:n = true,
     scriptscript .initial:n = 0.4,
 
-    star~style .code:n = { \__aTableau_tikzset_append:nn {tableauStar} {#1} },
-    star~style .value_required:n = true,
+    tableau~star .code:n = { \__aTableau_tikzset_append:nn {tableauStar} {#1} },
+    tableau~star .value_required:n = true,
+    star~style .meta:n = {tableau~star={#1}}, % depreciating
 
     % shortcut for setting TikZ styles, following a suggestion of Skillmon to use \keyval_parse:nnn
     styles .code:n = { \keyval_parse:nnn { \msg_error:nnn {aTableau}{missing-style} } { \__aTableau_tikzset:nn } { #1 } },
@@ -3938,8 +3940,9 @@
     abacus~top .value_required:n = true,
     abacus~top .initial:n = 0.4,
 
-    abacus~star~style .code:n = { \__aTableau_tikzset_append:nn {abacusStar} {#1} },
-    abacus~star~style .value_required:n = true,
+    abacus~star .code:n = { \__aTableau_tikzset_append:nn {abacusStar} {#1} },
+    abacus~star .value_required:n = true,
+    abacus~star~style .meta:n = {abacus~star={#1}}, % depreciating
 
     bead .tl_set:N = \l__aTableau_bead_tl, % bead colour
     bead .value_required:n = true,

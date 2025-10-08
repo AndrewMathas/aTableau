@@ -7,7 +7,6 @@
 # aTableau - ToDo list
 
 ### Bugs:
-  - check dot placement in `\Multidiagram[french]{3,2^2|...|1}`
 
 ### Features being implemented
   - check Cartan conventions
@@ -22,7 +21,5 @@
   - Rewrite the partition parsing so that it uses quarks
   - Beta numbers: allow partition to be specified by beta numbers in `\Diagram` and friends
   - Allow polar, and other, coordinates to be used as `(x,y)`-coordinates
-  - Redesign the example environment to automate a testing framework
-    using image diffs
 
 AM October 2025

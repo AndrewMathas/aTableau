@@ -5,7 +5,7 @@
 
 # **aTableau** - Change log
 
-### Version 2.2.0 - 2025-?
+### Version 2.2.0 - 2025-10-10
   - allows *generalised ribbon tableaux* with `c`, `C`, `r` and `R` specifications
   - allows *complex styles* in abacuses and tableaux to be entered as `[...]`, instead of `[{...}]`
   - adds optional *overlay specifications* for use with **beamer**
@@ -23,6 +23,7 @@
   - adds error messages whenever an **aTableau** command is not properly contained inside a `tikzpicture` environment
   - fixes bug in the `beta numbers` key for abacuses
   - many improvements and corrections to the manual
+  - testing framework added using examples from the manual
 
 ### Version 2.1.1 - 2025-02-14
   - fixes expansion issue with `ribbon box` and friends
