@@ -1,6 +1,6 @@
-% ---------------------------}
+% ----------------------------------------------------------------------
 % aTableau - Andrew Mathas (C) 2022-2025
-% Modified: 15:31 Thursday, 09 October 2025
+% Modified: 12:54 Friday, 10 October 2025
 % ----------------------------------------------------------------------
 \documentclass{amsart}
 \usepackage[svgnames,table]{xcolor}
@@ -286,8 +286,7 @@
     % the examples are controlled by a custom document class
     \iow_now:Nn  \__aTableau_example_iow { \documentclass{atableau_example} }
     \iow_now:Nn  \__aTableau_example_iow { \begin{document} }
-    \iow_now:Ne  \__aTableau_example_iow { Example~\theexample }
-    \iow_now:Nn  \__aTableau_example_iow {}
+    \iow_now:Ne  \__aTableau_example_iow { \c_percent_str~Example~\theexample }
     \str_set:Ne  \l_tmpa_str { \tl_to_str:n{#2} }
     \str_replace_all:Nnx \l_tmpa_str { ## } { \c_hash_str }
     \iow_now:Ne  \__aTableau_example_iow { \l_tmpa_str }
@@ -629,7 +628,12 @@
 % all take the form: <aTableau command><key..> to help identify the
 % example and make it easier to test for changes in the output for
 % particular commands. For example, some of the labels are:
-%
+%    abacusBeadPositions diagramUkrainian multiBoxFont
+%    multiShifted ribbonEnhanced shiftedEntries
+%    tableauConjugate tableauScaled traditionalTick
+% The example files are stored by label, rather than by example number,
+% because example numbers can change. The example number is stored in
+% the LaTeX file, but only as a comment.
 
 % The definitions of the example environments depend on \Testingtrue
 \ifTesting
@@ -638,7 +642,7 @@
   % that we can test for changes in their output
 
   % \begin{example}[ignored tcb settings]*{label}...\end{example}
-  % The * indicates that the example should not be saved by SaveExample when testing
+  % The * indicates that the example should not be saved by \SaveExample when testing
   \NewDocumentEnvironment{example}{ O{} s m +b} { \IfBooleanF{#2}{ \SaveExample{#3}{#4} }}{}
   \NewDocumentEnvironment{Example}{ O{} s m +b} { \IfBooleanF{#2}{ \SaveExample{#3}{#4} }}{}
 
@@ -815,13 +819,16 @@
   diagrams.
 
   By way of example, the following table shows how to draw a
-  tableau of shape $\lambda=(4,3^2,2)$ using the four tableaux
+  tableau of shape $\lambda=(4,3^2,2)$ using the four tableau
   conventions supported by \aTableau:
 
   \begin{center}
       \aTabset{align=centre}
+      \rowcolors{2}{}{LightSkyBlue!10}
       \begin{longtable}{lp{0.6\textwidth}l} \toprule % longtable allows footnotes
+        \hiderowcolors
         \textcolor{aTableauMain}{Convention} &\textcolor{aTableauMain}{\aTableau command} & \textcolor{aTableauMain}{Picture} \\ \midrule
+         \showrowcolors
           English    & \keyword{\Tableau[english]{1234,567,89{10},{11}{12}}}\newline(the default)
                      & \Tableau{1234,567,89{10},{11}{12}}\\[10mm]
           French     & \keyword{\Tableau[french]{1234,567,89{10},{11}{12}}}
@@ -858,7 +865,7 @@
   \end{example}
   for the first tableau above. These four conventions are used
   in exactly the same way with the \keyword{\Diagram} command:
-  \begin{example}[lefthand width=0.4\textwidth]{diagramUkrainian}
+  \begin{example}[lefthand width=0.4\textwidth]{diagramUkrainians}
   \Diagram{4,3,3,1} \qquad
   \Diagram[ukrainian]{4,3^2,1}
   \end{example}
@@ -953,10 +960,10 @@
   appearance of an \aTableau picture. The keys are optional. The main
   function of this manual is to describe these keys, with examples. This
   section emphasises only some of these options. Every key can be set
-  ``globally'' (inside the current \LaTeX\ group), by using
-  \keyword{\aTabset{...options...}}, or ``locally'', for the current
-  picture. As mentioned already, the default options for the document
-  can also be set via
+  ``globally'' (that is, inside the current \LaTeX\ group), by using
+  \keyword{\aTabset{...options...}}, or ``locally'' as an option for
+  the current picture. As mentioned already, the default options for the
+  document can also be set via
   \keyword{\usepackage[options]{atableau}}.\indexcmd{aTabset}
 
   Many of the \aTableau options are specific to the particular pictures
@@ -1032,9 +1039,9 @@
   adding a \textcolor{aTableauInner}{no}-prefix. For example, the
   \option{border} and \option{no border} keys are a pair of inverse
   keys. Using the \option{border} key is equivalent to
-  \option{border=true} and to \option{no border=false}. Similarly, the
+  \option{border=true} and \option{no border=false}. Similarly, the
   \option{no border} key is equivalent to \option{no border=true}, and
-  to \option{border=false}.
+  \option{border=false}.
 
   \index{American dialect}
   For all keys, American spelling variations are tolerated. For example, you
@@ -1065,8 +1072,8 @@
   \begin{tikzpicture} % inside tikzpicture with labels
     \Diagram(0,0)[ribbons={(G)16ccccrrr, (B)16crrcccr}]{6,5^2,2}
     % add the labels
-    \draw[->](1.5, 0.5)node[right]{$\alpha=(1,2)$} to [out=180,in=90]  (A-1-2.base);
-    \draw[->](1.5,-2.5)node[right]{$f_\alpha=(4,2)$} to [out=180,in=270] (A-4-2.base);
+    \draw[<-](A-1-2.base) to[out=90, in=180] ++(0.8, 0.8)node[right]{$\alpha=(1,2)$};
+    \draw[<-](A-4-2.base) to[out=270,in=180] ++(0.8,-0.8)node[right]{$f_\alpha=(4,2)$};
     \draw[red,<->]([xshift=-1mm]A-1-1.south west)
        --node[rotate=90,above]{$l_\alpha=3$}([xshift=-1mm]A-4-1.south west);
   \end{tikzpicture}
@@ -1087,10 +1094,10 @@
   placed at position $(0,0)$ by the \keyword{\Diagram} command. The
   three \keyword{\draw} commands are used to add the three labelled
   arrows to the picture. Please consult the very readable \TikZ manual
-  if you would like more information about the \TikZ-commands used in
-  this example. (In fact, the right-hand picture could be drawn without
-  using a \keyword{tikzpicture} environment by using the
-  \option{tikz after} key to add the three \keyword{\draw}-commands.)
+  for more information about the \TikZ-commands used in this example.
+  (In fact, the right-hand picture could be drawn without using a
+  \keyword{tikzpicture} environment by using the \option{tikz after} key
+  to add the three \keyword{\draw}-commands.)
 
   \begin{warning}
      Unlike \TikZ-commands, you should \emph{not} put a semicolon after
@@ -2524,7 +2531,7 @@
   \Diagram[french]{3,1^3}
   \end{example}
 
-  \begin{example}{diagramUkrainain}
+  \begin{example}{diagramUkrainian}
   \Diagram[ukrainian]{3,2,1} \qquad
   \Diagram[ukrainian]{3,1^3}
   \end{example}
@@ -3013,7 +3020,7 @@
   the boxes in the covering partition and border walls, you only need to
   set \option{cover boxes}.
 
-  \begin{example}{tableauCoverBorder}
+  \begin{example}{tableauCoverBorderBoxes}
   \Tableau[cover={4^2,3^2}, cover border, cover boxes]{123,45,67}
   \end{example}
 
@@ -4000,7 +4007,7 @@
   In particular, in the right-hand abacus, the two beads corresponding
   to \keyword{1^2} are coloured red, whereas the other three beads that
   correspond to a~$1$ are either orange or an off-white colour, which is
-  the default \option{abacus star}. As with the tableaux commands,
+  the default \option{abacus star}. As with the tableau commands,
   we recommend using \keyword{\tikzset} to define more complicated bead styles.
 
   In addition to applying style to the individual beads on the abacus,
@@ -4496,7 +4503,7 @@
 
   \option[A]{name=text}[text]
 
-  Just like the tableaux commands, the \keyword{abacus} command defines
+  Just like the tableau commands, the \keyword{abacus} command defines
   named coordinates for all of the \emph{beads} and \emph{ticks} on the
   abacus. The key \option{name} changes the prefix used for the \TikZ
   node names.  By default, the named coordinates take the form
@@ -4553,8 +4560,8 @@
   \option[\aTableauColour{Inner}]{runner=colour}[a \LaTeX\ colour]
   \option*[very thick]{runner style=style}[\TikZ-styling]
 
-  Use \option{runner} to set the colour of abacus runners and, more
-  generally, \option{runner style} to set the style of the abacus
+  Use \option{runner} to set the colour of abacus runners.  More
+  generally, use \option{runner style} to set the style of the abacus
   runners.
 
   \begin{example}{abacusBallColour}
@@ -4695,7 +4702,7 @@
 
   \option[0.2]{tick length}[decimal number, length \unit{cm}]
 
-  For traditional abacuses, the \option{tick length} sets the with of
+  For traditional abacuses, the \option{tick length} sets the width of
   the rods in the abacus.
   \begin{example}{traditionalTick}
   \Abacus[traditional, tick length=0.3]{3}{6,4,3,1,0} \qquad
@@ -4704,9 +4711,11 @@
   % --------------------------------------------------------------
   \section{Customising \aTableau}\label{S:keys}
 
-  This section compactly lists the \aTableau commands and their options.
-  The earlier sections describe these commands and show how their
-  options, or keys, are used with many examples.
+  This section describes how to further customise \aTableau by defining
+  your own \aTableau commands, using \option{colour theme}s, and
+  using \aTableau with \ctan{beamer}. This section also contains a
+  compact listing, and brief description, of the many \aTableau keys
+  that were described in earlier sections.
 
   % --------------------------------------------------------------
   \subsection{Custom \aTableau commands}\label{SS:NewTableau}
@@ -5202,13 +5211,13 @@
   the boxes that the string goes through, and the final box.
 
 \begin{Example}{tableauUpDown}
-\tikzset{% reusable keys for drawing the strings in the diagram using named nodes
-   Cap/.style={out=45, in=135}, % caps are drawn with to[Cap]
-   Cup/.style={out=315,in=225}, % cups are drawn with to[Cup]
+\tikzset{       % reusable keys for drawing the strings in the diagram using named nodes
+   Cap/.style={out=45, in=135},                            % caps are drawn with to[Cap]
+   Cup/.style={out=315,in=225},                            % cups are drawn with to[Cup]
    % define pics for drawing the curvy up and down strings using coords O and T
    pics/ustring/.style n args = {4}{% {colour}{first coord}{wave coords}{last coord}
       code = {
-          \def\last{#2} % should not be necessary
+          \def\last{#2}                                    % should not be necessary
           \draw[thick,#1](T-|#2.north west)node[above=-3.5]{$\vee$}--(#2.north west)
               foreach [remember=\pt as \last (initially #2)] \pt in {#3}
                   {to[Cup](\last.north east) to[Cap] (\pt.north west)}
@@ -5217,7 +5226,7 @@
    },
    pics/dstring/.style n args = {4}{% {colour}{first coord}{wave coords}{last coord}
       code = {
-          \def\last{#2} % should not be necessary
+          \def\last{#2}                                    % should not be necessary
           \draw[thick,#1](O-|#2.south west)node[below=-3.5]{$\wedge$}--(#2.south west)
               foreach [remember=\pt as \last (initially #2)] \pt in {#3}
                   {to[Cap](\last.south east) to[Cup] (\pt.south west)}
@@ -5226,15 +5235,15 @@
    },
 }
 \begin{tikzpicture}[red ribbon/.style={fill=red!40,opacity=0.4}]
- \coordinate (O) at (0,0); \coordinate (T) at (0,3.2); % needed by the strings
- \draw(-2,0)--(2.5,0) (-2,3.2)--(2.5,3.2);
+ \coordinate (O) at (0,0); \coordinate (T) at (0,3.2);     % needed by the strings
+ \draw(-2,0)--(2.5,0) (-2,3.2)--(2.5,3.2);                 % top and bottom lines
  \Diagram(0,0)[ukrainian, inner style=dotted, ribbons={(red ribbon)24rcrcrc}]{5,4^3,3}
- \pic at (T) {ustring={gray}{A-1-5}{}{A-1-5}};  % up strings
+ \pic at (T) {ustring={gray}{A-1-5}{}{A-1-5}};             % up strings
  \pic at (T) {ustring={gray}{A-4-4}{}{A-4-4}};
  \pic at (T) {ustring={gray}{A-5-2}{A-4-3,A-3-4}{A-3-4}};
  \pic at (T) {ustring={gray}{A-5-3}{}{A-5-3}};
  \pic at (T) {ustring={red}{A-5-1}{A-4-2,A-3-3,A-2-4}{A-2-4}};
- \pic at (O) {dstring={gray}{A-1-1}{}{A-1-1}};  % down strings
+ \pic at (O) {dstring={gray}{A-1-1}{}{A-1-1}};             % down strings
  \pic at (O) {dstring={gray}{A-2-1}{A-1-2}{A-1-2}};
  \pic at (O) {dstring={gray}{A-3-1}{A-2-2,A-1-3}{A-1-3}};
  \pic at (O) {dstring={gray}{A-4-1}{A-3-2,A-2-3,A-1-4}{A-1-4}};
@@ -5252,16 +5261,15 @@ in the picture.
                     solid/.style={blue, thick},
                     ghost/.style={gray}]
   \Multidiagram(0,1.3) % the multipartition, filled with residues
-   [scale=0.7, ukrainian, entries=residues, e=3, scale=1.4,
-    rotate=4, no separators]{2^2,1|3,2,1}
+   [ukrainian, entries=residues, e=3, rotate=4, no separators]{2^2,1|3,2,1}
   % the red strings, projected from the (1,1)-boxes
   \draw[red string]([shift={(0.1,0)}]A-1-1-1 |- 0,0)node[below]{$\kappa_1$} --++(0,1);
   \draw[red string]([shift={(0.1,0)}]A-2-1-1 |- 0,0)node[below]{$\kappa_2$} --++(0,1);
   \foreach \k/\r/\c in
     {1/1/1,1/1/2,1/2/1,1/2/2,1/3/1,2/1/1,2/1/2,2/1/3,2/2/1,2/2/2,2/3/1}
   { % add solids, ghosts and lines from the tableau to the KLRW idempotent
-    \draw[thin, brown](A-\k-\r-\c) -- (A-\k-\r-\c |- 0,0);
-    \draw[solid](A-\k-\r-\c |- 0,0)--++(0,1);
+    \draw[thin, brown](A-\k-\r-\c.south) -- (A-\k-\r-\c |- 0,0);
+    \draw[solid](A-\k-\r-\c.south |- 0,0)--++(0,1);
     \draw[ghost]([xshift=2.8mm]A-\k-\r-\c |- 0,0)--++(0,1);
   }
 \end{tikzpicture}

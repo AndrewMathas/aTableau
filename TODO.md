@@ -9,10 +9,10 @@
 ### Bugs:
 
 ### Features being implemented
-  - check Cartan conventions
 
 ### Documentation
   - Add an example showing how to use dotted rows and columns for multitableaux
+  - check Cartan conventions
 
 ### Things we might do at some point
 

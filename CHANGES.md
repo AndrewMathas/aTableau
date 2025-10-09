@@ -20,10 +20,10 @@
   - adds the `row labels` key to add row labels to an abacus
   - adds the `shape` key for setting the shape of a `\RibbonTableau`
   - adds the `traditional` key for traditional abacuses, with rods and beads
-  - adds error messages whenever an **aTableau** command is not properly contained inside a `tikzpicture` environment
+  - adds error messages when an **aTableau** command is not properly contained inside a `tikzpicture` environment
   - fixes bug in the `beta numbers` key for abacuses
   - many improvements and corrections to the manual
-  - testing framework added using examples from the manual
+  - added testing framework based on examples in the manual
 
 ### Version 2.1.1 - 2025-02-14
   - fixes expansion issue with `ribbon box` and friends

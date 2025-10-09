@@ -60,7 +60,7 @@ if [ "$save_record" = true ]; then
   record_times latexmk
   record_times pdflatex
   # append the new compilation time to manual_times
-  echo $record >> $RECORD_IN
+  echo "$record" >> $RECORD_IN
 else
   record_times pdflatex
 fi

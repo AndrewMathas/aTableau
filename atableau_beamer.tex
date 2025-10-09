@@ -1,20 +1,35 @@
+% ---------------------------------------------------------------------------
+% atableau_beamer.tex - Andrew Mathas (C) 2022-2025
+% Modified: 08:08 Friday, 10 October 2025
+% ---------------------------------------------------------------------------
 \documentclass{beamer}
 \usepackage{atableau}
 
 \begin{document}
 
-  \begin{frame}[fragile]{aTableau plays with beamer}
-    % these two are equivalent
-    \Tableau<1,3>{123,45}
-    \only<1,3>{ \Tableau{123,45} }
-    \Tableau<2>[styles={R={red}}]{123,4[R]5}
+ \begin{frame}[fragile]{aTableau plays with beamer}
+    \begin{columns}[T]
+      \begin{column}{0.45\textwidth}
+           \Diagram<1>{4,3,2}
+           \Diagram<2>[ribbons={(fill=blue!15,opacity=0.5)23cr}]{4,3,2}
+           \Diagram<3>[cover={4,3,2}]{4,1^2}
+      \end{column}
+      \begin{column}{0.45\textwidth}
+          \Abacus<1>{3}{4,3,2}
+          \Abacus<2>{3}{2|0,[bead=blue!15]0|0}
+          \Abacus<3>{3}{2|[bead=gray!20]0,0|0}
+      \end{column}
+    \end{columns}
 
-    \pause
-    \begin{tikzpicture}
-      \Abacus<3>(1,1)[traditional, beamer=uncover]{3}{3,2,2,1}
+    \bigskip\qquad\begin{tikzpicture}
+      \Abacus<1->(1,1)[traditional, beamer=onslide, beads=4]{3}{3,2,2,1}
+      \Abacus<2->(4,1)[traditional, beamer=onslide, beads=5]{3}{3,2,2,1}
+      \Abacus<3->(8,1)[traditional, beamer=onslide, beads=6]{3}{3,2,2,1}
     \end{tikzpicture}
 
-    \Diagram<2>[entries=residues, e=3]{12,4^3}
+    \bigskip\Tableau<3>[beamer=visible]{1234,5*6*7,8*9}
+    \Diagram<1-2| handout:0>[beamer=uncover,entries=residues, e=3]{12,4^3}
+
   \end{frame}
 
 \end{document}
