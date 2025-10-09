@@ -6,20 +6,20 @@
 
 # aTableau - ToDo list
 
-### Bugs:
+### Known bugs
 
-### Features being implemented
-  - check Cartan conventions
+### Features to be implemented
+  - allow `cover` key to be used with multishapes
 
 ### Documentation
-  - Add an example showing how to use dotted rows and columns for multitableaux
+  - add an example showing how to use dotted rows and columns for multitableaux
+  - check Cartan conventions for residues
 
 ### Things we might do at some point
 
-  - Add a `custom theme` option that sets the six aTableau colours
-  - Rewrite ribbons and `\Abacus` to simultaneously parse the specifications and draw the picture
-  - Rewrite the partition parsing so that it uses quarks
-  - Beta numbers: allow partition to be specified by beta numbers in `\Diagram` and friends
-  - Allow polar, and other, coordinates to be used as `(x,y)`-coordinates
+  - add a `custom theme` option that sets the six aTableau colours
+  - rewrite ribbons and `\Abacus` to simultaneously parse the specifications and draw the picture
+  - rewrite the partition parsing so that it uses quarks
+  - beta numbers: allow partition to be specified by beta numbers in `\Diagram` and friends
 
-AM October 2025
+Updated: October 2025

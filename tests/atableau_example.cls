@@ -1,30 +1,36 @@
 % ----------------------------------------------------------------------
 % atableau_example.cls - Andrew Mathas (C) 2022-2025
-% Modified: 15:27 Thursday, 09 October 2025
+% Modified: 13:09 Thursday, 11 June 2026
 % ----------------------------------------------------------------------
 
-% This class file is part of the testing framework for the aTableau
-% package. It provides all of the bells and whistles needed to compile
-% the examples from the manual as standalone files. A typically example
-% file is something like
+% This class file is part of the testing framework for the aTableau package. It
+% provides all of the bells and whistles needed to compile the examples from
+% the manual as standalone files. A typical example file is something like
 %
-%     \documentclass {atableau_example}
-%     \begin {document}
-%     Example 1.1
-%
+%    \documentclass {atableau_example}
+%    \begin {document}
+%    %Example 1.1
 %    \Tableau {1234,567,89{10},{11}{12}}
 %    \end {document}
 %
-% The python script test_atableau.py converts these LaTeX files into
-% webp images and can then check for changes during development.
+% The example number is stored in the file as a comment, but is not
+% part of the corresponing pdf/webp file because the example numbers
+% will change whenever a new example is added earlier in the same
+% section of the manual. The file name is given by the unique label
+% attached to the example.
+
+% The python script test_atableau.py can be used to convert these LaTeX
+% files into webp images, making it possible to check for changes in the
+% examples during development.
 
 \ProvidesClass{atableau_example}
 \LoadClass{standalone}
 
-\RequirePackage{amssymb}
 \RequirePackage{atableau}
-\usepackage[svgnames]{xcolor}
-\usepackage{MnSymbol}
+
+\RequirePackage{amssymb}
+\RequirePackage{MnSymbol}
+\RequirePackage[svgnames]{xcolor}
 
 \nofiles  % we do not need an aux file
 

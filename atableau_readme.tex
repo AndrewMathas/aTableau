@@ -1,0 +1,31 @@
+% ----------------------------------------------------------------------
+% aTableau readme image - Andrew Mathas (C) 2022-2025
+% Modified: 14:18 Tuesday, 21 October 2025
+% ----------------------------------------------------------------------
+\documentclass{standalone}
+\usepackage{atableau}
+\usepackage{tcolorbox}
+
+\begin{document}
+
+  % tcolorbox is used to force standalone to generate one page
+  \begin{tcolorbox}[colframe=white, colback=white,width=160mm]
+    \Abacus[styles={Y={text=pink}}]{4}{4_u,4_a,4_e,4_l,[Y]4_b,[Y]4_a,[Y]4_T,0_a}\qquad
+    \Abacus[traditional,framed]{4}{[bead=aTableauFill]2,0_a,[bead=aTableauFill]0|
+        [bead=aTableauFill]1,1_b,1_a,1_T|1_u,1_a,1_e,1_l|[bead=aTableauFill]2^2,[bead=red]2} \qquad
+    \Tableau{1239,456{10},78}\qquad
+    \Tableau{ 1*2*3*4*5, 6*789, {10}*{11}{12} }\qquad
+    \Tabloid[skew={2,1}]{19{11},29{10},6} \qquad
+    \SkewTableau[skew~boxes, skew~border, cover=4^3] {2,1^2}{123,45,67} \qquad
+    \Multitableau[tabloid]{ 123,45 | 67,89, {10}} \qquad
+    \Tableau{12345,678,9{10},{11}} \qquad
+    \Tabloid{1379{11},249{10},6,8} \qquad
+    \Multidiagram[australian]{3,2^2|2,1,1|1} \qquad
+    \Multitableau[box font=\tiny]{123,45,67|89,{10},{11}|{12}{13}{14}} \qquad
+    \SkewTableau[russian]{3,2,1}{345,56,9{10}} \qquad
+    \RibbonTableau[russian, skew={4,1^2}]{16rcrrrccrcc, 26, 34rc} \qquad
+    \ShiftedTableau[skew boxes]{1*23,4*5} \qquad
+    \SkewDiagram[skew border style={dashed,fill=red!10},skew border]{1^2}{2^3}
+  \end{tcolorbox}
+
+\end{document}

@@ -1,4 +1,4 @@
-#! /usr/bin/env bash
+#! /usr/bin/env bash -x
 
 # Create tar file for uploading atableau package to ctan
 # In particular, this deletes the \__atableau_debug:n commands from
@@ -20,7 +20,7 @@ fi
 gsed '/__atableau_debug:n/d' atableau-dev.sty > atableau.sty
 
 # create the tar file for ctan
-$CTANIFY atableau.{ini,sty,pdf,tex} atableau_readme.webp atableau_beamer.{pdf,tex} {CHANGES,README,TODO}.md LICENSE
+$CTANIFY atableau.{ini,sty,pdf,tex} atableau_beamer.{pdf,tex} atableau_readme.webp {CHANGES,README,TODO}.md LICENSE
 
 # restore the debug commands
 /bin/mv atableau-dev.sty atableau.sty
