@@ -1,6 +1,6 @@
 % ---------------------------------------------------------------------------
 % aTableau - Andrew Mathas (C) 2022-2025
-% Modified: 15:19 Thursday, 09 October 2025
+% Modified: 16:15 Thursday, 09 October 2025
 % ---------------------------------------------------------------------------
 %
 % A LaTeX package for symmetric group combinatorics:
@@ -2970,9 +2970,11 @@
         }
     }
     {   % give a warning if there are more beads than l__aTableau_beads_int
-        \int_compare:nNnT {\l__aTableau_beads_int} > {0}
+        \bool_if:nT { \int_compare_p:nNn {\l__aTableau_beads_int} > {0}
+                       && \int_compare_p:nNn {\l__aTableau_beads_int} < {\l_tmpa_tl}
+        }
         {
-            \msg_warning:nnV {aTableau} {many-beads} \l_tmpa_tl
+            \msg_warning:nne {aTableau} {many-beads} \l_tmpa_tl
             \int_set:NV \l__aTableau_beads_int \l_tmpa_tl
         }
     }
