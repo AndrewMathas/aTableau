@@ -1,6 +1,6 @@
 % ---------------------------------------------------------------------------
 % aTableau - Andrew Mathas (C) 2022-2025
-% Modified: 16:15 Thursday, 09 October 2025
+% Modified: 08:08 Friday, 10 October 2025
 % ---------------------------------------------------------------------------
 %
 % A LaTeX package for symmetric group combinatorics:
@@ -30,10 +30,10 @@
 % load TikZ early to avoid \ExplSyntaxOn...\ExplSyntaxOff wrappers
 \RequirePackage{tikz}
 \usetikzlibrary{
+    arrows.meta,      % for arrows in abacus ends
+    matrix,           % for delimiters in multitableaux
     shapes.geometric, % for diamonds in Ukrainian/Australian tableaux
     shapes.misc,      % for 'rounded rectangle' in traditional abacuses
-    matrix,           % for delimiters in multitableaux
-    arrows.meta,      % for arrows in abacus ends
 }
 
 % ---------------------------------------------------------------------------

@@ -1,4 +1,9 @@
 #!/usr/bin/env -S uv run --script
+
+# ---------------------------------------------------------------------------
+# test_atableau.py - Andrew Mathas (C) 2022-2025
+# ---------------------------------------------------------------------------
+
 # /// script
 # requires-python = ">=3.10"
 # dependencies = [
@@ -17,7 +22,6 @@ positional arguments:
   files                 Example files to test, with wild cards applied (default: all files)
 
 options:
-  -e, --extract             Extract all of the example LaTeX files from atableau.tex
   -q, --quiet               Quite mode: only print files with discrepancies
   -t, --threshold THRESHOLD Threshold for image comparison (default: 5)
   -w, --workers WORKERS     Number of workers/threads to use when checking examples (default: 8)
@@ -56,18 +60,22 @@ Once the good files have been initialised, the command
 
 compiles and tests all of the matching files to check changes. Here,
 <file> is interpreted liberally with wild-card expansions on both sides.
-For example
+For example,
 
     test_examples.py tableau
 
-tests all of the example files with names that contain 'tableau'.
-When new examples are added to the manual, they can be extracted using
+tests all of the example files with names that contain 'tableau'. When
+new examples are added to the manual, they can be extracted using:
 
     test_examples.py -e
 
-This will also create a good webp for future comparisons. If any of the
-examples in the manual change in a good way, then the good images can
-be updated using
+When they do ot already exist, this will also create a good webp for
+future comparisons, but it will not overwrite any existing good webp
+files for the examples.
+
+If any of the examples in the manual change in a good way, in the sense
+that the example if corrected or improved, then the good images can be
+updated using:
 
     test_examples -u [files]
 
@@ -116,6 +124,7 @@ def run_parallel_command(options, files):
 
 
 # ------------------------------------------------------------------------
+# utility function
 
 def red_text(text):
     '''
@@ -130,9 +139,10 @@ def example_number(file):
     '''
     with open(f'{file}.tex', 'r') as example:
         for line in example:
-            if line.startswith('Example'):
+            if line.startswith('%Example'):
                 break
-        return line.strip()
+
+    return line[1:].strip()
 
 
 def make_image(file, ext):
@@ -153,6 +163,39 @@ def make_image(file, ext):
     os.remove(f'{file}.pdf')
 
 
+def different_images(file, options):
+    '''
+    Return `True` or `False` depending on whether the image has changed
+    '''
+    diff = ImageChops.difference(Image.open(f'{file}.webp'), Image.open(f'{file}-good.webp'))
+    diff_array = numpy.array(diff)
+    mean_diff = diff_array.mean()
+
+
+def find_example_files(files):
+    '''
+    Determine the files to look at -- we glob for maximum effect
+    '''
+    example_files = []
+    for file in files:
+        if '.' in file:
+            example_files.extend([f[:-4] for f in glob.glob(file)])
+        else:
+            example_files.extend([f[:-4] for f in glob.glob(f'*{file}*.tex')])
+
+    # remove the files that we don't want to test
+    for bad in ['', 'atableau-examples']:
+        try:
+            example_files.remove(bad)
+        except ValueError:
+            pass
+
+    return example_files
+
+
+# ------------------------------------------------------------------------
+# actions
+
 def initialising_image(file, options):
     '''
     Recompile the LaTeX example and convert the PDF file to a webp file
@@ -163,15 +206,16 @@ def initialising_image(file, options):
         print(f' - {example_number(file):<14} image created ({file}-good.webp)')
 
 
-def different_images(file, options):
-    '''
-    Return `True` or `False` depending on whether the image has changed
-    '''
-    diff = ImageChops.difference(Image.open(f'{file}.webp'), Image.open(f'{file}-good.webp'))
-    diff_array = numpy.array(diff)
-    mean_diff = diff_array.mean()
-
     return mean_diff > options.threshold
+
+
+def extracting_image(file, options):
+    '''
+    After updating the example LaTeX files, make good image files for
+    any new examples.
+    '''
+    if not os.path.isfile(f'{file}-good.webp'):
+        initialising_image(file, options)
 
 
 def updating_image(file, options):
@@ -200,26 +244,6 @@ def checking_image(file, options):
         print(f' - {example_number(file):<14} OK ({file})')
         os.remove(f'{file}.webp')
 
-
-def find_example_files(files):
-    '''
-    Determine the files to look at -- we glob for maximum effect
-    '''
-    example_files = []
-    for file in files:
-        if '.' in file:
-            example_files.extend([f[:-4] for f in glob.glob(file)])
-        else:
-            example_files.extend([f[:-4] for f in glob.glob(f'*{file}*.tex')])
-
-    # remove the files that we don't want to test
-    for bad in ['', 'atableau-examples']:
-        try:
-            example_files.remove(bad)
-        except ValueError:
-            pass
-
-    return example_files
 
 # ------------------------------------------------------------------------
 if __name__ == '__main__':
@@ -303,10 +327,10 @@ if __name__ == '__main__':
 
     if options.action == 'extracting':
         print('Extracting example files from the aTableau manual')
+        example_files = find_example_files([''])
+        # remove all of the old example files in case some names have changed
+        run_command(f'rm {" ".join(f"{f}.tex" for f in example_files)}')
         run_command('pdflatex atableau-examples && latexmk -C atableau-examples')
-
-        # next build the good webp files for the examples
-        options.action = 'initialising'
 
     # populate the list of examples that we need to look at
     example_files = find_example_files(options.files)

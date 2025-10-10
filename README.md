@@ -10,14 +10,14 @@
 
 A LaTeX package for **symmetric group combinatorics**, with commands for:
 
-  - Young diagrams
+  - Abacuses
+  - Multitableaux
+  - Ribbon tableaux
+  - Shifted tableaux
+  - Skew tableaux
   - Tableaux
   - Tabloids
-  - Skew tableaux
-  - Shifted tableaux
-  - Ribbon tableaux
-  - Multitableaux
-  - Abacuses
+  - Young diagrams
 
 ``` latex
 \Tableau{12345,678,9{10},{11}}

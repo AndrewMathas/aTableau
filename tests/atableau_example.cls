@@ -1,6 +1,6 @@
 % ----------------------------------------------------------------------
 % atableau_example.cls - Andrew Mathas (C) 2022-2025
-% Modified: 15:27 Thursday, 09 October 2025
+% Modified: 09:03 Friday, 10 October 2025
 % ----------------------------------------------------------------------
 
 % This class file is part of the testing framework for the aTableau
@@ -8,10 +8,9 @@
 % the examples from the manual as standalone files. A typically example
 % file is something like
 %
-%     \documentclass {atableau_example}
-%     \begin {document}
-%     Example 1.1
-%
+%    \documentclass {atableau_example}
+%    \begin {document}
+%    %Example 1.1
 %    \Tableau {1234,567,89{10},{11}{12}}
 %    \end {document}
 %
