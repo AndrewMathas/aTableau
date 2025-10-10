@@ -1,12 +1,11 @@
-% ----------------------------------------------------------------------
+ ----------------------------------------------------------------------
 % atableau_example.cls - Andrew Mathas (C) 2022-2025
-% Modified: 09:03 Friday, 10 October 2025
+% Modified: 10:11 Friday, 10 October 2025
 % ----------------------------------------------------------------------
 
-% This class file is part of the testing framework for the aTableau
-% package. It provides all of the bells and whistles needed to compile
-% the examples from the manual as standalone files. A typically example
-% file is something like
+% This class file is part of the testing framework for the aTableau package. It
+% provides all of the bells and whistles needed to compile the examples from
+% the manual as standalone files. A typical example file is something like
 %
 %    \documentclass {atableau_example}
 %    \begin {document}
@@ -14,8 +13,8 @@
 %    \Tableau {1234,567,89{10},{11}{12}}
 %    \end {document}
 %
-% The python script test_atableau.py converts these LaTeX files into
-% webp images and can then check for changes during development.
+% The python script test_atableau.py converts these LaTeX files into webp
+% images and then checks for changes during development.
 
 \ProvidesClass{atableau_example}
 \LoadClass{standalone}

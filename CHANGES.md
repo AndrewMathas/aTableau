@@ -23,7 +23,7 @@
   - adds error messages when an **aTableau** command is not properly contained inside a `tikzpicture` environment
   - fixes bug in the `beta numbers` key for abacuses
   - many improvements and corrections to the manual
-  - testing framework added using examples from the manual
+  - added testing framework based on examples in the manual
 
 ### Version 2.1.1 - 2025-02-14
   - fixes expansion issue with `ribbon box` and friends
