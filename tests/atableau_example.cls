@@ -1,6 +1,6 @@
 % ----------------------------------------------------------------------
 % atableau_example.cls - Andrew Mathas (C) 2022-2025
-% Modified: 12:54 Friday, 10 October 2025
+% Modified: 12:58 Sunday, 12 October 2025
 % ----------------------------------------------------------------------
 
 % This class file is part of the testing framework for the aTableau package. It
@@ -13,16 +13,24 @@
 %    \Tableau {1234,567,89{10},{11}{12}}
 %    \end {document}
 %
-% The python script test_atableau.py converts these LaTeX files into webp
-% images and then checks for changes during development.
+% The example number is stored in the file as a comment, but iis not
+% part of the corresponing pdf/webp file because the example nunbers
+% will change whenever a new example is added earlier in the same
+% section of the manual. The file name is given by the unique label
+% attached to the example.
+
+% The python script test_atableau.py converts these LaTeX files into
+% webp images, and it checks for changes in the output during
+% development.
 
 \ProvidesClass{atableau_example}
 \LoadClass{standalone}
 
-\RequirePackage{amssymb}
 \RequirePackage{atableau}
-\usepackage[svgnames]{xcolor}
-\usepackage{MnSymbol}
+
+\RequirePackage{amssymb}
+\RequirePackage{MnSymbol}
+\RequirePackage[svgnames]{xcolor}
 
 \nofiles  % we do not need an aux file
 

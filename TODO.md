@@ -6,9 +6,9 @@
 
 # aTableau - ToDo list
 
-### Bugs:
+### Known bugs
 
-### Features being implemented
+### Features to be implemented
 
 ### Documentation
   - Add an example showing how to use dotted rows and columns for multitableaux

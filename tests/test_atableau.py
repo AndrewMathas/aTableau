@@ -2,6 +2,8 @@
 
 # ---------------------------------------------------------------------------
 # test_atableau.py - Andrew Mathas (C) 2022-2025
+#
+# Requires: uv -- this runs the script and installs the python dependencies
 # ---------------------------------------------------------------------------
 
 # /// script
@@ -13,7 +15,6 @@
 # ]
 # ///
 
-# Requires: uv -- this installs the required python dependencies
 
 r'''
 usage: test_atableau.py [-h] [-q] [-t THRESHOLD] [-w WORKERS] [-e | -i | -u] [files ...]
@@ -49,9 +50,9 @@ BEFORE starting development, the examples files should be initialised using
 
     test_examples.py -i
 
-This will extract the examples from the manual, and then create webp files for
-each example, such as ribbon-good.webp. These "good" webp files are used as the
-expected output of the examples.
+This will extract the examples from the manual, and then create "good" webp
+files for each example, such as ribbon-good.webp. The "good" webp files are
+then used as the expected output of the examples.
 
 Once the good files have been initialised, the command
 
@@ -67,9 +68,9 @@ examples are added to the manual, they can be extracted using:
 
     test_examples.py -e
 
-When they do ot already exist, this will also create a good webp files for
-future comparisons, but it will not overwrite any existing good webp files for
-the examples. (In fact, `-e` rewrites all of the example LaTeX files.)
+When they do not already exist, this will also create good webp files for the
+examples, but it will not overwrite any existing good webp files. (In fact,
+the `-e` option rewrites all of the example LaTeX files.)
 
 If any of the examples in the manual change in a good way, in the sense that
 the example is corrected, or improved, then the good images can be updated
@@ -89,27 +90,30 @@ import argparse
 import glob
 import numpy
 import os
-import shutil
 import subprocess
 import sys
 
-from PIL import Image, ImageChops
-from concurrent.futures import ProcessPoolExecutor, as_completed
+# image conversion and comparision
 from pdf2image import convert_from_path
+from PIL import Image, ImageChops
+
+# for running in parallel
+from concurrent.futures import ProcessPoolExecutor, as_completed
 
 # ------------------------------------------------------------------------
+# execution
+
 def run_command(cmd):
     r'''
     Short-cut for shell commands
     '''
-    return subprocess.check_output(cmd, stderr=subprocess.STDOUT, shell=True).decode('ascii').strip()
+    return subprocess.check_output(cmd, shell=True).decode('ascii').strip()
 
 def run_parallel_command(options, files):
     '''
     Run parallel commands corresponding to options.action on the list of
     example files.
     '''
-    print(f'{options.action.capitalize()} examples')
     with ProcessPoolExecutor(max_workers=options.workers) as executor:
         command = globals()[f'{options.action}_image'] 
         futures = {executor.submit(command, file, options): file for file in files}
@@ -122,7 +126,7 @@ def run_parallel_command(options, files):
 
 
 # ------------------------------------------------------------------------
-# utility function
+# utility functions
 
 def red_text(text):
     '''
@@ -149,8 +153,9 @@ def make_image(file, ext):
     if not os.path.isfile(f'{file}.tex'):
         raise FileNotFoundError( red_text(f' - {file} not found!') )
 
-    # make the LaTeX file
-    run_command(f'pdflatex {file}')
+    # make the LaTeX file 
+    # halt on error, so that run_parallel_command does not hang
+    run_command(f'pdflatex -halt-on-error {file}')
     os.remove(f'{file}.log')
 
     # make the webp image file
@@ -186,6 +191,7 @@ def find_example_files(files):
 
     return example_files
 
+
 # ------------------------------------------------------------------------
 # actions
 
@@ -198,9 +204,7 @@ def initialising_image(file, options):
     if not options.quiet:
         print(f' - {example_number(file):<14} image created ({file}-good.webp)')
 
-
     return mean_diff > options.threshold
-
 
 def extracting_image(file, options):
     '''
@@ -250,7 +254,7 @@ if __name__ == '__main__':
     parser.add_argument('-q', '--quiet',
         action='store_true',
         default=False,
-        help='Quite mode: only print files with discrepancies'
+        help='Quite mode: only print files with discrepancies (default: False)'
     )
 
     parser.add_argument('-t', '--threshold',
@@ -265,6 +269,13 @@ if __name__ == '__main__':
         type=int,
         default=8,
         help= f'Number of workers/threads to use when checking examples (default: 8)'
+    )
+
+    parser.add_argument('-v', '--verbose',
+        action='store',
+        type=int,
+        default=8,
+        help= f'Print verbose messages (default: 8)'
     )
 
     action = parser.add_mutually_exclusive_group()
@@ -319,9 +330,11 @@ if __name__ == '__main__':
         example_files = find_example_files([''])
         # remove all of the old example files in case some names have changed
         run_command(f'rm {" ".join(f"{f}.tex" for f in example_files)}')
-        run_command('pdflatex atableau-examples && latexmk -C atableau-examples')
+        # extract the examples from the manual (and clean up latex files)
+        run_command('pdflatex -halt-on-error atableau-examples && latexmk -C atableau-examples')
 
     # populate the list of examples that we need to look at
     example_files = find_example_files(options.files)
-    run_parallel_command(options, example_files)
 
+    # act on the example files
+    run_parallel_command(options, example_files)
