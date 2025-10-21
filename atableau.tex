@@ -1,6 +1,6 @@
 % ----------------------------------------------------------------------
-% aTableau - Andrew Mathas (C) 2022-2025
-% Modified: 13:55 Friday, 10 October 2025
+% aTableau manual - Andrew Mathas (C) 2022-2025
+% Modified: 12:00 Tuesday, 21 October 2025
 % ----------------------------------------------------------------------
 \documentclass{amsart}
 \usepackage[svgnames,table]{xcolor}
@@ -58,16 +58,15 @@
 % streamline font warnings following David Carlisle https://tex.stackexchange.com/a/663843/234252
 \let\old@font@info\@font@info
 \def\@font@info#1{%
-\expandafter\ifx\csname\detokenize{#1}\endcsname\relax
-  \old@font@info{#1}%
-\fi
-\expandafter\xdef\csname\detokenize{#1}\endcsname{}%
+  \expandafter\ifx\csname\detokenize{#1}\endcsname\relax\old@font@info{#1}\fi%
+  \expandafter\xdef\csname\detokenize{#1}\endcsname{}%
 }
 
 \makeatother
 
 
 % ----------------------------------------------------------------------
+% draw a little rectangle showing the corresponding aTableau colour
 \newcommand\aTableauColour[1]{%
   \,\tikz[baseline={([yshift=0.5mm]current bounding box.south)}]\node[minimum width=3ex, minimum height=2ex,fill=aTableau#1]{};\,%
 }
@@ -77,11 +76,19 @@
 \ExplSyntaxOn
 
 % ----------------------------------------------------------------------
-% In the table summarising the keys, \Yes and \No are used to show where
+% In the table summarising the keys, \Yes and \No are used to add links
+% for the section of the manual that describes the corresponding key,
+% with the key-name given as an optional argument.  There is an extra
+% caveat in that some keys have description in both the tableau and
+% abacus sections of the manual, which is handled by a second optional
+% argument of the form (section).
+
 % the keys applies to tableaux or abacuses( or both), with \Yes adding a
 % hyperlink when it does.
 
 \newcommand\No{\textcolor{red}{\XSolidBrush}}
+
+% usage: \Yes[key](section)
 \NewDocumentCommand\Yes{o d()}
 {
   \IfNoValueTF{#1}
@@ -97,6 +104,7 @@
 
 % \optionlabel applies \option to the csv in #1 except in the case
 % when #1 starts with a * when the rest of #1 is printed
+% usage: \optionlabel{key}
 \NewDocumentCommand\optionlabel{ m }
 {
     \str_if_eq:eeTF { \str_head:n {#1} } {*}
@@ -386,6 +394,7 @@
 \lstdefinestyle{aTableau}
 {
   style=tcblatex,
+  language=TeX,
   classoffset=0,
   texcsstyle=*\color{MediumBlue},%
   deletetexcs={begin, end},
@@ -412,7 +421,7 @@
 %    Australian,
 %    English,
 %    French,
-%    Ukrainian,
+%    Russian,
 %    align,
 %    australian,
 %    border,
@@ -462,7 +471,7 @@
 %    text,
 %    text,
 %    type,
-%    ukrainian,
+%    russian,
 %    wall,
 %    west,
 %    width,
@@ -527,6 +536,18 @@
     space,
   },
 }
+
+
+\lstdefinestyle{aTableau_beamer}
+{
+  style=tcblatex,
+  language=TeX,
+  texcsstyle=*\color{MediumBlue},%
+  deletetexcs={begin, end},
+  texcsstyle=*\color{MediumBlue},%
+  keywordstyle=\color{orange},
+  morecomment=[is]{\%}{\^^M}
+  }
 
 % ---------------------------------------------------------------------------
 \NewDocumentCommand\set{ O{} >{\SplitArgument{1}{|}}m }{#1\{\,\SetContents{#1}#2\,#1\}}
@@ -628,7 +649,7 @@
 % all take the form: <aTableau command><key..> to help identify the
 % example and make it easier to test for changes in the output for
 % particular commands. For example, some of the labels are:
-%    abacusBeadPositions diagramUkrainian multiBoxFont
+%    abacusBeadPositions diagramRussian multiBoxFont
 %    multiShifted ribbonEnhanced shiftedEntries
 %    tableauConjugate tableauScaled traditionalTick
 % The example files are stored by label, rather than by example number,
@@ -688,7 +709,7 @@
 
   % \begin{Example}[tcb settings]*{label}...\end{Example}
   % The * indicates that the example should not be saved by SaveExample when testing
-  \DeclareTCBListing[use counter=example, number within=subsection]{Example}{ O{} s m }
+  \NewTCBListing[use counter=example, number within=subsection]{Example}{ O{} s m }
   {%
     label=Ex:#3,
     enhanced,
@@ -758,9 +779,9 @@
       \Tableau(0,0){[R]1[B]2,[G]3,[Y]4} \quad
       \Tableau(2.25,1)[australian]{[R]1[B]2,[G]3,[Y]4} \quad
       \Tableau(3.5,1.75)[skew={0,2}]{[Y]4[G]3[R]1,[B]2} \quad
-      \Tableau(6,0)[ukrainian,skew={0,1^2}]{[B]2[R]1,[G]3,[Y]4} \quad
+      \Tableau(6,0)[russian,skew={0,1^2}]{[B]2[R]1,[G]3,[Y]4} \quad
       \Tableau(7.5,-1)[french,skew={0,1^2}]{[B]2[R]1,[G]3,[Y]4} \quad
-      \Tableau(6.0,-2.25)[ukrainian]{[R]1[G]3[Y]4,[B]2} \quad
+      \Tableau(6.0,-2.25)[russian]{[R]1[G]3[Y]4,[B]2} \quad
       \Tableau(3.5,-3.0)[french]{[R]1[G]3[Y]4,[B]2} \quad
       \Tableau(2,-1)[australian]{[B]2,[R]1[G]3[Y]4} \quad
       \Abacus(4,0.5)[abacus ends=--,scale=1.4]{3}{[b]9,[w]8,[r]8,[b]6,[b]6,[r]2,[b]1}
@@ -779,17 +800,18 @@
   % --------------------------------------------------------------
   \section{Introduction}
 
-  The \aTableau package provides commands for drawing common objects in algebraic
-  combinatorics and representation theory, together with styling options
-  and a key-value interface for additional customisation.  Under the
-  hood, everything is drawn using \TikZ (and \LaTeX3).  \aTableau commands
-  can be used either as standalone commands, or as part of a
-  \keyword{tikzpicture} environment. This package started as code
-  for drawing tableaux in my research. It is designed to be
-  both easy to use and highly customisable, so that can produce the
-  wide variety of pictures found in the literature.\footnote{In this
-  manual, a ``picture'' is anything drawn by an \aTableau command,
-  whereas a ``diagram'' means ``Young diagram''.}
+  The \aTableau package provides commands for drawing common objects in
+  algebraic combinatorics and representation theory, together with
+  styling options and a key-value interface for additional
+  customisation.  Under the hood, everything is drawn using \TikZ (and
+  \LaTeX3).  \aTableau commands can be used either as standalone
+  commands, or as part of a \keyword{tikzpicture} environment. This
+  package started as code for drawing tableaux in my research. It is
+  designed to be both easy to use and easy to customise, so that it can
+  draw the wide variety of tableaux and abacuses found in the
+  literature.\footnote{In this manual, a ``picture'' is anything drawn
+  by an \aTableau command, whereas a ``diagram'' means ``Young
+  diagram''.}
 
   For the impatient, here is an example showing how to use the
   two main commands provided by the \aTableau package:
@@ -833,10 +855,10 @@
                      & \Tableau{1234,567,89{10},{11}{12}}\\[10mm]
           French     & \keyword{\Tableau[french]{1234,567,89{10},{11}{12}}}
                      & \Tableau[french]{1234,567,89{10},{11}{12}}\\[10mm]
-          Ukrainian
-          \footnote{Some authors call this the Russian convention. The \option{russian}(ukrainian) key may also be used.}
-                     & \keyword{\Tableau[ukrainian]{1234,567,89{10},{11}{12}}}
-                     & \Tableau[ukrainian]{1234,567,89{10},{11}{12}}\\[10mm]
+          Russian
+          \footnote{These tableaux were introduced by Kerov and Ver\v{s}hik \cite{KerovVershik}. Earlier version of this package called these tableaux \textit{Ukrainian tableaux}, in protest over the Russian invasion of the Ukraine. It is unfair to punish these authors for Putin's aggression.}
+                     & \keyword{\Tableau[russian]{1234,567,89{10},{11}{12}}}
+                     & \Tableau[russian]{1234,567,89{10},{11}{12}}\\[10mm]
           Australian
           \footnote{I have not seen a name for this convention in the literature. Calling it the \textit{Australian convention} seems apt.}
                      & \keyword{\Tableau[australian]{1234,567,89{10},{11}{12}}}
@@ -845,9 +867,8 @@
       \end{longtable}
       \index{english@English}
       \index{french@French}
-      \index{ukrainian@Ukrainian}
+      \index{russian@Russian}
       \index{australian@Australian}
-      \index{russian|see{ukrainian}}
   \end{center}
 
   These examples show how the commands provided by \aTableau work: there
@@ -865,9 +886,9 @@
   \end{example}
   for the first tableau above. These four conventions are used
   in exactly the same way with the \keyword{\Diagram} command:
-  \begin{example}[lefthand width=0.4\textwidth]{diagramUkrainians}
+  \begin{example}[lefthand width=0.4\textwidth]{diagramRussians}
   \Diagram{4,3,3,1} \qquad
-  \Diagram[ukrainian]{4,3^2,1}
+  \Diagram[russian]{4,3^2,1}
   \end{example}
   As this example shows, partitions can either be typed as a
   comma-separated list of positive integers, or using exponential
@@ -1080,11 +1101,11 @@
   \end{Example}
 
   From the viewpoint of \aTableau, the most important point of
-  \autoref{Ex:diagramCoordinates} is that the first \keyword{\Diagram} command is a
-  standalone diagram, whereas the second one is part of a
-  \keyword{tikzpicture} environment since it was given the Cartesian
-  coordinate $(0,0)$.  Most of the right-hand picture is drawn by
-  the~\keyword{\Diagram} command, which is exactly the same as the
+  \autoref{Ex:diagramCoordinates} is that the first \keyword{\Diagram}
+  command is a standalone diagram, whereas the second one is part of a
+  \keyword{tikzpicture} environment because it comes equipped with the
+  Cartesian coordinate $(0,0)$.  Most of the right-hand picture is drawn
+  by the~\keyword{\Diagram} command, which is exactly the same as the
   left-hand picture, even though most of the commands in the
   \keyword{tikzpicture} environment are \TikZ commands. In particular,
   the shading of the boxes in the \emph{$(1,2)$-hook} and the
@@ -1142,7 +1163,7 @@
     \end{tikzpicture}
     \qquad
     \begin{tikzpicture}[every node/.style={font=\tiny, text=gray}]
-        \Diagram(0,0)[ukrainian, scale=4]{1}
+        \Diagram(0,0)[russian, scale=4]{1}
         \node[label={above:(A-r-c)}] at (A-1-1){$\color{red}\bullet$};
         \node[label={above:(A-r-c.north)}] at (A-1-1.north){$\color{red}\bullet$};
         \node[label={below:(A-r-c.south)}] at (A-1-1.south){$\color{red}\bullet$};
@@ -1286,7 +1307,7 @@
     of a diagram is the partition that gives the number of boxes in each
     row. Diagrams and tableaux drawn using the \emph{French} convention
     are given by reflecting in a horizontal line above the diagrams,
-    whereas the \emph{Ukrainian} and \emph{Australian} conventions are
+    whereas the \emph{Russian} and \emph{Australian} conventions are
     given by appropriate rotations of these diagrams. All of these
     conventions are used in the literature, with some papers using more
     than one convention.
@@ -1475,7 +1496,7 @@
   diameter of the circle is the horizontal width of the box. The next
   example shows that we get a better result using
   \textit{minimum size=5mm} when using the \option{australian} and
-  \option{ukrainian} conventions for tableaux.
+  \option{russian} conventions for tableaux.
 
   For complex or frequently used styles, we recommend using the
   \keyword{\tikzset} command to define the style outside of the
@@ -1491,7 +1512,7 @@
      Y/.style={fill=yellow!20, text=blue}
   }
   \Tableau[french]{[R]1[B]2,[G]3,[Y]4} \quad
-  \Tableau[ukrainian]{[R]1[B]2,[G]3,[Y]4} \newline
+  \Tableau[russian]{[R]1[B]2,[G]3,[Y]4} \newline
   \Tableau[english]{[R]1[B]2,[G]3,[Y]4} \quad
   \Tableau[australian]{[R]1[B]2,[G]3,[Y]4}
   \end{example}
@@ -1500,7 +1521,7 @@
   and \textsf{Y} are applied to the tableaux entries labelled $1$, $2$,
   $3$, and~$4$, respectively. Note the use of \emph{minimum size} to
   control the size of the circle, which is advised when using the
-  \textit{Ukrainian} or \textit{Australian} conventions. The colours
+  \textit{Russian} or \textit{Australian} conventions. The colours
   used here, and throughout this manual, are for demonstration purposes
   only.  Such vibrant colour choices are generally not recommended for
   self-respecting documents!
@@ -1538,7 +1559,7 @@
     \aTabset{label style={red, font=\tiny}}
     \Tableau(0,0)    [english,    label=1]   {123,45}
     \Tableau(0,0.5)  [french,     label=2]    {123,45}
-    \Tableau(2.5,0.5)[ukrainian,  label=3] {123,45}
+    \Tableau(2.5,0.5)[russian,  label=3] {123,45}
     \Tableau(2.5,0)  [australian, label=4]{123,45}
   \end{tikzpicture}
   \end{example}
@@ -1574,22 +1595,27 @@
   of all subsequent tableaux in the same \LaTeX\ group, or as optional arguments in
   \keyword{\usepackage[..]{atableau}}, to change the default settings
   for the entire document.  For example, if you put the command
-  \keyword{\aTabset[ukrainian]} in the preamble of your document then,
+  \keyword{\aTabset[russian]} in the preamble of your document then,
   by default, all tableaux and Young diagrams will be drawn
-  using the Ukrainian convention.
+  using the Russian convention.
 
   \option[-]{english}
   \option*[]{french}
-  \option*[]{ukrainian}
+  \option*[]{russian}
   \option*[]{australian}
+
+  \index{tableau!english}
+  \index{tableau!french}
+  \index{tableau!russian}
+  \index{tableau!australian}
 
   These four (mutually exclusive) options change the convention, or
   orientation, that is used when drawing tableaux. Rather than defining
   these conventions precisely, we use the tried-and-true method in
   combinatorics of defining by example.
 
-  \begin{example}[lefthand width=0.3\textwidth]{tableauUkrainian}
-  \Tableau[ukrainian, styles={R={fill=red!20,draw=red}}]
+  \begin{example}[lefthand width=0.3\textwidth]{tableauRussian}
+  \Tableau[russian, styles={R={fill=red!20,draw=red}}]
     {12[R]3,45}
   \end{example}
 
@@ -1612,7 +1638,7 @@
   By default, the \option{english} convention is used to draw tableaux
   and Young diagrams. The default convention can be changed using
   \keyword{\aTabset}. Capitalised names, \keyword{Australian}\!,
-  \keyword{English}\!, \keyword{French}\!, and \keyword{Ukrainian}\!, are also
+  \keyword{English}\!, \keyword{French}\!, and \keyword{Russian}\!, are also
   recognised. If, for example, your document is only going to draw
   \option{french} tableaux and diagrams, then you can specify this when
   you load the package using \keyword{\usepackage[french]{atableau}}\!,
@@ -1667,7 +1693,7 @@
   \option{border=false},, and to \option{no border=true}.
 
   \begin{example}{tableauBorder}
-  \Tableau[ukrainian, border=false]{123,455,674} \qquad
+  \Tableau[russian, border=false]{123,455,674} \qquad
   \Tableau[french, no border]{123,455,674} \qquad
   \end{example}
 
@@ -1679,7 +1705,7 @@
   (So, \option{border style} can override \option{border colour}.)
 
   \begin{example}{tableauBorderStyle}
-  \Tableau[ukrainian, border colour=red]{123,455,674} \qquad
+  \Tableau[russian, border colour=red]{123,455,674} \qquad
   \Tableau[french, border style={dashed,orange}]{123,455}
   \end{example}
 
@@ -1733,28 +1759,28 @@
   the \option{english} and \option{french} conventions and
   \qty{0.7012}{cm}, which is approximately
   $\qty[parse-numbers=false]{1/\sqrt{2}}{cm}$, when using the
-  \option{ukrainian} and \option{australian} conventions. (In all cases,
+  \option{russian} and \option{australian} conventions. (In all cases,
   the default side length of the boxes is \qty{0.5}{cm}.)
 
   \begin{example}{tableauBoxHeight}
   \aTabset{align=top}
   \Tableau[box height=0.8]{123,455,674} \qquad
-  \Tableau[box width=0.2, ukrainian]{123,455}
+  \Tableau[box width=0.2, russian]{123,455}
   \end{example}
 
   The \option{box height} and \option{box width} keys need to be set
   \emph{after} changing the tableau convention using
   \option{australian}, \option{english}, \option{french}, or
-  \option{ukrainian} because the conventions change the height and width
+  \option{russian} because the conventions change the height and width
   of the tableau boxes (and later keys override earlier ones). In
   particular, in the last example, \option{box width=0.2} has no effect
-  because the \option{ukrainian} key, which comes later, sets the box
+  because the \option{russian} key, which comes later, sets the box
   width to \qty{0.7012}{cm}.
 
   \begin{example}{tableauBoxWidth}
   \aTabset{align=top}
   \Tableau[box height=0.3]{123,455,674} \qquad
-  \Tableau[ukrainian, box width=0.3]{123,455}
+  \Tableau[russian, box width=0.3]{123,455}
   \end{example}
 
   See also the \option{scale}, \option{xscale}, and \option{yscale}
@@ -1927,8 +1953,8 @@
   the \option{no boxes} key.
 
   \begin{example}{tableauInnerWallNone}
-  \Tableau[ukrainian, inner wall=none]{123,45,67} \qquad
-  \Tableau[ukrainian, no boxes]{123,45,67}
+  \Tableau[russian, inner wall=none]{123,45,67} \qquad
+  \Tableau[russian, no boxes]{123,45,67}
   \end{example}
 
   \option[none]{label=text}[any character/text]
@@ -1939,7 +1965,7 @@
   be changed using the \option{label style} key.
 
   \begin{example}{tableauLabel}
-  \Tableau[ukrainian, label={\mathtt{t}}]{13,25,4} \quad
+  \Tableau[russian, label={\mathtt{t}}]{13,25,4} \quad
   \Tableau[french, label=0, label style={red}]{13,5} \quad
   \Tableau[label style={draw=orange,circle, inner sep=0pt,
     minimum size=2mm}, label=1] {12,35,5}
@@ -2158,7 +2184,7 @@
   Only the boxes in the tableau, not their entries, are rotated.  Only
   one \option{rotate} key should be used in any given picture. For
   efficiency reasons, the tableau conventions, such as
-  \option{ukrainian} and \option{australian}, should be used in
+  \option{russian} and \option{australian}, should be used in
   preference to the \option{rotate} key.
 
   \option[1]{scale=number}[a decimal number]
@@ -2186,13 +2212,13 @@
   \Tableau[xscale=2]{ 13{10}{11}{1+x}, 2{1+x} }
   \end{example}
 
-  When using the \textsf{australian} and \textsf{ukrainian} conventions,
+  When using the \textsf{australian} and \textsf{russian} conventions,
   \option{xscale} and \option{yscale} scale in both the \textsf{x}
   direction and the \textsf{y}-direction, reflecting how these tableaux
   grow with increasing column and row index, respectively.
 
-  \begin{example}{tableauXScaleUkrainian}
-  \Tableau[ukrainian, xscale=2]{ 13{10}{11}{1+x}, 2{1+x} }
+  \begin{example}{tableauXScaleRussian}
+  \Tableau[russian, xscale=2]{ 13{10}{11}{1+x}, 2{1+x} }
   \end{example}
 
   \begin{example}{tableauXScaleFrench}
@@ -2351,7 +2377,7 @@
   annotating a tableau. Consider:
 
   \begin{example}[lefthand width=0.3\textwidth]{tableauTikzpicture}
-  \Tableau[ukrainian,
+  \Tableau[russian,
     tikzpicture={remember picture}]
     { 1[fill=blue!20]23[text=red]45,
       6*78[draw=cyan,ultra thick]9,
@@ -2511,7 +2537,7 @@
 
   \option[-]{english}
   \option*[]{french}
-  \option*[]{ukrainian}
+  \option*[]{russian}
   \option*[]{australian}
   \end{samepage}
 
@@ -2531,9 +2557,9 @@
   \Diagram[french]{3,1^3}
   \end{example}
 
-  \begin{example}{diagramUkrainian}
-  \Diagram[ukrainian]{3,2,1} \qquad
-  \Diagram[ukrainian]{3,1^3}
+  \begin{example}{diagramRussian}
+  \Diagram[russian]{3,2,1} \qquad
+  \Diagram[russian]{3,1^3}
   \end{example}
 
   \option[true]{border}[true/false]
@@ -2578,7 +2604,7 @@
 
   \begin{example}{diagramConjugate}
   \Diagram[conjugate]{3,2,2} \qquad
-  \Diagram[ukrainian, conjugate]{2,1^3}
+  \Diagram[russian, conjugate]{2,1^3}
   \end{example}
 
   \option[]{dotted cols=column indices}[comma-separated list of columns]
@@ -2668,7 +2694,7 @@
   \option{paths}.
 
   \begin{example}{diagramPaths}
-  \Diagram[ukrainian, inner style=dotted,
+  \Diagram[russian, inner style=dotted,
     styles={b={fill=blue!20,opacity=0.4},
             R={red,text=red,thick},
             B={blue,text=blue,thick},
@@ -2716,7 +2742,7 @@
 
   \begin{example}{diagramEntriesFirst}
   \Diagram[entries=first]{3,2,2} \qquad
-  \Diagram[ukrainian, entries=first]{3^2,2}
+  \Diagram[russian, entries=first]{3^2,2}
   \end{example}
   \index{first tableau}
   \index{tableau!first}
@@ -2750,7 +2776,7 @@
 
   \begin{example}{diagramEntriesHooks}
   \Diagram[entries=hooks]{3,2,2} \qquad
-  \Diagram[ukrainian, entries=hooks]{2^2,1}
+  \Diagram[russian, entries=hooks]{2^2,1}
   \end{example}
 
   \item\option{entries=contents}: Prints the diagram where each box is
@@ -2810,7 +2836,7 @@
 
   \begin{example}{diagramEntriesResiduesAA}
   % twisted affine type A : A^{(2)}_{2e}
-  \Diagram[ukrainian, entries=residues,
+  \Diagram[russian, entries=residues,
      e=2, cartan=AA] {8,4,2}
   \end{example}
 
@@ -3098,11 +3124,11 @@
   The \option{entries} key works as expected for shifted diagrams:
 
   \begin{Example}{shiftedEntries}
-  \ShiftedDiagram[entries=contents]{3,2,1} \qquad
+  \ShiftedDiagram[entries=contents]{4,2,1} \qquad
   \ShiftedDiagram[entries=first]{4,2,1} \qquad
   \ShiftedDiagram[entries=hooks]{4,2,1} \qquad
   \ShiftedDiagram[entries=last]{4,2,1} \qquad
-  \ShiftedDiagram[entries=residues, e=3]{4,2,1}
+  \ShiftedDiagram[entries=residues, e=2, cartan=DD]{4,2,1}
   \end{Example}
 
   The definition of hook lengths for shifted diagrams can be found, for
@@ -3128,7 +3154,7 @@
 
   \begin{example}{tabloid}
   \tikzset{R/.style={fill=red!20,circle,minimum size=5mm}}
-  \Tabloid[ukrainian]{12[R]3,45}\quad
+  \Tabloid[russian]{12[R]3,45}\quad
   \Tabloid[english]  {1[R]2,34}\quad
   \Tabloid[french]   {12[R]3,45}
   \end{example}
@@ -3280,7 +3306,7 @@
 
   \begin{example}{ribbonTableauFrench}
   \RibbonTableau[french]    { 12_1 c_2 r_3 } \quad
-  \RibbonTableau[ukrainian] { 12_a c_b r_c } \quad
+  \RibbonTableau[russian] { 12_a c_b r_c } \quad
   \RibbonTableau[australian]{ 12_{1_a} c_{2_b} r_{3_c} }
   \end{example}
 
@@ -3367,10 +3393,10 @@
       \item\textsf{C} increases the column index by $1$.
       \item\textsf{R} decreases the row index by $1$
     \end{itemize}
-    \item Each box in the ribbon, including the head, can be
-    given \TikZ-styling by prefixing it with a $*$, which gives the
-    box the current \option{tableau star}, or by putting \TikZ-styling keys inside
-    square brackets~\keyword{[...]}.
+    \item Each box in the ribbon, including the head, can be given
+    \TikZ-styling by prefixing it with a~$*$, which gives the box the
+    current \option{tableau star}, or by putting \TikZ-styling keys
+    inside square brackets~\keyword{[...]}.
     \item Add an entry to a box in the ribbon by adding it as a
     subscript, \textunderscore\texttt{\{entry\}}, to the corresponding
     ribbon specification for the box.
@@ -3505,23 +3531,23 @@
   % --------------------------------------------------------------
   \subsection{Multidiagrams and multitableaux}\label{S:Multitableau}
   \indexcmd{Multidiagram}
-  \indexcmd{multileau}
+  \indexcmd{Multitableau}
   \index{diagram!multidiagram}
   \index{tableau!multitableau}
 
   Multitableaux and multidiagrams are $\ell$-tuples of tableaux and
-  diagrams, respectively. Such diagrams are ubiquitous in representation
-  theory, such as when considering representations of wreath products
-  or cyclotomic Hecke algebras. For convenience, \aTableau provides
-  the \keyword{\Multidiagram} and \keyword{\Multitableau} commands for
-  drawing these diagrams.
+  diagrams, respectively, for $\ell\ge1$. Such diagrams are ubiquitous
+  in representation theory, such as when considering representations of
+  wreath products or cyclotomic Hecke algebras. For convenience,
+  \aTableau provides the \keyword{\Multidiagram} and
+  \keyword{\Multitableau} commands for drawing these diagrams.
 
   \keyword{\Multidiagram (x,y) [options] {multipartition specifications} }\newline
-  \keyword{\Multitableau (x,y) [options] {multileau specifications}   }
+  \keyword{\Multitableau (x,y) [options] {multitableau specifications}   }
 
   \index{components}
   \index{multidiagram!components}
-  \index{multileau!components}
+  \index{multitableau!components}
   Our preferred notation is to write the multipartition $\blam$ as
   $\blam=(\lambda^{(1)}|\lambda^{(2)}|\dots|\lambda^{(\ell)})$, where
   $\ell\ge1$ is the \emph{level} and the partitions
@@ -3582,7 +3608,7 @@
 
   \option[-]{english}
   \option*[]{french}
-  \option*[]{ukrainian}
+  \option*[]{russian}
   \option*[]{australian}
 
   All four tableau conventions are supported for multitableaux and
@@ -3592,7 +3618,7 @@
   \begin{example}{multiFrenchBoxFont}
   \aTabset{scale=0.7}
   \Multidiagram[french]{3,2^2|...|1}
-  \Multitableau[ukrainian, box font=\tiny]
+  \Multitableau[russian, box font=\tiny]
     {123,45,67 | ... | {12}{13}{14}}
   \end{example}
 
@@ -3600,7 +3626,7 @@
   \index{conjugate!multidiagram}
   \index{conjugate!multitableau}
   \index{multidiagram!conjugate}
-  \index{multileau!conjugate}
+  \index{multitableau!conjugate}
 
   The \option{conjugate} option prints the conjugate multitableaux and
   multidiagrams. Conjugation for multitableaux and multidiagrams reverses
@@ -3665,11 +3691,11 @@
   \index{residues!multitableau}
   \index{entries!multitableau}
   \index{multidiagram!show}
-  \index{multileau!contents}
-  \index{multileau!first}
-  \index{multileau!hooks}
-  \index{multileau!last}
-  \index{multileau!residue}
+  \index{multitableau!contents}
+  \index{multitableau!first}
+  \index{multitableau!hooks}
+  \index{multitableau!last}
+  \index{multitableau!residue}
 
   The \option{entries} key automatically adds particular types of
   entries to a tableau of the specified shape.  Use \option{charge} to
@@ -3803,11 +3829,11 @@
   \keyword{\Multitableau} and \keyword{\Multidiagram} set
   the size of the delimiters so that they match the component diagrams, which may
   not be what you want, especially when using the \option{australian} and
-  \option{ukrainian} conventions. The value of \option{rows} can be a
+  \option{russian} conventions. The value of \option{rows} can be a
   decimal number.
 
   \begin{example}{multiScale}
-  \Multidiagram[ukrainian, scale=0.5]{3,2^2|...|2,1^2}
+  \Multidiagram[russian, scale=0.5]{3,2^2|...|2,1^2}
   \end{example}
 
   \begin{example}{multiRows}
@@ -3883,7 +3909,8 @@
   \Multidiagram[shifted]{ 3,2 | 3,1 }
   \end{example}
 
-  \option[]{skew=partitions}[a $|$-separated list of partitions]
+  \option[]{skew=partitions}[a $|$-separated list of partitions]<multitableau>
+  \option*[]{cover=partitions}[a $|$-separated list of partitions]<multitableau>
 
   Skew multishapes can be drawn using the \option{skew} option to
   specify a $|$-separated list of inner shapes.
@@ -3895,12 +3922,14 @@
 
   In the same way, use the \option{skew} key to draw multitableaux and
   multidiagrams with components that are a mixture of non-skew, skew and
-  shifted shapes.
+  shifted shapes, and use \option{cover} for covering partitions.
 
+  \typeout{-----------------------}
   \begin{example}{multiSkew2}
   \Multitableau[skew={1^2|1}]{ 1236,45 | 7{10},{11}{12}} \par\bigskip
-  \Multidiagram[skew={|0,1}]{ 3,2 | 3,1 }
+  \Multidiagram[skew={|0,1}, cover={|4,3}]{ 3,2 | 3,1 }
   \end{example}
+  \typeout{-----------------------}
 
   \option[true]{tabloid}[true/false]
 
@@ -4772,7 +4801,7 @@
 
   \begin{example}{newDiagram}
   \NewATableauCommand\MyDiagram{Diagram}
-    {ukrainian, box fill=yellow!40,shifted}
+    {russian, box fill=yellow!40,shifted}
   \begin{tikzpicture}
     \MyDiagram(0,0){3,2}
     \MyDiagram(3,0)[shifted]{3,2,1}
@@ -4804,7 +4833,7 @@
   allow you to specify those slides of a \ctan{beamer} presentation
   where particular content appears, or does not appear.
 
-  \begin{Example}[text only, listing style=LaTeX]*{beamer}
+  \begin{Example}[text only, listing options={style=atableau_beamer}]*{beamer}
     \lstinputlisting{atableau_beamer.tex}
   \begin{slide}[title=Slide 1]
     \includegraphics[width=1.0\textwidth,page=1]{atableau_beamer.pdf}
@@ -4855,6 +4884,9 @@
   \uncover<4,5>{\Multidiagram{3,2|1^2}}  \invisible<2-4>{\Tabloid<2->{12345,789}}
   \end{Example}
 
+  The \ctan{beamer} class provides several other overlay commands, but
+  \aTableau only supports the five overlay commands listed above.
+
   % --------------------------------------------------------------
   \subsection{\aTableau colour themes}\label{S:Colours}
   \label{S:ColourTheme}
@@ -4874,11 +4906,6 @@
     \end{tabular}
   \end{center}
 
-  Creating a good colour scheme is difficult, and it is partly
-  subjective. \aTableau provides three different colour themes in the
-  hope that one of these themes will appeal. The \option{colour theme}
-  key sets the colour theme.
-
   It is sometimes useful to use the \aTableau colour names directly in
   style specifications, and with \LaTeX\ colour commands. For example,
   you can write \keyword{\textcolor{aTableauMain}{text}}. The \aTableau
@@ -4892,6 +4919,11 @@
 
     \option[default]{colour theme}{default,classic,natural}
   }
+
+  Creating a good colour scheme is difficult, and it is partly
+  subjective, so \aTableau provides three colour themes in the hope that
+  one of these themes will appeal. The \option{colour theme} key sets
+  the colour theme.
 
     \begin{itemize}
       \item \ColourTheme{default}
@@ -4981,6 +5013,9 @@
     \option{ribbon style}      & Set the ribbon style                                & \Yes & \No \\
     \option{right delimiter}   & Set right delimiter for a multitableau              & \No  & \Yes \\
     \option{rotate}            & Rotate the picture anti-clockwise                   & \Yes & \Yes \\
+    \option*{separators}       & Enable separators in a multitableau                 & \Yes & \No \\
+    \option*{skew border}      & Set skew border colour                              & \Yes & \No \\
+    \option*{skew boxes}       & Enable drawing of skew boxes                        & \Yes & \No \\
     \option{row label style}   & Set the style for e abacus labels                   & \No  & \Yes \\
     \option{row labels}        & List of labels for the abacus rows                  & \No  & \Yes \\
     \option{rows}              & Set number of rows in a multitableau or abacus      & \Yes & \Yes[abacus] \\
@@ -4989,37 +5024,34 @@
     \option{runner sep}        & Set distance between consecutive abacus runners     & \No  & \Yes \\
     \option{runner style}      & Set the style of the abacus runners                 & \No  & \Yes \\
     \option{runner}            & Set the colour of the abacus runners                & \No  & \Yes \\
+    \option{russian}           & Use the Russian convention for tableaux             & \Yes & \No \\
     \option{scale}             & Sets the \aTableau scale                            & \Yes & \Yes[abacus] \\
-    \option{script}            & Sets the \aTableau scale for subscripts             & \Yes & \Yes(scale-abacus) \\
     \option{scriptscript}      & Sets the \aTableau scale for subsubscripts          & \Yes & \Yes(scale-abacus) \\
+    \option{script}            & Sets the \aTableau scale for subscripts             & \Yes & \Yes(scale-abacus) \\
     \option{separation}        & Set distance between components in a multitableau   & \Yes & \No \\
     \option{separator colour}  & Set separator colour for a multitableau             & \Yes & \No \\
     \option{separator}         & Set separator colour in a multitableau              & \Yes & \No \\
-    \option*{separators}       & Enable separators in a multitableau                 & \Yes & \No \\
     \option{shape}             & Set the shape of a ribbon tableau                   & \Yes & \No \\
     \option{shifted}           & True for a shifted tableau                          & \Yes & \No \\
-    \option{skew}              & Set inner skew shape                                & \Yes & \No \\
-    \option*{skew border}      & Set skew border colour                              & \Yes & \No \\
     \option{skew border style} & Set the \TikZ-style of the skew border              & \Yes & \No \\
-    \option*{skew boxes}       & Enable drawing of skew boxes                        & \Yes & \No \\
     \option{skew box style}    & Set the \TikZ-style of the skew boxes               & \Yes & \No \\
-    \option{snobs}             & add snobs to tableau                                & \Yes & \No \\
-    \option{snob box}          & Adds default box entry for each snob                & \Yes & \No \\
+    \option{skew}              & Set inner skew shape                                & \Yes & \No \\
     \option{snob box style}    & Sets style of boxes on each snob                    & \Yes & \No \\
+    \option{snob box}          & Adds default box entry for each snob                & \Yes & \No \\
     \option{snob style}        & Sets style of a snob                                & \Yes & \No \\
+    \option{snobs}             & add snobs to tableau                                & \Yes & \No \\
     \option{south}             & Make abacus grow towards the south                  & \Yes & \No \\
-    \option{tableau star}      & Set \TikZ-style of tableau $*$-nodes                & \Yes & \No \\
     \option{styles}            & Shorthand for defining single use \TikZ-styles      & \Yes & \Yes[abacus] \\
+    \option{tableau star}      & Set \TikZ-style of tableau $*$-nodes                & \Yes & \No \\
     \option{tabloid}           & True for a tabloids                                 & \Yes & \No \\
     \option{text boxes}        & Typeset box and label entries in text mode          & \Yes & \Yes[abacus] \\
-    \option{tick}              & Set the colour of the ticks on the abacus runner    & \No  & \Yes \\
     \option{tick length}       & Set the length of the ticks on the abacus runners   & \No  & \Yes \\
     \option{tick style}        & Set the style of the ticks on the abacus runners    & \No  & \Yes \\
+    \option{tick}              & Set the colour of the ticks on the abacus runner    & \No  & \Yes \\
     \option{tikz after}        & \TikZ-code injected after \aTableau picture         & \Yes & \Yes[abacus] \\
     \option{tikz before}       & \TikZ-code injected before \aTableau picture        & \Yes & \Yes[abacus] \\
     \option{tikzpicture}       & Sets \texttt{tikzpicture} environment keys          & \Yes & \No \\
     \option{traditional}       & Use the traditional abacus style                    & \No  & \Yes \\
-    \option{ukrainian}         & Use the Ukrainian convention for tableaux           & \Yes & \No \\
     \option{unshaded}          & Removes shading from the abacus beads               & \No  & \Yes \\
     \option{valign}            & Set vertical alignment                              & \Yes & \Yes[abacus] \\
     \option{west}              & Make abacus grow towards the west                   & \Yes & \No \\
@@ -5166,7 +5198,7 @@
   tableaux.)
 
   \begin{example}{ribbonFayers}
-  \RibbonTableau[skew={1^2}, ukrainian, scale=0.7,
+  \RibbonTableau[skew={1^2}, russian, scale=0.7,
     ribbons={(draw=none)21_m}
   ]{
      12,16c_\circ c_\circ c_\circ r_\circ r_\circ *r,
@@ -5180,13 +5212,13 @@
 
   The entries of a tableau are usually single characters, or numbers,
   but they can be more complicated. The paper
-  \cite{bowman2023quiverpresentationsisomorphismshecke} contains
+  \cite{BowmanDeVisscherHaziStroppel:Arc} contains
   tableaux with entries that are \emph{symbols}, produced by
   the \keyword{\Symb} command below.
 
   \begin{example}{tableauSymbols}
   \newcommand\Symb[2]{\genfrac{}{}{0pt}{}{#1}{#2}}
-  \Tableau[ukrainian, box font=\scriptsize,
+  \Tableau[russian, box font=\scriptsize,
     ribbons={(ultra thick,red)23crC}
   ]{
      {\Symb11}{\Symb11}{\Symb11}{\Symb0s},
@@ -5202,7 +5234,7 @@
   tableaux boxes; see \autoref{E:NodeNames}.
 
   The first of these examples, which is also from
-  \cite{bowman2023quiverpresentationsisomorphismshecke}, is a little
+  \cite{BowmanDeVisscherHaziStroppel:Arc}, is a little
   more involved. Most of the diagram is drawn using \emph{pics} from
   \TikZ, which are a good way to add repeating features to a
   \keyword{tikzpicture}. To draw the up and down strings in this picture
@@ -5237,7 +5269,7 @@
 \begin{tikzpicture}[red ribbon/.style={fill=red!40,opacity=0.4}]
  \coordinate (O) at (0,0); \coordinate (T) at (0,3.2);     % needed by the strings
  \draw(-2,0)--(2.5,0) (-2,3.2)--(2.5,3.2);                 % top and bottom lines
- \Diagram(0,0)[ukrainian, inner style=dotted, ribbons={(red ribbon)24rcrcrc}]{5,4^3,3}
+ \Diagram(0,0)[russian, inner style=dotted, ribbons={(red ribbon)24rcrcrc}]{5,4^3,3}
  \pic at (T) {ustring={gray}{A-1-5}{}{A-1-5}};             % up strings
  \pic at (T) {ustring={gray}{A-4-4}{}{A-4-4}};
  \pic at (T) {ustring={gray}{A-5-2}{A-4-3,A-3-4}{A-3-4}};
@@ -5261,7 +5293,7 @@ in the picture.
                     solid/.style={blue, thick},
                     ghost/.style={gray}]
   \Multidiagram(0,1.3) % the multipartition, filled with residues
-   [ukrainian, entries=residues, e=3, rotate=4, no separators]{2^2,1|3,2,1}
+   [russian, entries=residues, e=3, rotate=4, no separators]{2^2,1|3,2,1}
   % the red strings, projected from the (1,1)-boxes
   \draw[red string]([shift={(0.1,0)}]A-1-1-1 |- 0,0)node[below]{$\kappa_1$} --++(0,1);
   \draw[red string]([shift={(0.1,0)}]A-2-1-1 |- 0,0)node[below]{$\kappa_2$} --++(0,1);
@@ -5319,7 +5351,7 @@ in the picture.
   groups}}, Amer. J. Math., \textbf{144} (2022), 437--504.
 \newblock \href{http://arxiv.org/abs/1702.06579}{arXiv:1702.06579}.
 
-\bibitem{bowman2023quiverpresentationsisomorphismshecke}
+\bibitem{BowmanDeVisscherHaziStroppel:Arc}
 \textsc{C.~Bowman, M.~D. Visscher, A.~Hazi, and C.~Stroppel},
   \href{https://arxiv.org/abs/2309.13695}{\textit{Quiver presentations and
   isomorphisms of Hecke categories and Khovanov arc algebras}}, 2023.
@@ -5392,6 +5424,11 @@ in the picture.
 \textsc{B.~Muniz}, \href{https://arxiv.org/abs/2505.21738}{\textit{Symplectic
   Branching through Crystals}}, 2025.
 \newblock \href{http://arxiv.org/abs/2505.21738}{arXiv:2505.21738}.
+
+\bibitem{KerovVershik}
+\textsc{A.~M. Ver\v{s}ik and S.~V. Kerov}, \textit{Asymptotic behavior of the
+  {P}lancherel measure of the symmetric group and the limit form of {Y}oung
+  tableaux}, Dokl. Akad. Nauk SSSR, \textbf{233} (1977), 1024--1027.
 
 \end{thebibliography}
 

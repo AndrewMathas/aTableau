@@ -171,6 +171,8 @@ def different_images(file, options):
     diff_array = numpy.array(diff)
     mean_diff = diff_array.mean()
 
+    return mean_diff > options.threshold
+
 def find_example_files(files):
     '''
     Determine the files to look at -- we glob for maximum effect
@@ -193,7 +195,7 @@ def find_example_files(files):
 
 
 # ------------------------------------------------------------------------
-# actions
+# actions -> {action}_image()
 
 def initialising_image(file, options):
     '''
@@ -203,8 +205,6 @@ def initialising_image(file, options):
     make_image(file, '-good.webp')
     if not options.quiet:
         print(f' - {example_number(file):<14} image created ({file}-good.webp)')
-
-    return mean_diff > options.threshold
 
 def extracting_image(file, options):
     '''
@@ -329,7 +329,7 @@ if __name__ == '__main__':
         print('Extracting example files from the aTableau manual')
         example_files = find_example_files([''])
         # remove all of the old example files in case some names have changed
-        run_command(f'rm {" ".join(f"{f}.tex" for f in example_files)}')
+        run_command(f'rm -f {" ".join(f"{f}.tex" for f in example_files)}')
         # extract the examples from the manual (and clean up latex files)
         run_command('pdflatex -halt-on-error atableau-examples && latexmk -C atableau-examples')
 

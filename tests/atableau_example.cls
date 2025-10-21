@@ -1,6 +1,6 @@
 % ----------------------------------------------------------------------
 % atableau_example.cls - Andrew Mathas (C) 2022-2025
-% Modified: 12:58 Sunday, 12 October 2025
+% Modified: 21:07 Sunday, 12 October 2025
 % ----------------------------------------------------------------------
 
 % This class file is part of the testing framework for the aTableau package. It
@@ -19,9 +19,9 @@
 % section of the manual. The file name is given by the unique label
 % attached to the example.
 
-% The python script test_atableau.py converts these LaTeX files into
-% webp images, and it checks for changes in the output during
-% development.
+% The python script test_atableau.py can be used to convert these LaTeX
+% files into webp images, and then check for changes in the output of
+% the examples during development.
 
 \ProvidesClass{atableau_example}
 \LoadClass{standalone}

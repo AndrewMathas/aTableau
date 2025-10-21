@@ -13,6 +13,8 @@
 ### Documentation
   - Add an example showing how to use dotted rows and columns for multitableaux
   - check Cartan conventions
+  - stop comments in atablea_beamer.tex from appearing in the PDF file
+    for the manual
 
 ### Things we might do at some point
 

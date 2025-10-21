@@ -5,6 +5,10 @@
 
 # **aTableau** - Change log
 
+### Version 2.2.1 - 2025-10-20
+  - updated tableaux naming conventions
+  - extended cover key to multishapes
+
 ### Version 2.2.0 - 2025-10-10
   - allows *generalised ribbon tableaux* with `c`, `C`, `r` and `R` specifications
   - allows *complex styles* in abacuses and tableaux to be entered as `[...]`, instead of `[{...}]`
@@ -38,10 +42,10 @@
   - key-value interface added for the **aTableau** options
   - allowed commands to be used both in and outside `tikzpicture` environments
   - a quark-based interface allows styles to be applied to tableau and abacus entries
-  - support for different tableau (english, french, ukrainian, australian) and abacus (south, west, north, east) conventions
+  - support for different tableau (english, french, russian, australian) and abacus (south, west, north, east) conventions
   - support for diagrams, tableaux, including tabloids, skew and shifted tableaux and ribbon tableaux
   - adds stars and styles to tableaux, diagrams, and abacuses
 
 ### Version 1.0.0 - 2023-10-06
   - initial version
-  - basic implementation of Young diagrams, tabloids, tableaux, shifted tableaux, Ukrainian tableaux, abacuses
+  - basic implementation of Young diagrams, tabloids, tableaux, shifted tableaux, russian tableaux, abacuses

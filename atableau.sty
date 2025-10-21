@@ -1,6 +1,6 @@
 % ---------------------------------------------------------------------------
 % aTableau - Andrew Mathas (C) 2022-2025
-% Modified: 08:08 Friday, 10 October 2025
+% Modified: 13:12 Tuesday, 21 October 2025
 % ---------------------------------------------------------------------------
 %
 % A LaTeX package for symmetric group combinatorics:
@@ -23,8 +23,8 @@
 
 % ---------------------------------------------------------------------------
 % aTableau release date and version number
-\def\aTableau@version{2.2.0}
-\def\aTableau@release{2025-10-10}
+\def\aTableau@version{2.2.1}
+\def\aTableau@release{2025-10-20}
 
 % ---------------------------------------------------------------------------
 % load TikZ early to avoid \ExplSyntaxOn...\ExplSyntaxOff wrappers
@@ -32,7 +32,7 @@
 \usetikzlibrary{
     arrows.meta,      % for arrows in abacus ends
     matrix,           % for delimiters in multitableaux
-    shapes.geometric, % for diamonds in Ukrainian/Australian tableaux
+    shapes.geometric, % for diamonds in Russian/Australian tableaux
     shapes.misc,      % for 'rounded rectangle' in traditional abacuses
 }
 
@@ -396,7 +396,7 @@
 
 \tikzset{
   % -----------------------------------------------------------------------
-  % Allow ball shading to be disabled by the 'unshaded' styl
+  % Allow ball shading to be disabled by the 'unshaded' style
   % The essential idea comes from https://tex.stackexchange.com/a/85750/234252
   unshaded/.code={ \tikz@addmode{\tikz@mode@shadefalse } },
   %
@@ -653,7 +653,7 @@
 }
 
 % ---------------------------------------------------------------------------
-% tableau styles: english, french, australian and ukrainian - called from settings
+% tableau styles: english, french, australian and russian - called from settings
 
 % usage: \__aTableau_set_tableau_style:nnnn {col_dx}{col_dy}{row_dx}{row_dy}
 % Set the style/convention for tableaus
@@ -689,7 +689,7 @@
     \__aTableau_set_tableau_style:nnnn {0.5}{-0.5}{-0.5}{-0.5}
 }
 
-\cs_new:Nn \__aTableau_set_tableau_style_ukrainian:
+\cs_new:Nn \__aTableau_set_tableau_style_russian:
 {
     \fp_set:Nn \l__aTableau_box_ht_fp {\l__aTableau_yscale_fp*0.7012} % 1/sqrt(2)
     \fp_set:Nn \l__aTableau_box_wd_fp {\l__aTableau_xscale_fp*0.7012}
@@ -1599,6 +1599,7 @@
           \tl_put_right:Ne \l_tmpa_tl { {\int_use:N \l__aTableau_r_int} }
           \tl_put_right:Ne \l_tmpa_tl { {##1} }
           \tl_put_right:Ne \l_tmpa_tl { \prg_replicate:nn {##1-\l__aTableau_row_int-1} {c} }
+        \typeout{Cover~ribbon~=~\l_tmpa_tl}
           \__aTableau_add_ribbon:nV {ribbon} \l_tmpa_tl
         }
      }
@@ -1736,16 +1737,25 @@
     % add ribbons
     \tl_if_empty:VF \l__aTableau_ribbons_tl { \__aTableau_add_ribbon:nV {ribbon} \l__aTableau_ribbons_tl }
 
+    % add border for covering partiton
+    \seq_if_empty:NF \l__aTableau_cover_seq
+    {
+        \bool_if:NT \l__aTableau_cover_boxes_bool  {
+            \group_begin:
+              \cs_set_eq:NN \__aTableau_update_extrema:n \use_none:n
+              \__aTableau_draw_cover_boxes:
+            \group_end:
+        }
+        \bool_if:NT \l__aTableau_cover_border_bool { \__aTableau_draw_border:nn {cover} {coverBorder}  }
+    }
+
     % paths and ribbons are inside the delimiters, but snobs are not
     \cs_set_eq:NN \__aTableau_update_extrema:n \use_none:n
 
-    % draw border
+    % add label
     \tl_if_blank:VF \l__aTableau_label_tl     { \__aTableau_draw_label: }
-    \seq_if_empty:NF \l__aTableau_cover_seq
-    {
-        \bool_if:NT \l__aTableau_cover_boxes_bool  { \__aTableau_draw_cover_boxes: }
-        \bool_if:NT \l__aTableau_cover_border_bool { \__aTableau_draw_border:nn {cover} {coverBorder}  }
-    }
+
+    % draw border
     \bool_if:NT \l__aTableau_skew_boxes_bool  { \__aTableau_draw_skew_boxes: }
     \bool_if:NT \l__aTableau_skew_border_bool { \__aTableau_draw_border:nn {skew}  {skewBorder}  }
     \bool_if:NT \l__aTableau_border_bool      { \__aTableau_draw_border:nn {shape} {border} }
@@ -1765,6 +1775,7 @@
 % Update xmax, ymax and ymin using the x#1_fp and y#1_fp
 \cs_new_protected:Npn \__aTableau_update_multi_extrema:n #1
 {
+\typeout{updating~xmax=\fp_use:N\l__aTableau_xmax_fp~-->~\fp_use:c{l__aTableau_x#1_fp}.}
     % adjust xmax, ymin and ymax for multishapes
     \fp_set:Nn \l__aTableau_xmax_fp { max(\l__aTableau_xmax_fp, \use:c{l__aTableau_x#1_fp}) }
     \fp_set:Nn \l__aTableau_ymax_fp { max(\l__aTableau_ymax_fp, \use:c{l__aTableau_y#1_fp}) }
@@ -1774,6 +1785,7 @@
 \cs_new_protected:Npn \__aTableau_update_xmax:n #1
 {
     % adjust xmax for multishapes
+\typeout{UPDATING~xmax=\fp_use:N\l__aTableau_xmax_fp~-->~\fp_use:c{l__aTableau_x#1_fp}.}
     \fp_set:Nn \l__aTableau_xmax_fp { max(\l__aTableau_xmax_fp, \use:c{l__aTableau_x#1_fp}) }
 }
 
@@ -1793,7 +1805,7 @@
     \fp_set:cn {l__aTableau_x#1_fp} {\l__aTableau_x_fp+(#2+0.5)*\l__aTableau_box_row_dx_fp+(#3+0.5)*\l__aTableau_box_col_dx_fp }
     \fp_set:cn {l__aTableau_y#1_fp} {\l__aTableau_y_fp+(#2+0.5)*\l__aTableau_box_row_dy_fp+(#3+0.5)*\l__aTableau_box_col_dy_fp }
     \__aTableau_update_extrema:n #1
-%   \__aTableau_debug:n {~-~box~coordinates:~\l__aTableau_name_tl~=~(\fp_use:c{l__aTableau_x#1_fp},~\fp_use:c{l__aTableau_y#1_fp})}
+    \__aTableau_debug:n {~-~#1-box~coordinates:~\l__aTableau_name_tl~=~(\fp_use:c{l__aTableau_x#1_fp},~\fp_use:c{l__aTableau_y#1_fp})}
 }
 
 % usage: \__aTableau_set_box_coordinates_conjugate:nnn <letter> <row> <col>: given the row and columns
@@ -2327,9 +2339,12 @@
 % Start \l__aTableau_ribbon_path_tl for a path
 \cs_new_protected:Nn \__aTableau_initialise_path_head:
 {   % adding a ribbon path
+    % make (xl,yl) point to the initial box coordinates
+    \__aTableau_set_box_coordinates:nVV {l} \l__aTableau_row_int \l__aTableau_col_int
     \tl_set:Nx \l__aTableau_ribbon_path_tl
     {
         (\fp_use:N\l__aTableau_xl_fp,\fp_use:N\l__aTableau_yl_fp)
+
             node[aTableau/pathBox,\l__aTableau_ribbon_style_tl]{\__aTableau_entry:n{\l__aTableau_path_box_tl}}
     }
 }
@@ -2412,9 +2427,6 @@
 
     % update the shape to include the head node (#3,#4)
     \__aTableau_update_shape:
-
-    % make (xl,yl) point to the initial box coordinates (is this necessary??)
-    \__aTableau_set_box_coordinates:nVV {l} \l__aTableau_row_int \l__aTableau_col_int
 
     % initialise the start of the path/ribbon
     \use:c {__aTableau_initialise_ \l__aTableau_ribbon_type_tl _head:}
@@ -3643,12 +3655,14 @@
     french .code:n = \__aTableau_set_tableau_style_french:,
     french .value_required:n = false,
 
-    ukrainian .code:n = \__aTableau_set_tableau_style_ukrainian:,
-    Ukrainian .code:n = \__aTableau_set_tableau_style_ukrainian:,
+    % historical...
+    ukrainian .code:n = \__aTableau_set_tableau_style_russian:,
+    Ukrainian .code:n = \__aTableau_set_tableau_style_russian:,
     ukrainian .value_required:n = false,
 
-    Russian .code:n = \__aTableau_set_tableau_style_ukrainian:,
-    russian .code:n = \__aTableau_set_tableau_style_ukrainian:,
+    Russian .code:n = \__aTableau_set_tableau_style_russian:,
+    russian .code:n = \__aTableau_set_tableau_style_russian:,
+    russian .value_required:n = false,
 
     border .bool_set:N = \l__aTableau_border_bool,
     border .default:n = true,
