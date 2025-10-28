@@ -9,6 +9,7 @@
 ### Known bugs
 
 ### Features to be implemented
+  - extended cover key to multishapes
 
 ### Documentation
   - Add an example showing how to use dotted rows and columns for multitableaux

@@ -7,7 +7,6 @@
 
 ### Version 2.2.1 - 2025-10-20
   - updated tableaux naming conventions
-  - extended cover key to multishapes
 
 ### Version 2.2.0 - 2025-10-10
   - allows *generalised ribbon tableaux* with `c`, `C`, `r` and `R` specifications
