@@ -13,6 +13,7 @@
 
 ### Documentation
   - add an example showing how to use dotted rows and columns for multitableaux
+  - add an example using polar coordinates to place a picture in a tikzpicture environment
   - check Cartan conventions for residues
 
 ### Things we might do at some point
