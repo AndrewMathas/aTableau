@@ -811,6 +811,7 @@
 % command variants
 
 \cs_generate_variant:Nn \fp_add:Nn {NV}
+\cs_generate_variant:Nn \fp_set:Nn {Ne}
 \cs_generate_variant:Nn \int_compare:nNnT {oNnT}
 \cs_generate_variant:Nn \int_set:Nn {No}
 \cs_generate_variant:Nn \seq_put_right:Nn {Nx}
@@ -1599,7 +1600,7 @@
           \tl_put_right:Ne \l_tmpa_tl { {\int_use:N \l__aTableau_r_int} }
           \tl_put_right:Ne \l_tmpa_tl { {##1} }
           \tl_put_right:Ne \l_tmpa_tl { \prg_replicate:nn {##1-\l__aTableau_row_int-1} {c} }
-        \typeout{Cover~ribbon~=~\l_tmpa_tl}
+        %\typeout{Cover~ribbon~=~\l_tmpa_tl}
           \__aTableau_add_ribbon:nV {ribbon} \l_tmpa_tl
         }
      }
@@ -1775,7 +1776,7 @@
 % Update xmax, ymax and ymin using the x#1_fp and y#1_fp
 \cs_new_protected:Npn \__aTableau_update_multi_extrema:n #1
 {
-\typeout{updating~xmax=\fp_use:N\l__aTableau_xmax_fp~-->~\fp_use:c{l__aTableau_x#1_fp}.}
+%\typeout{updating~xmax=\fp_use:N\l__aTableau_xmax_fp~-->~\fp_use:c{l__aTableau_x#1_fp}.}
     % adjust xmax, ymin and ymax for multishapes
     \fp_set:Nn \l__aTableau_xmax_fp { max(\l__aTableau_xmax_fp, \use:c{l__aTableau_x#1_fp}) }
     \fp_set:Nn \l__aTableau_ymax_fp { max(\l__aTableau_ymax_fp, \use:c{l__aTableau_y#1_fp}) }
@@ -1785,7 +1786,7 @@
 \cs_new_protected:Npn \__aTableau_update_xmax:n #1
 {
     % adjust xmax for multishapes
-\typeout{UPDATING~xmax=\fp_use:N\l__aTableau_xmax_fp~-->~\fp_use:c{l__aTableau_x#1_fp}.}
+%\typeout{UPDATING~xmax=\fp_use:N\l__aTableau_xmax_fp~-->~\fp_use:c{l__aTableau_x#1_fp}.}
     \fp_set:Nn \l__aTableau_xmax_fp { max(\l__aTableau_xmax_fp, \use:c{l__aTableau_x#1_fp}) }
 }
 
@@ -1805,7 +1806,7 @@
     \fp_set:cn {l__aTableau_x#1_fp} {\l__aTableau_x_fp+(#2+0.5)*\l__aTableau_box_row_dx_fp+(#3+0.5)*\l__aTableau_box_col_dx_fp }
     \fp_set:cn {l__aTableau_y#1_fp} {\l__aTableau_y_fp+(#2+0.5)*\l__aTableau_box_row_dy_fp+(#3+0.5)*\l__aTableau_box_col_dy_fp }
     \__aTableau_update_extrema:n #1
-    \__aTableau_debug:n {~-~#1-box~coordinates:~\l__aTableau_name_tl~=~(\fp_use:c{l__aTableau_x#1_fp},~\fp_use:c{l__aTableau_y#1_fp})}
+%   \__aTableau_debug:n {~-~#1-box~coordinates:~\l__aTableau_name_tl~=~(\fp_use:c{l__aTableau_x#1_fp},~\fp_use:c{l__aTableau_y#1_fp})}
 }
 
 % usage: \__aTableau_set_box_coordinates_conjugate:nnn <letter> <row> <col>: given the row and columns
@@ -2344,7 +2345,6 @@
     \tl_set:Nx \l__aTableau_ribbon_path_tl
     {
         (\fp_use:N\l__aTableau_xl_fp,\fp_use:N\l__aTableau_yl_fp)
-
             node[aTableau/pathBox,\l__aTableau_ribbon_style_tl]{\__aTableau_entry:n{\l__aTableau_path_box_tl}}
     }
 }
@@ -4068,10 +4068,11 @@
 % Set the Cartesian coordinates for the corner of the (1,1) box
 % TODO: allow general TikZ-coordinates. To do this we could, for example, use ideas from
 % https://tex.stackexchange.com/questions/33703/extract-x-y-coordinate-of-an-arbitrary-point-in-tikz
-\cs_new_protected:Npn \__aTableau_set_origin:nn (#1,#2)
+\cs_new_protected:Npn \__aTableau_set_origin:n #1
 {
-    \fp_set:Nn \l__aTableau_x_fp {#1}
-    \fp_set:Nn \l__aTableau_y_fp {#2}
+   \tikz@scan@one@point\pgfutil@firstofone(#1)\relax
+   \fp_set:Ne \l__aTableau_x_fp {\dim_to_decimal_in_unit:nn {\pgf@x}{1cm}}
+   \fp_set:Ne \l__aTableau_y_fp {\dim_to_decimal_in_unit:nn {\pgf@y}{1cm}}
 }
 
 % usage: \__aTableau_tikzpicture:nnn {origin} {aTableau command}
@@ -4089,7 +4090,7 @@
           % it is only defined when we are
           \if_cs_exist:N \draw \msg_error:nn {aTableau} { inside-tikzpicture} \fi:
 
-          \__aTableau_set_origin:nn (0,0)
+          \__aTableau_set_origin:n {0,0}
           \mode_if_math:TF
           {
               % We want to automatically rescale when used as a subscript, which
@@ -4126,7 +4127,7 @@
       }
       {   % already inside a tikzpicture environment
           \if_cs_exist:N \draw \else: \msg_error:nn {aTableau} { outside-tikzpicture} \fi:
-          \__aTableau_set_origin:nn (#1)
+          \__aTableau_set_origin:n {#1}
           \l__aTableau_tikz_before_tl #2 \l__aTableau_tikz_after_tl
       }
 }

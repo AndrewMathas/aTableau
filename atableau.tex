@@ -1,10 +1,14 @@
 % ----------------------------------------------------------------------
 % aTableau manual - Andrew Mathas (C) 2022-2025
-% Modified: 12:00 Tuesday, 21 October 2025
+% Modified: 13:26 Saturday, 01 November 2025
 % ----------------------------------------------------------------------
 \documentclass{amsart}
 \usepackage[svgnames,table]{xcolor}
 \usepackage{atableau}
+
+% fix lingering font warnings...
+\usepackage[T1]{fontenc}
+\usepackage{libertinus}
 
 \usepackage{bbding}
 \usepackage{bm}
@@ -575,7 +579,7 @@
     bottom color=RoyalBlue,
     draw=NavyBlue!70,
     shade,
-    font=\normalfont\Huge\bfseries\scshape,
+    font=\normalfont\Huge\bfseries\sffamily,
     %rounded corners=8pt,
     top color=LightSkyBlue!30,
   },
@@ -879,12 +883,12 @@
 
   The different conventions for diagrams and tableaux are listed in
   order of (my perception of) their popularity in the literature.  By
-  default, the \textit{English} convention is used, so the
-  \emph{english} key can be omitted:
+  default, the \textit{English} convention is used, so for the first
+  tableau above the \emph{english} key can be omitted:
   \begin{example}[lefthand width=0.4\textwidth]{tableauEnglish}
   \Tableau{1234,567,89{10},{11}{12}}
   \end{example}
-  for the first tableau above. These four conventions are used
+  These four conventions are used
   in exactly the same way with the \keyword{\Diagram} command:
   \begin{example}[lefthand width=0.4\textwidth]{diagramRussians}
   \Diagram{4,3,3,1} \qquad
@@ -934,19 +938,19 @@
   \end{quote}
 
   \index{Cartesian coordinates}
-  The $(x,y)$-Cartesian coordinates%
-  \footnote{Currently, only Cartesian coordinates are supported. For
-  example, it is not possible to use polar coordinates to position
-  \aTableau pictures.}
-  are optional, being necessary if (and only if) the diagram is part of
-  a~\keyword{tikzpicture} environment, as in \autoref{Ex:diagramCoordinates} below.
-  See \autoref{SS:coordinates} and \autoref{SS:abcoordinates} for more
-  detail about using these coordinates for tableaux and abacuses,
-  respectively.
+  \index{polar coordinates}
+  \index{coordinates}
+  The $(x,y)$-Cartesian coordinates are optional, being necessary if (and only if)
+  the diagram is part of a~\keyword{tikzpicture} environment, as in
+  \autoref{Ex:diagramCoordinates} below. Throughout the manual,
+  coordinates are always specified as Cartesian coordinates. In fact, arbitrary
+  \TikZ coordinates can be used to position \aTableau pictures inside
+  \texttt{tikzpicture} environments, including polar coordinates and named coordinates.
+  See \autoref{SS:coordinates} and \autoref{SS:abcoordinates} for more detail about
+  using these coordinates for tableaux and abacuses, respectively.
 
   The \aTableau package provides the following commands for drawing
   pictures:
-
   \begin{center}
     \begin{tabular}{Lll}
       \toprule
@@ -969,7 +973,7 @@
 
   In addition to the picture commands, \aTableau provides the following
   non-picture commands:
-  \begin{itemize}[nosep]
+  \begin{itemize}[nosep,topsep=-4mm]
     \item \keyword{\aTabset} for setting default values for \aTableau keys
     \item \keyword{\NewATableauCommand} for defining custom \aTableau commands;
     see \autoref{SS:NewTableau}
@@ -981,10 +985,10 @@
   appearance of an \aTableau picture. The keys are optional. The main
   function of this manual is to describe these keys, with examples. This
   section emphasises only some of these options. Every key can be set
-  ``globally'' (that is, inside the current \LaTeX\ group), by using
-  \keyword{\aTabset{...options...}}, or ``locally'' as an option for
-  the current picture. As mentioned already, the default options for the
-  document can also be set via
+  ``globally'' using \keyword{\aTabset{...options...}}, which sets the
+  keys in the current \LaTeX{} group. Alternatively, they can be set
+  ``locally'' as an option for the current picture. As mentioned already,
+  the default options for the document can also be set via
   \keyword{\usepackage[options]{atableau}}.\indexcmd{aTabset}
 
   Many of the \aTableau options are specific to the particular pictures
@@ -1341,7 +1345,7 @@
     \keyword{\Tableau}\!, the rows are separated by commas, with the
     columns given by the ``letters'' in the word for each row:
 
-    \begin{example}{tableauWords}
+  \begin{example}{tableauWords}
   \Tableau{ 1234, 56, 7, 8 }       \qquad
   \Tableau{ \alpha\gamma\delta q,
             xy\eta,
@@ -1369,7 +1373,7 @@
   % --------------------------------------------------------------
   \subsubsection{Adding style}
   \index{tableau star}
-  \index{*|see{tableau star}}
+  \index{*|see{abacus star and tableau star}}
   \index{tableau entries!tableau star}
 
   The \aTableau package provides several different ways to add
@@ -1557,10 +1561,10 @@
   \begin{example}{tableauLabels}
   \begin{tikzpicture}[add grid]
     \aTabset{label style={red, font=\tiny}}
-    \Tableau(0,0)    [english,    label=1]   {123,45}
-    \Tableau(0,0.5)  [french,     label=2]    {123,45}
-    \Tableau(2.5,0.5)[russian,  label=3] {123,45}
-    \Tableau(2.5,0)  [australian, label=4]{123,45}
+    \Tableau(0,0)    [english,   label=1]   {123,45}
+    \Tableau(0,0.5)  [french,    label=2]    {123,45}
+    \Tableau(2.5,0.5)[russian,   label=3] {123,45}
+    \Tableau(2.5,0)  [australian,label=4]{123,45}
   \end{tikzpicture}
   \end{example}
 
@@ -2046,7 +2050,7 @@
   % \usepackage{MnSymbol}
   \aTabset{styles={R={red,text=red,thick},
     C={cyan,text=cyan,thick}}}
-    \Tableau[path box=\bigcircle,
+  \Tableau[path box=\bigcircle,
     paths={(R)14ccrc,(C)23rcc},
   ]{1234,567,89{10}}
   \end{example}
@@ -3139,11 +3143,11 @@
   \label{S:Tabloid}
   \indexcmd{Tabloid}
 
-  A \emph{tabloid} is an equivalence class of tableaux, where two
-  tableaux are equivalent if they have the same set of entries in each
-  row. In the literature, tabloids are usually drawn with lines above
-  and below each row, and without side borders. Tabloids can be drawn
-  with the \keyword{\Tabloid} command.
+  For most authors, a \emph{tabloid} is an equivalence class of
+  tableaux, where two tableaux are equivalent if they have the same set
+  of entries in each row. In the literature, tabloids are usually drawn
+  with lines above and below each row, and without side borders.
+  Tabloids can be drawn with the \keyword{\Tabloid} command.
 
   \keyword{\Tabloid (x,y) [options] {partition }}
 
@@ -3155,8 +3159,8 @@
   \begin{example}{tabloid}
   \tikzset{R/.style={fill=red!20,circle,minimum size=5mm}}
   \Tabloid[russian]{12[R]3,45}\quad
-  \Tabloid[english]  {1[R]2,34}\quad
-  \Tabloid[french]   {12[R]3,45}
+  \Tabloid[english]{1[R]2,34}\quad
+  \Tabloid[french] {12[R]3,45}
   \end{example}
 
   The \aTableau package does not provide a dedicated command for tabloid
@@ -4757,12 +4761,12 @@
   these pictures using:
 
   \begin{quote}
-  \keyword{\NewATableauCommand \Command {<tableau command name>} {keys}}
+  \keyword{\NewATableauCommand \Command {<aTableau command name>} {keys}}
   \end{quote}
 
   Of course, you should replace $\langle$\keyword{\Command}$\rangle$
-  with whatever name you want to call your command. The $\langle$tableau
-  command name$\rangle$ can be any of the \aTableau picture commands:
+  with whatever name you want to call your command. The 
+  \texttt{\aTableau command name} can be any of the \aTableau picture commands:
   \begin{center}
     \rowcolors{1}{LightSkyBlue!10}{}
     \begin{tabular}{*4l}
@@ -4773,9 +4777,9 @@
   \end{center}
   The $\langle$keys$\rangle$ are a comma-separated list of \aTableau
   keys that define your custom command.  Defining custom commands helps
-  to ensure consistency throughout your document, and it also makes it
+  to ensure consistency throughout your document. Doing this also makes it
   easier to modify the ``design specifications'' of your custom
-  \aTableau picture because these specifications appear only in the
+  \aTableau picture because they appear only in the
   definition of your custom command, rather than at different places in
   your document.
 
@@ -4860,12 +4864,16 @@
 
   The only advantage of using the \aTableau overlay specification,
   rather than the \ctan{beamer} commands, is that the \aTableau code is
-  easier to read and easier to type.
+  slightly easier to read and type.
 
   \option[only]{beamer}[invisible,only,onslide,uncover,visible]
+  \index{invisible}\index{beamer!invisible}
+  \index{only}     \index{beamer!only}
+  \index{onslide}  \index{beamer!onslide}
+  \index{uncover}  \index{beamer!uncover} 
+  \index{visible}  \index{beamer!visible}
 
-  The \ctan{beamer} document class provides the following five commands
-  for working with overlay specifications:
+  The \option{beamer} key allows you to use the five \ctan{beamer}overlay commands:
   \begin{quote}
     \keyword{\invisible}\qquad
     \keyword{\only}\qquad
@@ -4873,11 +4881,10 @@
     \keyword{\uncover}\qquad
     \keyword{\visible}
   \end{quote}
-
   By default, the \aTableau commands use \keyword{\only}, but this can
-  be changed using the \option{beamer} key.  Of course, you can also use
-  \keyword{\aTabset{beamer=uncover}}.  As an example, the following
-  pairs of commands are equivalent.
+  be changed using the \option{beamer} key.  For example, if you set
+  \keyword{\aTabset{beamer=uncover}} then \aTableau uses the \keyword{\uncover} command.
+  More explicitly, the following pairs of commands are equivalent.
 
   \begin{Example}[listing only]*{beamerOverlaySpecsUncover}
   \Abacus<4,5>[beamer=uncover]{3,2}      \Tableau<2-4>[beamer=invisible]{12345,789}
@@ -5230,7 +5237,7 @@
   \end{example}
 
   From the \aTableau perspective, the most interesting feature of the
-  next two pictures is that they show how to use named nodes for the
+  next two pictures is that they illustrate the power of named-nodes for
   tableaux boxes; see \autoref{E:NodeNames}.
 
   The first of these examples, which is also from
@@ -5293,7 +5300,7 @@ in the picture.
                     solid/.style={blue, thick},
                     ghost/.style={gray}]
   \Multidiagram(0,1.3) % the multipartition, filled with residues
-   [russian, entries=residues, e=3, rotate=4, no separators]{2^2,1|3,2,1}
+    [russian, entries=residues, e=3, rotate=4, no separators]{2^2,1|3,2,1}
   % the red strings, projected from the (1,1)-boxes
   \draw[red string]([shift={(0.1,0)}]A-1-1-1 |- 0,0)node[below]{$\kappa_1$} --++(0,1);
   \draw[red string]([shift={(0.1,0)}]A-2-1-1 |- 0,0)node[below]{$\kappa_2$} --++(0,1);
@@ -5335,8 +5342,9 @@ in the picture.
     Enrico Gregorio,
     Lars Madsen,
     Clea Rees,
+    Jonathan Spratte
   and
-    Jonathan Spratte.
+    Andrew Stacey.
 
 % ----------------------------------------------------------------------
 % bibliography

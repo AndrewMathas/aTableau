@@ -13,15 +13,15 @@
 %    \Tableau {1234,567,89{10},{11}{12}}
 %    \end {document}
 %
-% The example number is stored in the file as a comment, but iis not
-% part of the corresponing pdf/webp file because the example nunbers
+% The example number is stored in the file as a comment, but is not
+% part of the corresponing pdf/webp file because the example numbers
 % will change whenever a new example is added earlier in the same
 % section of the manual. The file name is given by the unique label
 % attached to the example.
 
 % The python script test_atableau.py can be used to convert these LaTeX
-% files into webp images, and then check for changes in the output of
-% the examples during development.
+% files into webp images, making it possible to check for changes in the
+% examples during development.
 
 \ProvidesClass{atableau_example}
 \LoadClass{standalone}
