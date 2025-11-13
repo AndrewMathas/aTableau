@@ -58,16 +58,14 @@ MESG
 
 if [ "$save_record" = true ]; then
   record_times latexmk
-  record_times pdflatex
+  record_times "pdflatex -interaction=batchmode -halt-on-error"
   # append the new compilation time to manual_times
   echo "$record" >> $RECORD_IN
 else
-  record_times pdflatex
+  record_times "pdflatex -interaction=batchmode -halt-on-error"
 fi
 
 cat $RECORD_IN
 echo
 echo "New time:"
 echo "$record"
-
-
