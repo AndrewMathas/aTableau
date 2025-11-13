@@ -1209,7 +1209,7 @@
   \keyword{tikzpicture} environment has more components. In the next
   example, the key \option{name=B} makes the named
   coordinates for the second diagram take the form (\textsf{B-r-c}),
-  instead of the default node names (\textsf{A-r-c}), which are used in
+  instead of the default named coordinates (\textsf{A-r-c}), which are used in
   the first diagram. This makes it easy to draw lines between boxes
   in the two tableaux.
 
@@ -1830,7 +1830,7 @@
   \option[]{colours}[list of \LaTeX\ colours]
 
   Use the \option{colours} key to assign a cyclic list of background
-  fill colours to the boxes in the tableau. The colours are specified as
+  background colours to the boxes in a tableau. The colours are specified as
   a comma-separated list of valid \LaTeX\ colour names.  The
   \option{colours} key overrides the \option{box fill} key, so these two
   keys should not be used in the same picture.
@@ -1842,7 +1842,7 @@
     \item in increasing order, from left to right, along each row, and
     \item in decreasing order, from top to bottom, down each column.
   \end{itemize}
-  People working in representation theory will probably recognise this pattern
+  People working in representation theory may recognise this pattern
   as coming from \emph{residues} in Type~A.
 
   \begin{example}{tableauColours}
@@ -2009,7 +2009,7 @@
 
   \option[A]{name=text}[string]
 
-  By default, the boxes can be referenced using the node names
+  By default, the boxes can be referenced using the named coordinates
   \textsf{(A-1-1)}, \textsf{(A-1-2)}, \textsf{(A-1-3)}, \dots, with
   \textsf{(A-$r$-$c$)} referring to the box in row~$r$ and column~$c$.
   Use \option{name} to change the \emph{prefix} \textsf{A} to anything
@@ -2017,9 +2017,9 @@
   tableaux inside a \keyword{tikzpicture} environment because you can
   refer to boxes in the different diagrams by giving each tableau a
   different \option{name}. If you only have one tableau, then you do
-  not normally need to change the default prefix for the node names. See
-  \autoref{E:NodeNames} for a description of the extended anchor names.
-  For other examples using node names and anchors see \autoref{Ex:diagramNames},
+  not normally need to change the default prefix for the named coordinates.
+  See \autoref{E:NodeNames} for a description of the extended anchor names.
+  For other examples using named coordinates and anchors see \autoref{Ex:diagramNames},
   \autoref{Ex:tableauTikzpicture}, \autoref{Ex:tableauUpDown} and \autoref{Ex:multiKLRW}.
 
   \option[]{paths=ribbon specifications}[list of paths]
@@ -2411,7 +2411,7 @@
   Recalling the \option{name} key, the nodes in this tableau are
   referenced as \textsf{(A-1-1)}, \textsf{(A-1-2)}, \textsf{(A-1-3)},
   \dots. Since \autoref{Ex:tableauTikzpicture} uses \textit{remember picture}, other
-  \keyword{tikzpicture} environments can reference the node names in the
+  \keyword{tikzpicture} environments can reference the named coordinates in the
   last tableau, which allows us to refer back to the tableau above using:
 
   \vspace*{3mm}
@@ -3807,7 +3807,7 @@
   \option[A]{name=text}[a character]<multi>
 
   The \option{name} option is used to change the default prefix for the
-  box node names. In a tableau, or diagram, the box names depend on the
+  box named coordinates. In a tableau, or diagram, the box names depend on the
   \emph{row} and \emph{column} indices. In a multitableau, or
   multidiagram, the box names depend on the \emph{component}, \emph{row}
   and \emph{column} indices. Explicitly, by default, in multitableaux
@@ -4557,7 +4557,7 @@
   Just like the tableau commands, the \keyword{abacus} command defines
   named coordinates for all of the \emph{beads} and \emph{ticks} on the
   abacus. The key \option{name} changes the prefix used for the \TikZ
-  node names.  By default, the named coordinates take the form
+  named coordinates. By default, the named coordinates take the form
   $(\mathsf{A{-}r{-}c})$, for the bead or tick in row~$r$ and column~$c$
   of the abacus.
 
@@ -5260,7 +5260,7 @@
   \end{example}
 
   From the \aTableau perspective, the most interesting feature of the next
-  three pictures is that they illustrate the power of named-coordinates for
+  three pictures is that they illustrate the power of named coordinates for
   tableaux boxes; see \autoref{E:NodeNames}. As a result, explicit \TikZ diagramCoordinates
   are rarely needed in these pictures.
 
