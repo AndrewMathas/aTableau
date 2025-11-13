@@ -4066,8 +4066,8 @@
 % ---------------------------------------------------------------------------
 % Usage: \__aTableau_set_origin:nn (x,y)
 % Set the Cartesian coordinates for the corner of the (1,1) box
-% TODO: allow general TikZ-coordinates. To do this we could, for example, use ideas from
-% https://tex.stackexchange.com/questions/33703/extract-x-y-coordinate-of-an-arbitrary-point-in-tikz
+% Extract (x,y)-coordinates from a general TikZ coordinate following the
+% answer https://tex.stackexchange.com/a/33765/234252 of Andrew Stacey 
 \cs_new_protected:Npn \__aTableau_set_origin:n #1
 {
    \tikz@scan@one@point\pgfutil@firstofone(#1)\relax
