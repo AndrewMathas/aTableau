@@ -204,7 +204,7 @@
 \fp_new:N \l__aTableau_abacus_wd_fp       % width of the tableaux nodes/separation between abacus runners
 \fp_new:N \l__aTableau_bead_height_fp     % abacus bead height
 \fp_new:N \l__aTableau_bead_width_fp      % abacus bead width
-\fp_new:N \l__aTableau_beam_height_fp     % width of abacus rods/runners when using traditional style
+\fp_new:N \l__aTableau_beam_width_fp      % width of abacus rods/runners when using traditional style
 \fp_new:N \l__aTableau_box_col_dx_fp      % change in x-coordinate between columns in a tableau
 \fp_new:N \l__aTableau_box_col_dy_fp      % change in y-coordinate between columns in a tableau
 \fp_new:N \l__aTableau_box_ht_fp          % height of a tableau box
@@ -645,7 +645,7 @@
 {
     \fp_set:Nn \l__aTableau_abacus_ht_fp   { #1*\l__aTableau_abacus_ht_fp   }
     \fp_set:Nn \l__aTableau_bead_height_fp { #1*\l__aTableau_bead_height_fp }
-    \fp_set:Nn \l__aTableau_beam_height_fp { #1*\l__aTableau_beam_height_fp }
+    \fp_set:Nn \l__aTableau_beam_width_fp  { #1*\l__aTableau_beam_width_fp  }
     \fp_set:Nn \l__aTableau_box_col_dy_fp  { #1*\l__aTableau_box_col_dy_fp  }
     \fp_set:Nn \l__aTableau_box_ht_fp      { #1*\l__aTableau_box_ht_fp      }
     \fp_set:Nn \l__aTableau_box_row_dy_fp  { #1*\l__aTableau_box_row_dy_fp  }
@@ -822,7 +822,7 @@
 \cs_generate_variant:Nn \__aTableau_abacus_bead:nnn {enV}
 \cs_generate_variant:Nn \__aTableau_count_row:n {x}
 \cs_generate_variant:Nn \__aTableau_draw_tableau:n {V}
-\cs_generate_variant:Nn \__aTableau_define_html_colour:nn {no}
+\cs_generate_variant:Nn \__aTableau_define_html_colour:nn {no, nV}
 \cs_generate_variant:Nn \__aTableau_entry:n {x}
 \cs_generate_variant:Nn \__aTableau_add_ribbon:nn {nV}
 \cs_generate_variant:Nn \__aTableau_put_tikz_node:nnnnn {neVnV,noVno}
@@ -2815,8 +2815,8 @@
     \draw[aTableau/#1]
         (\fp_use:c{l__aTableau_x#2_fp}, \fp_use:c{l__aTableau_y#2_fp})
         rectangle
-        +(\fp_eval:n {\fp_use:c{l__aTableau_x#3_fp}-#4*\l__aTableau_beam_height_fp*\l__aTableau_abacus_row_dx_fp},
-          \fp_eval:n {\fp_use:c{l__aTableau_y#3_fp}-#4*\l__aTableau_beam_height_fp*\l__aTableau_abacus_row_dy_fp});
+        +(\fp_eval:n {\fp_use:c{l__aTableau_x#3_fp}-#4*\l__aTableau_beam_width_fp*\l__aTableau_abacus_row_dx_fp},
+          \fp_eval:n {\fp_use:c{l__aTableau_y#3_fp}-#4*\l__aTableau_beam_width_fp*\l__aTableau_abacus_row_dy_fp});
 }
 
 % usage: \__aTableau_traditional_runner:nnn {style} {initial coordinate} {offset}
@@ -3177,14 +3177,14 @@
         \__aTableau_set_bead_coordinates:nnn {a} {-\l__aTableau_abacus_top_fp} {-0.6}
         \bool_if:NTF \l__aTableau_traditional_bool
         {
-            % need to move the ends up by \l__aTableau_beam_height_fp
-            \fp_add:Nn \l__aTableau_xa_fp {-\l__aTableau_beam_height_fp*\l__aTableau_abacus_row_dx_fp}
-            \fp_add:Nn \l__aTableau_ya_fp {-\l__aTableau_beam_height_fp*\l__aTableau_abacus_row_dy_fp}
-            \fp_add:Nn \l__aTableau_xb_fp {-\l__aTableau_beam_height_fp*\l__aTableau_abacus_row_dx_fp}
-            \fp_add:Nn \l__aTableau_yb_fp {-\l__aTableau_beam_height_fp*\l__aTableau_abacus_row_dy_fp}
+            % need to move the ends up by \l__aTableau_beam_width_fp
+            \fp_add:Nn \l__aTableau_xa_fp {-\l__aTableau_beam_width_fp*\l__aTableau_abacus_row_dx_fp}
+            \fp_add:Nn \l__aTableau_ya_fp {-\l__aTableau_beam_width_fp*\l__aTableau_abacus_row_dy_fp}
+            \fp_add:Nn \l__aTableau_xb_fp {-\l__aTableau_beam_width_fp*\l__aTableau_abacus_row_dx_fp}
+            \fp_add:Nn \l__aTableau_yb_fp {-\l__aTableau_beam_width_fp*\l__aTableau_abacus_row_dy_fp}
             % need to make the runners slightly longer
-            \fp_add:Nn \l__aTableau_xl_fp {2*\l__aTableau_beam_height_fp*\l__aTableau_abacus_row_dx_fp}
-            \fp_add:Nn \l__aTableau_yl_fp {2*\l__aTableau_beam_height_fp*\l__aTableau_abacus_row_dy_fp}
+            \fp_add:Nn \l__aTableau_xl_fp {2*\l__aTableau_beam_width_fp*\l__aTableau_abacus_row_dx_fp}
+            \fp_add:Nn \l__aTableau_yl_fp {2*\l__aTableau_beam_width_fp*\l__aTableau_abacus_row_dy_fp}
 
         }
         {
@@ -3204,7 +3204,7 @@
     % add any abacus runner labels
     \bool_if:NT \l__aTableau_traditional_bool
     {
-        \fp_add:Nn \l_tmpa_fp {-\l__aTableau_beam_height_fp/\l__aTableau_abacus_ht_fp}
+        \fp_add:Nn \l_tmpa_fp {-\l__aTableau_beam_width_fp/\l__aTableau_abacus_ht_fp}
     }
     \__aTableau_abacus_runner_labels:n \l_tmpa_fp
 
@@ -3528,7 +3528,21 @@
             \__aTableau_define_html_colour:no {####1} { \prop_item:Nn \l__aTableau_colour_theme_prop {#1_####1} }
         }
     },
-    colour~theme/unknown .code:n = { \msg_error:nnx {aTableau} {unknown-theme} {#1} },
+    colour~theme/unknown .code:n = { 
+        \clist_set:Nn \l_tmpa_clist {#1}
+        \int_set:No  \l_tmpa_int { \clist_count:N \l_tmpa_clist }
+        \int_compare:nNnTF {\l_tmpa_int} = {6}
+        {   % we have a list of length 6, so use it to define a colour theme
+            \clist_map_inline:nn {Main,Inner,Skew,Fill,Star,Rod}
+            {
+                 \clist_pop:NN \l_tmpa_clist \l_tmpa_tl
+                 \colorlet {aTableau##1} {\l_tmpa_tl}
+            }
+        }
+        {   % unrecognised colour settings
+            \msg_error:nnx {aTableau} {unknown-theme} {#1}
+        }
+    },
     colour~theme .initial:n = default,
 
     color~theme .meta:n = { colour~theme={#1} },
@@ -4001,9 +4015,12 @@
     beads .initial:n = 0,
     beads.value_required:n = true,
 
-    beam~height .fp_set:N = \l__aTableau_beam_height_fp, % beam height
+    beam~height .fp_set:N = \l__aTableau_beam_width_fp, % deprecated -> beam width
     beam~height .value_required:n = true,
-    beam~height .initial:n = 0.13,
+
+    beam~width .fp_set:N = \l__aTableau_beam_width_fp, % beam height
+    beam~width .value_required:n = true,
+    beam~width .initial:n = 0.13,
 
     beta~numbers .bool_set:N = \l__aTableau_beta_numbers_bool,
     beta~numbers .default:n = true,

@@ -18,7 +18,6 @@
 
 ### Things we might do at some point
 
-  - add a `custom theme` option that sets the six aTableau colours
   - rewrite ribbons and `\Abacus` to simultaneously parse the specifications and draw the picture
   - rewrite the partition parsing so that it uses quarks
   - beta numbers: allow partition to be specified by beta numbers in `\Diagram` and friends

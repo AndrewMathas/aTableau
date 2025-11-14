@@ -8,6 +8,7 @@
 ### Version 2.2.1 - 2025-10-20
   - updated tableaux naming conventions
   - allows arbitrary TikZ coordinates to be used to place **aTableau** pictures inside `tikzpicture` environments
+  - allow `colour theme` to define a custom colour theme
 
 ### Version 2.2.0 - 2025-10-10
   - allows *generalised ribbon tableaux* with `c`, `C`, `r` and `R` specifications

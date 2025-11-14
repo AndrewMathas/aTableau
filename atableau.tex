@@ -4678,7 +4678,7 @@
   displayed.
 
   \begin{example}{abacusUnshaded}
-  \Abacus[unshaded, bead text=red]{3}{3_1,2_2,2_3} \qquad
+  \Abacus[unshaded,bead text=green]{3}{3_1,2_2,2_3}\qquad
   \Abacus[bead style={unshaded, shape=diamond,
     fill=brown, text=yellow}]{3}{3_1,2_2,2_3,0^2}
   \end{example}
@@ -4686,8 +4686,13 @@
   As the first example shows, if you use the \option{unshaded} key then
   you need to define a new style for the abacus beads. As the second
   example shows, rather than using \option{unshaded} as an
-  \keyword{\Abacus} key, you can use it inside \option{bead style} as a
-  \TikZ-style.
+  \keyword{\Abacus} key, you can also use it inside \option{bead style} as a
+  \TikZ-style. In particular, the \option{unshaded} style can be used to
+  add labels to abacus ticks:
+
+  \begin{example}{abacusUnshadedTicks}
+  \Abacus{3}{5,4,4,[unshaded,text=red,fill=white]2_A,1,1}
+  \end{example}
 
   \subsection{Traditional abacuses}\label{SS:Traditional}
   \index{traditional}
@@ -4736,13 +4741,13 @@
   If you change these keys, then you may also need to adjust
   \option{bead sep} and \option{runner sep}.
 
-  \option[0.13]{beam height}[height in \unit{cm}]
+  \option[0.13]{beam width}[height in \unit{cm}]
 
   Sets the height of the beam at the top and bottom of the abacus (see
   \option{abacus ends}).
 
   \begin{example}{traditionBeamHeight}
-  \Abacus[traditional, beam height=0.26,
+  \Abacus[traditional, beam width=0.26,
     abacus ends=--]{3}{6,4,3,1,0} \qquad
   \end{example}
 
@@ -4760,7 +4765,7 @@
   For traditional abacuses, the \option{tick length} sets the width of
   the rods in the abacus.
   \begin{example}{traditionalTick}
-  \Abacus[traditional, tick length=0.3]{3}{6,4,3,1,0} \qquad
+  \Abacus[traditional, tick length=0.3]{3}{6,4,3,1,0}
   \end{example}
 
   % --------------------------------------------------------------
@@ -4828,15 +4833,15 @@
   \NewATableauCommand\MyDiagram{Diagram}
     {russian, box fill=yellow!40,shifted}
   \begin{tikzpicture}[add grid]
-    \MyDiagram(30:2){3,2}
+    \MyDiagram(45:0.9){3,2}
     \MyDiagram(2.5,-1)[tabloid]{3,2,1}
   \end{tikzpicture}
   \end{example}
 
-  These commands are mainly provided for convenience, because it is
+  These commands are provided as a convenience because it is
   possible to define such commands ``by hand'' using
   \keyword{\NewDocumentCommand}. An error is given if the \keyword{\Command}
-  being defined by \keyword{\NewATableauCommanr} already exists.
+  being defined by \keyword{\NewATableauCommand} already exists.
 
   % --------------------------------------------------------------
   \subsection{Beamer}\label{SS:Beamer}
@@ -4879,10 +4884,10 @@
   around the corresponding \ctan{beamer} commands. More precisely, the
   following pairs of commands are equivalent:
 
-  \begin{Example}[listing only]*{beamerOverlaySpecsOnly}
-  \Multidiagram<1->{3,2|1^2}         \Tabloid<2-4>{3,1^2}{12345,789,{10}{11}}
-  \only<1->{\Multidiagram{3,2|1^2}}  \only<2-4>{\Tabloid<2->{3,1^2}{12345,789,{10}{11}}}
-  \end{Example}
+\begin{Example}[listing only]*{beamerOverlaySpecsOnly}
+\Multidiagram<1->{3,2|1}         \Tabloid<2-4>{3,1^2}{123,789,{10}{11}}
+\only<1->{\Multidiagram{3,2|1}}  \only<2-4>{\Tabloid<2->{3,1^2}{123,789,{10}{11}}}
+\end{Example}
 
   The only advantage of using the \aTableau overlay specification,
   rather than the \ctan{beamer} commands, is that the \aTableau code is
@@ -4895,7 +4900,7 @@
   \index{uncover}  \index{beamer!uncover} 
   \index{visible}  \index{beamer!visible}
 
-  The \option{beamer} key allows you to use the five \ctan{beamer}overlay commands:
+  The \option{beamer} key allows you to use the five \ctan{beamer} overlay commands:
   \begin{quote}
     \keyword{\invisible}\qquad
     \keyword{\only}\qquad
@@ -4961,6 +4966,18 @@
       \item \ColourTheme{classic}
       \item \ColourTheme{natural}
     \end{itemize}
+
+  You can also use \option{colour theme} to define a new colour scheme by giving
+  it a comma separated list of \textit{six colours}, which set the six colours in
+  the order listed in the tables above. The six items in the list
+  must all be valid colours, as recognised by the \ctan{xcolor} package.
+
+  \begin{example}{colourTheme}
+  \aTabset{colour theme={purple,red,pink,
+             purple!10!white,magenta!20!white,brown}}
+  \ShiftedTableau[skew boxes]{234,*5*6,*7} \qquad
+  \Abacus{3}{4,3,2}
+  \end{example}
 
   % --------------------------------------------------------------
   \subsection{\aTableau keys}
@@ -5109,9 +5126,9 @@
   You can, if you want, change these styles directly using
   \keyword{\tikzset}, but we recommend against doing this because such
   changes can dramatically modify, and even break, the corresponding
-  \aTableau commands. If you do change these styles directly, we
-  strongly recommend that you \emph{append} to these styles, rather than
-  setting them directly.
+  \aTableau commands. If you do change these styles, we
+  strongly recommend that you \emph{append} to them, rather than
+  setting the styles directly.
 
   \begin{center}
     \rowcolors{2}{}{LightSkyBlue!10}
@@ -5352,13 +5369,14 @@ which use abacuses like the following~\cite[page~305]{FayersPutignano:Centralise
     R={semi,bead=red,shape border rotate=270,anchor=west}, % semispherical beads
     B={semi,shape border rotate=90,anchor=east},
     Cap={out=30,in=150},
-    rarr={thick,red, <-},
-    barr={thick,blue,->},
+    rarr={thick,red, <-},        % red arrows
+    barr={thick,blue,->},        % blue arrows
+    landed={text=blue}, % labelled ticks
 }
 }
 \Abacus[dotted cols={0,2,4,6,8,9,10,11,13,15,17,19},
 abacus ends=||, runner sep=0.6, bead sep=0.8, rows=9,
-tikz after={
+tikz after={ % add the red and blue arrows
   \draw[barr](A-4-1.base)node[below left=0.2]{$c_s$}
           to[Cap](A-4-5.base)node[below right]{$d_s$};
   \draw[barr](A-4-12.base)node[below left]{$c_2$}
@@ -5373,8 +5391,10 @@ tikz after={
   \draw[rarr](A-1-3.base)to[Cap](A-1-7.base);
   \draw[rarr](A-2-7.base)to[out=30, in=190]+(1,0.4);
   \draw[rarr](A-2-18.base)to[out=30, in=190]+(1,0.4);
+  \node[below left] at (A-6-1){$b$};
 }]
-{19}{|4^3||2,[R]2,[B]1||6||4,[B]1,[R]1|||||4||2,[R]0,[B]0||6||4,[B]1,[R]0}
+{19}{[landed]4_{d_1},4_b,4,4_{c_s}||2,[R]2,[B]1||5,[landed]4_{d_s}||4,[B]1,[R]1|||||
+         4_{d_s},4_{c_2}||2,[R]0,[B]0||5_{c_1},[landed]4_{d_2}||4,[B]1,[R]0}
 \end{Example}
 
 The interesting features of this example are the use of styles to change the shape of some
