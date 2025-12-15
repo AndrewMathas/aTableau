@@ -5,23 +5,25 @@
 
 % This class file is part of the testing framework for the aTableau package. It
 % provides all of the bells and whistles needed to compile the examples from
-% the manual as standalone files. A typical example file is something like
+% the manual as standalone files. The examples are automatically extracted from 
+% the manual when it is compiled using a symbolic link from atableau-examples.tex.
+% A typical example file looks like:
 %
 %    \documentclass {atableau_example}
 %    \begin {document}
-%    %Example 1.1
+%    % Example 1.1, page 3
 %    \Tableau {1234,567,89{10},{11}{12}}
 %    \end {document}
 %
-% The example number is stored in the file as a comment, but is not
-% part of the corresponing pdf/webp file because the example numbers
-% will change whenever a new example is added earlier in the same
-% section of the manual. The file name is given by the unique label
-% attached to the example.
+% The examplenumber and page number are stored in the file as a comment. They
+% are not part of the corresponing pdf/webp file because they can change
+% change as the manual is updated. The file name is given by the unique label
+% attached to the example environment.
 
-% The python script test_atableau.py can be used to convert these LaTeX
-% files into webp images, making it possible to check for changes in the
-% examples during development.
+% The python script test_atableau.py converts the LaTeX example files into webp 
+% images and then compares them with previous versions to check for changes in the
+% examples during development. In this way, the examples in the manual are used as 
+% a test suite for the package.
 
 \ProvidesClass{atableau_example}
 \LoadClass{standalone}

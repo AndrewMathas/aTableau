@@ -1,6 +1,6 @@
 % ----------------------------------------------------------------------
 % aTableau manual - Andrew Mathas (C) 2022-2025
-% Modified: 13:26 Saturday, 01 November 2025
+% Modified: 13:55 Friday, 12 December 2025
 % ----------------------------------------------------------------------
 \documentclass{amsart}
 \usepackage[svgnames,table]{xcolor}
@@ -258,7 +258,7 @@
        \bottomrule
     \end{tabular}
     \hfill
-    \Abacus[styles={Y={text=yellow}}]{4}{4_u,4_a,4_e,4_l,[Y]4_b,[Y]4_a,[Y]4_T,0_a}\qquad
+    \Abacus{4}{4_u,4_a,4_e,4_l,4_b,4_a,4_T,0_a}\qquad
     \Abacus[traditional]{4}{2_a,[bead=aTableauFill]0^2|[bead=aTableauFill]1,1_b,1_a,1_T|1_u,1_a,1_e,1_l|[bead=aTableauFill]2^2,[bead=red]2} \qquad
 
     \par\vspace*{3mm}
@@ -298,7 +298,8 @@
     % the examples are controlled by a custom document class
     \iow_now:Nn  \__aTableau_example_iow { \documentclass{atableau_example} }
     \iow_now:Nn  \__aTableau_example_iow { \begin{document} }
-    \iow_now:Ne  \__aTableau_example_iow { \c_percent_str~Example~\theexample }
+    % try and extract the page reference from the aux file
+    \iow_now:Ne  \__aTableau_example_iow { \c_percent_str\space~Example~\theexample,~page~\getpagerefnumber{atab-Ex\c_colon_str#1} }
     \str_set:Ne  \l_tmpa_str { \tl_to_str:n{#2} }
     \str_replace_all:Nnx \l_tmpa_str { ## } { \c_hash_str }
     \iow_now:Ne  \__aTableau_example_iow { \l_tmpa_str }
@@ -330,8 +331,9 @@
 % ---------------------------------------------------------------------------
 \usepackage[skins]{tcolorbox}
 
-%% following https://tex.stackexchange.com/a/280881/234252 
-%% this two following packages are used in the format I have to use
+% Improved paragraph breaks, removing overfull hbox warnings
+% following https://tex.stackexchange.com/a/280881/234252
+% Adds roughly 0.03 seconds per page  when compiling
 \usepackage[parfill]{parskip}
 
 \tcbset{
@@ -405,7 +407,6 @@
 \lstdefinestyle{aTableau}
 {
   style=tcblatex,
-  language=TeX,
   classoffset=0,
   texcsstyle=*\color{MediumBlue},%
   deletetexcs={begin, end},
@@ -681,6 +682,14 @@
   \NewDocumentEnvironment{example}{ O{} s m +b} { \IfBooleanF{#2}{ \SaveExample{#3}{#4} }}{}
   \NewDocumentEnvironment{Example}{ O{} s m +b} { \IfBooleanF{#2}{ \SaveExample{#3}{#4} }}{}
 
+  % To write page references for the examples we first need to use xr to read ../atableau.aux
+  % and then use refcount to write the page reference numbers as pageref is not expandable.
+  % We cannot use the page nubers produced from atableau-examples.tex because this file
+  % skips over the examples, so the page numbers do not match those in the manual.
+  \nofiles
+  \usepackage{refcount}
+  \usepackage{xr}
+  \externaldocument[atab-]{../atableau}
 \else
 
   % compiling the manual normally with all examples intact
@@ -716,6 +725,7 @@
     sidebyside gap=2mm,
     text and listing,
     text outside listing,
+    parbox=false,
     boxsep = 0pt,
     left=0mm,
     #1
@@ -1094,7 +1104,7 @@
 
   The next example contrasts using the \keyword{\Diagram} command both
   outside and inside a \keyword{tikzpicture} environment. More
-  explicitly, the second \keyword{\Diagram} command uses 
+  explicitly, the second \keyword{\Diagram} command uses
   coordinates to position the picture inside a \keyword{tikzpicture} environment.
   Otherwise, the two \keyword{\Diagram} commands in this example are identical, except
   that the second one is embellished with labels that are drawn by
@@ -3376,22 +3386,22 @@
   \textsf{r} and \textsf{R} move the (generalised) ribbon in the following directions:
 
   \begin{center}
-    \Diagram[styles={A={thick,red,->},L={text=aTableauMain}},
-      scale=1.5,
-      tikz after={
-        \draw[A](A-1-1)--+(-0.8,0)node[L,left=0.1]{$c$};
-        \draw[A](A-1-1)--+(0.8,0)node[L,right=0.1]{$C$};
-        \draw[A](A-1-1)--+(0,0.8)node[L,above=0.1]{$R$};
-        \draw[A](A-1-1)--+(0,-0.8)node[L,below=0.1]{$r$};
-    }]{1}
+  \Diagram[styles={A={thick,red,->},L={text=aTableauMain}},
+    scale=1.5,
+    tikz after={
+      \draw[A](A-1-1)--+(-0.8,0)node[L,left=0.1]{$c$};
+      \draw[A](A-1-1)--+(0.8,0)node[L,right=0.1]{$C$};
+      \draw[A](A-1-1)--+(0,0.8)node[L,above=0.1]{$R$};
+      \draw[A](A-1-1)--+(0,-0.8)node[L,below=0.1]{$r$};
+  }]{1}
   \end{center}
 
   Using this enhanced syntax, it is possible, for example, to draw fancy
   pictures like the following:
 
   \begin{Example}{ribbonEnhanced}
-  \RibbonTableau[shape=5^5]{23rcCrRC}  \qquad\RibbonTableau[shape=5^5]{24rrccRRCr}\qquad
-  \RibbonTableau[shape=5^5]{24rrccRRCC}\qquad\RibbonTableau[shape=7^5]{23crrCCCCRRccr}
+  \RibbonTableau[shape=5^5]{23rcCrRC}  \quad\RibbonTableau[shape=5^5]{24rrccRRCr}\quad
+  \RibbonTableau[shape=5^5]{24rrccRRCC}\quad\RibbonTableau[shape=7^5]{23crrCCCCRRccr}
   \end{Example}
 
   Topologically, the boundary of a generalised ribbon is a union of (oriented) circles.
@@ -3691,7 +3701,7 @@
   diagram is empty. By default, a minus sign~$-$ is used.
 
   \begin{example}{multiEmpty}
-  \Multitableau{ 123,45 | | 67,89} \par\bigskip
+  \Multitableau{ 123,45 | | 67,89} \par
   \Multidiagram[empty=\emptyset]{ 3,2 | | 2^2 }
   \end{example}
 
@@ -3882,9 +3892,9 @@
 
   \begin{example}{multiNoSeparators}
   \Multitableau[separators, scale=0.8]
-    {123,45,67 | 89,{10}{11}}  \par\bigskip
+    {123,45,67 | 89,{10}{11}}  \par
   \Multidiagram[no separators, scale=0.7]
-    {3,2^2|2,1^2} \par\bigskip
+    {3,2^2|2,1^2} \par
   \end{example}
 
   \option[$|$]{separator=text}[character]
@@ -3895,7 +3905,7 @@
   components, but any character can be used.
 
   \begin{example}{multiSeparators}
-  \Multitableau[separator={,}]{ 123,45 | 67,89} \par\bigskip
+  \Multitableau[separator={,}]{ 123,45 | 67,89} \par
   \Multidiagram[separator=:]{ 3,2 | 2^2 }
   \end{example}
 
@@ -3906,7 +3916,7 @@
   are the same colour as the diagram border.
 
   \begin{example}{mutitabColouredSeps}
-  \Multitableau[separator colour=red]{123,45 | 67,89} \par\bigskip
+  \Multitableau[separator colour=red]{123,45 | 67,89} \par
   \Multidiagram[separator color=brown, separator=:]
     {3,2 | 2^2 }
   \end{example}
@@ -3917,7 +3927,7 @@
   and the component tableaux and diagrams.
 
   \begin{example}{mutitabSmallSep}
-  \Multitableau[separation=0.1]{123,45 | 67,89} \par\bigskip
+  \Multitableau[separation=0.1]{123,45 | 67,89} \par
   \Multidiagram[separation=0.8]{3,2 | 2^2}
   \end{example}
 
@@ -3926,7 +3936,7 @@
   Use the \option{shifted} key to draw shifted multitableaux and multidiagrams.
 
   \begin{example}{multiShifted}
-  \Multitableau[shifted]{ 1236,45 | 7{10}{11},89} \par\bigskip
+  \Multitableau[shifted]{ 1236,45 | 7{10}{11},89} \par
   \Multidiagram[shifted]{ 3,2 | 3,1 }
   \end{example}
 
@@ -3937,7 +3947,7 @@
   specify a $|$-separated list of inner shapes.
 
   \begin{example}{multiSkew}
-  \Multitableau[skew={2,1|1}]{ 123,45 | 7{10},89} \par\bigskip
+  \Multitableau[skew={2,1|1}]{ 123,45 | 7{10},89} \par
   \Multidiagram[skew={1|2,1}, skew boxes]{ 3,2 | 2^2 }
   \end{example}
 
@@ -3947,7 +3957,7 @@
 
   \typeout{-----------------------}
   \begin{example}{multiSkew2}
-  \Multitableau[skew={1^2|1}]{ 1236,45 | 7{10},{11}{12}} \par\bigskip
+  \Multitableau[skew={1^2|1}]{ 1236,45 | 7{10},{11}{12}} \par
   \Multidiagram[skew={|0,1}, cover={|4,3}]{ 3,2 | 3,1 }
   \end{example}
   \typeout{-----------------------}
@@ -3957,7 +3967,7 @@
   Use the \option{tabloid} key for multitabloid diagrams and tableaux.
 
   \begin{example}{multiTabloid}
-  \Multitableau[tabloid]{ 123,45 | 67,89} \par\bigskip
+  \Multitableau[tabloid]{ 123,45 | 67,89} \par
   \Multidiagram[tabloid]{ 4,2 | 2^2 }
   \end{example}
 
@@ -3972,7 +3982,7 @@
   offset their $y$-coordinates.
 
   \begin{example}{multiOffsets}
-  \Multitableau[xoffsets={0.5|0.2}]{ 123,45 | 67,89} \par\bigskip
+  \Multitableau[xoffsets={0.5|0.2}]{ 123,45 | 67,89} \par
   \Multidiagram[yoffsets={0|1.5}]{ 4,2 | 2^2 }
   \end{example}
 
@@ -4792,7 +4802,7 @@
   \end{quote}
 
   Of course, you should replace $\langle$\keyword{\Command}$\rangle$
-  with whatever name you want to call your command. The 
+  with whatever name you want to call your command. The
   \texttt{\aTableau command name} can be the names of any of the 11 \aTableau picture commands:
   \begin{center}
     \rowcolors{1}{LightSkyBlue!10}{}
@@ -4838,10 +4848,13 @@
   \end{tikzpicture}
   \end{example}
 
-  These commands are provided as a convenience because it is
-  possible to define such commands ``by hand'' using
-  \keyword{\NewDocumentCommand}. An error is given if the \keyword{\Command}
-  being defined by \keyword{\NewATableauCommand} already exists.
+  These commands are provided mainly as a convenience because, in
+  principle, it is possible to define such commands ``by hand'' using
+  \keyword{\NewDocumentCommand}. This said, commands defined using
+  \keyword{\NewATableauCommand} will automatically work with the
+  \option{beamer} key, which requires a little more care to set up
+  manually. An error results if the \keyword{\Command} being defined by
+  \keyword{\NewATableauCommand} already exists.
 
   % --------------------------------------------------------------
   \subsection{Beamer}\label{SS:Beamer}
@@ -4897,7 +4910,7 @@
   \index{invisible}\index{beamer!invisible}
   \index{only}     \index{beamer!only}
   \index{onslide}  \index{beamer!onslide}
-  \index{uncover}  \index{beamer!uncover} 
+  \index{uncover}  \index{beamer!uncover}
   \index{visible}  \index{beamer!visible}
 
   The \option{beamer} key allows you to use the five \ctan{beamer} overlay commands:
@@ -4944,9 +4957,7 @@
   style specifications, and with \LaTeX\ colour commands. For example,
   you can write \keyword{\textcolor{aTableauMain}{text}}. The \aTableau
   colours are defined as HTML colours using the \keyword{\definecolor}
-  command provided by \ctan{xcolor}. In addition to changing the colour
-  theme, the key-value interface allows you to set the colours of
-  individual components in the pictures produced by \aTableau.
+  command provided by \ctan{xcolor}.
 
   %\newpage[4]
   {\samepage
@@ -4957,20 +4968,22 @@
   Creating a good colour scheme is difficult, and it is partly
   subjective, so \aTableau provides three colour themes in the hope that
   one of these themes will appeal. The \option{colour theme} key sets
-  the colour theme.
+  the colour theme. In addition to changing the colour
+  theme, the key-value interface allows you to set the colours of
+  individual components in the pictures produced by \aTableau.
 
-  \pagebreak[4]
-
-    \begin{itemize}
-      \item \ColourTheme{default}
-      \item \ColourTheme{classic}
-      \item \ColourTheme{natural}
-    \end{itemize}
+  \begin{itemize}
+    \item \ColourTheme{default}
+    \item \ColourTheme{classic}
+    \item \ColourTheme{natural}
+  \end{itemize}
 
   You can also use \option{colour theme} to define a new colour scheme by giving
-  it a comma separated list of \textit{six colours}, which set the six colours in
+  it a comma separated list of \textit{six colours}, which sets the six colours in
   the order listed in the tables above. The six items in the list
   must all be valid colours, as recognised by the \ctan{xcolor} package.
+  Setting \option{colour theme} to anything other than one of the names of the three
+  colour scheme, or a list of six colours, gives an error.
 
   \begin{example}{colourTheme}
   \aTabset{colour theme={purple,red,pink,
@@ -4981,7 +4994,7 @@
 
   % --------------------------------------------------------------
   \subsection{\aTableau keys}
-  This section gives the list of \aTableau keys, together with a quick
+  This section lists all \aTableau keys, together with a quick
   explanation of what they do. The last two columns indicate whether the
   options apply to tableau (and diagrams), or to abacuses~--- or both!
   Options starting with \keyword{(no)} are pairs of boolean options and
@@ -5110,9 +5123,8 @@
     \bottomrule
   \end{xltabular}
 
-  All keys can be used with all \aTableau pictures. In most cases, keys
-  that are not intended to be applied to a given picture are silently
-  ignored.
+  All keys can be used with all \aTableau pictures. Keys that do not affect
+  a given picture are silently ignored.
 
   % --------------------------------------------------------------
   \subsection{\aTableau styles}\label{S:TikZStyles}
@@ -5421,8 +5433,8 @@ of the nodes to half-spheres, and the use of the named coordinates to draw the a
   \subsection*{Acknowledgements}
 
   Several features in \aTableau have benefited from posts on
-  \href{https://tex.stackexchange.com}{tex.stackexchange.com}. Although
-  it may surprise them, I thank
+  \href{https://tex.stackexchange.com}{tex.stackexchange.com}. Even
+  though it may surprise them, I thank
     Max Chernoff,
     Enrico Gregorio,
     Lars Madsen,
@@ -5434,7 +5446,7 @@ of the nodes to half-spheres, and the use of the named coordinates to draw the a
 % ----------------------------------------------------------------------
 % bibliography
 % \bibliography{papers}
-% \bibliographystyle{andrew}
+\bibliographystyle{andrew}
 
 \begin{thebibliography}{10}
 

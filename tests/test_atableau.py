@@ -23,12 +23,13 @@ positional arguments:
   files                 Example files to test, with wild cards applied (default: all files)
 
 options:
-  -q, --quiet               Quite mode: only print files with discrepancies
-  -t, --threshold THRESHOLD Threshold for image comparison (default: 5)
-  -w, --workers WORKERS     Number of workers/threads to use when checking examples (default: 8)
   -e, --extract             Extract the examples from the aTableau manual
   -i, --initialise          Initialise all of the good webp files for future comparisons
+  -o, --open                open the good images files for the examples that have changed
+  -q, --quiet               Quite mode: only print files with discrepancies
+  -t, --threshold THRESHOLD Threshold for image comparison (default: 5)
   -u, --update              Update the good files as they are checked
+  -w, --workers WORKERS     Number of workers/threads to use when checking examples (default: 8)
 '''
 
 HELP = r'''
@@ -50,8 +51,8 @@ BEFORE starting development, the examples files should be initialised using
 
     test_examples.py -i
 
-This will extract the examples from the manual, and then create "good" webp
-files for each example, such as ribbon-good.webp. The "good" webp files are
+This will extract the examples from the manual, and then create a "good" webp
+file for each example, such as ribbon-good.webp. The "good" webp files are
 then used as the expected output of the examples.
 
 Once the good files have been initialised, the command
@@ -59,7 +60,7 @@ Once the good files have been initialised, the command
     test_examples.py [files]
 
 compiles and tests all of the matching files to check for changes. Here, <file>
-is interpreted liberally with wild-card expansions on both sides.  For example,
+is interpreted liberally with wild-card expansions on both sides. For example,
 
     test_examples.py tableau
 
@@ -70,7 +71,8 @@ examples are added to the manual, they can be extracted using:
 
 When they do not already exist, this will also create good webp files for the
 examples, but it will not overwrite any existing good webp files. (In fact,
-the `-e` option rewrites all of the example LaTeX files.)
+the `-e` option rewrites all of the example LaTeX files.) The examples should 
+be regularly extracted from manual as they can change.
 
 If any of the examples in the manual change in a good way, in the sense that
 the example is corrected, or improved, then the good images can be updated
@@ -107,7 +109,7 @@ def run_command(cmd):
     r'''
     Short-cut for shell commands
     '''
-    return subprocess.check_output(cmd, shell=True).decode('ascii').strip()
+    return subprocess.check_output(cmd, shell=True).strip()
 
 def run_parallel_command(options, files):
     '''
@@ -140,7 +142,7 @@ def example_number(file):
     '''
     with open(f'{file}.tex', 'r') as example:
         for line in example:
-            if line.startswith('%Example'):
+            if line.startswith('% Example'):
                 break
 
     return line[1:].strip()
@@ -153,8 +155,7 @@ def make_image(file, ext):
     if not os.path.isfile(f'{file}.tex'):
         raise FileNotFoundError( red_text(f' - {file} not found!') )
 
-    # make the LaTeX file 
-    # halt on error, so that run_parallel_command does not hang
+    # make the LaTeX file halt on error, otherwise run_parallel_command will hang
     run_command(f'pdflatex -halt-on-error {file}')
     os.remove(f'{file}.log')
 
@@ -232,7 +233,9 @@ def checking_image(file, options):
     '''
     make_image(file, '.webp')
     if different_images(file, options):
-        print( red_text(f' - {example_number(file):<14} changed  ({file})') )
+        print( red_text(f' - Changed: {example_number(file):<14}  ({file})') )
+        if options.open:
+            run_command(f'open {file}-good.webp')
 
     elif not options.quiet:
         print(f' - {example_number(file):<14} OK ({file})')
@@ -249,33 +252,6 @@ if __name__ == '__main__':
         nargs='*',
         default=[''],
         help='Example files to test, with wild cards applied (default: all files)'
-    )
-
-    parser.add_argument('-q', '--quiet',
-        action='store_true',
-        default=False,
-        help='Quite mode: only print files with discrepancies (default: False)'
-    )
-
-    parser.add_argument('-t', '--threshold',
-        action='store',
-        type=int,
-        default=5,
-        help= f'Threshold for image comparison (default: 5)'
-    )
-
-    parser.add_argument('-w', '--workers',
-        action='store',
-        type=int,
-        default=8,
-        help= f'Number of workers/threads to use when checking examples (default: 8)'
-    )
-
-    parser.add_argument('-v', '--verbose',
-        action='store',
-        type=int,
-        default=8,
-        help= f'Print verbose messages (default: 8)'
     )
 
     action = parser.add_mutually_exclusive_group()
@@ -299,9 +275,39 @@ if __name__ == '__main__':
         help='Update the good files as they are checked'
     )
 
+    parser.add_argument('-o', '--open',
+        action='store_true',
+        default=False,
+        help='open the good images files for the examples that have changed'
+    )
+
+    parser.add_argument('-q', '--quiet',
+        action='store_true',
+        default=False,
+        help='Quite mode: only print files with discrepancies (default: False)'
+    )
+
+    parser.add_argument('-t', '--threshold',
+        action='store',
+        type=int,
+        default=5,
+        help= f'Threshold for image comparison (default: 5)'
+    )
+
+    parser.add_argument('-w', '--workers',
+        action='store',
+        type=int,
+        default=8,
+        help= f'Number of workers/threads to use when checking examples (default: 8)'
+    )
+
     parser.add_argument('-h', '--help', action='count', default=0)
 
     options = parser.parse_args()
+
+    # if run from tyhe atableau directory, cd into the tests directory
+    if os.path.basename( os.getcwd() ) == 'aTableau':
+        os.chdir('tests')
 
     # help those who ask for help
     if options.help > 0:

@@ -1,6 +1,6 @@
 % ---------------------------------------------------------------------------
 % aTableau - Andrew Mathas (C) 2022-2025
-% Modified: 13:12 Tuesday, 21 October 2025
+% Modified: 13:50 Friday, 12 December 2025
 % ---------------------------------------------------------------------------
 %
 % A LaTeX package for symmetric group combinatorics:
@@ -2691,8 +2691,8 @@
 % We pick any edge in the boundary, using \prop_map_inline:Nn, and then add a
 % connected circuit of edges to \l__aTableau_ribbon_path_tl by searching for
 % adjacent edges in \l__aTableau_ribbon_prop. As the boundary is a union of
-% circles, if there are two connected edges it does not matter which edge we
-% choose.
+% circles, if there are two adjacent vertices it does not matter which
+% one we choose.
 \cs_new_protected:Nn \__aTableau_finalise_ribbon:
 {
     \tl_clear:N\l__aTableau_ribbon_path_tl  % will become the border of the ribbon
@@ -3528,7 +3528,7 @@
             \__aTableau_define_html_colour:no {####1} { \prop_item:Nn \l__aTableau_colour_theme_prop {#1_####1} }
         }
     },
-    colour~theme/unknown .code:n = { 
+    colour~theme/unknown .code:n = {
         \clist_set:Nn \l_tmpa_clist {#1}
         \int_set:No  \l_tmpa_int { \clist_count:N \l_tmpa_clist }
         \int_compare:nNnTF {\l_tmpa_int} = {6}
@@ -4084,7 +4084,7 @@
 % Usage: \__aTableau_set_origin:nn (x,y)
 % Set the Cartesian coordinates for the corner of the (1,1) box
 % Extract (x,y)-coordinates from a general TikZ coordinate following the
-% answer https://tex.stackexchange.com/a/33765/234252 of Andrew Stacey 
+% answer https://tex.stackexchange.com/a/33765/234252 of Andrew Stacey
 \cs_new_protected:Npn \__aTableau_set_origin:n #1
 {
    \tikz@scan@one@point\pgfutil@firstofone(#1)\relax
