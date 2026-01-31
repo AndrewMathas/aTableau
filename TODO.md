@@ -7,6 +7,7 @@
 # aTableau - ToDo list
 
 ### Known bugs
+  - work out why the abacus example on page 57 is broken as it used to work...
 
 ### Features to be implemented
   - allow `cover` key to be used with multishapes
