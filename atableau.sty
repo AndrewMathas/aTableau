@@ -1,6 +1,6 @@
 % ---------------------------------------------------------------------------
 % aTableau - Andrew Mathas (C) 2022-2025
-% Modified: 12:21 Saturday, 31 January 2026
+% Modified: 13:17 Monday, 23 March 2026
 % ---------------------------------------------------------------------------
 %
 % A LaTeX package for symmetric group combinatorics:
@@ -40,8 +40,8 @@
 \providecommand \IfFormatAtLeastTF { \@ifl@t@r \fmtversion }
 
 % Correct for negative signs in contents being too long to fit in a tableau
+% by defining the \shortminus command -- only if it does not already exist
 \ifcsname shortminus\endcsname
-  % define the \shortminus command only if it does not already exist
 \else
   \RequirePackage{amsfonts}
   \DeclareMathSymbol{\shortminus}{\mathbin}{AMSa}{"39}
@@ -50,7 +50,7 @@
 % ---------------------------------------------------------------------------
 \providecommand\DeclareRelease[3]{}
 \providecommand\DeclareCurrentRelease[2]{}
-\DeclareRelease{\aTableau@version}{\atableau@release}{atableau.sty}
+\DeclareRelease{\aTableau@version}{\aTableau@release}{atableau.sty}
 \DeclareCurrentRelease{}{\aTableau@release}
 
 \ProvidesExplPackage{atableau}
@@ -178,6 +178,7 @@
 % aTableau variables
 % The default values are controlled by the aTableau keys
 
+\bool_new:N \l__aTableau_beamer_bool      % true if beamer is loaded
 \bool_new:N \l__aTableau_beta_numbers_bool% true if specifying beta numbers
 \bool_new:N \l__aTableau_border_bool      % true if drawing tableau border
 \bool_new:N \l__aTableau_boxes_bool       % true if drawing inner tableau walls
@@ -230,7 +231,7 @@
 \fp_new:N \l__aTableau_yl_fp              % y-coordinate of a tableau node/bead
 \fp_new:N \l__aTableau_ymax_fp            % maximum y-coordinate for multidiagrams and multitableaux
 \fp_new:N \l__aTableau_ymin_fp            % minimum y-coordinate for multidiagrams and multitableaux
-\fp_new:N \l__aTableau_yscale_fp          % scaling in the x-direction
+\fp_new:N \l__aTableau_yscale_fp          % scaling in the y-direction
 
 \int_new:N \l__aTableau_beads_int         % number of beads on the abacus
 \int_new:N \l__aTableau_charge_int        % charge for current component
@@ -293,7 +294,7 @@
 \tl_new:N \l__aTableau_empty_tl           % symbol for empty tableau/diagram in a multi tableau/diagram
 \tl_new:N \l__aTableau_entries_tl         % custom entries in tableau
 \tl_new:N \l__aTableau_inner_tl           % colour of tableau inner walls
-\tl_new:N \l__aTableau_label_tl           % a label to print on an tableau/diagram
+\tl_new:N \l__aTableau_label_tl           % a label to print on a tableau/diagram
 \tl_new:N \l__aTableau_left_delimiter_tl  % the left delimiter for multitableau and multidiagrams
 \tl_new:N \l__aTableau_multiprefix_tl     % intermediate prefix used when constructing multinode names
 \tl_new:N \l__aTableau_name_tl            % name of a tableau node
@@ -325,7 +326,7 @@
 \tl_new:N \l__aTableau_tikz_after_tl      % TikZ commands for after the diagram
 \tl_new:N \l__aTableau_tikz_before_tl     % TikZ commands for before the diagram
 \tl_new:N \l__aTableau_tikzpicture_tl     % TikZ environment settings
-\tl_new:N \l__aTableau_unstyled_nodes_tl  % token lists of nodes with efault style
+\tl_new:N \l__aTableau_unstyled_nodes_tl  % token lists of nodes with default style
 
 % ---------------------------------------------------------------------------
 % aTableau colour themes
@@ -373,7 +374,7 @@
 \cs_new_protected:Npn \__aTableau_set_colours:n #1
 {
     \seq_set_split:Nnn \l__aTableau_colours_seq {,} {#1}
-    \cs_set_eq:NN \l__aTableau_set_box_fill:nn \__aTableau_set_box_fill_colour:nn
+    \cs_set_eq:NN \__aTableau_set_box_fill:nn \__aTableau_set_box_fill_colour:nn
     \int_set:No \l__aTableau_e_int { \seq_count:N \l__aTableau_colours_seq }
     \tl_if_eq:NnT \l__aTableau_cartan_tl {C}
     {
@@ -381,7 +382,7 @@
     }
 }
 
-\cs_set_eq:NN \l__aTableau_set_box_fill:nn  \use_none:nn
+\cs_set_eq:NN \__aTableau_set_box_fill:nn  \use_none:nn
 
 % usage: \__aTableau_set_tableau_fill_colour:nn {row} {column}
 % Set the fill colour in a tableau for the specified row and column
@@ -507,7 +508,7 @@
     },
     % -----------------------------------------------------------------------
     % label styles
-    label/.style = {
+    tableauLabel/.style = {
         shift = {(\fp_eval:n{-0.2*(\l__aTableau_box_row_dx_fp+\l__aTableau_box_col_dx_fp)},
                   \fp_eval:n{-0.2*(\l__aTableau_box_row_dy_fp+\l__aTableau_box_col_dy_fp)})},
         font=\scriptsize,
@@ -587,7 +588,7 @@
         draw = \l__aTableau_tick_tl,
         semithick,
     },
-    Label/.style = {
+    abacusLabel/.style = {
         anchor = center,
         draw = none,
         font = \scriptsize,
@@ -597,10 +598,10 @@
         text = aTableauInner,
     },
     rowLabel/.style = {
-        aTableau/Label,
+        aTableau/abacusLabel,
     },
     runnerLabel/.style = {
-        aTableau/Label,
+        aTableau/abacusLabel,
     },
     % -----------------------------------------------------------------------
     % the named coordinate for an abacus tick
@@ -793,7 +794,7 @@
     }
 }
 
-% usage: \__aTableau_set_abacus_ends:nn {top} {top}
+% usage: \__aTableau_set_abacus_ends:nn {top} {bottom}
 % Set the abacus ends abacus_top and abacus_bottom and give an error
 % message if the ends are not one of =,-,.,|,>
 \cs_new_protected:Npn \__aTableau_set_abacus_ends:nn #1 #2
@@ -915,6 +916,37 @@
 % ---------------------------------------------------------------------------
 % Parsing input
 
+% usage: \__aTableau_peek_style:nw {command suffix}
+% Generic version: used by the ribbon parser
+\cs_new_protected:Npn \__aTableau_peek_style:nw #1
+{
+    \peek_remove_spaces:n {
+      \peek_charcode:NTF [
+        { \use:c{__aTableau_#1} }
+        {
+          \peek_charcode_remove:NTF *
+            { \use:c{__aTableau_#1} [\l__aTableau_starstyle_tl] }
+            { \use:c{__aTableau_#1} [] }
+        }
+    }
+}
+
+% usage: \__aTableau_peek_tableau_style:w
+% Read the next entry in the input sequence, with any optional style given by
+% a * or [...], and then pass this data to the command \__aTableau_draw_entry:nn
+\cs_new_protected:Npn \__aTableau_peek_tableau_style:w
+{
+    \peek_remove_spaces:n { % ignore spaces
+      \peek_charcode:NTF [
+        { \__aTableau_draw_entry:nn } % read custom style
+        {
+          \peek_charcode_remove:NTF *
+            { \__aTableau_draw_entry:nn [\l__aTableau_starstyle_tl] } % add star style
+            { \__aTableau_draw_entry:nn [] }% no style
+        }
+    }
+}
+
 % \seq_set_split:Nnn does not respect braces around singleton entries
 % such as in { 1345, 8{10}, {11}, {12} }, with the result that {11}
 % and {12} are treated as {1}{1} and {1}{2}, respectively. As this is
@@ -922,7 +954,26 @@
 % this means that comma-separated style specifications for nodes do not need to
 % be enclosed in braces as the surrounding square brackets, [...], are
 % sufficient to capture them in \__aTableau_record_style:nn.
-\cs_new_protected:Npn \__aTableau_peek_tableau:w
+\cs_new_protected:Npn \__aTableau_peek_tableau_main:w
+{
+    \peek_remove_spaces:n { % ignore spaces
+        \peek_charcode_remove:NTF ,
+        {
+            % record the column index in the shape for drawing the border
+            \seq_put_right:NV \l__aTableau_shape_seq \l__aTableau_col_int
+            % increment the row index
+            \int_incr:N \l__aTableau_row_int
+            \int_set:Nn \l__aTableau_col_int { 0\seq_item:Nn \l__aTableau_skew_seq {\l__aTableau_row_int+1}}
+            % look for the next entry
+            \__aTableau_peek_tableau:w
+         }
+         {
+            \__aTableau_peek_tableau_style:w
+         }
+    }
+}
+
+\cs_new_protected:Npn \__aTableau_peek_tableau_shifted:w
 {
     \peek_remove_spaces:n { % ignore spaces
         \peek_charcode_remove:NTF ,
@@ -932,35 +983,67 @@
             % increment the row index
             \int_incr:N \l__aTableau_row_int
             % reset the column index, and update the skew shape for shifted tableau
-            \bool_if:NTF \l__aTableau_shifted_bool
-            {
-                \seq_put_right:No \l__aTableau_skew_seq {\int_use:N \l__aTableau_row_int}
-                \int_set_eq:NN \l__aTableau_col_int \l__aTableau_row_int
-            }
-            {
-                \int_set:Nn \l__aTableau_col_int { 0\seq_item:Nn \l__aTableau_skew_seq {\l__aTableau_row_int+1}}
-            }
+            \seq_put_right:No \l__aTableau_skew_seq {\int_use:N \l__aTableau_row_int}
+            \int_set_eq:NN \l__aTableau_col_int \l__aTableau_row_int
             % look for the next entry
             \__aTableau_peek_tableau:w
          }
          {
-            \__aTableau_peek_style:nw {draw_entry:nn}
+            \__aTableau_peek_tableau_style:w
          }
     }
 }
 
-% usage: \__aTableau_peek_style:nw {command suffix}
+% Initialise \__aTableau_peek_tableau:w to the default (non-shifted) variant.
+% For non-shofted and shifted tableaux, this is set dynamically to either
+% \__aTableau_peek_tableau_main:w or \__aTableau_peek_tableau_shifted:w
+% by \__aTableau_draw_tableau:n.
+\cs_set_eq:NN \__aTableau_peek_tableau:w \__aTableau_peek_tableau_main:w
+
+% usage: \__aTableau_peek_count_style:w
 % Read the next entry in the input sequence, with any optional style given by
 % a * or [...], and then pass this data to the command \__aTableau_#1.
-\cs_new_protected:Npn \__aTableau_peek_style:nw #1
+\cs_new_protected:Npn \__aTableau_peek_count_style:w
 {
     \peek_remove_spaces:n { % ignore spaces
       \peek_charcode:NTF [
-        { \use:c{__aTableau_#1} } % read custom style
+        { \__aTableau_count_entries:nn } % read custom style
         {
           \peek_charcode_remove:NTF *
-            { \use:c{__aTableau_#1} [\l__aTableau_starstyle_tl] } % add star style
-            { \use:c{__aTableau_#1} [] }% no style
+            { \__aTableau_count_entries:nn [\l__aTableau_starstyle_tl] } % add star style
+            { \__aTableau_count_entries:nn [] }% no style
+        }
+    }
+}
+
+% usage: \__aTableau_peek_ribbon_style:w
+% Read the next entry in the input sequence, with any optional style given by
+% a * or [...], and then pass this data to the command \__aTableau_save_ribbon_head:nnn
+\cs_new_protected:Npn \__aTableau_peek_ribbon_head_style:w
+{
+    \peek_remove_spaces:n { % ignore spaces
+      \peek_charcode:NTF [
+        { \__aTableau_save_ribbon_head:nnn } % read custom style
+        {
+          \peek_charcode_remove:NTF *
+            { \__aTableau_save_ribbon_head:nnn [\l__aTableau_starstyle_tl] } % add star style
+            { \__aTableau_save_ribbon_head:nnn [] }% no style
+        }
+    }
+}
+
+% usage: \__aTableau_peek_abacus_style:w
+% Read the next entry in the input sequence, with any optional style given by
+% a * or [...], and then pass this data to the command \__aTableau_record_style:nn
+\cs_new_protected:Npn \__aTableau_peek_abacus_style:w
+{
+    \peek_remove_spaces:n { % ignore spaces
+      \peek_charcode:NTF [
+        { \__aTableau_record_style:nn } % read custom style
+        {
+          \peek_charcode_remove:NTF *
+            { \__aTableau_record_style:nn [\l__aTableau_starstyle_tl] } % add star style
+            { \__aTableau_record_style:nn [] }% no style
         }
     }
 }
@@ -998,7 +1081,7 @@
             \__aTableau_record_bead:
             % increment bead number and capture the specifications for the next bead
             \int_incr:N \l__aTableau_r_int
-            \__aTableau_peek_style:nw {record_style:nn}
+            \__aTableau_peek_abacus_style:w
         }
         {
           \peek_charcode_remove:NTF _
@@ -1045,13 +1128,13 @@
     \quark_if_recursion_tail_stop:n {#2}
 
     \int_incr:N \l__aTableau_c_int
-    \__aTableau_peek_style:nw {count_entries:nn}
+    \__aTableau_peek_count_style:w
 }
 
 % usage: \__aTableau_count_row:n {entries}
 \cs_new_protected:Npn \__aTableau_count_row:n #1
 {
-    \__aTableau_peek_style:nw {count_entries:nn} #1 \q_recursion_tail \q_recursion_stop
+    \__aTableau_peek_count_style:w #1 \q_recursion_tail \q_recursion_stop
 }
 
 % ---------------------------------------------------------------------------
@@ -1578,7 +1661,7 @@
        \fp_add:Nn \l__aTableau_ya_fp {\l_tmpa_tl*\l__aTableau_box_col_dy_fp}
    }
    % add the label
-   \node[aTableau/label] at (\fp_use:N\l__aTableau_xa_fp,\fp_use:N\l__aTableau_ya_fp) { \__aTableau_entry:n{\l__aTableau_label_tl} };
+   \node[aTableau/tableauLabel] at (\fp_use:N\l__aTableau_xa_fp,\fp_use:N\l__aTableau_ya_fp) { \__aTableau_entry:n{\l__aTableau_label_tl} };
 }
 
 % usage: \__aTableau_draw_cover_boxes:
@@ -1710,6 +1793,12 @@
     \int_zero:N \l__aTableau_row_int
     \int_set:Nn \l__aTableau_col_int { 0\seq_item:Nn \l__aTableau_skew_seq {1}}
 
+    % set the tableau parse, which is slightly different for shifted and
+    % unshifted tableaux
+    \bool_if:NTF \l__aTableau_shifted_bool
+    { \cs_set_eq:NN \__aTableau_peek_tableau:w \__aTableau_peek_tableau_shifted:w }
+    { \cs_set_eq:NN \__aTableau_peek_tableau:w \__aTableau_peek_tableau_main:w }
+
     % Parse #1 into the rows and columns with style. Initially we used
     % \seq_set_split:Nnn here, but this required double bracing multi-character
     % entries whenever there was only one entry in a row. Now we peek for the
@@ -1776,7 +1865,6 @@
 % Update xmax, ymax and ymin using the x#1_fp and y#1_fp
 \cs_new_protected:Npn \__aTableau_update_multi_extrema:n #1
 {
-%\typeout{updating~xmax=\fp_use:N\l__aTableau_xmax_fp~-->~\fp_use:c{l__aTableau_x#1_fp}.}
     % adjust xmax, ymin and ymax for multishapes
     \fp_set:Nn \l__aTableau_xmax_fp { max(\l__aTableau_xmax_fp, \use:c{l__aTableau_x#1_fp}) }
     \fp_set:Nn \l__aTableau_ymax_fp { max(\l__aTableau_ymax_fp, \use:c{l__aTableau_y#1_fp}) }
@@ -1786,7 +1874,6 @@
 \cs_new_protected:Npn \__aTableau_update_xmax:n #1
 {
     % adjust xmax for multishapes
-%\typeout{UPDATING~xmax=\fp_use:N\l__aTableau_xmax_fp~-->~\fp_use:c{l__aTableau_x#1_fp}.}
     \fp_set:Nn \l__aTableau_xmax_fp { max(\l__aTableau_xmax_fp, \use:c{l__aTableau_x#1_fp}) }
 }
 
@@ -1908,7 +1995,7 @@
     \__aTableau_set_box_coordinates:nVV {l} \l__aTableau_row_int \l__aTableau_col_int
 
     % when colours is used, set the box fill colour
-    \l__aTableau_set_box_fill:nn \l__aTableau_row_int \l__aTableau_col_int
+    \__aTableau_set_box_fill:nn \l__aTableau_row_int \l__aTableau_col_int
 
     \tl_if_empty:nTF {#1}
     {   % draw box if it has the default styling
@@ -2084,7 +2171,7 @@
                 abs(\l__aTableau_c_int*\l__aTableau_box_row_dx_fp) % number of columns
                 + 0\seq_item:NV \l__aTableau_xoffsets_seq \l__aTableau_component_int  % x-offset
             }
-            % the next separator is is r * row_dx units from the origin
+            % the next separator is r*row_dx units from the origin
             \fp_set:Nn \l__aTableau_xsep_fp
             {
                 abs(\l__aTableau_r_int*\l__aTableau_box_col_dx_fp)
@@ -2287,7 +2374,7 @@
 
 % usage: \__aTableau_add_ribbon:n {ribbon} add a ribbon to the tableau
 % The code for adding ribbons is slightly different depending on on whether
-% \l__aTableau_ribbbon_sty[e is equal to 'ribbon' or 'path'
+% \l__aTableau_ribbbon_style is equal to 'ribbon' or 'path'
 \cs_new_protected:Npn \__aTableau_add_ribbon:nn #1 #2
 {
     \tl_set:Nn \l__aTableau_ribbon_type_tl {#1}   % change ribbon type to ribbon
@@ -2333,7 +2420,7 @@
 \cs_new_protected:Npn \__aTableau_save_ribbon_style:n (#1)
 {
     \tl_set:Nn \l__aTableau_ribbon_style_tl {#1}
-    \__aTableau_peek_style:nw {save_ribbon_head:nnn}
+    \__aTableau_peek_ribbon_head_style:w
 }
 
 % usage: \__aTableau_initialise_path_head:
@@ -2474,7 +2561,7 @@
 
 
 % usage: \__aTableau_save_ribbon_text:n {text}
-% save any text for a rode in the ribbon in \l__aTableau_texts_seq
+% save any text for a node in the ribbon in \l__aTableau_texts_seq
 \cs_new_protected:Npn \__aTableau_save_ribbon_text:n #1
 {
     \seq_put_right:No \l__aTableau_texts_seq {#1}
@@ -3053,7 +3140,7 @@
             \tl_if_blank:nF {##1}
             {
                 % add the entries in the quotient, peeking between commas
-                \__aTableau_peek_style:nw {record_style:nn} ##1 \q_recursion_tail \q_recursion_stop
+                \__aTableau_peek_abacus_style:w ##1 \q_recursion_tail \q_recursion_stop
 
                 % Extend the length of the partition, or sequence of beta numbers, if
                 % it is shorter than \l__aTableau_beads_int
@@ -3099,7 +3186,7 @@
         \seq_clear:N \l__aTableau_rcs_seq   % initially store beta numbers here and then move to \l__aTableau_shape_seq
         \tl_if_blank:nF {#2}
         {
-            \__aTableau_peek_style:nw {record_style:nn} #2 \q_recursion_tail \q_recursion_stop
+            \__aTableau_peek_abacus_style:w #2 \q_recursion_tail \q_recursion_stop
 
             % Extend the length of the partition, or sequence of beta numbers, if
             % it is shorter than \l__aTableau_beads_int
@@ -3598,10 +3685,10 @@
         % rotate the abacus coordinates
         \fp_set:Nn \l__aTableau_xa_fp {\l_tmpa_fp*\l__aTableau_abacus_col_dx_fp-\l_tmpb_fp*\l__aTableau_abacus_col_dy_fp}
         \fp_set:Nn \l__aTableau_abacus_col_dy_fp {\l_tmpb_fp*\l__aTableau_abacus_col_dx_fp+\l_tmpa_fp*\l__aTableau_abacus_col_dy_fp}
-        \fp_set_eq:NN \l__aTableau_abacus_col_dx \l__aTableau_xa_fp
+        \fp_set_eq:NN \l__aTableau_abacus_col_dx_fp \l__aTableau_xa_fp
         \fp_set:Nn \l__aTableau_xa_fp {\l_tmpa_fp*\l__aTableau_abacus_row_dx_fp-\l_tmpb_fp*\l__aTableau_abacus_row_dy_fp}
         \fp_set:Nn \l__aTableau_abacus_row_dy_fp {\l_tmpb_fp*\l__aTableau_abacus_row_dx_fp+\l_tmpa_fp*\l__aTableau_abacus_row_dy_fp}
-        \fp_set_eq:NN \l__aTableau_abacus_row_dx \l__aTableau_xa_fp
+        \fp_set_eq:NN \l__aTableau_abacus_row_dx_fp \l__aTableau_xa_fp
     },
     rotate .value_required:n = true,
 
@@ -3620,7 +3707,7 @@
 
     tableau~star .code:n = { \__aTableau_tikzset_append:nn {tableauStar} {#1} },
     tableau~star .value_required:n = true,
-    star~style .meta:n = {tableau~star={#1}}, % depreciating
+    star~style .meta:n = {tableau~star={#1}}, % deprecating
 
     % shortcut for setting TikZ styles, following a suggestion of Skillmon to use \keyval_parse:nnn
     styles .code:n = { \keyval_parse:nnn { \msg_error:nnn {aTableau}{missing-style} } { \__aTableau_tikzset:nn } { #1 } },
@@ -3657,24 +3744,29 @@
 
     % convention switches
     Australian .code:n = \__aTableau_set_tableau_style_australian:,
+    Australian .value_required:n = false,
     australian .code:n = \__aTableau_set_tableau_style_australian:,
     australian .value_required:n = false,
 
     English .code:n = \__aTableau_set_tableau_style_english:,
+    English .value_required:n = false,
     english .code:n = \__aTableau_set_tableau_style_english:,
-    english .value_required:n = false,
     english .initial:n =, % default style
+    english .value_required:n = false,
 
     French .code:n = \__aTableau_set_tableau_style_french:,
+    French .value_required:n = false,
     french .code:n = \__aTableau_set_tableau_style_french:,
     french .value_required:n = false,
 
     % historical...
-    ukrainian .code:n = \__aTableau_set_tableau_style_russian:,
     Ukrainian .code:n = \__aTableau_set_tableau_style_russian:,
+    Ukrainian .value_required:n = false,
+    ukrainian .code:n = \__aTableau_set_tableau_style_russian:,
     ukrainian .value_required:n = false,
 
     Russian .code:n = \__aTableau_set_tableau_style_russian:,
+    Russian .value_required:n = false,
     russian .code:n = \__aTableau_set_tableau_style_russian:,
     russian .value_required:n = false,
 
@@ -3771,7 +3863,7 @@
     % label
     label .code:n = { \__aTableau_set_multi_tl_key:nn {label} {#1} },
 
-    label~style .code:n = { \__aTableau_tikzset_append:nn {label} {#1} },
+    label~style .code:n = { \__aTableau_tikzset_append:nn {tableauLabel} {#1} },
     label~style .value_required:n = true,
 
     % -- paths ---------------------------------------
@@ -4188,18 +4280,22 @@
 % ---------------------------------------------------------------------------
 % Public facing aTableau commands
 
+\IfClassLoadedTF{beamer}
+  {\bool_set_true:N  \l__aTableau_beamer_bool}
+  {\bool_set_false:N \l__aTableau_beamer_bool}
+
 % usage: \NewATableauCommand \Commmand {aTableau command name} {keys}
 % Define custom aTableau commands.  We could shorten the definition of this
-% command by having only one \IfClassLoadedTF at the top, but it is better to
-% keep the normal and beamer versions of each command close together for easier
-% comparison.
+% command by having only one check of \l__aTableau_beamer_bool at the top, but
+% I prefer to keep the normal and beamer versions of each command close together
+% for easier comparison.
 \NewDocumentCommand\NewATableauCommand{ mmm }
 {
     \str_case:nnF {#2}
     {
         {Abacus}
           {
-            \IfClassLoadedTF {beamer}
+            \bool_if:NTF \l__aTableau_beamer_bool
             {
                 % \AbacusCommand <overlay specs> (x,y) [style] {#runners} {partition}
                 \NewDocumentCommand#1{ d<> d() O{} m m }
@@ -4217,7 +4313,7 @@
           }
         {Diagram}
           {
-            \IfClassLoadedTF {beamer}
+            \bool_if:NTF \l__aTableau_beamer_bool
             {
                 % \DiagramCommand <overlay specs> (x,y) [style] {entries}
                 \NewDocumentCommand#1{ d<> d() O{} m }
@@ -4235,7 +4331,7 @@
           }
         {Multidiagram}
           {
-            \IfClassLoadedTF {beamer}
+            \bool_if:NTF \l__aTableau_beamer_bool
             {
                 % \MultidiagramCommand <overlay specs> (x,y) [style] {entries}
                 \NewDocumentCommand#1{ d<> d() O{} m }
@@ -4253,7 +4349,7 @@
           }
         {Multitableau}
           {
-            \IfClassLoadedTF {beamer}
+            \bool_if:NTF \l__aTableau_beamer_bool
             {
                 % \MultitableauCommand <overlay specs> (x,y) [style] {entries}
                 \NewDocumentCommand#1{ d<> d() O{} m }
@@ -4271,7 +4367,7 @@
           }
         {RibbonTableau}
           {
-            \IfClassLoadedTF {beamer}
+            \bool_if:NTF \l__aTableau_beamer_bool
             {
                 % \RibbonTableauCommand <overlay specs> (x,y) [style] {entries}
                 \NewDocumentCommand#1{ d<> d() O{} m }
@@ -4289,7 +4385,7 @@
           }
         {ShiftedDiagram}
           {
-            \IfClassLoadedTF {beamer}
+            \bool_if:NTF \l__aTableau_beamer_bool
             {
                 % \ShiftedDiagramCommand <overlay specs> (x,y) [style] {entries}
                 \NewDocumentCommand#1{ d<> d() O{} m }
@@ -4307,7 +4403,7 @@
           }
         {ShiftedTableau}
           {
-            \IfClassLoadedTF {beamer}
+            \bool_if:NTF \l__aTableau_beamer_bool
             {
                 % \ShiftedTableauCommand <overlay specs> (x,y) [style] {entries}
                 \NewDocumentCommand#1{ d<> d() O{} m }
@@ -4325,7 +4421,7 @@
           }
         {SkewDiagram}
           {
-            \IfClassLoadedTF {beamer}
+            \bool_if:NTF \l__aTableau_beamer_bool
             {
                 % \SkewDiagramCommand <overlay specs> (x,y) [style] {skew shape} {entries}
                 \NewDocumentCommand#1{ d<> d() O{} m m }
@@ -4343,7 +4439,7 @@
           }
         {SkewTableau}
           {
-            \IfClassLoadedTF {beamer}
+            \bool_if:NTF \l__aTableau_beamer_bool
             {
                 % \SkewTableauCommand <overlay specs> (x,y) [style] {skew shape} {entries}
                 \NewDocumentCommand#1{ d<> d() O{} m m }
@@ -4361,7 +4457,7 @@
           }
         {Tableau}
           {
-            \IfClassLoadedTF {beamer}
+            \bool_if:NTF \l__aTableau_beamer_bool
             {
                 % \TableauCommandCommand <overlay specs> (x,y) [style] {entries}
                 \NewDocumentCommand#1{ d<> d() O{} m }
@@ -4379,7 +4475,7 @@
           }
         {Tabloid}
           {
-            \IfClassLoadedTF {beamer}
+            \bool_if:NTF \l__aTableau_beamer_bool
             {
                 % \TabloidCommand <overlay specs> (x,y) [style] {entries}
                 \NewDocumentCommand#1{ d<> d() O{} m }
@@ -4442,7 +4538,7 @@
 %       atableau.ini
 %       atableau.pdf
 %       atableau.sty
-%       atableau.tex
+%       atableau.tex  % manual
 %       atableau_beamer.pdf
 %       atableau_beamer.tex
 %       atableau_readme.webp

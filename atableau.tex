@@ -1,6 +1,6 @@
 % ----------------------------------------------------------------------
 % aTableau manual - Andrew Mathas (C) 2022-2025
-% Modified: 13:25 Friday, 20 February 2026
+% Modified: 13:29 Monday, 23 March 2026
 % ----------------------------------------------------------------------
 \documentclass{amsart}
 \usepackage[svgnames,table]{xcolor}
@@ -87,7 +87,7 @@
 % abacus sections of the manual, which is handled by a second optional
 % argument of the form (section).
 
-% the keys applies to tableaux or abacuses( or both), with \Yes adding a
+% the key applies to tableaux or abacuses (or both), with \Yes adding a
 % hyperlink when it does.
 
 \newcommand\No{\textcolor{red}{\XSolidBrush}}
@@ -282,7 +282,8 @@
 % environment that save the example to a file using \SaveExample
 \newif\ifTesting
 
-% Enable \ifTesting for atableau-testing.tex, which is a sym-link to atableau.tex
+% Enable \ifTesting for atableau-testing.tex, which is a symbolic link
+% to atableau.tex
 \str_if_eq:VnT \jobname {atableau-examples} {\Testingtrue}
 
 \iow_new:N \__aTableau_example_iow
@@ -333,7 +334,7 @@
 
 % Improved paragraph breaks, removing overfull hbox warnings
 % following https://tex.stackexchange.com/a/280881/234252
-% Adds roughly 0.03 seconds per page  when compiling
+% Adds roughly 0.03 seconds per page when compiling
 \usepackage[parfill]{parskip}
 
 \tcbset{
@@ -480,7 +481,6 @@
 %%   star,
 %%   style,
 %    tabloid,
-%    text,
 %    text,
 %    type,
 %    russian,
@@ -758,7 +758,6 @@
     listing style=aTableau,
     text and listing,
     listing above text,
-    %text outside listing,
     center lower,
     #1
   }
@@ -827,8 +826,8 @@
   The \aTableau package provides commands for drawing common objects in
   algebraic combinatorics and representation theory, together with
   styling options and a key-value interface for additional
-  customisation.  Under the hood, everything is drawn using \TikZ (and
-  \LaTeX3).  \aTableau commands can be used either as standalone
+  customisation.  Internally, everything is drawn using \TikZ (and
+  \LaTeX3). \aTableau commands can be used either as standalone
   commands, or as part of a \keyword{tikzpicture} environment. This
   package started as code for drawing tableaux in my research. It is
   designed to be both easy to use and easy to customise, so that it can
@@ -837,7 +836,7 @@
   by an \aTableau command, whereas a ``diagram'' means ``Young
   diagram''.}
 
-  For the impatient, here is an example showing how to use the
+  For the impatient, here is an example that shows how to use the
   two main commands provided by the \aTableau package:
 
   \begin{example}*{impatient}
@@ -851,10 +850,10 @@
   and abacuses are, then you probably do not need this package! In any
   case, you will not find the precise mathematical definitions of these
   objects in this manual, so please consult textbooks like
-  \cite{Fulton:Tableaux,Macdonald,Mathas:ULect} if you need them. For more advanced
-  usage, such as adding styling, I recommend skimming through the
-  manual and looking at the many examples.  \autoref{S:keys} gives
-  a summary of the \aTableau commands and their options.
+  \cite{Fulton:Tableaux,Macdonald,Mathas:ULect} if you need them. For
+  more advanced usage, such as adding styling, I recommend skimming
+  through the manual and looking at the many examples.  \autoref{S:keys}
+  gives a summary of the \aTableau commands and their options.
 
   The \aTableau commands are intended to be easy to use and easy to
   customise. For example, partitions can be entered either as a weakly
@@ -882,8 +881,9 @@
           Russian
           \footnote{These tableaux were introduced by Kerov and Ver\v{s}hik \cite{KerovVershik}.
           Earlier versions of this package called these tableaux \textit{Ukrainian tableaux},
-          in protest over the Russian invasion of the Ukraine. It is unreason to punish these authors
-          for their government's aggression.}
+          in protest over the Russian invasion of Ukraine. It is unreasonable to punish
+          these authors for their government's aggression, so the
+          package now uses the more common nomenclature from the literature.}
                      & \keyword{\Tableau[russian]{1234,567,89{10},{11}{12}}}
                      & \Tableau[russian]{1234,567,89{10},{11}{12}}\\[10mm]
           Australian
@@ -906,7 +906,7 @@
   components of an \aTableau picture.
 
   The different conventions for diagrams and tableaux are listed in
-  order of (my perception of) their popularity in the literature.  By
+  order of their popularity in the literature.  By
   default, the \textit{English} convention is used, so for the first
   tableau above the \emph{english} key can be omitted:
   \begin{example}[lefthand width=0.4\textwidth]{tableauEnglish}
@@ -918,7 +918,7 @@
   \Diagram{4,3,3,1} \qquad
   \Diagram[russian]{4,3^2,1}
   \end{example}
-  As this example shows, partitions can either be typed as a
+  As this example illustrates, partitions can either be typed as a
   comma-separated list of positive integers, or using exponential
   notation for the repeated parts, which is usually shorter and easier
   to proofread.
@@ -930,7 +930,7 @@
     \keyword{\usepackage[options]{atableau}}
   \end{quote}
 
-  Here, the \textit{options} are an comma-separated list of
+  Here, the \textit{options} are a comma-separated list of
   \aTableau options, or keys, for the default settings. The possible
   options are described below. As an example, to make the tableaux and
   Young diagram commands use the \option{French} convention, by
@@ -949,10 +949,10 @@
 
   Each \aTableau command is designed to be easy to use, easy to
   read, and easy to customise. Each command accepts an optional list of
-  key-value options that modify and embellish the picture drawn by the
-  command. In addition, optional styling can be applied to entries of a
-  tableau, and the beads on an abacus.  Each command can be used as a
-  standalone object in a document, or it can be incorporated into a
+  key-value specifications, which modify and embellish the picture drawn
+  by the command. In addition, optional styling can be applied to entries
+  of a tableau, and the beads on an abacus.  Each command can be used as
+  a standalone object in a document, or it can be incorporated into a
   larger \keyword{tikzpicture} environment, making it easy to
   use \aTableau commands to create more complicated pictures.
 
@@ -961,16 +961,20 @@
     \keyword{\Command (x,y) [options] {...specifications...}}
   \end{quote}
 
-  \index{polar coordinates}
   \index{coordinates}
+  \index{coordinates!Cartesian coordinates}
+  \index{coordinates!polar coordinates}
+  \index{Cartesian coordinates}
+  \index{polar coordinates}
   The $(x,y)$-coordinates are optional, being necessary if (and only if)
   the diagram is part of a~\keyword{tikzpicture} environment, as in
   \autoref{Ex:diagramCoordinates} below. Throughout the manual,
-  coordinates are always specified as coordinates. In fact, arbitrary
-  \TikZ coordinates can be used to position \aTableau pictures inside
-  \texttt{tikzpicture} environments, including polar coordinates and named coordinates.
-  See \autoref{SS:coordinates} and \autoref{SS:abcoordinates} for more detail about
-  using these coordinates for tableaux and abacuses, respectively.
+  coordinates are always specified as Cartesian coordinates. In fact,
+  arbitrary \TikZ coordinates can be used to position \aTableau pictures
+  inside \texttt{tikzpicture} environments, including polar coordinates
+  and named coordinates. See \autoref{SS:coordinates} and
+  \autoref{SS:abcoordinates} for more detail about using these
+  coordinates for tableaux and abacuses, respectively.
 
   The \aTableau package provides the following commands for drawing
   pictures:
@@ -1032,7 +1036,7 @@
     respectively. By default, all \aTableau pictures are centred.
 
     \item[beamer]\index{beamer}
-    Set the \ctan{beamer} overlay command. See \autoref{SS:Beamer} for details.
+    Set \ctan{beamer} overlay command. See \autoref{SS:Beamer} for details.
 
     \item[colour theme]
     The \aTableau pictures use a range of different colours for tableaux
@@ -1158,12 +1162,12 @@
   \end{warning}
 
   At the top of the \autoref{Ex:diagramCoordinates}, two \TikZ-styles, \textsf{B}
-  and \text{G}, are defined, which are used to add the \textsf{b}lue and
+  and \text{G}, are defined. These styles are used to add the \textsf{b}lue and
   \textsf{g}reen coloured hatchings to the two hooks.  As this suggests,
   \TikZ-styling can be applied to most of the components of the pictures
   produced by \aTableau commands.
 
-  An important feature of \autoref{Ex:diagramCoordinates} is that it uses four
+  An important feature of \autoref{Ex:diagramCoordinates} is the use of four
   \emph{named coordinates}: (\textsf{A-1-1}), (\textsf{A-1-2}),
   (\textsf{A-4-1}), and (\textsf{A-4-2}). Whenever \aTableau draws a
   picture, it creates \TikZ named coordinates
@@ -1175,7 +1179,7 @@
     \aTableau commands produce \textit{pictures}, to distinguish them
     from (Young) diagrams.}
   Giving finer control, the following standard \TikZ \textit{anchors}
-  are available, depending on the convention being used.
+  are available, depending on the tableau, or abacus, convention being used.
 
   \begin{equation}\label{E:NodeNames}
     \begin{tikzpicture}[every node/.style={font=\tiny, text=gray}]
@@ -1354,7 +1358,7 @@
 
     \begin{options}
       \item[*$(x,y)$]\index{xy@$(x,y)$} The  $(x,y)$-coordinates
-      are needed only if the tableau is a \keyword{tikzpicture} environment.
+      are needed only if the tableau is part of a \keyword{tikzpicture} environment.
       \item[*options] Optional arguments, or keys, which are described below, with examples.
       \item[*tableau entries]\index{tableau entries} The
       \keyword{tableau entries} are given as a comma-separated list, with commas
@@ -1459,7 +1463,7 @@
   used.  This example shows that some care is needed when changing the
   style because simply giving a colour changes both the colour used to
   \textit{fill} the box and the \textit{text colour}, which is why some
-  of tableau entries in the last example appear to be blank.  If you are
+  of the tableau entries in the last example appear to be blank.  If you are
   already familiar with \TikZ then you probably already know what to do.
   If not, here is a short list of useful style specifications for
   \TikZ nodes:
@@ -1494,7 +1498,7 @@
 
   You can apply ``complicated'' style settings, such as
   \keyword{draw=cyan,ultra thick}, which consists of a comma-separated
-  list of $\TikZ-$style settings, by putting the style setting
+  list of \TikZ-style settings, by putting the style setting
   inside matching square brackets%
   \footnote{In particular, even though commas are used to separate the
   rows of the tableau, you do not need to enclose the style
@@ -1515,10 +1519,10 @@
   % The last example shows that it is not necessary to double-brace
   % singleton entries when they have a style specification.
 
-  This example shows that modifying the borders of a box is problematic
-  because boxes placed later are likely to overwrite the new border
-  style (see \autoref{SS:order}). As a result, modifying the borders of
-  individual boxes is often not a good way to add emphasis to the boxes
+  This example demonstrates that modifying the borders of a box is
+  problematic because boxes placed later are likely to overwrite the new
+  border style (see \autoref{SS:order}). As a result, modifying the borders
+  of individual boxes is often not a good way to add emphasis to the boxes
   in a tableau,  so use this sparingly. In addition, the orange circle
   in this example is too big, but it is what we asked for because the
   diameter of the circle is the horizontal width of the box. The next
@@ -1545,7 +1549,7 @@
   \Tableau[australian]{[R]1[B]2,[G]3,[Y]4}
   \end{example}
 
-  In this example, the \TikZ-styles \textsf{B}, \textsf{G} \textsf{R},
+  In this example, the \TikZ-styles \textsf{B}, \textsf{G}, \textsf{R},
   and \textsf{Y} are applied to the tableaux entries labelled $1$, $2$,
   $3$, and~$4$, respectively. Note the use of \emph{minimum size} to
   control the size of the circle, which is advised when using the
@@ -2176,7 +2180,7 @@
   ]{123*4,567,89*{10},*{11}}
   \end{example}
 
-  The difference between this pictures and the one given above using
+  The difference between this picture and the one given above using
   \option{ribbons} is that \option{snobs} are drawn \textit{after}
   the tableau border, which causes the border to disappear for these
   nodes.  For this reason, in most cases you should normally avoid
@@ -2265,7 +2269,7 @@
   \end{warning}
 
   \begin{warning}
-    If you use an \aTableau command inside a \keyword{tikpicture}
+    If you use an \aTableau command inside a \keyword{tikzpicture}
     environment that is \textit{scaled} using
     \begin{quote}
     \keyword{\begin{tikzpicture}[scale=?]...\end{tikzpicture}}
@@ -2329,7 +2333,7 @@
 
   \option[]{styles=\TikZ-styles}[List of styles]
 
-  The \option{styles} key is a shorthand for defining \TikZ-styles that
+  The \option{styles} key is a shorthand for defining \TikZ-styles
   for the current picture. For example, instead of writing
 
   \begin{example}{tableauFrenchStyle}
@@ -2342,7 +2346,7 @@
   \Tableau[french]{[R]1[B]2,[G]3,[Y]4}
   \end{example}
 
-  you can save some typing using the \option{styles} key:
+  you can save little bit of typing using the \option{styles} key:
 
   \begin{example}{tableauFrenchStyles}
   \Tableau[french, styles={
@@ -2356,7 +2360,7 @@
   Styles defined this way will only be available in the current picture.
   Use \keyword{\tikzset} to define styles that are likely to be used
   more than once. Alternatively, you can use \keyword{\aTabset{styles={...}}}.
-  (Notice the use of \keyword{\aTabset} here. Using \keyword{\tikzset{syles={...}}}
+  (Notice the use of \keyword{\aTabset} here. Using \keyword{\tikzset{styles={...}}}
   will result in an error.)
 
   \option[false]{tabloid}[true/false]
@@ -2391,12 +2395,12 @@
    }]{134,567,89}
   \end{example}
 
-  Both before and after hooks are provided because the order in which
-  you place \TikZ commands affects the final picture because later commands
-  are drawn over the top of earlier ones. Note that the \emph{before}
-  code cannot use the named coordinates \textsf{A-r-c} because this code is
-  executed before these nodes are constructed, which happens when the
-  tableau is drawn. For more examples, see \autoref{SS:order}.
+  Both before and after hooks are provided because later \TikZ commands are
+  drawn over the top of earlier ones, so the order matters. Note that the
+  \emph{before} code cannot use the named coordinates \textsf{A-r-c}
+  because this code is executed before these nodes are constructed,
+  which happens when the tableau is drawn. For more information about
+  the drawing order used for tableaux, see \autoref{SS:order}.
 
   \option[]{tikzpicture=keys}[\TikZ-keys]
 
@@ -2444,7 +2448,7 @@
   shape, in the sense that the lengths of the rows form a weakly
   decreasing sequence. In fact, the \keyword{\Tableau} command also
   accepts tableaux of \emph{composition} shape, where the lengths of the
-  rows are not necessarily in decreasing order. Diagrams and tableau of
+  rows are not necessarily in decreasing order. Diagrams and tableaux of
   composition shape are drawn in exactly the same way as those of
   partition shape.
 
@@ -2464,7 +2468,7 @@
   \autoref{S:Multitableau}.)
 
   % --------------------------------------------------------------
-  \subsubsection{Drawing order}
+  \subsubsection{Tableaux drawing order}
   \label{SS:order}
   \index{tableau!drawing order}
 
@@ -2917,7 +2921,7 @@
   be given as a comma-separated list of non-negative integers, or using
   exponential notation for repeated parts.
 
-  Skew tableau and skew diagrams should always be connected. Use
+  Skew tableaux and skew diagrams should always be connected. Use
   \keyword{\Multidiagram} and \keyword{\Multitableau} to draw
   disconnected diagrams.
 
@@ -3009,7 +3013,7 @@
   \option{entries=hooks} produces uncertain results because hook lengths
   are not defined for skew shapes.
 
-  \begin{Example}{skewDiagam}
+  \begin{Example}{skewDiagram}
   \SkewDiagram[entries=contents]{2,1}{3,2,1} \qquad
   \SkewDiagram[entries=first]{2,1}{4,2,1} \qquad
   \SkewDiagram[entries=last]{2,1}{4,2,1} \qquad
@@ -3328,8 +3332,8 @@
   by the closed path given by the border of the ribbon and to each box
   in the ribbon. The ribbon style is applied first, after which any
   boxes in the ribbon are drawn.  As the orange and yellow ribbons in
-  the example show, the style of an individual box in the ribbon takes precedence over
-  the \keyword{(...)}-style of the entire ribbon.
+  the example illustrate, the style of an individual box in the ribbon
+  takes precedence over the \keyword{(...)}-style of the entire ribbon.
 
   It is often useful to label some of the boxes in a ribbon, which can
   be done by specifying the content of a box as a \textit{subscript} of
@@ -3632,9 +3636,9 @@
   \keyword{\Diagram} commands, together with a few options that are
   specific to multitableaux and multidiagrams.  This section describes
   the new options, and highlights how some of the other options are
-  used.  In many cases, the key values for multitableau and
-  multidiagrams should be separated by the pipe symbol \keyword{|} to
-  give the corresponding key values for the component tableau and
+  used.  In many cases, the values of multitableaus and
+  multidiagrams keys should be separated by the pipe symbol \keyword{|} to
+  give the corresponding key values for the component tableaux and
   diagrams.
 
   \option[-]{english}
@@ -3900,7 +3904,7 @@
   \option[$|$]{separator=text}[character]
 
   The \option{separator} determines what is printed between the
-  component diagrams in multitableaux and multipartition. By default,
+  component diagrams in multitableaux and multipartitions. By default,
   \option{separator=$|$}, which draws a straight line between the
   components, but any character can be used.
 
@@ -4152,7 +4156,7 @@
   environment, in which case $(x,y)$ gives the coordinates of the
   ``outside corner'' of the bead in row~$0$ and column~$0$ of the abacus
   (unlike tableaux, both the row and column indices start from~$0$). The
-  following example shows how abacuses are placed using
+  following example demonstrates how abacuses are placed using
   $(x,y)$-coordinates inside a \keyword{tikzpicture} environment. The
   example also shows that, by default, the beads and runners in an
   abacus are half a unit apart.
@@ -4241,7 +4245,7 @@
   \option{abacus ends}. There are six options for the top of the abacus,
   and six options for the bottom, so there are 36 possible
   configurations (most of which will never be used...). We do not list
-  all possibilties, but here are some examples.
+  all possibilities, but here are some examples.
 
   \begin{Example}{abacusEnds}
   \aTabset{align=top}
@@ -4645,7 +4649,7 @@
   \option*[font=\textbackslash scriptsize, text=\aTableauColour{Inner}]{runner label style=style}[\TikZ-styling]
 
   The \option{runner labels} key adds labels to the each runner. An
-  error if given if the number of labels does not match the number of
+  error is given if the number of labels does not match the number of
   runners. Use \option{runner label style} to change the style of the
   label.
 
@@ -4693,7 +4697,7 @@
     fill=brown, text=yellow}]{3}{3_1,2_2,2_3,0^2}
   \end{example}
 
-  As the first example shows, if you use the \option{unshaded} key then
+  As the first example illustrates, if you use the \option{unshaded} key then
   you need to define a new style for the abacus beads. As the second
   example shows, rather than using \option{unshaded} as an
   \keyword{\Abacus} key, you can also use it inside \option{bead style} as a
@@ -5151,6 +5155,7 @@
        \showrowcolors
        aTableau/abacusBead      & Standard abacus beads\\
        aTableau/abacusEnds      & Tops and bottoms of abacuses\\
+       aTableau/abacusLabel     & Base abacus label style\\
        aTableau/abacusRunner    & Abacus runners\\
        aTableau/abacusStar      & Abacus stars \\
        aTableau/abacusTick      & Abacus ticks \\
@@ -5162,8 +5167,6 @@
        aTableau/delimiter       & Base delimiter style in multitableaux\\
        aTableau/dottedLine      & Adds dotted lines. Used by \option{dotted rows} and \option{dotted cols}\\
        aTableau/innerWall       & Inner tableau walls\\
-       aTableau/label           & Tableau labels \\
-       aTableau/labels          & Base abacus label style\\
        aTableau/leftDelimiter   & Left delimiter in a multitableau\\
        aTableau/namedTick       & Named nodes for abacus ticks\\
        aTableau/path            & Paths \\
@@ -5180,6 +5183,7 @@
        aTableau/snob            & Snobs \\
        aTableau/snobBox         & Boxes in snobs \\
        aTableau/tableauBox      & Tableau boxes\\
+       aTableau/tableauLabel    & Tableau labels \\
        aTableau/tableauStar     & Star style for tableaux \\
        \bottomrule
     \end{xltabular}
@@ -5189,22 +5193,22 @@
   or are used in non-obvious ways. In some cases, such as the tableau
   boxes, the \TikZ-styling does not fully control the style of these
   features.  Most of these styles can be changed using the \aTableau
-  key-value interface, which is a better approach than changing them by
-  hand.  Changes made to these styles are not guaranteed to be
-  compatible with future releases of \aTableau.
+  key-value interface, which is the recommended approach. Changes made to
+  these styles are not guaranteed to be compatible with future releases of
+  the \aTableau package.
 
   % --------------------------------------------------------------
   \subsection{\aTableau and the \arXiv}
 
-  The \arXiv now plans to update its \TeXLive distribution every year.
-  As of writing, it is using \TeXLive2025 by default, so papers
+  The \arXiv now plans to update its \TeXLive distribution annually.
+  As of writing, it is using \TeXLive 2025 by default, so papers
   using \aTableau should compile on the \arXiv. Unfortunately, \TeXLive
   2025 only has version 2.1.0 of \aTableau installed, as this version
   of the package was part of the initial release of \TeXLive 2025.
   (This should change in 2026, when the \arXiv moves to \TeXLive 2026.)
-  If your document does not compile on the \arXiv because of \aTableau,
-  you should check that the \arXiv is using LeXLive 2025, or later. You
-  may also need to upload the latest \aTableau style file,
+  If your document does not compile on the \arXiv due to \aTableau,
+  check which \TeXLive version is being used. If problems persist,
+  try uploading the latest \aTableau style file,
   \href{https://mirrors.ctan.org/graphics/pgf/contrib/atableau/atableau.sty}{atableau.sty},
   as part of your \arXiv submission.
 
@@ -5213,7 +5217,7 @@
 
   This section shows how to use the \aTableau package to draw some of the
   pictures that appear in the literature. The aim is to show how to use the
-  package to construct some non-trivial and interesting real-world examples.
+  package to construct some non-trivial real-world examples.
 
   The first example, from \cite{Muniz}, is notable mainly for the
   right-hand tableau, which is not of skew shape.
@@ -5290,8 +5294,8 @@
 
   From the \aTableau perspective, the most interesting feature of the next
   three pictures is that they illustrate the power of named coordinates for
-  tableaux boxes; see \autoref{E:NodeNames}. As a result, explicit \TikZ diagramCoordinates
-  are rarely needed in these pictures.
+  tableaux boxes; see \autoref{E:NodeNames}. As a result, explicit
+  \TikZ diagram coordinates are rarely needed in these pictures.
 
   The first of these examples, which is also from
   \cite{BowmanDeVisscherHaziStroppel:Arc}, is a little
@@ -5343,7 +5347,7 @@
 \end{tikzpicture}
 \end{Example}
 
-The next example shows how to draw a multipartition and its associated
+The next example demonstrates how to draw a multipartition and its associated
 KLRW diagram~\cite{Bowman:ManyCellular}. Once again, the issue is that
 we need to draw a tableau and connect it with other combinatorial data
 in the picture.
@@ -5368,9 +5372,10 @@ in the picture.
 \end{Example}
 
 There are few papers in the literature that use abacuses that
-are significantly different from the examples we have already considered. One exception
-is a paper of Fayers and Putignano, on centraliser subalgebras of the  symmetric groups,
-that use abacuses like the following~\cite[page~305]{FayersPutignano:CentraliserAlgebras}:
+are significantly different from the examples we have already considered.
+One exception is a paper of Fayers and Putignano, on centraliser subalgebras
+of the symmetric groups, that uses abacuses like the
+following~\cite[page~305]{FayersPutignano:CentraliserAlgebras}:
 
 \begin{Example}{FayersPutignano}
 % \usetikzlibrary{arrows.meta}
@@ -5409,8 +5414,9 @@ tikz after={ % add the red and blue arrows
          4_{d_s},4_{c_2}||2,[R]0,[B]0||5_{c_1},[landed]4_{d_2}||4,[B]1,[R]0}
 \end{Example}
 
-The interesting features of this example are the use of styles to change the shape of some
-of the nodes to half-spheres, and the use of the named coordinates to draw the arrows.
+The key features of this example are the use of styles to change the
+shape of some nodes into half-spheres and the use of named coordinates
+to draw the arrows.
 
   % --------------------------------------------------------------
   \section{Feature requests and bug reports}
@@ -5420,7 +5426,7 @@ of the nodes to half-spheres, and the use of the named coordinates to draw the a
   \begin{center}
     \href{https://github.com/AndrewMathas/aTableau/issues}{github.com/AndrewMathas/aTableau/issues}.
   \end{center}
-  Please give as much detail as possible when making such requests.
+  Please provide as much detail as possible when submitting requests.
 
   Bug reports must be accompanied by a \textit{minimal working
   example}, which is the smallest possible amount of \LaTeX\ code that
@@ -5522,7 +5528,7 @@ of the nodes to half-spheres, and the use of the named coordinates to draw the a
 
 \bibitem{MathasTubbenhauer:BAD}
 \textsc{A.~Mathas and D.~Tubbenhauer},
-  \href{http://dx.doi.org/https://doi.org/10.1112/jlms.12706}{\textit{Cellularity
+  \href{http://dx.doi.org/10.1112/jlms.12706}{\textit{Cellularity
   for weighted KLRW algebras of types $B$, $A^{(2)}$, $D^{(2)}$}}, Journal of
   the London Mathematical Society, \textbf{107} (2023), 1002--1044.
 \newblock \href{http://arxiv.org/abs/2201.01998}{arXiv:2201.01998}.
