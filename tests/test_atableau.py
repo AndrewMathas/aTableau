@@ -53,7 +53,7 @@ BEFORE starting development, the examples files should be initialised using
 
 This will extract the examples from the manual, and then create a "good" webp
 file for each example, such as ribbon-good.webp. The "good" webp files are
-then used as the expected output of the examples.
+then used as proxies for the expected output of the examples.
 
 Once the good files have been initialised, the command
 
@@ -69,10 +69,10 @@ examples are added to the manual, they can be extracted using:
 
     test_examples.py -e
 
-When they do not already exist, this will also create good webp files for the
-examples, but it will not overwrite any existing good webp files. (In fact,
-the `-e` option rewrites all of the example LaTeX files.) The examples should 
-be regularly extracted from manual as they can change.
+When they do not already exist, this will also create good webp images files
+for the examples, but it will not overwrite any existing good webp files. (In
+fact, the `-e` option rewrites all of the example LaTeX files.) The examples
+should be regularly extracted from manual as they can change.
 
 If any of the examples in the manual change in a good way, in the sense that
 the example is corrected, or improved, then the good images can be updated
@@ -125,7 +125,6 @@ def run_parallel_command(options, files):
                 future.result()  # Raises exception if command() fails
             except Exception as error:
                 print(f'Error running {command.__name__} on {file}: {error}')
-
 
 # ------------------------------------------------------------------------
 # utility functions
