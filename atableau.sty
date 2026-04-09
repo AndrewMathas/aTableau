@@ -1,6 +1,6 @@
 % ---------------------------------------------------------------------------
-% aTableau - Andrew Mathas (C) 2022-2025
-% Modified: 13:17 Monday, 23 March 2026
+% aTableau - Andrew Mathas (C) 2022-2026
+% Modified: 10:23 Thursday, 09 April 2026
 % ---------------------------------------------------------------------------
 %
 % A LaTeX package for symmetric group combinatorics:
@@ -23,7 +23,7 @@
 
 % ---------------------------------------------------------------------------
 % aTableau release date and version number
-\def\aTableau@version{2.2.1}
+\def\aTableau@version{2.2.1-rc1}
 \def\aTableau@release{2025-10-20}
 
 % ---------------------------------------------------------------------------
@@ -1668,26 +1668,23 @@
 % Draw the cover boxes using ribbons
 \cs_new_protected:Nn \__aTableau_draw_cover_boxes:
 {
-   \group_begin:
-     % override the ribbon style inside this group
-     \tikzset{aTableau/ribbonBox/.style=aTableau/coverBox}
-     \tikzset{aTableau/ribbon/.style={draw=none,fill=none}}
-     \int_zero:N \l__aTableau_r_int
-     \seq_map_inline:Nn \l__aTableau_cover_seq
-     {
-        \int_incr:N \l__aTableau_r_int
-        \int_set:No \l__aTableau_row_int { 0\seq_item:NV \l__aTableau_shape_seq \l__aTableau_r_int }
-        \int_compare:nNnT {##1} > {\l__aTableau_row_int}
-        {
-          \tl_clear:N \l_tmpa_tl
-          \tl_put_right:Ne \l_tmpa_tl { {\int_use:N \l__aTableau_r_int} }
-          \tl_put_right:Ne \l_tmpa_tl { {##1} }
-          \tl_put_right:Ne \l_tmpa_tl { \prg_replicate:nn {##1-\l__aTableau_row_int-1} {c} }
-        %\typeout{Cover~ribbon~=~\l_tmpa_tl}
-          \__aTableau_add_ribbon:nV {ribbon} \l_tmpa_tl
-        }
-     }
-   \group_end:
+   % override the ribbon style inside this group
+   \tikzset{aTableau/ribbonBox/.style=aTableau/coverBox}
+   \tikzset{aTableau/ribbon/.style={draw=none,fill=none}}
+   \int_zero:N \l__aTableau_r_int
+   \seq_map_inline:Nn \l__aTableau_cover_seq
+   {
+      \int_incr:N \l__aTableau_r_int
+      \int_set:No \l__aTableau_row_int { 0\seq_item:NV \l__aTableau_shape_seq \l__aTableau_r_int }
+      \int_compare:nNnT {##1} > {\l__aTableau_row_int}
+      {
+        \tl_clear:N \l_tmpa_tl
+        \tl_put_right:Ne \l_tmpa_tl { {\int_use:N \l__aTableau_r_int} }
+        \tl_put_right:Ne \l_tmpa_tl { {##1} }
+        \tl_put_right:Ne \l_tmpa_tl { \prg_replicate:nn {##1-\l__aTableau_row_int-1} {c} }
+        \__aTableau_add_ribbon:nV {ribbon} \l_tmpa_tl
+      }
+   }
 }
 
 % usage: \__aTableau_draw_skew_boxes:
@@ -1828,16 +1825,16 @@
     \tl_if_empty:VF \l__aTableau_ribbons_tl { \__aTableau_add_ribbon:nV {ribbon} \l__aTableau_ribbons_tl }
 
     % add border for covering partiton
-    \seq_if_empty:NF \l__aTableau_cover_seq
-    {
+    \group_begin:
+      % don't update the box minima and maxima
+      \cs_set_eq:NN \__aTableau_update_extrema:n \use_none:n
+      \seq_if_empty:NF \l__aTableau_cover_seq
+      {
         \bool_if:NT \l__aTableau_cover_boxes_bool  {
-            \group_begin:
-              \cs_set_eq:NN \__aTableau_update_extrema:n \use_none:n
-              \__aTableau_draw_cover_boxes:
-            \group_end:
+           \__aTableau_draw_cover_boxes:
         }
-        \bool_if:NT \l__aTableau_cover_border_bool { \__aTableau_draw_border:nn {cover} {coverBorder}  }
-    }
+      }
+    \group_end:
 
     % paths and ribbons are inside the delimiters, but snobs are not
     \cs_set_eq:NN \__aTableau_update_extrema:n \use_none:n
@@ -1849,6 +1846,7 @@
     \bool_if:NT \l__aTableau_skew_boxes_bool  { \__aTableau_draw_skew_boxes: }
     \bool_if:NT \l__aTableau_skew_border_bool { \__aTableau_draw_border:nn {skew}  {skewBorder}  }
     \bool_if:NT \l__aTableau_border_bool      { \__aTableau_draw_border:nn {shape} {border} }
+    \bool_if:NT \l__aTableau_cover_border_bool { \__aTableau_draw_border:nn {cover} {coverBorder}  }
 
     % remove dotted rows and columns
     \seq_if_empty:NF \l__aTableau_dotted_rows_seq \__aTableau_remove_dotted_tableau_rows:
@@ -2747,7 +2745,7 @@
     \tl_set:Nn \l_tmpc_tl {#3|#4} % last placed coordinate is #3|#4
 }
 
-% usage: \__aTableau_start_ribbon_path:nnnn r1|c1|r2|c2
+% usage: \__aTableau_add_to_ribbon_path:nnnn r1|c1|r2|c2
 % Add the next edge to \l__aTableau_ribbon_path_tl in  a (connected component
 % of) the path around the boundary of a ribbon. To determine whether the next
 % vertex is (r1,c1) or (r2,c2) we look at \l_tmpc_tl, which is the last vertex
@@ -4521,8 +4519,7 @@
 \endinput
 
 % ---------------------------------------------------------------------------
-%
-% Copyright (C) 2022-25 by Andrew Mathas <andrew.mathas@gmail.com>
+% Copyright (C) 2022-26 by Andrew Mathas <andrew.mathas@gmail.com>
 %
 % This work may be distributed and/or modified under the
 % conditions of the LaTeX Project Public License (LPPL), either
@@ -4535,18 +4532,22 @@
 % Andrew Mathas.
 %
 % This package consists of the files:
-%       atableau.ini
-%       atableau.pdf
-%       atableau.sty
-%       atableau.tex  % manual
-%       atableau_beamer.pdf
-%       atableau_beamer.tex
-%       atableau_readme.webp
-%       DEPENDS.txt
-%       LICENSE
-%       README.md
-%       CHANGES.md
-%       TODO.md
+%
+%       atableau.ini         - metadata for the pacakge
+%       atableau.pdf         - PDF file for the manual
+%       atableau.sty         - package style file
+%       atableau.tex         - the LaTeX source for manual
+%       atableau_beamer.pdf  - image used in manual
+%       atableau_beamer.tex  - latex source for image in manial
+%       atableau_readme.webp - image used in manual
+%       DEPENDS.txt          - LaTeX dependencies
+%       LICENSE              - package licence
+%       README.md            - githib page README file
+%       CHANGES.md           - change log
+%       TODO.md              - todo list
+%
+% The github repository https://github.com/AndrewMathas/aTableau
+% contains additional files, including a testing framework.
 %
 % ---------------------------------------------------------------------------
 

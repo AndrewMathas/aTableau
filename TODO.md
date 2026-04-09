@@ -7,13 +7,11 @@
 # aTableau - ToDo list
 
 ### Known bugs
-  - work out why the abacus example on page 57 is broken as it used to work...
 
 ### Features to be implemented
   - allow `cover` key to be used with multishapes
 
 ### Documentation
-  - add an example showing how to use dotted rows and columns for multitableaux
   - add an example using polar coordinates to place a picture in a tikzpicture environment
   - check Cartan conventions for residues
 

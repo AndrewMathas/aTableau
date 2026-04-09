@@ -1,6 +1,6 @@
 % ----------------------------------------------------------------------
-% aTableau manual - Andrew Mathas (C) 2022-2025
-% Modified: 13:29 Monday, 23 March 2026
+% aTableau manual - Andrew Mathas (C) 2022-2026
+% Modified: 09:27 Thursday, 09 April 2026
 % ----------------------------------------------------------------------
 \documentclass{amsart}
 \usepackage[svgnames,table]{xcolor}
@@ -882,8 +882,9 @@
           \footnote{These tableaux were introduced by Kerov and Ver\v{s}hik \cite{KerovVershik}.
           Earlier versions of this package called these tableaux \textit{Ukrainian tableaux},
           in protest over the Russian invasion of Ukraine. It is unreasonable to punish
-          these authors for their government's aggression, so the
-          package now uses the more common nomenclature from the literature.}
+          these authors for their government's aggression, so the package now uses the
+          more common nomenclature from the literature. The \option{ukrainian} option
+          is still supported.}
                      & \keyword{\Tableau[russian]{1234,567,89{10},{11}{12}}}
                      & \Tableau[russian]{1234,567,89{10},{11}{12}}\\[10mm]
           Australian
@@ -1215,17 +1216,17 @@
   shape of the node, then the available anchors may change; for more
   information, see the \TikZ manual.
 
-  In the example above, the coordinate $(0,0)$ is necessary
-  because the \keyword{\Diagram} command is used inside a
-  \keyword{tikzpicture} environment, but the choice of coordinate is not
-  important in the sense that changing the coordinate will not change
-  the picture. The use of coordinates become more meaningful when the
-  \keyword{tikzpicture} environment has more components. In the next
-  example, the key \option{name=B} makes the named
-  coordinates for the second diagram take the form (\textsf{B-r-c}),
-  instead of the default named coordinates (\textsf{A-r-c}), which are used in
-  the first diagram. This makes it easy to draw lines between boxes
-  in the two tableaux.
+  The coordinate $(0,0)$ is needed in the last example because the
+  \keyword{\Diagram} command is used in a \keyword{tikzpicture}
+  environment. Rather than (0,0), any \TikZ coordinate could have been
+  used. (As this example uses relative coordinates, a different choice of coordinate
+  will not not actually change the picture.) The use of coordinates become more
+  meaningful when the \keyword{tikzpicture} environment has more
+  components. In the next example, the key \option{name=B} makes the
+  named coordinates for the second diagram take the form
+  (\textsf{B-r-c}), instead of the default named coordinates
+  (\textsf{A-r-c}), which are used in the first diagram. This makes it
+  easy to draw lines between boxes in the two tableaux.
 
   \begin{example}[lefthand width=0.14\textwidth, sidebyside gap=0mm]{diagramNames}
   % \usetikzlibrary{decorations.pathmorphing}
@@ -3641,10 +3642,10 @@
   give the corresponding key values for the component tableaux and
   diagrams.
 
-  \option[-]{english}
-  \option*[]{french}
-  \option*[]{russian}
-  \option*[]{australian}
+  \option[-]{english}<multitableau>
+  \option*[]{french}<multitableau>
+  \option*[]{russian}<multitableau>
+  \option*[]{australian}<multitableau>
 
   All four tableau conventions are supported for multitableaux and
   multidiagrams, with the caveat that all component diagrams must use
@@ -3657,7 +3658,7 @@
     {123,45,67 | ... | {12}{13}{14}}
   \end{example}
 
-  \option[]{conjugate}
+  \option[]{conjugate}<multitableau>
   \index{conjugate!multidiagram}
   \index{conjugate!multitableau}
   \index{multidiagram!conjugate}
@@ -3699,6 +3700,23 @@
 
   See also the \option{no separators} key.
 
+  \option[]{dotted cols=|-separated column indices}[$|$ and comma-separated list of columns]<multitableau>
+  \option*[]{dotted rows=|-separated row indices}[$|$ and comma-separated list of rows]<multitableau>
+
+  Dotted rows and columns for multidiagrams (and multitableaux) can be
+  added using $|$-separated lists of row and column indices in each
+  component. This makes it possible to draw multidiagrams,
+  where the number of rows and columns are not specified completely.
+
+  \begin{example}{multiDottedRows}
+  \Multidiagram[scale=0.9,
+    dotted rows=2||2, dotted cols=||2
+  ]{ 3,2^2 | | 4,3^2 }
+  \end{example}
+
+  The \option{dotted rows} and \option{dotted cols} keys for
+  multidiagrams work in exactly the same way as they do for diagrams.
+
   \option[$-$]{empty}[any \LaTeX{}]
 
   The \option{empty} option determines what is printed when a component
@@ -3710,7 +3728,7 @@
   \end{example}
 
   The \option{empty} key is printed in mathematics-mode (or text mode if
-  \option{text boxes} is true). To add a text entry use
+  \option{text boxes} is true). To add text for empty components, use
   \option{empty=\textbackslash text\{...\}}, or equivalent if you are
   not using \ctan{amsmath}.
 
@@ -3736,7 +3754,7 @@
   entries to a tableau of the specified shape.  Use \option{charge} to
   provide offsets in each component when using \option{entries=contents}
   and \option{entries=residues} {(}the \option{charge} is ignored by other
-  \option{entries}).
+  values for \option{entries}).
 
   \nopagebreak[0]
   The possible choices are:
@@ -3959,12 +3977,13 @@
   multidiagrams with components that are a mixture of non-skew, skew and
   shifted shapes, and use \option{cover} for covering partitions.
 
-  \typeout{-----------------------}
   \begin{example}{multiSkew2}
-  \Multitableau[skew={1^2|1}]{ 1236,45 | 7{10},{11}{12}} \par
+  \Multitableau[cover={3^3|4,3,2}]{123,45|67,89,{10}} \par
   \Multidiagram[skew={|0,1}, cover={|4,3}]{ 3,2 | 3,1 }
   \end{example}
-  \typeout{-----------------------}
+
+  As this example shows, the partitions given to \option{cover} are not
+  unchanged by \option{shifted} or \option{skew} are also used.
 
   \option[true]{tabloid}[true/false]
 
@@ -4386,7 +4405,7 @@
   By default, the beads look like balls (they use the
   \TikZ-styling \keyword{shading=ball, ball color=}\aTableauColour{Main}).
   In contrast, the beads on the left look like go beads, and those
-  on the right are flat. The \option{traditional} provides another way
+  on the right are flat. The \option{traditional} key provides another way
   to change the abacus style.
 
   \option[white]{bead text=colour}[a \LaTeX~colour]
@@ -4845,7 +4864,7 @@
 
   \begin{example}{newDiagram}
   \NewATableauCommand\MyDiagram{Diagram}
-    {russian, box fill=yellow!40,shifted}
+    {ukrainian, box fill=yellow!40,shifted}
   \begin{tikzpicture}[add grid]
     \MyDiagram(45:0.9){3,2}
     \MyDiagram(2.5,-1)[tabloid]{3,2,1}
@@ -5154,7 +5173,7 @@
        \midrule
        \showrowcolors
        aTableau/abacusBead      & Standard abacus beads\\
-       aTableau/abacusEnds      & Tops and bottoms of abacuses\\
+       aTableau/abacusEnds      & Tops and bottoms of abacus runners\\
        aTableau/abacusLabel     & Base abacus label style\\
        aTableau/abacusRunner    & Abacus runners\\
        aTableau/abacusStar      & Abacus stars \\
@@ -5202,10 +5221,8 @@
 
   The \arXiv now plans to update its \TeXLive distribution annually.
   As of writing, it is using \TeXLive 2025 by default, so papers
-  using \aTableau should compile on the \arXiv. Unfortunately, \TeXLive
-  2025 only has version 2.1.0 of \aTableau installed, as this version
-  of the package was part of the initial release of \TeXLive 2025.
-  (This should change in 2026, when the \arXiv moves to \TeXLive 2026.)
+  using \aTableau should compile on the \arXiv. \TeXLive
+  will not always have the latest version \aTableau installed.
   If your document does not compile on the \arXiv due to \aTableau,
   check which \TeXLive version is being used. If problems persist,
   try uploading the latest \aTableau style file,
@@ -5298,13 +5315,14 @@
   \TikZ diagram coordinates are rarely needed in these pictures.
 
   The first of these examples, which is also from
-  \cite{BowmanDeVisscherHaziStroppel:Arc}, is a little
-  more involved. Most of the diagram is drawn using \emph{pics} from
-  \TikZ, which are a good way to add repeating features to a
-  \keyword{tikzpicture}. To draw the up and down strings in this picture
-  we define two very similar pics \textit{ustring} and \textit{dstring},
-  which take as input the string colour, the starting box, the list of
-  the boxes that the string goes through, and the final box.
+  \cite{BowmanDeVisscherHaziStroppel:Arc}, is a little more involved.
+  Most of the diagram is drawn using two \emph{pics} s,for the up and
+  down string.  Pics are custom \TikZ styles, which are a good way of
+  adding repeating features to a \keyword{tikzpicture}. To draw the up
+  and down strings in this picture we define two very similar pics
+  \textit{ustring} and \textit{dstring}, which take as input the string
+  colour, the starting box, the list of the boxes that the string goes
+  through, and the final box.
 
 \begin{Example}{tableauUpDown}
 \tikzset{ % reusable keys for drawing the strings in the diagram using named coords
@@ -5312,21 +5330,21 @@
    Cup/.style={out=315,in=225},                      % cups are drawn with to[Cup]
    % define pics for drawing the curvy up and down strings using coords O and T
    pics/ustring/.style n args = {4}{% {colour}{first coord}{wave coords}{last coord}
-      code = {
-          \def\last{#2}                                    % should not be necessary
-          \draw[thick,#1](T-|#2.north west)node[above=-3.5]{$\vee$}--(#2.north west)
-              foreach [remember=\pt as \last (initially #2)] \pt in {#3}
-                  {to[Cup](\last.north east) to[Cap] (\pt.north west)}
-              to[Cup] (#4.north east) -- (#4.north east|-T)node[below=-3.5]{$\wedge$};
+    code = {
+      \def\last{#2}                                    % should not be necessary
+      \draw[thick,#1](T-|#2.north west)node[above=-3.5]{$\vee$}--(#2.north west)
+          foreach [remember=\pt as \last (initially #2)] \pt in {#3}
+            {to[Cup](\last.north east) to[Cap] (\pt.north west)}
+             to[Cup] (#4.north east) -- (#4.north east|-T)node[below=-3.5]{$\wedge$};
       }
    },
    pics/dstring/.style n args = {4}{% {colour}{first coord}{wave coords}{last coord}
-      code = {
-          \def\last{#2}                                    % should not be necessary
-          \draw[thick,#1](O-|#2.south west)node[below=-3.5]{$\wedge$}--(#2.south west)
-              foreach [remember=\pt as \last (initially #2)] \pt in {#3}
-                  {to[Cap](\last.south east) to[Cup] (\pt.south west)}
-              to[Cap] (#4.south east) -- (#4.south east|-O)node[above=-3.5]{$\vee$};
+    code = {
+      \def\last{#2}                                    % should not be necessary
+      \draw[thick,#1](O-|#2.south west)node[below=-3.5]{$\wedge$}--(#2.south west)
+          foreach [remember=\pt as \last (initially #2)] \pt in {#3}
+            {to[Cap](\last.south east) to[Cup] (\pt.south west)}
+             to[Cap] (#4.south east) -- (#4.south east|-O)node[above=-3.5]{$\vee$};
       }
    },
 }
@@ -5354,8 +5372,8 @@ in the picture.
 
 \begin{Example}{multiKLRW}
 \begin{tikzpicture}[red string/.style={red, ultra thick},
-                    solid/.style={blue, thick},
-                    ghost/.style={gray}]
+    solid/.style={blue, thick}, ghost/.style={gray}
+  ]
   \Multidiagram(0,1.3) % the multipartition, filled with residues
     [russian, entries=residues, e=3, rotate=4, no separators]{2^2,1|3,2,1}
   % the red strings, projected from the (1,1)-boxes
@@ -5363,7 +5381,7 @@ in the picture.
   \draw[red string]([shift={(0.1,0)}]A-2-1-1 |- 0,0)node[below]{$\kappa_2$} --++(0,1);
   \foreach \k/\r/\c in
     {1/1/1,1/1/2,1/2/1,1/2/2,1/3/1,2/1/1,2/1/2,2/1/3,2/2/1,2/2/2,2/3/1}
-  { % add solids, ghosts and lines from the tableau to the KLRW idempotent
+  { % add solid and ghost strings from the tableau to the KLRW idempotent
     \draw[thin, brown](A-\k-\r-\c.south) -- (A-\k-\r-\c |- 0,0);
     \draw[solid](A-\k-\r-\c.south |- 0,0)--++(0,1);
     \draw[ghost]([xshift=2.8mm]A-\k-\r-\c |- 0,0)--++(0,1);
@@ -5379,44 +5397,42 @@ following~\cite[page~305]{FayersPutignano:CentraliserAlgebras}:
 
 \begin{Example}{FayersPutignano}
 % \usetikzlibrary{arrows.meta}
-\aTabset{colour theme=classic,
-  tick length=0.1, tikzpicture={>=Stealth},
+\aTabset{colour theme=classic, tikzpicture={>=Stealth},
+  tick length=0.1,
   styles={
     semi={shape=semicircle,inner sep=0pt,minimum height=0.7mm},
-    R={semi,bead=red,shape border rotate=270,anchor=west}, % semispherical beads
-    B={semi,shape border rotate=90,anchor=east},
-    Cap={out=30,in=150},
-    rarr={thick,red, <-},        % red arrows
-    barr={thick,blue,->},        % blue arrows
-    landed={text=blue}, % labelled ticks
+    L={semi,bead=red,shape border rotate=270,anchor=west}, % left balls
+    R={semi,shape border rotate=90,anchor=east},          % right balls
+    Cap={out=30,in=150},    % curved arrows
+    larrow={thick,red, <-}, % left arrow
+    rarrow={thick,blue,->}, % right arrow
+    landed={text=white},    % labelled ticks
   }
 }
 \Abacus[dotted cols={0,2,4,6,8,9,10,11,13,15,17,19},
-abacus ends=||, runner sep=0.6, bead sep=0.8, rows=9,
-tikz after={ % add the red and blue arrows
-  \draw[barr](A-4-1.base)node[below left=0.2]{$c_s$}
-          to[Cap](A-4-5.base)node[below right]{$d_s$};
-  \draw[barr](A-4-12.base)node[below left]{$c_2$}
-          to[Cap](A-4-16.base)node[below right]{$d_2$};
-  \draw[barr](A-6-5.base)node[below left]{$c_{s-1}$}to[out=30,in=180]+(2.2,0.5);
-  \draw[barr](A-6-16.base)node[below left]{$c_1$}to[out=30,in=180]+(2.2,0.5);
-  \draw[barr,<-](A-7-1.base)node[below left]{$d_1$}to[out=150,in=0]+(-1,0.4);
-  \draw[barr,<-](A-5-12.base)node[below left]{$d_3$}to[out=150,in=0]+(-1,0.4);
-  \draw[rarr,->](A-3-3.base)to[out=150,in=0]+(-2,0.5);
-  \draw[rarr](A-0-14.base)to[Cap](A-0-18.base);
-  \draw[rarr,->](A-1-14.base)to[out=150,in=0]+(-2,0.5);
-  \draw[rarr](A-1-3.base)to[Cap](A-1-7.base);
-  \draw[rarr](A-2-7.base)to[out=30, in=190]+(1,0.4);
-  \draw[rarr](A-2-18.base)to[out=30, in=190]+(1,0.4);
-  \node[below left] at (A-6-1){$b$};
-}]
-{19}{[landed]4_{d_1},4_b,4,4_{c_s}||2,[R]2,[B]1||5,[landed]4_{d_s}||4,[B]1,[R]1|||||
-         4_{d_s},4_{c_2}||2,[R]0,[B]0||5_{c_1},[landed]4_{d_2}||4,[B]1,[R]0}
+  abacus ends=||, runner sep=0.6, bead sep=0.8, rows=9,
+  tikz after={
+    \draw[rarrow](A-4-1.base)node[below left=0.2]{$c_s$}
+        to[Cap](A-4-5.base)node[below right]{$d_s$};
+    \draw[rarrow](A-4-12.base)node[below left]{$c_2$}
+        to[Cap](A-4-16.base)node[below right]{$d_2$};
+    \draw[rarrow](A-6-5.base)node[below left]{$c_{s-1}$}to[out=30,in=180]+(2.2,0.5);
+    \draw[rarrow](A-6-16.base)node[below left]{$c_{1}$}to[out=30,in=180]+(2.2,0.5);
+    \draw[rarrow,<-](A-7-1.base)node[below left]{$c_{1}$}to[out=150,in=0]+(-2,0.5);
+    \draw[rarrow,<-](A-5-12.base)node[below left]{$d_{3}$}to[out=150,in=0]+(-2,0.5);
+    \draw[larrow,->](A-3-3.base)to[out=150,in=0]+(-2,0.5);
+    \draw[larrow](A-0-14.base)to[Cap](A-0-18.base);
+    \draw[larrow,->](A-1-14.base)to[out=150,in=0]+(-2,0.5);
+    \draw[larrow](A-1-3.base)to[Cap](A-1-7.base);
+    \draw[larrow](A-2-7.base)to[out=30, in=190]+(1,0.4);
+    \draw[larrow](A-2-18.base)to[out=30, in=190]+(1,0.4);
+}]{19}{|4_b,4,4||2,[L]2,[R]1||6||4,[R]1,[L]1|||||4||2,[L]0,[R]0||6||4,[R]1,[L]0}
 \end{Example}
 
-The key features of this example are the use of styles to change the
-shape of some nodes into half-spheres and the use of named coordinates
-to draw the arrows.
+The most interesting features of this example are the use of styles to change the
+shape of some nodes into half-spheres, and the use of named coordinates
+to draw the arrows via the \option{tikz after} key. Notice also that the
+abacus is specified as a quotient (\autoref{SS:quotients}).
 
   % --------------------------------------------------------------
   \section{Feature requests and bug reports}
@@ -5429,10 +5445,10 @@ to draw the arrows.
   Please provide as much detail as possible when submitting requests.
 
   Bug reports must be accompanied by a \textit{minimal working
-  example}, which is the smallest possible amount of \LaTeX\ code that
+  example}, which is the smallest amount of \LaTeX\ code that
   demonstrates the problem and compiles---unless you are reporting a
-  problem that gives a compilation error, in which case your code example
-  should produce the error. This is necessary because it is very difficult
+  problem that gives a compilation error, in which case your example code
+  should reproduce the error. This is necessary because it is very difficult
   to fix a problem if you cannot reproduce it.
 
   % --------------------------------------------------------------
