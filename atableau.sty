@@ -1,6 +1,6 @@
 % ---------------------------------------------------------------------------
 % aTableau - Andrew Mathas (C) 2022-2026
-% Modified: 10:23 Thursday, 09 April 2026
+% Modified: 10:34 Monday, 27 April 2026
 % ---------------------------------------------------------------------------
 %
 % A LaTeX package for symmetric group combinatorics:
@@ -1828,11 +1828,8 @@
     \group_begin:
       % don't update the box minima and maxima
       \cs_set_eq:NN \__aTableau_update_extrema:n \use_none:n
-      \seq_if_empty:NF \l__aTableau_cover_seq
-      {
-        \bool_if:NT \l__aTableau_cover_boxes_bool  {
-           \__aTableau_draw_cover_boxes:
-        }
+      \bool_if:NT \l__aTableau_cover_boxes_bool  {
+        \seq_if_empty:NF \l__aTableau_cover_seq { \__aTableau_draw_cover_boxes: }
       }
     \group_end:
 
@@ -1843,10 +1840,17 @@
     \tl_if_blank:VF \l__aTableau_label_tl     { \__aTableau_draw_label: }
 
     % draw border
+    % NOTE: cover border is drawn here, after update_extrema is disabled,
+    % because draw_border:nn calls set_box_coordinates with column values
+    % equal to the partition count (one past the last 0-indexed column),
+    % which would otherwise advance xmax by one spurious box-width.
+    \bool_if:NT \l__aTableau_cover_border_bool {
+      \seq_if_empty:NF \l__aTableau_cover_seq { \__aTableau_draw_border:nn {cover} {coverBorder} }
+    }
+   %\bool_if:NT \l__aTableau_cover_border_bool { \__aTableau_draw_border:nn {cover} {coverBorder}  }
     \bool_if:NT \l__aTableau_skew_boxes_bool  { \__aTableau_draw_skew_boxes: }
     \bool_if:NT \l__aTableau_skew_border_bool { \__aTableau_draw_border:nn {skew}  {skewBorder}  }
     \bool_if:NT \l__aTableau_border_bool      { \__aTableau_draw_border:nn {shape} {border} }
-    \bool_if:NT \l__aTableau_cover_border_bool { \__aTableau_draw_border:nn {cover} {coverBorder}  }
 
     % remove dotted rows and columns
     \seq_if_empty:NF \l__aTableau_dotted_rows_seq \__aTableau_remove_dotted_tableau_rows:
@@ -1946,7 +1950,7 @@
 \cs_new_protected:Npn \__aTableau_valign_bottom:n #1 { \__aTableau_box:n { #1 \vss } }
 \cs_new_protected:Npn \__aTableau_valign_centre:n #1 { \__aTableau_box:n { \vss #1 \vss } }
 \cs_new_protected:Npn \__aTableau_valign_top:n #1    { \__aTableau_box:n { \vss #1 } }
-\cs_set_eq:NN \__aTableau_valign_center:n \__aTableau_valign_centre:n
+\cs_set_eq:NN \__aTableau_valign:n \__aTableau_valign_centre:n
 
 % We use \vbox_to_zero:n and \hbox_overlap_center:n to ensure that an entry
 % does not change the height or width of the node when it is too large.
