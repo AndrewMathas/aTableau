@@ -1,6 +1,6 @@
 % ---------------------------------------------------------------------------
 % aTableau - Andrew Mathas (C) 2022-2026
-% Modified: 10:34 Monday, 27 April 2026
+% Modified: 15:40 Friday, 15 May 2026
 % ---------------------------------------------------------------------------
 %
 % A LaTeX package for symmetric group combinatorics:
@@ -20,11 +20,6 @@
 % author can be contacted via email at andrew.mathas@gmail.com.
 % For bugs and other issues with the package please use
 % the package repository github.com/AndrewMathas/aTableau/
-
-% ---------------------------------------------------------------------------
-% aTableau release date and version number
-\def\aTableau@version{2.2.1-rc1}
-\def\aTableau@release{2025-10-20}
 
 % ---------------------------------------------------------------------------
 % load TikZ early to avoid \ExplSyntaxOn...\ExplSyntaxOff wrappers
@@ -48,15 +43,43 @@
 \fi
 
 % ---------------------------------------------------------------------------
+
 \providecommand\DeclareRelease[3]{}
 \providecommand\DeclareCurrentRelease[2]{}
-\DeclareRelease{\aTableau@version}{\aTableau@release}{atableau.sty}
-\DeclareCurrentRelease{}{\aTableau@release}
+
+\ExplSyntaxOn
+
+% We use l3keys to read the package metadata from the atableau.ini file
+% and then store it in the following variables for future access
+\tl_new:N \l__aTableau_description_tl
+\tl_new:N \l__aTableau_release_date_tl
+\tl_new:N \l__aTableau_repository_tl
+\tl_new:N \l__aTableau_version_tl
+
+\keys_define:nn { _aTableau_ini_ }
+{
+    description  .tl_set:N = \l__aTableau_description_tl,
+    release_date .tl_set:N = \l__aTableau_release_date_tl,
+    repository   .tl_set:N = \l__aTableau_repository_tl,
+    version      .tl_set:N = \l__aTableau_version_tl,
+    % ignore any keys that do not have handlers
+    unknown       .code:n = \relax
+}
+
+\ior_open:Nn \g_tmpa_ior { atableau.ini }
+\ior_str_map_inline:Nn \g_tmpa_ior
+{
+    % the ini file entries take the form: key = value
+    \keys_set:nn { _aTableau_ini_ } { #1 }
+}
+
+\DeclareRelease{\l__aTableau_version_tl}{\l__aTableau_release_date_tl}{atableau.sty}
+\DeclareCurrentRelease{}{\l__aTableau_release_date_tl}
 
 \ProvidesExplPackage{atableau}
-  {\aTableau@release}
-  {\aTableau@version}
-  {for symmetric group combinatorics}
+  { \l__aTableau_release_date_tl }
+  { \l__aTableau_version_tl      }
+  { \l__aTableau_description_tl  }
 
 % ---------------------------------------------------------------------------
 % Give a warning if the LaTeX installation is older than TeXLive 2024
@@ -140,7 +163,7 @@
 
 \msg_new:nnnn { aTableau } { unrecognised-entries }
   { Unrecognised~entries~value:~'#1' }
-  { The~possible~diagram~values~for~entries~are:~contents,~first,~hooks,~last,~and~residues}
+  { The~possible~diagram~values~for~entries~are:~columns~,contents,~first,~hooks,~lastm~residues,~and~rows}
 
 \msg_new:nnnn { aTableau } { unknown-abacus-end }
   { Unrecognised~abacus~ends~setting:~'#1' }
@@ -1201,8 +1224,27 @@
     }
 }
 
-% usage: \__aTableau_shape_to_content:Nn {partition sequence}
-% Return the content sequence for a tableau of this shape
+% usage: \__aTableau_shape_to_columns:N {partition sequence}
+% Diagrams with entries=columns are drawn using the \Diagram command
+\cs_new_protected:Npn \__aTableau_shape_to_columns:N #1
+{
+    \tl_clear:N \l__aTableau_entries_tl
+    \tl_set:Nn \l_tmpb_tl {}
+    \seq_map_inline:Nn #1
+    {
+        \tl_put_right:No \l__aTableau_entries_tl \l_tmpb_tl
+        \int_set_eq:NN \l__aTableau_col_int \l__aTableau_charge_int
+        \int_step_inline:nn {##1}
+        {
+            \int_incr:N \l__aTableau_col_int
+            \__aTableau_tl_put_right_braced:No \l__aTableau_entries_tl {\int_use:N \l__aTableau_col_int}
+        }
+        \tl_set:Nn \l_tmpb_tl {,}
+    }
+}
+
+% usage: \__aTableau_shape_to_content:N {partition sequence}
+% Diagrams with entries=content are drawn using the \Diagram command
 \cs_new_protected:Npn \__aTableau_shape_to_content:N #1
 {
     \tl_clear:N \l__aTableau_entries_tl
@@ -1224,7 +1266,7 @@
 }
 
 % usage: \__aTableau_shape_to_last:N {partition sequence}
-% Diagrams with entries=last are drawn using the \Tableau command
+% Diagrams with entries=last are drawn using the \Diagram command
 \cs_new_protected:Npn \__aTableau_shape_to_last:N #1
 {
     % compute conjugate of #1 as \l__aTableau_conjugate_seq
@@ -1235,7 +1277,7 @@
     \seq_map_inline:Nn #1 {\seq_put_right:Nn \l_tmpc_seq {}}
 
     % value of last entry added to the tableau
-    \int_set:Nn  \l__aTableau_c_int {\l__aTableau_charge_int}
+    \int_set_eq:NN \l__aTableau_c_int \l__aTableau_charge_int
 
     % length of the first row of the partition/seq #1
     \int_set:Nn \l__aTableau_row_int {0\seq_item:Nn #1 {1}}
@@ -1269,11 +1311,11 @@
 }
 
 % usage: \__aTableau_shape_to_first:N {partition sequence}
-% Diagrams with entries=first are drawn using the \Tableau command
+% Diagrams with entries=first are drawn using the \Diagram command
 \cs_new_protected:Npn \__aTableau_shape_to_first:N #1
 {
     \tl_clear:N \l__aTableau_entries_tl
-    \int_set:Nn \l__aTableau_r_int {\l__aTableau_charge_int}
+    \int_set_eq:NN \l__aTableau_r_int \l__aTableau_charge_int
     \tl_set:Nn \l_tmpb_tl {}
     \seq_map_inline:Nn #1
     {
@@ -1360,6 +1402,24 @@
             \int_add:Nn \l_tmpa_int { + 0\seq_item:NV \l__aTableau_skew_seq \l__aTableau_row_int }
             \tl_set:Nx \l_tmpa_tl { \__aTableau_residue:nn { \l_tmpa_int } {\l__aTableau_e_int} }
             \__aTableau_tl_put_right_braced:Nx \l__aTableau_entries_tl { \l_tmpa_tl }
+        }
+        \tl_set:Nn \l_tmpb_tl {,}
+    }
+}
+
+% usage: \__aTableau_shape_to_rows:N {partition sequence}
+% Diagrams with entries=rows are drawn using the \Diagram command
+\cs_new_protected:Npn \__aTableau_shape_to_rows:N #1
+{
+    \tl_clear:N \l__aTableau_entries_tl
+    \int_set_eq:NN \l__aTableau_r_int \l__aTableau_charge_int
+    \seq_map_inline:Nn #1
+    {
+        \tl_put_right:No \l__aTableau_entries_tl \l_tmpb_tl
+        \int_incr:N \l__aTableau_r_int
+        \int_step_inline:nn {##1}
+        {
+            \__aTableau_tl_put_right_braced:No \l__aTableau_entries_tl {\int_use:N \l__aTableau_r_int}
         }
         \tl_set:Nn \l_tmpb_tl {,}
     }
@@ -2037,11 +2097,13 @@
     % depending on \l__aTableau_show_tl, generate the tableau entries
     \str_case:VnF \l__aTableau_show_tl
     {
+        {columns}  { \__aTableau_shape_to_columns:N  \l__aTableau_shape_seq }
         {contents} { \__aTableau_shape_to_content:N  \l__aTableau_shape_seq }
-        {last}     { \__aTableau_shape_to_last:N     \l__aTableau_shape_seq }
-        {hooks}    { \__aTableau_shape_to_hook:N     \l__aTableau_shape_seq }
         {first}    { \__aTableau_shape_to_first:N    \l__aTableau_shape_seq }
+        {hooks}    { \__aTableau_shape_to_hook:N     \l__aTableau_shape_seq }
+        {last}     { \__aTableau_shape_to_last:N     \l__aTableau_shape_seq }
         {residues} { \__aTableau_shape_to_residue:N  \l__aTableau_shape_seq }
+        {rows}     { \__aTableau_shape_to_rows:N     \l__aTableau_shape_seq }
         {}         { \__aTableau_diagram_for_shape:N \l__aTableau_shape_seq }
     }
     {
@@ -4537,16 +4599,16 @@
 %
 % This package consists of the files:
 %
-%       atableau.ini         - metadata for the pacakge
+%       atableau.ini         - metadata for the package
 %       atableau.pdf         - PDF file for the manual
 %       atableau.sty         - package style file
 %       atableau.tex         - the LaTeX source for manual
 %       atableau_beamer.pdf  - image used in manual
-%       atableau_beamer.tex  - latex source for image in manial
+%       atableau_beamer.tex  - latex source for image in manual
 %       atableau_readme.webp - image used in manual
 %       DEPENDS.txt          - LaTeX dependencies
 %       LICENSE              - package licence
-%       README.md            - githib page README file
+%       README.md            - github page README file
 %       CHANGES.md           - change log
 %       TODO.md              - todo list
 %

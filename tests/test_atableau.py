@@ -1,7 +1,7 @@
 #!/usr/bin/env -S uv run --script
 
 # ---------------------------------------------------------------------------
-# test_atableau.py - Andrew Mathas (C) 2022-2025
+# test_atableau.py - Andrew Mathas (C) 2022-2026
 #
 # Requires: uv -- this runs the script and installs the python dependencies
 # ---------------------------------------------------------------------------
@@ -70,9 +70,10 @@ examples are added to the manual, they can be extracted using:
     test_examples.py -e
 
 When they do not already exist, this will also create good webp images files
-for the examples, but it will not overwrite any existing good webp files. (In
-fact, the `-e` option rewrites all of the example LaTeX files.) The examples
-should be regularly extracted from manual as they can change.
+for the examples, but it will not overwrite any existing good webp files. In
+fact, the `-e` option rewrites all of the example LaTeX files, without
+changing the good image files. The examples should be regularly extracted
+from manual as they can change, or new examples are added.
 
 If any of the examples in the manual change in a good way, in the sense that
 the example is corrected, or improved, then the good images can be updated
@@ -80,7 +81,7 @@ using:
 
     test_examples -u [files]
 
-There are over 200 examples in the manual, but the script is reasonably quick
+There are over 200 examples in the manual, but this script is reasonably quick
 because the examples are processed in parallel.
 
 Andrew Mathas
@@ -95,7 +96,7 @@ import os
 import subprocess
 import sys
 
-# image conversion and comparision
+# image conversion and comparison
 from pdf2image import convert_from_path
 from PIL import Image, ImageChops
 

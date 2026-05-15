@@ -1,6 +1,6 @@
 % ----------------------------------------------------------------------
 % aTableau manual - Andrew Mathas (C) 2022-2026
-% Modified: 09:27 Thursday, 09 April 2026
+% Modified: 15:30 Friday, 15 May 2026
 % ----------------------------------------------------------------------
 \documentclass{amsart}
 \usepackage[svgnames,table]{xcolor}
@@ -53,31 +53,19 @@
 \parindent=0pt
 \parskip=4mm
 
-\makeatletter
-\def\@evenhead{\hfill\aTableau\hfill}
-\let\@oddhead\@evenhead
-\def\@oddfoot {\color{aTableauMain} Version \aTableau@version~(\aTableau@release)\hfill\thepage}
-\def\@evenfoot{\color{aTableauMain} \thepage\hfill Version \aTableau@version~(\aTableau@release)}
-
-% streamline font warnings following David Carlisle https://tex.stackexchange.com/a/663843/234252
-\let\old@font@info\@font@info
-\def\@font@info#1{%
-  \expandafter\ifx\csname\detokenize{#1}\endcsname\relax\old@font@info{#1}\fi%
-  \expandafter\xdef\csname\detokenize{#1}\endcsname{}%
-}
-
-\makeatother
-
-
 % ----------------------------------------------------------------------
 % draw a little rectangle showing the corresponding aTableau colour
 \newcommand\aTableauColour[1]{%
   \,\tikz[baseline={([yshift=0.5mm]current bounding box.south)}]\node[minimum width=3ex, minimum height=2ex,fill=aTableau#1]{};\,%
 }
 
-
 % ----------------------------------------------------------------------
 \ExplSyntaxOn
+
+% aTableau meta data, which is defined in atableau.sty via the ini file
+\newcommand\aTableauVersion{\tl_use:N\l__aTableau_version_tl}
+\newcommand\aTableauRelease{\l__aTableau_release_date_tl}
+\newcommand\aTableauRepository{\l__aTableau_repository_tl}
 
 % ----------------------------------------------------------------------
 % In the table summarising the keys, \Yes and \No are used to add links
@@ -309,6 +297,23 @@
 }
 
 \ExplSyntaxOff
+
+% ---------------------------------------------------------------------------
+% page headings
+\makeatletter
+\def\@evenhead{\hfill\aTableau\hfill}
+\let\@oddhead\@evenhead
+\def\@oddfoot {\color{aTableauMain} Version \aTableauVersion~(\aTableauRelease)\hfill\thepage}
+\def\@evenfoot{\color{aTableauMain} \thepage\hfill Version \aTableauVersion~(\aTableauRelease)}
+
+% streamline font warnings following David Carlisle https://tex.stackexchange.com/a/663843/234252
+\let\old@font@info\@font@info
+\def\@font@info#1{%
+  \expandafter\ifx\csname\detokenize{#1}\endcsname\relax\old@font@info{#1}\fi%
+  \expandafter\xdef\csname\detokenize{#1}\endcsname{}%
+}
+
+\makeatother
 
 % ---------------------------------------------------------------------------
 %\renewcommand\thesubsection{\thesection\Alph{subsection}}
@@ -602,7 +607,7 @@
   }
 }
 
-% define the heading as a command because it contains \aTableau@version
+% define the heading as a command because it contains \aTableauVersion
 \newcommand\aTableauHeader{%
   \begin{center}
     \begin{tikzpicture}
@@ -620,7 +625,7 @@
         \Diagram(11,2)[ribbons={11,13,21,23,31,33,41,43,51,52,53}]{}        % U
       \end{scope}
       \node[anchor=west,boxes] at (4cm,0cm) {Andrew Mathas};
-      \node[anchor=east,boxes] at (\paperwidth-4cm,0) {Version \aTableau@version};
+      \node[anchor=east,boxes] at (\paperwidth-4cm,0) {Version \aTableauVersion};
     \end{tikzpicture}
   \end{center}
 }
@@ -634,7 +639,7 @@
     Keywords={ Algebraic combinatorics, representation theory, abacus, Young diagram, tableau, symmetric groups  },
     License ={ LaTeX Project Public License v1.3c or later },
     Subject ={ LaTeXing tableaux and friends },
-    Title   ={ ATableau - \aTableau@version }
+    Title   ={ ATableau - \aTableauVersion }
   },
   colorlinks=true,
   linkcolor=blue,
@@ -2763,13 +2768,51 @@
   tableaux of a specified shape, where the entries follow a common
   pattern.
 
-  \option[]{entries=value}[contents, first, hooks, last, residues]
+  \option[]{entries=value}[columns, contents, first, hooks, last, residues, rows]
 
-  The possible choices are:
+  In each case, use \option{charge} to offset the generated entries. The possible choices are:
 
   \begin{itemize}
 
-    \item\option{entries=first}: Prints the \emph{first}
+  \item\option{entries=columns}: Prints the diagram where each box is
+    labelled by its column index.
+
+  \begin{example}{diagramEntriesColumns}
+  \Diagram[entries=columns]{3,2,2} \qquad
+  \Diagram[french, entries=columns]{2^2,1} \qquad
+  \Diagram[entries=columns,charge=3]{2,1^2}
+  \end{example}
+  \index{tableau!columns}
+
+  \item\option{entries=contents}: Prints the diagram where each box is
+    labelled by its \emph{content}, which is the row index minus the
+    column index.
+
+  \begin{example}{diagramEntriesContents}
+  \Diagram[entries=contents]{2^3} \qquad
+  \Diagram[french, entries=contents]{2^2,1}\qquad
+  \Diagram[entries=contents,charge=-3]{2,1^2}
+  \end{example}
+  \AddKeyLink{contents}
+  \AddKeyLink{residues}
+  \AddKeyLink{charge}
+  \index{tableau!contents}
+  \index{contents}
+  \index{entries!contents}
+
+  In mathematics-mode, \LaTeX typesets minus signs as operators, which
+  makes the minus sign for negative contents too wide when they appear inside a
+  tableau. To correct for this, \aTableau uses the
+  \keyword{\shortminus} command for negative content
+  values\cprotect\footnote{The \aTableau package only defines the
+  \keyword{\shortminus} command if it does not already exist. In this case,
+  the \keyword{\shortminus} command is defined using
+  \verb|\DeclareMathSymbol\shortminus{\mathbin}{AMSa}{"39}|.}.
+  More explicitly, when using \option{entries=contents}, a content of
+  minus one inside a tableau s typeset using \keyword{\shortminus1},
+  which looks like~$\shortminus1$ instead of~$-1$.
+
+  \item\option{entries=first}: Prints the \emph{first}
     \textbf{standard} tableau of this shape, with respect to the Bruhat
     order. This is the tableau that has the numbers $1,2\dots,n$ entered
     in order along the rows by reading left to right along each row, with the
@@ -2779,29 +2822,13 @@
 
   \begin{example}{diagramEntriesFirst}
   \Diagram[entries=first]{3,2,2} \qquad
-  \Diagram[russian, entries=first]{3^2,2}
+  \Diagram[russian, entries=first,charge=2]{3^2,2}
   \end{example}
   \index{first tableau}
   \index{tableau!first}
   \index{entries!first}
 
-    \item\option{entries=last}: Prints the \emph{last} \textbf{standard}
-    tableau of this shape, with respect to the Bruhat order. This is the
-    tableau that has the numbers $1,2\dots,n$ entered in order along the
-    columns by reading top to bottom down each column, with the columns
-    read in order from left to right. (That is, the boxes are labelled
-    using the total order where $(r,c)<(r',c')$ if $c<c'$ or $c=c'$ and
-    $r<r'$.)
-
-  \begin{example}{diagramEntrieslast}
-  \Diagram[entries=last]{3,2,2} \qquad
-  \Diagram[australian, entries=last]{2^2,1}
-  \end{example}
-  \index{last tableau}
-  \index{tableau!last}
-  \index{entries!last}
-
-    \item\option{entries=hooks}: Prints the diagram where each box is
+  \item\option{entries=hooks}: Prints the diagram where each box is
     labelled by the corresponding \emph{hook length}. If $\lambda$ is a
     partition and $\lambda'$ is its conjugate partition, then the hook
     length of the box in row~$i$ and column~$j$ is
@@ -2816,33 +2843,21 @@
   \Diagram[russian, entries=hooks]{2^2,1}
   \end{example}
 
-  \item\option{entries=contents}: Prints the diagram where each box is
-    labelled by its \emph{content}, which is the row index minus the
-    column index.
+  \item\option{entries=last}: Prints the \emph{last} \textbf{standard}
+    tableau of this shape, with respect to the Bruhat order. This is the
+    tableau that has the numbers $1,2\dots,n$ entered in order along the
+    columns by reading top to bottom down each column, with the columns
+    read in order from left to right. (That is, the boxes are labelled
+    using the total order where $(r,c)<(r',c')$ if $c<c'$ or $c=c'$ and
+    $r<r'$.)
 
-  \begin{example}{diagramEntriesContents}
-  \Diagram[entries=contents]{2^3} \qquad
-  \Diagram[french, entries=contents]{2^2,1}\qquad
-  \Tableau[french]{01,{-1}0,{-2}}
+  \begin{example}{diagramEntrieslast}
+  \Diagram[entries=last]{3,2,2} \qquad
+  \Diagram[australian, entries=last]{2^2,1}
   \end{example}
-  \AddKeyLink{contents}
-  \AddKeyLink{residues}
-  \AddKeyLink{charge}
-  \index{tableau!contents}
-  \index{contents}
-  \index{entries!contents}
-
-  \smallskip\noindent As shown by the last tableau, the default minus
-  sign for a negative number is too long when it appears inside a
-  tableau.  To correct for this, \aTableau uses the
-  \keyword{\shortminus} command for negative content
-  values\cprotect\footnote{The \aTableau package only defines the
-  \keyword{\shortminus} command if it does not already exist. In this case,
-  the \keyword{\shortminus} command is defined using
-  \verb|\DeclareMathSymbol\shortminus{\mathbin}{AMSa}{"39}|.}.
-  More explicitly, in the second diagram above, \aTableau
-  uses~\keyword{\shortminus 1} instead of~\keyword{-1}, which look
-  like~$\shortminus1$ and~$-1$, respectively.\indexcmd{shortminus}
+  \index{last tableau}
+  \index{tableau!last}
+  \index{entries!last}
 
   \item\option{entries=residues}: Prints the diagram where each box is
   labelled by its \emph{residue}, which is the row index minus the
@@ -2882,16 +2897,24 @@
   \Diagram[entries=residues, e=2, cartan=DD] {8,4,2}
   \end{example}
 
-  \end{itemize}
-
-  Use \option{charge} to add offsets to the \option{contents} and \option{residues}, and
-  use \option{colours} for residue-compatible shadings.
+  Use \option{colours} for residue-compatible shadings:
 
   \begin{example}{diagramEntriesResiduesColours}
-  \Diagram[entries=contents, charge=2]{3,2,1} \qquad
   \Diagram[entries=residues, charge=1,
-      colours={white,yellow,brown}]{3,2,1}
+      colours={white,cyan!50,teal!50}]{3,2,1}
   \end{example}
+
+  \item\option{entries=rows}: Prints the diagram where each box is
+    labelled by its row index.
+
+  \begin{example}{diagramEntriesRows}
+  \Diagram[entries=rows]{3,2,2} \qquad
+  \Diagram[french, entries=rows]{2^2,1}
+  \Diagram[entries=rows, charge=2]{2^2,1}
+  \end{example}
+  \index{tableau!rows}
+
+  \end{itemize}
 
   % --------------------------------------------------------------
   \subsection{Skew tableaux and skew diagrams}
@@ -4758,7 +4781,7 @@
   appealing. Traditional abacuses were added as an afterthought and not
   all of the abacus options have been tested on traditional abacuses.
   Please
-  \href{https://github.com/AndrewMathas/aTableau/issues}{report any problems}.
+  \href{https://\aTableauRepository/issues}{report any problems}.
 
   \option[0.285]{bead height }[height in \unit{cm}]
   \option*[0.665]{bead width }[width in \unit{cm}]
@@ -5440,7 +5463,7 @@ abacus is specified as a quotient (\autoref{SS:quotients}).
   Please make any feature requests and bug reports on the \aTableau github
   page:
   \begin{center}
-    \href{https://github.com/AndrewMathas/aTableau/issues}{github.com/AndrewMathas/aTableau/issues}.
+    \href{https://\aTableauRepository/issues}{\aTableauRepository/issues}.
   \end{center}
   Please provide as much detail as possible when submitting requests.
 
