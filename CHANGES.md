@@ -11,6 +11,7 @@
 - allows arbitrary TikZ coordinates to be used to position **aTableau** pictures inside `tikzpicture` environments
 - allow `colour theme` to define a custom colour theme
 - added `entries=columns` and `entries=rows`
+- now directly reading meta data from ini file
 
 ### Version 2.2.0 - 2025-10-10
 

@@ -1,6 +1,6 @@
 % ----------------------------------------------------------------------
 % aTableau manual - Andrew Mathas (C) 2022-2026
-% Modified: 15:30 Friday, 15 May 2026
+% Modified: 23:14 Friday, 15 May 2026
 % ----------------------------------------------------------------------
 \documentclass{amsart}
 \usepackage[svgnames,table]{xcolor}
@@ -62,7 +62,7 @@
 % ----------------------------------------------------------------------
 \ExplSyntaxOn
 
-% aTableau meta data, which is defined in atableau.sty via the ini file
+% aTableau meta data that is defined in atableau.sty via the ini file
 \newcommand\aTableauVersion{\tl_use:N\l__aTableau_version_tl}
 \newcommand\aTableauRelease{\l__aTableau_release_date_tl}
 \newcommand\aTableauRepository{\l__aTableau_repository_tl}
@@ -161,8 +161,8 @@
 %      location, which takes the form Key:<key>-<context>, where the
 %      <context> is added only if #5 is supplied
 %    - any accepted values in #3 are printed in the right-hand margin
-% 2. When #2 is omitted, this an inline citation of the key. A
-% hyperlink is added
+% 2. When #2 (=default value) is omitted, this is an inline citation of
+%    the key. A hyperlink is added
 
 % The *-version does not do a \bigskip before the option. A hyperlink is
 % added for new displayed options. If #2 is blank then the *-version
@@ -638,8 +638,8 @@
     Author  ={ Andrew Mathas },
     Keywords={ Algebraic combinatorics, representation theory, abacus, Young diagram, tableau, symmetric groups  },
     License ={ LaTeX Project Public License v1.3c or later },
-    Subject ={ LaTeXing tableaux and friends },
-    Title   ={ ATableau - \aTableauVersion }
+    Subject ={ LaTeXing abacuses and tableaux },
+    Title   ={ aTableau - \aTableauVersion }
   },
   colorlinks=true,
   linkcolor=blue,
@@ -884,11 +884,12 @@
           French     & \keyword{\Tableau[french]{1234,567,89{10},{11}{12}}}
                      & \Tableau[french]{1234,567,89{10},{11}{12}}\\[10mm]
           Russian
-          \footnote{These tableaux were introduced by Kerov and Ver\v{s}hik \cite{KerovVershik}.
+          \footnote{These tableaux were introduced by Kerov and Ver\v{s}ik \cite{KerovVershik}.
           Earlier versions of this package called these tableaux \textit{Ukrainian tableaux},
           in protest over the Russian invasion of Ukraine. It is unreasonable to punish
           these authors for their government's aggression, so the package now uses the
-          more common nomenclature from the literature. The \option{ukrainian} option
+          more common nomenclature from the literature. The
+          \option{ukrainian}(russian) option
           is still supported.}
                      & \keyword{\Tableau[russian]{1234,567,89{10},{11}{12}}}
                      & \Tableau[russian]{1234,567,89{10},{11}{12}}\\[10mm]
@@ -925,7 +926,7 @@
   \Diagram[russian]{4,3^2,1}
   \end{example}
   As this example illustrates, partitions can either be typed as a
-  comma-separated list of positive integers, or using exponential
+  comma-separated list of non-negative integers, or using exponential
   notation for the repeated parts, which is usually shorter and easier
   to proofread.
 
@@ -1168,7 +1169,7 @@
   \end{warning}
 
   At the top of the \autoref{Ex:diagramCoordinates}, two \TikZ-styles, \textsf{B}
-  and \text{G}, are defined. These styles are used to add the \textsf{b}lue and
+  and \textsf{G}, are defined. These styles are used to add the \textsf{b}lue and
   \textsf{g}reen coloured hatchings to the two hooks.  As this suggests,
   \TikZ-styling can be applied to most of the components of the pictures
   produced by \aTableau commands.
@@ -1225,7 +1226,7 @@
   \keyword{\Diagram} command is used in a \keyword{tikzpicture}
   environment. Rather than (0,0), any \TikZ coordinate could have been
   used. (As this example uses relative coordinates, a different choice of coordinate
-  will not not actually change the picture.) The use of coordinates become more
+  will not actually change the picture.) The use of coordinates become more
   meaningful when the \keyword{tikzpicture} environment has more
   components. In the next example, the key \option{name=B} makes the
   named coordinates for the second diagram take the form
@@ -1728,7 +1729,7 @@
   the drawing of the (thick) border wall around a tableau.
   The \option{no border} key is inverse to \option{border}, so
   \option{no border} is equivalent to
-  \option{border=false},, and to \option{no border=true}.
+  \option{border=false}, and to \option{no border=true}.
 
   \begin{example}{tableauBorder}
   \Tableau[russian, border=false]{123,455,674} \qquad
@@ -1768,7 +1769,7 @@
 
   The \option{box fill} key cannot be used in the same picture as the
   \option{colours} key. The \option{colours} key applies a list of fill
-  colours to the boxes in a tableau of diagram that are placed using a
+  colours to the boxes in a tableau or diagram that are placed using a
   residue pattern.
 
   \option[]{box font=font command}[\LaTeX\ font command]
@@ -1827,7 +1828,7 @@
 
   \option[\aTableauColour{Main}]{box text=colour}[a \LaTeX~colour]
 
-  As for a \TikZ-nodes, use \option{box text} to set the default text
+  As with \TikZ-nodes, use \option{box text} to set the default text
   colour for the entries of the tableau boxes.
 
   \begin{example}{tableauBoxText}
@@ -1850,7 +1851,7 @@
   \option[]{colours}[list of \LaTeX\ colours]
 
   Use the \option{colours} key to assign a cyclic list of background
-  background colours to the boxes in a tableau. The colours are specified as
+  colours to the boxes in a tableau. The colours are specified as
   a comma-separated list of valid \LaTeX\ colour names.  The
   \option{colours} key overrides the \option{box fill} key, so these two
   keys should not be used in the same picture.
@@ -2292,7 +2293,7 @@
 
   Even though this is rarely needed, tableaux and diagrams can be used
   as subscripts and superscripts. The package automatically rescales
-  tableau when they are used as subscripts and superscripts, with the
+  tableaux when they are used as subscripts and superscripts, with the
   \option{script} and \option{scriptscript} keys giving finer control
   over the sizes of subscripts and subsubscripts, respectively. The
   values of the \option{scale}, \option{xscale} and \option{yscale} keys
@@ -2352,7 +2353,7 @@
   \Tableau[french]{[R]1[B]2,[G]3,[Y]4}
   \end{example}
 
-  you can save little bit of typing using the \option{styles} key:
+  you can save a little bit of typing using the \option{styles} key:
 
   \begin{example}{tableauFrenchStyles}
   \Tableau[french, styles={
@@ -2384,30 +2385,6 @@
   the first of these pictures.  See \autoref{S:Tabloid} for the options
   specific to tabloids.
 
-  \option[]{tikz before=\TikZ commands}[\TikZ commands]
-  \option*[]{tikz after=\TikZ commands}[\TikZ commands]
-
-  These keys inject \TikZ code into the underlying \keyword{tikzpicture}
-  environment, where the tableau is constructed, before and after the
-  \keyword{\Tableau} command, respectively.
-
-  \begin{example}[lefthand width=0.24\textwidth]{tableauTikzBefore}
-  \Tableau[
-   tikz before={\draw[help lines, step=0.5](-0.5,-2)grid(2,0.5);},
-   tikz after={\draw[ultra thick, red]
-                 (A-1-3.north east)--(A-1-3.south east)
-                 --(A-2-1.north east)--(A-3-1.south east)
-                 --(A-3-1.south west);
-   }]{134,567,89}
-  \end{example}
-
-  Both before and after hooks are provided because later \TikZ commands are
-  drawn over the top of earlier ones, so the order matters. Note that the
-  \emph{before} code cannot use the named coordinates \textsf{A-r-c}
-  because this code is executed before these nodes are constructed,
-  which happens when the tableau is drawn. For more information about
-  the drawing order used for tableaux, see \autoref{SS:order}.
-
   \option[]{tikzpicture=keys}[\TikZ-keys]
 
   This command adds an optional argument to the underlying
@@ -2419,13 +2396,12 @@
   annotating a tableau. Consider:
 
   \begin{example}[lefthand width=0.3\textwidth]{tableauTikzpicture}
-  \Tableau[russian,
-    tikzpicture={remember picture}]
-    { 1[fill=blue!20]23[text=red]45,
-      6*78[draw=cyan,ultra thick]9,
-      [circle,fill=orange]{10}*{11}{12},
-      [dashed,draw=red,ultra thick]{13}
-    }
+  \Tableau[russian, tikzpicture={remember picture}]
+  { 1[fill=blue!20]23[text=red]45,
+    6*78[draw=cyan,ultra thick]9,
+    [circle,fill=orange]{10}*{11}{12},
+    [dashed,draw=red,ultra thick]{13}
+  }
   \end{example}
 
   Recalling the \option{name} key, the nodes in this tableau are
@@ -2438,7 +2414,7 @@
 
   \begin{example}[lefthand width=0.3\textwidth]*{tableauOverlay}
   \tikz[remember picture, overlay]
-   \draw[very thick, ->, red]
+  \draw[very thick, ->, red]
      (0,0) node[right,align=left]
         {This circle is too big!\\Use minimum size=5mm}
      to [out=135, in=225](A-3-1);
@@ -2446,32 +2422,55 @@
 
   (See the \ctan{tikzmark} package for extensions of this idea.)
 
+  \option[]{tikz before=\TikZ commands}[\TikZ commands]
+  \option*[]{tikz after=\TikZ commands}[\TikZ commands]
+
+  These keys inject \TikZ code into the underlying \keyword{tikzpicture}
+  environment, where the tableau is constructed, before and after the
+  \keyword{\Tableau} command, respectively.
+
+  \begin{example}[lefthand width=0.24\textwidth]{tableauTikzBefore}
+  \Tableau[
+    tikz before={\draw[help lines, step=0.5](-0.5,-2)grid(2,0.5);},
+    tikz after={
+      \draw[ultra thick, red](A-1-3.north east)--(A-1-3.south east)
+               --(A-2-1.north east)--(A-3-1.south east)
+               --(A-3-1.south west);
+   }]{134,567,89}
+  \end{example}
+
+  Both before and after hooks are provided because later \TikZ commands are
+  drawn over the top of earlier ones, so the order matters. Note that the
+  \emph{before} code cannot use the named coordinates \textsf{A-r-c}
+  because this code is executed before these nodes are constructed,
+  which happens when the tableau is drawn. For more information about
+  the drawing order used for tableaux, see \autoref{SS:order}.
+
   % --------------------------------------------------------------
   \subsubsection{Compositions}
   \index{composition}
 
   As we have defined them, tableaux are always of \textit{partition}
   shape, in the sense that the lengths of the rows form a weakly
-  decreasing sequence. In fact, the \keyword{\Tableau} command also
-  accepts tableaux of \emph{composition} shape, where the lengths of the
+  decreasing sequence. In fact, the \aTableau commands also
+  accept diagrams and tableaux of \emph{composition} shape, where the lengths of the
   rows are not necessarily in decreasing order. Diagrams and tableaux of
   composition shape are drawn in exactly the same way as those of
   partition shape.
 
-  \begin{example}{tableauCompositions}
-  \Tableau{ 45,2751,31 } \qquad
-  \SkewTableau{1,2}{ 45,27,31 }
-  \end{example}
+  \begin{Example}{tableauCompositions}
+  \Tableau{45,2751,31 }  \qquad \SkewTableau{1,2}{45,27,31}   \qquad
+  \Diagram{1,2,4,1}      \qquad \SkewDiagram{1,2,2,1}{1,2^2,1}
+  \end{Example}
 
-  Even though it is possible to draw compositions and tableaux of
-  composition shape, compositions are not supported in the sense that
-  many of the options/keys assume that the diagrams are of partition
-  shape.  In addition, some options assume that tableaux and diagrams do
-  not contain empty rows and that the diagrams are \textit{connected},
-  in the sense that their boundary can be drawn without lifting the pen
-  off the page.  (For disconnected tableaux and diagrams, see the
-  \keyword{\Multidiagram} and \keyword{\Multitableau} commands in
-  \autoref{S:Multitableau}.)
+  Even though it is possible to draw compositions and tableaux of composition
+  shape, compositions are not fully supported in the sense that many of the
+  options/keys assume that the diagrams are of partition shape. In addition,
+  some options assume that tableaux and diagrams do not contain empty rows
+  and that the diagrams are \textit{connected}, in the sense that their
+  boundary can be drawn without lifting the pen off the page.  (For
+  disconnected tableaux and diagrams, see the \keyword{\Multidiagram}
+  and \keyword{\Multitableau} commands in \autoref{S:Multitableau}.)
 
   % --------------------------------------------------------------
   \subsubsection{Tableaux drawing order}
@@ -2770,7 +2769,8 @@
 
   \option[]{entries=value}[columns, contents, first, hooks, last, residues, rows]
 
-  In each case, use \option{charge} to offset the generated entries. The possible choices are:
+  In each case, use \option{charge} to offset the generated entries. The
+  possible choices for \option{entries} are:
 
   \begin{itemize}
 
@@ -2800,16 +2800,16 @@
   \index{contents}
   \index{entries!contents}
 
-  In mathematics-mode, \LaTeX typesets minus signs as operators, which
+  In mathematics-mode, \LaTeX{} typesets minus signs as operators, which
   makes the minus sign for negative contents too wide when they appear inside a
   tableau. To correct for this, \aTableau uses the
   \keyword{\shortminus} command for negative content
   values\cprotect\footnote{The \aTableau package only defines the
-  \keyword{\shortminus} command if it does not already exist. In this case,
-  the \keyword{\shortminus} command is defined using
+  \keyword{\shortminus} command if it does not already exist. When it
+  does not exist, the \keyword{\shortminus} command is defined using
   \verb|\DeclareMathSymbol\shortminus{\mathbin}{AMSa}{"39}|.}.
   More explicitly, when using \option{entries=contents}, a content of
-  minus one inside a tableau s typeset using \keyword{\shortminus1},
+  minus one inside a tableau is typeset using \keyword{\shortminus1},
   which looks like~$\shortminus1$ instead of~$-1$.
 
   \item\option{entries=first}: Prints the \emph{first}
@@ -2908,9 +2908,8 @@
     labelled by its row index.
 
   \begin{example}{diagramEntriesRows}
-  \Diagram[entries=rows]{3,2,2} \qquad
-  \Diagram[french, entries=rows]{2^2,1}
-  \Diagram[entries=rows, charge=2]{2^2,1}
+  \Diagram[australian, entries=rows]{2^2,1} \qquad
+  \Diagram[entries=rows,charge=2]{3,2,2}
   \end{example}
   \index{tableau!rows}
 
@@ -3037,7 +3036,7 @@
   \option{entries=hooks} produces uncertain results because hook lengths
   are not defined for skew shapes.
 
-  \begin{Example}{skewDiagram}
+  \begin{Example}{skewEntries}
   \SkewDiagram[entries=contents]{2,1}{3,2,1} \qquad
   \SkewDiagram[entries=first]{2,1}{4,2,1} \qquad
   \SkewDiagram[entries=last]{2,1}{4,2,1} \qquad
@@ -3334,10 +3333,10 @@
   $2$ and column~$3$.
 
   Often you want to style the entire ribbon, instead of styling
-  the individual boxes in the ribbon. The (optional) style for a
+  the individual boxes in the ribbon. The (optional) style for an
   entire ribbon is given inside parentheses $(...)$ at the
-  \textit{beginning} of the ribbon specification. The ribbons in the last example are much
-  easier to see we add some \keyword{(...)}-styling:
+  \textit{beginning} of the ribbon specification. The ribbons in the
+  last example are much easier to see if we add some \keyword{(...)}-styling:
 
   \begin{example}{ribbonFilled}
   \RibbonTableau{
@@ -3584,8 +3583,7 @@
   \RibbonTableau[shape={8^2,6^2}]{26crcc}
   \end{example}
 
-  This picture could also be drawn using
-  \keyword{\Diagram[ribbons={26crcc}]{8^2,6^2}}.
+  This picture could also be drawn using \keyword{\Diagram[ribbons={26crcc}]{8^2,6^2}}.
 
   % --------------------------------------------------------------
   \subsection{Multidiagrams and multitableaux}\label{S:Multitableau}
@@ -3626,8 +3624,8 @@
   \end{example}
 
   As shown, the \keyword{\Multidiagram} command accepts exponential
-  notation for multipartitions. The entries in a \keyword{\Multitableau}
-  can be styled specifications in exactly the same way that style
+  notation for multipartitions. Styling can be added to the entries in
+  a \keyword{\Multitableau} in exactly the same way that style
   is added when using the \keyword{\Tableau} command.
 
   \begin{example}{multiStar}
@@ -3660,8 +3658,8 @@
   \keyword{\Diagram} commands, together with a few options that are
   specific to multitableaux and multidiagrams.  This section describes
   the new options, and highlights how some of the other options are
-  used.  In many cases, the values of multitableaus and
-  multidiagrams keys should be separated by the pipe symbol \keyword{|} to
+  used.  In many cases, the values of multitableaux and
+  multidiagrams keys can be separated by the pipe symbol \keyword{|} to
   give the corresponding key values for the component tableaux and
   diagrams.
 
@@ -3983,6 +3981,7 @@
   \begin{example}{multiShifted}
   \Multitableau[shifted]{ 1236,45 | 7{10}{11},89} \par
   \Multidiagram[shifted]{ 3,2 | 3,1 }
+
   \end{example}
 
   \option[]{skew=partitions}[a $|$-separated list of partitions]<multitableau>
@@ -4005,8 +4004,9 @@
   \Multidiagram[skew={|0,1}, cover={|4,3}]{ 3,2 | 3,1 }
   \end{example}
 
-  As this example shows, the partitions given to \option{cover} are not
-  unchanged by \option{shifted} or \option{skew} are also used.
+  As this example shows, a covering partition specified by
+  \option{cover} is not changed if \option{shifted} or \option{skew}
+  are also used.
 
   \option[true]{tabloid}[true/false]
 
@@ -4240,7 +4240,7 @@
   \option*[]{north}
   \option*[]{west}
 
-  Just like tableaux, abacus have four different conventions.  By
+  Just like tableaux, abacuses have four different conventions.  By
   default, abacuses are drawn with the runners pointing to the south,
   from top to bottom, and runners increasing from left to right. Similar
   to tableaux, we number the rows $0,1,\dots$, and we number the
@@ -4278,7 +4278,7 @@
       .      & dot          & Draw dots at the end of the runners\\
       *      & asterisk     & Draw dots and arrows at the end of the runners\\
       $|$    & pipe         & No additional decoration\\
-      $>$    & greater than & Draw arrows and the end of the runners\\
+      $>$    & greater than & Draw arrows at the end of the runners\\
       \bottomrule
     \end{tabular}
   \end{quote}
@@ -4347,7 +4347,7 @@
   ``fractional'' row indices. That is, they are interpreted as fractional offsets
   to the row index, so decreasing \option{abacus top} raises the line at the
   ``top'' of abacus and increasing \option{abacus top} lowers the line
-  at the ``bottom'' of the abacus.\footnote{Throughout this section, the
+  at the ``top'' of the abacus.\footnote{Throughout this section, the
   word ``top'' and ``bottom'' are correct when using the \option{south}
   convention for abacuses. For any convention, ``top'' should be
   interpreted as row zero, and ``bottom'' as the row with the largest
@@ -4690,7 +4690,7 @@
   \option[]{runner labels=labels}[list of labels for the abacus runners]
   \option*[font=\textbackslash scriptsize, text=\aTableauColour{Inner}]{runner label style=style}[\TikZ-styling]
 
-  The \option{runner labels} key adds labels to the each runner. An
+  The \option{runner labels} key adds labels to each runner. An
   error is given if the number of labels does not match the number of
   runners. Use \option{runner label style} to change the style of the
   label.
@@ -4757,7 +4757,7 @@
   By default, the \keyword{\Abacus} command produces a ball-and-stick
   abacus, which is commonly used in the literature for algebraic
   combinatorics and representation theory. When the \option{traditional}
-  key is used the \keyword{\Abacus} commands draws a more traditional
+  key is used, the \keyword{\Abacus} command draws a more traditional
   abacus, where the runners look like rods, and the beads look like
   discs. The result is more visually appealing, except possibly for the
   choice of colours!
@@ -4781,10 +4781,10 @@
   appealing. Traditional abacuses were added as an afterthought and not
   all of the abacus options have been tested on traditional abacuses.
   Please
-  \href{https://\aTableauRepository/issues}{report any problems}.
+  \href{https://\aTableauRepository issues}{report any problems}.
 
-  \option[0.285]{bead height }[height in \unit{cm}]
-  \option*[0.665]{bead width }[width in \unit{cm}]
+  \option[0.285]{bead height}[height in \unit{cm}]
+  \option*[0.665]{bead width}[width in \unit{cm}]
 
   The \option{bead height} and \option{bead width} keys set the height
   and width of the abacus beads, or disks.
@@ -5042,10 +5042,10 @@
   \subsection{\aTableau keys}
   This section lists all \aTableau keys, together with a quick
   explanation of what they do. The last two columns indicate whether the
-  options apply to tableau (and diagrams), or to abacuses~--- or both!
+  options apply to tableaux (and diagrams), or to abacuses~--- or both!
   Options starting with \keyword{(no)} are pairs of boolean options and
-  their inverses. If not given a true or false value then they are
-  implicitly set to true. Although not explicitly listed, spelling
+  their inverses. If these options are not given a true or false value, then
+  they are implicitly set to true. Although not explicitly listed, spelling
   variations of keys from the American dialect of English are condoned.
 
   Here, and throughout the manual, the key names (and the green ticks
@@ -5092,7 +5092,7 @@
     \option*{cover boxes}      & Enable drawing of cover boxes                       & \Yes & \No \\
     \option{cover box style}   & Set \TikZ-style of the cover boxes                  & \Yes & \No \\
     \option{e}                 & Set the quantum characteristic for residues         & \Yes & \Yes[abacus] \\
-    \option{east}              & Make abacus grow towards the east                   & \Yes & \No \\
+    \option{east}              & Make abacus grow towards the east                   & \No  & \Yes\\
     \option{delimiters}        & Set delimiters for multitableaux and multidiagrams  & \Yes & \No  \\
     \option{empty}             & Symbol for empty tableau in a multitableau          & \Yes & \No \\
     \option{dotted cols}       & Specify columns to replace with dots                & \Yes & \Yes[abacus] \\
@@ -5123,10 +5123,10 @@
     \option*{separators}       & Enable separators in a multitableau                 & \Yes & \No \\
     \option*{skew border}      & Set skew border colour                              & \Yes & \No \\
     \option*{skew boxes}       & Enable drawing of skew boxes                        & \Yes & \No \\
-    \option{row label style}   & Set the style for e abacus labels                   & \No  & \Yes \\
+    \option{row label style}   & Set the style of the abacus labels                  & \No  & \Yes \\
     \option{row labels}        & List of labels for the abacus rows                  & \No  & \Yes \\
     \option{rows}              & Set number of rows in a multitableau or abacus      & \Yes & \Yes[abacus] \\
-    \option{runner label style}& Set the style for e abacus labels                   & \No  & \Yes \\
+    \option{runner label style}& Set the style of the abacus labels                  & \No  & \Yes \\
     \option{runner labels}     & List of labels for the abacus rows                  & \No  & \Yes \\
     \option{runner sep}        & Set distance between consecutive abacus runners     & \No  & \Yes \\
     \option{runner style}      & Set the style of the abacus runners                 & \No  & \Yes \\
@@ -5339,13 +5339,12 @@
 
   The first of these examples, which is also from
   \cite{BowmanDeVisscherHaziStroppel:Arc}, is a little more involved.
-  Most of the diagram is drawn using two \emph{pics} s,for the up and
-  down string.  Pics are custom \TikZ styles, which are a good way of
-  adding repeating features to a \keyword{tikzpicture}. To draw the up
-  and down strings in this picture we define two very similar pics
-  \textit{ustring} and \textit{dstring}, which take as input the string
-  colour, the starting box, the list of the boxes that the string goes
-  through, and the final box.
+  The ``hard work'' in drawing this picture diagram is done by defining
+  two \emph{pics}s, \textit{ustring} and \textit{dstring}, for the up and
+  down strings. Pics are custom \TikZ-styles that are a good way of
+  adding repeating features to a \keyword{tikzpicture}. These pics take
+  as input the string colour, the starting box, the list of the boxes
+  that the string passes through, and the final box in the string.
 
 \begin{Example}{tableauUpDown}
 \tikzset{ % reusable keys for drawing the strings in the diagram using named coords
@@ -5420,42 +5419,40 @@ following~\cite[page~305]{FayersPutignano:CentraliserAlgebras}:
 
 \begin{Example}{FayersPutignano}
 % \usetikzlibrary{arrows.meta}
-\aTabset{colour theme=classic, tikzpicture={>=Stealth},
-  tick length=0.1,
+\aTabset{colour theme=classic,
+  tikzpicture={>={Stealth}}, tick length=0.1,
   styles={
     semi={shape=semicircle,inner sep=0pt,minimum height=0.7mm},
-    L={semi,bead=red,shape border rotate=270,anchor=west}, % left balls
-    R={semi,shape border rotate=90,anchor=east},          % right balls
-    Cap={out=30,in=150},    % curved arrows
-    larrow={thick,red, <-}, % left arrow
-    rarrow={thick,blue,->}, % right arrow
-    landed={text=white},    % labelled ticks
+    R={semi,bead=red,shape border rotate=270,anchor=west},
+    B={semi,shape border rotate=90,anchor=east},
+    Cap={out=30,in=150},
+    rarr={thick,red, <-},        % red arrows
+    barr={thick,blue,->},        % blue arrows
   }
 }
 \Abacus[dotted cols={0,2,4,6,8,9,10,11,13,15,17,19},
-  abacus ends=||, runner sep=0.6, bead sep=0.8, rows=9,
-  tikz after={
-    \draw[rarrow](A-4-1.base)node[below left=0.2]{$c_s$}
-        to[Cap](A-4-5.base)node[below right]{$d_s$};
-    \draw[rarrow](A-4-12.base)node[below left]{$c_2$}
-        to[Cap](A-4-16.base)node[below right]{$d_2$};
-    \draw[rarrow](A-6-5.base)node[below left]{$c_{s-1}$}to[out=30,in=180]+(2.2,0.5);
-    \draw[rarrow](A-6-16.base)node[below left]{$c_{1}$}to[out=30,in=180]+(2.2,0.5);
-    \draw[rarrow,<-](A-7-1.base)node[below left]{$c_{1}$}to[out=150,in=0]+(-2,0.5);
-    \draw[rarrow,<-](A-5-12.base)node[below left]{$d_{3}$}to[out=150,in=0]+(-2,0.5);
-    \draw[larrow,->](A-3-3.base)to[out=150,in=0]+(-2,0.5);
-    \draw[larrow](A-0-14.base)to[Cap](A-0-18.base);
-    \draw[larrow,->](A-1-14.base)to[out=150,in=0]+(-2,0.5);
-    \draw[larrow](A-1-3.base)to[Cap](A-1-7.base);
-    \draw[larrow](A-2-7.base)to[out=30, in=190]+(1,0.4);
-    \draw[larrow](A-2-18.base)to[out=30, in=190]+(1,0.4);
-}]{19}{|4_b,4,4||2,[L]2,[R]1||6||4,[R]1,[L]1|||||4||2,[L]0,[R]0||6||4,[R]1,[L]0}
+abacus ends=||, runner sep=0.6, bead sep=0.8, rows=9,
+tikz after={ % add the red and blue arrows
+  \draw[barr](A-4-1) to[Cap](A-4-5);
+  \draw[barr](A-4-12) to[Cap](A-4-16);
+  \draw[barr](A-6-5)node[below left]{$c_{s-1}$}to[out=30,in=180]+(2.2,0.5);
+  \draw[barr](A-6-16)to[out=30,in=180]+(2.2,0.5);
+  \draw[barr,<-](A-7-1)to[out=150,in=0]+(-1,0.4);
+  \draw[barr,<-](A-5-12)to[out=150,in=0]+(-1,0.4);
+  \draw[rarr,->](A-3-3.base)to[out=150,in=0]+(-2,0.5);
+  \draw[rarr](A-0-14.base)to[Cap](A-0-18.base);
+  \draw[rarr,->](A-1-14.base)to[out=150,in=0]+(-2,0.5);
+  \draw[rarr](A-1-3.base)to[Cap](A-1-7.base);
+  \draw[rarr](A-2-7.base)to[out=30, in=190]+(1,0.4);
+  \draw[rarr](A-2-18.base)to[out=30, in=190]+(1,0.4);
+}]{19}{|4_{d_1},4_b,4,4_{c_s}||2,[R]2,[B]1||5,4_{d_s}||4,[B]1,[R]1|||||
+         4_{d_s},4_{c_2}||2,[R]0,[B]0||5_{c_1},4_{d_2}||4,[B]1,[R]0}
 \end{Example}
 
-The most interesting features of this example are the use of styles to change the
-shape of some nodes into half-spheres, and the use of named coordinates
-to draw the arrows via the \option{tikz after} key. Notice also that the
-abacus is specified as a quotient (\autoref{SS:quotients}).
+  The most interesting features of this example are the use of styles to change the
+  shape of some abacus beads into half-spheres, and the use of named coordinates
+  to draw the arrows between beads using the \option{tikz after} key. Notice also
+  that the abacus is specified as a quotient (\autoref{SS:quotients}).
 
   % --------------------------------------------------------------
   \section{Feature requests and bug reports}
@@ -5463,7 +5460,7 @@ abacus is specified as a quotient (\autoref{SS:quotients}).
   Please make any feature requests and bug reports on the \aTableau github
   page:
   \begin{center}
-    \href{https://\aTableauRepository/issues}{\aTableauRepository/issues}.
+    \href{https://\aTableauRepository issues}{\aTableauRepository issues}.
   \end{center}
   Please provide as much detail as possible when submitting requests.
 

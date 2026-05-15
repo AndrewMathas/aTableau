@@ -1,6 +1,6 @@
 % ---------------------------------------------------------------------------
 % aTableau - Andrew Mathas (C) 2022-2026
-% Modified: 15:40 Friday, 15 May 2026
+% Modified: 23:12 Friday, 15 May 2026
 % ---------------------------------------------------------------------------
 %
 % A LaTeX package for symmetric group combinatorics:
@@ -43,14 +43,13 @@
 \fi
 
 % ---------------------------------------------------------------------------
-
 \providecommand\DeclareRelease[3]{}
 \providecommand\DeclareCurrentRelease[2]{}
 
 \ExplSyntaxOn
 
-% We use l3keys to read the package metadata from the atableau.ini file
-% and then store it in the following variables for future access
+% We use l3keys to read the package meta data from the atableau.ini file
+% and store it in the following variables for future access
 \tl_new:N \l__aTableau_description_tl
 \tl_new:N \l__aTableau_release_date_tl
 \tl_new:N \l__aTableau_repository_tl
@@ -72,14 +71,17 @@
     % the ini file entries take the form: key = value
     \keys_set:nn { _aTableau_ini_ } { #1 }
 }
+\ior_close:N \g_tmpa_ior
+
+% sanitize the version string to allow version numbers like 2.1.1-rc1
+\tl_replace_all:Nnn \l__aTableau_version_tl { - } { . }
 
 \DeclareRelease{\l__aTableau_version_tl}{\l__aTableau_release_date_tl}{atableau.sty}
 \DeclareCurrentRelease{}{\l__aTableau_release_date_tl}
-
 \ProvidesExplPackage{atableau}
-  { \l__aTableau_release_date_tl }
-  { \l__aTableau_version_tl      }
-  { \l__aTableau_description_tl  }
+    { \l__aTableau_release_date_tl }
+    { \l__aTableau_version_tl      }
+    { \l__aTableau_description_tl  }
 
 % ---------------------------------------------------------------------------
 % Give a warning if the LaTeX installation is older than TeXLive 2024
@@ -163,7 +165,7 @@
 
 \msg_new:nnnn { aTableau } { unrecognised-entries }
   { Unrecognised~entries~value:~'#1' }
-  { The~possible~diagram~values~for~entries~are:~columns~,contents,~first,~hooks,~lastm~residues,~and~rows}
+  { The~possible~diagram~values~for~entries~are:~columns~,contents,~first,~hooks,~last,~residues,~and~rows}
 
 \msg_new:nnnn { aTableau } { unknown-abacus-end }
   { Unrecognised~abacus~ends~setting:~'#1' }
@@ -1215,7 +1217,7 @@
 \cs_new_protected:Npn \__aTableau_diagram_for_shape:N #1
 {
     \tl_clear:N \l__aTableau_entries_tl
-    \tl_set:Nn \l_tmpb_tl {}
+    \tl_clear:N \l_tmpb_tl
     \seq_map_inline:Nn #1
     {
         \tl_put_right:No \l__aTableau_entries_tl \l_tmpb_tl
@@ -1229,7 +1231,7 @@
 \cs_new_protected:Npn \__aTableau_shape_to_columns:N #1
 {
     \tl_clear:N \l__aTableau_entries_tl
-    \tl_set:Nn \l_tmpb_tl {}
+    \tl_clear:N \l_tmpb_tl
     \seq_map_inline:Nn #1
     {
         \tl_put_right:No \l__aTableau_entries_tl \l_tmpb_tl
@@ -1249,7 +1251,7 @@
 {
     \tl_clear:N \l__aTableau_entries_tl
     \int_zero:N \l__aTableau_row_int
-    \tl_set:Nn \l_tmpb_tl {}
+    \tl_clear:N \l_tmpb_tl
     \seq_map_inline:Nn #1
     {
         \tl_put_right:No \l__aTableau_entries_tl \l_tmpb_tl
@@ -1301,7 +1303,7 @@
 
     % finally, unpack \l_tmpc_tl into l__aTableau_entries_tl
     \tl_clear:N \l__aTableau_entries_tl
-    \tl_set:Nn \l_tmpb_tl {}
+    \tl_clear:N \l_tmpb_tl
     \seq_map_inline:Nn \l_tmpc_seq
     {
         \tl_put_right:No \l__aTableau_entries_tl \l_tmpb_tl
@@ -1316,7 +1318,7 @@
 {
     \tl_clear:N \l__aTableau_entries_tl
     \int_set_eq:NN \l__aTableau_r_int \l__aTableau_charge_int
-    \tl_set:Nn \l_tmpb_tl {}
+    \tl_clear:N \l_tmpb_tl
     \seq_map_inline:Nn #1
     {
         \tl_put_right:No \l__aTableau_entries_tl \l_tmpb_tl
@@ -1391,7 +1393,7 @@
 {
     \tl_clear:N \l__aTableau_entries_tl
     \int_zero:N \l__aTableau_row_int
-    \tl_set:Nn \l_tmpb_tl {}
+    \tl_clear:N \l_tmpb_tl
     \seq_map_inline:Nn #1
     {
         \tl_put_right:No \l__aTableau_entries_tl \l_tmpb_tl
@@ -1412,6 +1414,7 @@
 \cs_new_protected:Npn \__aTableau_shape_to_rows:N #1
 {
     \tl_clear:N \l__aTableau_entries_tl
+    \tl_clear:N \l_tmpb_tl
     \int_set_eq:NN \l__aTableau_r_int \l__aTableau_charge_int
     \seq_map_inline:Nn #1
     {
