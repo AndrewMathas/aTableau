@@ -1,6 +1,6 @@
 % ---------------------------------------------------------------------------
 % aTableau - Andrew Mathas (C) 2022-2026
-% Modified: 22:33 Tuesday, 02 June 2026
+% Modified: 00:11 Wednesday, 03 June 2026
 % ---------------------------------------------------------------------------
 %
 % A LaTeX package for symmetric group combinatorics:
@@ -1072,7 +1072,7 @@
 }
 
 % usage: \__aTableau_record_style:nn [style] {part}
-% To parse the bead specifications used by \Abacus we need to accept the
+% To parse the bead specifications used by \Abacus we need to accept
 % a "bead specification" of the following form
 %    [style]m^k_txt
 % where the [style] could simply be a *, the m is an integer, a part of the
@@ -1276,7 +1276,7 @@
     % value of last entry added to the tableau
     \int_set_eq:NN \l__aTableau_c_int \l__aTableau_charge_int
 
-    % length of the first row of the partition/seq #1
+    % length of the first row of the partition/seq #1 plus the first row of the skew shape
     \int_set:Nn \l__aTableau_row_int {0\seq_item:Nn #1 {1}+0\seq_item:Nn \l__aTableau_skew_seq {1}}
 
     \int_step_inline:nn {\l__aTableau_row_int}  % ##1 is the column index
