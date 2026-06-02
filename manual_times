@@ -15,3 +15,4 @@ Date        Version  Pages  Time  s/page
 2025-01-24:  v2.1.0     52  19.9    0.38
 2025-02-13:  v2.1.1     54  20.1    0.37
 2025-10-10:  v2.2.0     64  25.1    0.39 # parsing of complex styles
+2026-06-02:  v2.2.1     60  41.1    0.69 # strange bump: older versions are also compiling more slowly?
