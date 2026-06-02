@@ -12,6 +12,7 @@
 - allow `colour theme` to define a custom colour theme
 - added `entries=columns` and `entries=rows`
 - the `cover` key can be used with multishapes
+- fixed an issue with `entries=last` with skew shapes
 - now directly reading meta data from ini file
 - added image diffs to the testing framework
 

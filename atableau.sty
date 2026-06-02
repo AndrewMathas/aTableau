@@ -1,6 +1,6 @@
 % ---------------------------------------------------------------------------
 % aTableau - Andrew Mathas (C) 2022-2026
-% Modified: 14:38 Tuesday, 02 June 2026
+% Modified: 22:33 Tuesday, 02 June 2026
 % ---------------------------------------------------------------------------
 %
 % A LaTeX package for symmetric group combinatorics:
@@ -1269,9 +1269,6 @@
 % Diagrams with entries=last are drawn using the \Diagram command
 \cs_new_protected:Npn \__aTableau_shape_to_last:N #1
 {
-    % compute conjugate of #1 as \l__aTableau_conjugate_seq
-    %\__aTableau_compute_conjugate_partition:N #1
-
     % initialise \l_tmpc_seq -- should not be necessary but otherwise \seq_item:NV fails
     \seq_clear:N \l_tmpc_seq % construct the tableau in this sequence and then decant
     \seq_map_inline:Nn #1 {\seq_put_right:Nn \l_tmpc_seq {}}
@@ -1280,7 +1277,7 @@
     \int_set_eq:NN \l__aTableau_c_int \l__aTableau_charge_int
 
     % length of the first row of the partition/seq #1
-    \int_set:Nn \l__aTableau_row_int {0\seq_item:Nn #1 {1}}
+    \int_set:Nn \l__aTableau_row_int {0\seq_item:Nn #1 {1}+0\seq_item:Nn \l__aTableau_skew_seq {1}}
 
     \int_step_inline:nn {\l__aTableau_row_int}  % ##1 is the column index
     {
@@ -1288,8 +1285,8 @@
         \seq_map_inline:Nn #1                   % ####1 is the rth entry of the partition #1
         {
             \int_incr:N \l__aTableau_r_int
-            \tl_set:Nn \l_tmpa_tl { 0\seq_item:NV \l__aTableau_skew_seq \l__aTableau_r_int}
-            \bool_if:nT { \int_compare_p:nNn {##1} > {\l_tmpa_tl} && \int_compare_p:nNn {\l_tmpa_tl+####1+1} > {##1}}
+            \int_set:No \l_tmpa_int { 0\seq_item:NV \l__aTableau_skew_seq \l__aTableau_r_int}
+            \bool_if:nT { \int_compare_p:nNn {##1} > {\l_tmpa_int} && \int_compare_p:nNn {\l_tmpa_int+####1+1} > {##1}}
             {
                 \int_incr:N \l__aTableau_c_int
                 \tl_set:No \l_tmpa_tl { \seq_item:NV \l_tmpc_seq \l__aTableau_r_int }
@@ -1299,7 +1296,7 @@
         }
     }
 
-    % finally, unpack \l_tmpc_tl into l__aTableau_entries_tl
+    % finally, unpack \l_tmpc_seq into l__aTableau_entries_tl
     \tl_clear:N \l__aTableau_entries_tl
     \tl_clear:N \l_tmpb_tl
     \seq_map_inline:Nn \l_tmpc_seq
