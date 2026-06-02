@@ -118,9 +118,8 @@ from concurrent.futures import ProcessPoolExecutor, as_completed
 # ------------------------------------------------------------------------
 # execution
 
-# An image magick command to open up an example image and the good
-# version of the image, with an image-diff in the middle. As this uses
-# open, this is macosx dependent
+# An image magick command to open up an example image and its good
+# version, with an image-diff in the middle.
 COMPARE_IMAGES = r'''magick {image}.webp {image}-good.webp \
   \( -clone 0 -fuzz 10% -trim +repage \) \
   \( -clone 1 -fuzz 10% -trim +repage \) \
@@ -267,10 +266,17 @@ def updating_image(file, options):
     '''
     make_image(file, '.webp')
     if different_images(file, options):
-        os.replace(f'{file}.webp', f'{file}-good.webp')
-        if not options.quiet:
-            print(f' - {example_number(file):<14} updated ({file}.webp)')
+        # ask for confirmation before updating good image files
+        response = input('Update image for {file}? [N/y] ')
+        if response.strip().lower() in ['y','yes']:
+            os.replace(f'{file}.webp', f'{file}-good.webp')
+            print(f' - {example_number(file):<14} updated ({file})')
+        elif not options.quiet:
+            print(f' - {example_number(file):<14} NOT updated ({file})')
+
     else:
+        if not options.quiet:
+            print(f' - {example_number(file):<14} has not changed ({file})')
         os.remove(f'{file}.webp')
 
 def checking_image(file, options):
@@ -406,12 +412,6 @@ if __name__ == '__main__':
 
     # populate the list of examples that we need to look at
     example_files = find_example_files(options.files)
-
-    # ask for confirmation before updating good image files
-    if options.action == 'updating':
-        response = input('Update good image files? [y/N] ')
-        if response.strip().lower() != 'y':
-            sys.exit()
 
     # act on the example files
     run_parallel_command(options, example_files)
