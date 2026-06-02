@@ -3,7 +3,9 @@
 # ---------------------------------------------------------------------------
 # test_atableau.py - Andrew Mathas (C) 2022-2026
 #
-# Requires: uv -- this runs the script and installs the python dependencies
+# Requires: 
+#  - uv -- this runs the script and installs the python dependencies
+#  - ImageMagick is used to create image diffs of changed files
 # ---------------------------------------------------------------------------
 
 # /// script
@@ -24,7 +26,7 @@ positional arguments:
 
 options:
   -e, --extract             Extract the examples from the aTableau manual
-  -d, --diff                open image-diffs for the examples that have changed
+  -d, --diff                open image-diffs for the examples that have changed (requires magick)
   -i, --initialise          Initialise all of the good webp files for future comparisons
   -q, --quiet               Quite mode: only print files with discrepancies
   -t, --threshold THRESHOLD Threshold for image comparison (default: 5)
@@ -53,19 +55,25 @@ BEFORE starting development, the examples files should be initialised using
 
 This will extract the examples from the manual, and then create a "good" webp
 file for each example, such as ribbon-good.webp. The "good" webp files are
-then used as proxies for the expected output of the examples.
+then used as proxies for the expected output for the examples.
 
 Once the good files have been initialised, the command
 
     test_examples.py [files]
 
-compiles and tests all of the matching files to check for changes. Here, <file>
-is interpreted liberally with wild-card expansions on both sides. For example,
+compiles and tests all of the matching files to check for changes. The optional
+argument  <files> is interpreted liberally with wild-card expansions on both sides.
+For example,
 
     test_examples.py tableau
 
-tests all of the example files with names that contain 'tableau'. When new
-examples are added to the manual, they can be extracted using:
+tests all of the example files with names that contain 'tableau'. Use
+
+    test_examples.py -d tableau
+
+to display image diffs of each discrepancy with a good file.
+
+When new examples are added to the manual, they can be extracted using:
 
     test_examples.py -e
 
@@ -157,9 +165,8 @@ def run_parallel_command(options, files):
 
 def open_file(file):
     r'''
-    open an (image) file
+    Open an (image) file. Exactly how this is done is platform dependent.
     '''
-    print(f'{file=} --> {str(file)}, system={platform.system()}')
     match platform.system():
         case 'Darwin':
             subprocess.run(['open', str(file)])

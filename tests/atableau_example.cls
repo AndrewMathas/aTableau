@@ -1,11 +1,11 @@
 % ----------------------------------------------------------------------
 % atableau_example.cls - Andrew Mathas (C) 2022-2025
-% Modified: 21:07 Sunday, 12 October 2025
+% Modified: 16:40 Saturday, 30 May 2026
 % ----------------------------------------------------------------------
 
 % This class file is part of the testing framework for the aTableau package. It
 % provides all of the bells and whistles needed to compile the examples from
-% the manual as standalone files. The examples are automatically extracted from 
+% the manual as standalone files. The examples are automatically extracted from
 % the manual when it is compiled using a symbolic link from atableau-examples.tex.
 % A typical example file looks like:
 %
@@ -15,15 +15,17 @@
 %    \Tableau {1234,567,89{10},{11}{12}}
 %    \end {document}
 %
-% The examplenumber and page number are stored in the file as a comment. They
-% are not part of the corresponing pdf/webp file because they can change
-% change as the manual is updated. The file name is given by the unique label
-% attached to the example environment.
+% The example number and page number are stored in the file as a comment. They
+% are not printed by the corresponding tex/webp file because the example numbers
+% can change change as the manual is updated. The file name is given by the
+% unique label attached to the example environment. The example and page numbers
+% in the example files are used by test_atableau.py when reporting on the examples.
 
-% The python script test_atableau.py converts the LaTeX example files into webp 
-% images and then compares them with previous versions to check for changes in the
-% examples during development. In this way, the examples in the manual are used as 
-% a test suite for the package.
+% The python script test_atableau.py converts the LaTeX example files into webp
+% images and then compares them with "good" example images to check for changes
+% in the examples during development, optionally providing an image diff. In
+% this way, the examples in the manual become the test suite for the aTableau
+% package.
 
 \ProvidesClass{atableau_example}
 \LoadClass{standalone}
@@ -36,7 +38,7 @@
 
 \nofiles  % we do not need an aux file
 
-% some of the example files need some of the following
+% one or more of the example files need the following
 
 \usetikzlibrary{
   decorations.pathmorphing,
