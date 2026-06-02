@@ -10,11 +10,11 @@
 - updated tableaux naming conventions
 - allows arbitrary TikZ coordinates to be used to position **aTableau** pictures inside `tikzpicture` environments
 - allow `colour theme` to define a custom colour theme
-- added `entries=columns` and `entries=rows`
+- adds `entries=columns` and `entries=rows`
 - the `cover` key can be used with multishapes
 - fixed an issue with `entries=last` with skew shapes
 - now directly reading meta data from ini file
-- added image diffs to the testing framework
+- adds image diffs to the testing framework
 
 ### Version 2.2.0 - 2025-10-10
 
@@ -35,7 +35,7 @@
 - adds error messages when an **aTableau** command is not properly contained inside a `tikzpicture` environment
 - fixes bug in the `beta numbers` key for abacuses
 - many improvements and corrections to the manual
-- added a testing framework using the examples from the manual
+- adds a testing framework using the examples from the manual
 
 ### Version 2.1.1 - 2025-02-14
 

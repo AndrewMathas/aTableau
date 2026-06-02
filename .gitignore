@@ -1,6 +1,7 @@
 atableau.listing
+atableau_readme.pdf
 tikz.*
-s.*
+[st].*
 tests/*.tex
 tests/*.webp
 **-1.cpt
