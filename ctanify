@@ -1,4 +1,4 @@
-#! /usr/bin/env bash -x
+#! /usr/bin/env bash
 
 # Create tar file for uploading atableau package to ctan
 # In particular, this deletes the \__atableau_debug:n commands from
