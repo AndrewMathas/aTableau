@@ -1,6 +1,6 @@
 % ---------------------------------------------------------------------------
 % aTableau - Andrew Mathas (C) 2022-2026
-% Modified: 00:11 Wednesday, 03 June 2026
+% Modified: 13:07 Friday, 05 June 2026
 % ---------------------------------------------------------------------------
 %
 % A LaTeX package for symmetric group combinatorics:
@@ -56,21 +56,34 @@
 \cs_new:Npn \aTableauMeta #1 {\prop_item:Nn \l__aTableau_meta_prop {#1}}
 
 % map the key-value pairs in the ini file to property entries in \l__aTableau_meta_tl
-\ior_open:Nn \g_tmpa_ior { atableau.ini }
-\ior_str_map_inline:Nn \g_tmpa_ior
-{
-    \tl_if_in:nnT {#1} {=}
-    {   % Have: key = value
-        \seq_set_split:Nnn \l_tmpa_seq { = } {#1}
-        % When the version takes the form 2.1.1-rc1 we need
-        % to replace the - with a ., so we do this always
-        \str_set:Ne \l_tmpa_str { \seq_item:Nn \l_tmpa_seq {2}}
-        \str_replace_once:Nnn \l_tmpa_str {-rc} {.rc}
-        \prop_put:NeV \l__aTableau_meta_prop { \seq_item:Nn \l_tmpa_seq {1} } \l_tmpa_str
+\ior_open:NnTF \g_tmpa_ior { atableau.ini }
+{   % ini file found
+    \ior_str_map_inline:Nn \g_tmpa_ior
+    {
+        \tl_if_in:nnT {#1} {=}
+        {   % Have: key = value
+            \seq_set_split:Nnn \l_tmpa_seq { = } {#1}
+            % When the version takes the form 2.1.1-rc1 we need
+            % to replace the - with a ., so we do this always
+            \str_set:Ne \l_tmpa_str { \seq_item:Nn \l_tmpa_seq {2}}
+            \str_replace_once:Nnn \l_tmpa_str {-rc} {.rc}
+            \prop_put:NeV \l__aTableau_meta_prop { \seq_item:Nn \l_tmpa_seq {1} } \l_tmpa_str
+        }
+    }
+    \ior_close:N \g_tmpa_ior
+}
+{   % a fallback in case the ini file cannot be found
+    \tl_set:Nx \l_tmpa_tl {\file_timestamp:n { atableau.sty }}
+    \tl_set:Nx \l_tmpb_tl { \tl_range:Nnn \l_tmpa_tl {3}{6} . \tl_range:Nnn \l_tmpa_tl {7}{8} . \tl_range:Nnn \l_tmpa_tl {9} {10} }
+    \prop_set_from_keyval:Nn \l__aTableau_meta_prop
+    {
+        release_date = \l_tmpb_tl,
+        version = 2.2.1,
+        description = A~LaTeX~package~for~symmetric~group~combinatorics
     }
 }
-\ior_close:N \g_tmpa_ior
 
+% declare the package using \l__aTableau_meta_prop
 \use:e
 {
     \exp_not:N \DeclareRelease{\aTableauMeta{version}}{\aTableauMeta{release_date}}{atableau.sty}
@@ -1276,7 +1289,7 @@
     % value of last entry added to the tableau
     \int_set_eq:NN \l__aTableau_c_int \l__aTableau_charge_int
 
-    % length of the first row of the partition/seq #1 plus the first row of the skew shape
+    % number of columns in the skew shape
     \int_set:Nn \l__aTableau_row_int {0\seq_item:Nn #1 {1}+0\seq_item:Nn \l__aTableau_skew_seq {1}}
 
     \int_step_inline:nn {\l__aTableau_row_int}  % ##1 is the column index
@@ -4601,7 +4614,7 @@
 % This work may be distributed and/or modified under the
 % conditions of the LaTeX Project Public License (LPPL), either
 % version 1.3c of this license or (at your option) any later
-% version.  The latest version of this license is in the file:
+% version. The latest version of this license is in the file:
 %
 % http://www.latex-project.org/lppl.txt
 %

@@ -38,7 +38,7 @@ record_times( ) {
   time=$(printf "%.1f" $(bc -l -e "$end_time-$start_time"))
   pages=$(gawk '/Output written on atableau/ {print substr($5,2,2)}' atableau.log)
   tpage=$(printf "%.2f" $(bc -l -e "$time/$pages"))
-  record=$(date "+%Y-%m-%d:  $(git describe --tag --abbrev=0)     ${pages}  ${time}    $tpage" )
+  record=$(date "+%Y-%m-%d  $(git describe --tag --abbrev=0)     ${pages}  ${time}    $tpage" )
 }
 
 save_record=false

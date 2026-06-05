@@ -121,8 +121,8 @@ from concurrent.futures import ProcessPoolExecutor, as_completed
 # An image magick command to open up an example image and its good
 # version, with an image-diff in the middle.
 COMPARE_IMAGES = r'''magick {image}.webp {image}-good.webp \
-  \( -clone 0 -fuzz 10% -trim +repage \) \
-  \( -clone 1 -fuzz 10% -trim +repage \) \
+  \( -clone 0 -fuzz 10% -trim +repage -bordercolor white -border 20 \) \
+  \( -clone 1 -fuzz 10% -trim +repage -bordercolor white -border 20 \) \
   \( -clone 2 -clone 3 -compose difference -composite -threshold 5% \
      -fill red -opaque white -transparent black \) \
   \( -clone 3 -clone 4 -compose over -composite \) \
@@ -158,8 +158,18 @@ def run_parallel_command(options, files):
             except Exception as error:
                 print(red_text(f'Error running {options.action} on {file}: {error}'))
 
-    if bad_examples and not options.quiet:
-        print('\nChanged examples:\n'+'\n'.join(sorted(bad_examples)))
+    if bad_examples:
+        if options.action == 'updating':
+            for file in bad_examples:
+                # ask for confirmation before updating good image files
+                # we can't do this from inside a parallel worker
+                response = input(f'Update good image for {file}? [N/y] ')
+                if response.strip().lower() in ['y','yes']:
+                    os.replace(f'{file}.webp', f'{file}-good.webp')
+                    print(f' - {example_number(file):<14} updated ({file})')
+
+        elif not options.quiet:
+            print('\nChanged examples:\n'+'\n'.join(sorted(bad_examples)))
 
 
 def open_file(file):
@@ -241,7 +251,7 @@ def find_example_files(files):
 
 
 # ------------------------------------------------------------------------
-# actions -> {action}_image()
+# action -> ACTION[action] = {action}_image()
 
 def initialising_image(file, options):
     '''
@@ -266,17 +276,11 @@ def updating_image(file, options):
     '''
     make_image(file, '.webp')
     if different_images(file, options):
-        # ask for confirmation before updating good image files
-        response = input('Update image for {file}? [N/y] ')
-        if response.strip().lower() in ['y','yes']:
-            os.replace(f'{file}.webp', f'{file}-good.webp')
-            print(f' - {example_number(file):<14} updated ({file})')
-        elif not options.quiet:
-            print(f' - {example_number(file):<14} NOT updated ({file})')
+        return file
 
     else:
         if not options.quiet:
-            print(f' - {example_number(file):<14} has not changed ({file})')
+            print(f' - {example_number(file):<14} has not changed ({file}): NOT updated')
         os.remove(f'{file}.webp')
 
 def checking_image(file, options):
