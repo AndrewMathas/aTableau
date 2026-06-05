@@ -157,16 +157,20 @@ def run_parallel_command(options, files):
 
             except Exception as error:
                 print(red_text(f'Error running {options.action} on {file}: {error}'))
+                bad_examples.append(f'Error running {options.action} on {file}: {error}')
 
     if bad_examples:
         if options.action == 'updating':
             for file in bad_examples:
                 # ask for confirmation before updating good image files
                 # we can't do this from inside a parallel worker
-                response = input(f'Update good image for {file}? [N/y] ')
-                if response.strip().lower() in ['y','yes']:
-                    os.replace(f'{file}.webp', f'{file}-good.webp')
-                    print(f' - {example_number(file):<14} updated ({file})')
+                if 'Error' in file:
+                    print(file)
+                else:
+                    response = input(f'Update good image for {file}? [N/y] ')
+                    if response.strip().lower() in ['y','yes']:
+                        os.replace(f'{file}.webp', f'{file}-good.webp')
+                        print(f' - {example_number(file):<14} updated ({file})')
 
         elif not options.quiet:
             print('\nChanged examples:\n'+'\n'.join(sorted(bad_examples)))

@@ -1,6 +1,6 @@
 % ---------------------------------------------------------------------------
 % aTableau - Andrew Mathas (C) 2022-2026
-% Modified: 13:07 Friday, 05 June 2026
+% Modified: 11:17 Saturday, 06 June 2026
 % ---------------------------------------------------------------------------
 %
 % A LaTeX package for symmetric group combinatorics:
@@ -66,7 +66,7 @@
             % When the version takes the form 2.1.1-rc1 we need
             % to replace the - with a ., so we do this always
             \str_set:Ne \l_tmpa_str { \seq_item:Nn \l_tmpa_seq {2}}
-            \str_replace_once:Nnn \l_tmpa_str {-rc} {.rc}
+            \str_replace_once:Nnn \l_tmpa_str {-} {.}
             \prop_put:NeV \l__aTableau_meta_prop { \seq_item:Nn \l_tmpa_seq {1} } \l_tmpa_str
         }
     }
@@ -3117,26 +3117,27 @@
 }
 
 % usage: \__aTableau_extend_beta_numbers:
-% This is a helper function to when parsing gthe abacus bead specifications. It
+% This is a helper function to when parsing the abacus bead specifications. It
 % extends the length of the partition, or sequence of beta numbers, if it is
 % shorter than \l__aTableau_beads_int by appropriately modifying the sequences
 % \l__aTableau_rcs_seq, \l__aTableau_texts_seq and \l__aTableau_styles_seq
 \cs_new_protected:Nn \__aTableau_extend_beta_numbers:
 {
-    \tl_set:No \l_tmpa_tl { \seq_count:N \l__aTableau_rcs_seq }
-    \int_compare:nNnTF {\l__aTableau_beads_int} > {\l_tmpa_tl}
+
+    \int_set:No \l_tmpa_int { 0\seq_count:N \l__aTableau_rcs_seq }
+    \int_compare:nNnTF {\l__aTableau_beads_int} > {\l_tmpa_int}
     {
         \bool_if:nTF \l__aTableau_beta_numbers_bool
         {   % need to increment the existing beta numbers
             \seq_set_eq:NN \l_tmpa_seq \l__aTableau_rcs_seq
-            \int_set:Nn \l_tmpa_int { \l__aTableau_beads_int-\l_tmpa_tl }
+            \int_set:Nn \l_tmpb_int { \l__aTableau_beads_int-\l_tmpa_int }
             \seq_clear:N \l__aTableau_rcs_seq
             \seq_map_inline:Nn \l_tmpa_seq
             {
-                \seq_put_right:Ne \l__aTableau_rcs_seq { \int_eval:n {##1+\l_tmpa_int}}
+                \seq_put_right:Ne \l__aTableau_rcs_seq { \int_eval:n {##1+\l_tmpb_int}}
             }
             % now need to add some more beads
-            \int_step_inline:nnnn {\l_tmpa_int-1} (-1) {0}
+            \int_step_inline:nnnn {\l_tmpb_int-1} (-1) {0}
             {
               \seq_put_right:Nn \l__aTableau_rcs_seq   {##1}
               \seq_put_right:Nn \l__aTableau_texts_seq  {}
@@ -3144,7 +3145,7 @@
             }
         }
         {   % need to add extra zeros to the partition
-            \int_step_inline:nnn {\l_tmpa_tl} {\l__aTableau_beads_int-1}
+            \int_step_inline:nnn {\l_tmpa_int} {\l__aTableau_beads_int-1}
             {
               \seq_put_right:Nn \l__aTableau_rcs_seq   {0}
               \seq_put_right:Nn \l__aTableau_texts_seq  {}
@@ -3154,11 +3155,12 @@
     }
     {   % give a warning if there are more beads than l__aTableau_beads_int
         \bool_if:nT { \int_compare_p:nNn {\l__aTableau_beads_int} > {0}
-                       && \int_compare_p:nNn {\l__aTableau_beads_int} < {\l_tmpa_tl}
+                       && \int_compare_p:nNn {\l__aTableau_beads_int} < {\l_tmpa_int}
         }
         {
-            \msg_warning:nne {aTableau} {many-beads} \l_tmpa_tl
-            \int_set:NV \l__aTableau_beads_int \l_tmpa_tl
+    \typeput{warning,,,}
+            \msg_warning:nne {aTableau} {many-beads} {\int_use:N\l_tmpa_int}
+            \int_set:NV \l__aTableau_beads_int \l_tmpa_int
         }
     }
 }
@@ -3225,11 +3227,14 @@
             {
                 % add the entries in the quotient, peeking between commas
                 \__aTableau_peek_abacus_style:w ##1 \q_recursion_tail \q_recursion_stop
+            }
 
-                % Extend the length of the partition, or sequence of beta numbers, if
-                % it is shorter than \l__aTableau_beads_int
-                \__aTableau_extend_beta_numbers:
+            % Extend the length of the partition, or sequence of beta numbers, if
+            % it is shorter than \l__aTableau_beads_int
+            \__aTableau_extend_beta_numbers:
 
+            \seq_if_empty:NF \l__aTableau_rcs_seq
+            {
                 % convert the sequence in \l__aTableau_rcs_seq into beta numbers and add to \l__aTableau_shape_seq
                 \bool_if:NTF \l__aTableau_beta_numbers_bool
                 {   % entered as beta numbers, so just need to multiply by e = \l__aTableau_cols_int
@@ -3238,8 +3243,8 @@
                     { \seq_put_right:Ne \l__aTableau_shape_seq { \int_eval:n {\l__aTableau_c_int+\l__aTableau_cols_int*####1} } }
                 }
                 {   % convert the partition to beta numbers
-                    \tl_set:No \l_tmpa_tl {\seq_count:N \l__aTableau_rcs_seq} % number of beads
-                    \int_set:Nn \l__aTableau_r_int {\l_tmpa_tl-1}% beta number offset for each part
+                    \int_set:No \l_tmpa_int {0\seq_count:N \l__aTableau_rcs_seq} % number of beads
+                    \int_set:Nn \l__aTableau_r_int {\l_tmpa_int-1}% beta number offset for each part
                     \tl_set:No \l_tmpb_tl { \seq_item:Nn \l__aTableau_rcs_seq {1} } % first part in quotient
                     \int_set:Nn \l_tmpa_int { \l__aTableau_c_int+\l__aTableau_cols_int*(\l__aTableau_r_int+\l_tmpb_tl) } % maximum beta number
                     \seq_map_inline:Nn \l__aTableau_rcs_seq
@@ -3248,12 +3253,12 @@
                         \int_decr:N \l__aTableau_r_int
                     }
                 }
+            }
 
-                % check that the maximum beta number has not changed
-                \int_compare:oNnT { \l_tmpa_int } > { \l__aTableau_row_int }
-                {
-                    \int_set_eq:NN \l__aTableau_row_int \l_tmpa_int
-                }
+            % check that the maximum beta number has not changed
+            \int_compare:oNnT { \l_tmpa_int } > { \l__aTableau_row_int }
+            {
+                \int_set_eq:NN \l__aTableau_row_int \l_tmpa_int
             }
 
             % increment runner offset for next component
