@@ -1,6 +1,6 @@
 % ----------------------------------------------------------------------
 % aTableau manual - Andrew Mathas (C) 2022-2026
-% Modified: 16:52 Friday, 05 June 2026
+% Modified: 17:06 Friday, 05 June 2026
 % Package meta data comes from atableau.ini via \aTableauMeta
 % ----------------------------------------------------------------------
 \documentclass{amsart}
@@ -838,13 +838,13 @@
   % --------------------------------------------------------------
   \section{Introduction}
 
-  The \aTableau package, which started as code for drawing tableaux in my
-  research, provides commands for drawing common objects in
+  The \aTableau package started as code for drawing tableaux in my
+  research. The package provides commands for drawing common objects in
   algebraic combinatorics and representation theory, together with
   styling options and a key-value interface for additional
   customisation. Internally, everything is drawn using \TikZ (and
-  \LaTeX3). \aTableau commands can be used either as standalone
-  commands, or as part of a \keyword{tikzpicture} environment. The
+  \LaTeX3). All \aTableau commands can be used as standalone
+  commands, and as part of a \keyword{tikzpicture} environment. The
   commands are intended to be both easy to use and easy to customise, so
   that they can draw the wide variety of tableaux and abacuses found in
   the literature.\footnote{In this manual, a ``picture'' is anything
@@ -1130,12 +1130,12 @@
 
   The next example contrasts using the \keyword{\Diagram} command both
   outside and inside a \keyword{tikzpicture} environment. More
-  explicitly, the second \keyword{\Diagram} command uses
-  coordinates to position the picture inside a \keyword{tikzpicture} environment.
-  Otherwise, the two \keyword{\Diagram} commands in this example are identical, except
-  that the second one is embellished with labels that are drawn by
-  the other $\TikZ$-commands inside the \keyword{tikzpicture}
-  environment.
+  explicitly, the second \keyword{\Diagram} command uses coordinates to
+  position the picture inside a \keyword{tikzpicture} environment.
+  Otherwise, the two \keyword{\Diagram} commands in \autoref{diagramCoordinates} below
+  are identical, except that the second one is embellished with labels
+  that are drawn by the other $\TikZ$-commands inside the
+  \keyword{tikzpicture} environment.
 
   \begin{Example}{diagramCoordinates}
   % \usetikzlibrary{patterns}
