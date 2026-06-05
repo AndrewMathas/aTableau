@@ -1,6 +1,6 @@
 % ----------------------------------------------------------------------
 % aTableau manual - Andrew Mathas (C) 2022-2026
-% Modified: 12:50 Friday, 05 June 2026
+% Modified: 16:52 Friday, 05 June 2026
 % Package meta data comes from atableau.ini via \aTableauMeta
 % ----------------------------------------------------------------------
 \documentclass{amsart}
@@ -2159,9 +2159,9 @@
   respectively.
 
   \TikZ-styling can be added to ribbons using \option{ribbon style} and
-  \option{ribbon box style}. The \option{ribbon style} changes the
-  default style of the entire ribbon, whereas \option{ribbon box style}
-  changes the default style of the individual boxes in the ribbon.
+  \option{ribbon box style}. The \option{ribbon style} key changes the
+  style of the entire ribbon, whereas \option{ribbon box style}
+  changes the style of the individual boxes in the ribbon.
 
   \begin{example}{tableauRibbons}
   \Tableau[ribbon style={fill=blue!20,opacity=0.4},
@@ -3250,14 +3250,13 @@
   \option{skew} and \option{shifted} options.
   \label{tabloids!skew}
 
-  \begin{example}{tabloidSkew}
-  \Tabloid[skew={2,1}]{19{11},29{10},6} \qquad
-  \Tabloid[conjugate, shifted]{19{11}7,29{10},6}
-  \end{example}
+  \begin{example}{tabloidSkew} \Tabloid[skew={2,1}]{19{11},29{10},6}
+    \qquad \Tabloid[conjugate, shifted]{19{11}7,29{10},6} \end{example}
 
-  Equivalently, you can draw tableaux like these using the
+  Alternatively, you can draw tableaux like these using the
   \keyword{\SkewTableau} and \keyword{\ShiftedTableau} commands together
-  with the \option{tabloid} key.
+  with the \option{tabloid} key. (Under the hood, this results in exactly
+  the same pictures being drawn.)
 
   \begin{example}{skewTabloid}
   \SkewTableau[tabloid]{2,1}{19{11},29{10},6} \qquad
@@ -3450,7 +3449,7 @@
   \RibbonTableau[shape=5^5]{24rrccRRCC}\quad\RibbonTableau[shape=7^5]{23crrCCCCRRccr}
   \end{Example}
 
-  Topologically, the boundary of a generalised ribbon is a union of (oriented) circles.
+  Topologically, the boundary of a generalised ribbon is a disjoint union of (oriented) circles.
 
   We have now seen the full ribbon specifications. To summarise:
   \begin{itemize}[nosep]
@@ -4308,22 +4307,21 @@
   \option*[very thick, draw=\aTableauColour{Inner}]{abacus ends style=style}[\TikZ-styling]
 
   The \option{abacus ends} key sets the style of the top and
-  bottom of the abacus. The meaning of these six symbols is the
-  following:
+  bottom of the abacus, using the following of these six symbols:
 
-  \begin{quote}
+  \begin{center}
     \rowcolors{2}{}{LightSkyBlue!10}
     \begin{tabular}{Oll} \toprule
       \multicolumn1l{\textsf{Character}} & \textsf{Symbol} & \textsf{Meaning} \\ \midrule
-      $-$    & dash         & Draw a horizontal line that extends slightly past the first and last runners\\
-      \_\!\_ & underscore   & Draw a horizontal line between the first and last runners\\
-      .      & dot          & Draw dots at the end of the runners\\
-      *      & asterisk     & Draw dots and arrows at the end of the runners\\
-      $|$    & pipe         & No additional decoration\\
+      $-$    & dash         & Draw a perpendicular line that extends beyond the first and last runners\\
+      \_\!\_ & underscore   & Draw a perpendicular line between the first and last runners\\
+      .      & dot          & Draw ellipses at the end of the runners\\
+      *      & asterisk     & Draw ellipses and arrows at the end of the runners\\
+      $|$    & pipe         & No decoration\\
       $>$    & greater than & Draw arrows at the end of the runners\\
       \bottomrule
     \end{tabular}
-  \end{quote}
+  \end{center}
 
   Exactly two of these styling characters must be given when setting
   \option{abacus ends}. There are six options for the top of the abacus,

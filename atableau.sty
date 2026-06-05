@@ -1,6 +1,6 @@
 % ---------------------------------------------------------------------------
 % aTableau - Andrew Mathas (C) 2022-2026
-% Modified: 13:07 Friday, 05 June 2026
+% Modified: 15:22 Friday, 05 June 2026
 % ---------------------------------------------------------------------------
 %
 % A LaTeX package for symmetric group combinatorics:
@@ -66,7 +66,7 @@
             % When the version takes the form 2.1.1-rc1 we need
             % to replace the - with a ., so we do this always
             \str_set:Ne \l_tmpa_str { \seq_item:Nn \l_tmpa_seq {2}}
-            \str_replace_once:Nnn \l_tmpa_str {-rc} {.rc}
+            \str_replace_once:Nnn \l_tmpa_str {-} {.}
             \prop_put:NeV \l__aTableau_meta_prop { \seq_item:Nn \l_tmpa_seq {1} } \l_tmpa_str
         }
     }
