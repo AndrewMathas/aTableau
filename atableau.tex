@@ -1,6 +1,6 @@
 % ----------------------------------------------------------------------
 % aTableau manual - Andrew Mathas (C) 2022-2026
-% Modified: 17:06 Friday, 05 June 2026
+% Modified: 00:10 Saturday, 06 June 2026
 % Package meta data comes from atableau.ini via \aTableauMeta
 % ----------------------------------------------------------------------
 \documentclass{amsart}
@@ -947,11 +947,11 @@
     \keyword{\usepackage[options]{atableau}}
   \end{quote}
 
-  Here, the \textit{options} are a comma-separated list of
-  \aTableau options, or keys, for the default settings. The possible
-  options are described below. As an example, to make the tableau and
-  Young diagram commands use the \option{French} convention, by
-  default, you could write:
+  Here, the \textit{options} are a comma-separated list of \aTableau
+  options, or keys, that can be used to specify the default settings for
+  your \aTableau pictures. The possible options are described below. As
+  an example, to make the tableau and Young diagram commands use the
+  \option{French} convention, by default, you could write:
 
   \begin{quote}
     \keyword{\usepackage[french]{atableau}}
@@ -1270,7 +1270,7 @@
   \autoref{S:RibbonTableaux}.
 
   The final example in the introduction uses \keyword{\ShiftedTableau}
-  inside a \emph{matrix of nodes} to produce the following lattice of
+  inside a \TikZ \emph{matrix of nodes} to produce the following lattice of
   shifted tableaux:
 
   % The picture is above the code because this avoids a bad page break
@@ -1379,8 +1379,10 @@
     where:
 
     \begin{options}
-      \item[*$(x,y)$]\index{xy@$(x,y)$} The  $(x,y)$-coordinates
-      are needed only if the tableau is part of a \keyword{tikzpicture} environment.
+      \item[*$(x,y)$]\index{xy@$(x,y)$} The  $(x,y)$-coordinates are
+      needed only if the tableau is part of a \keyword{tikzpicture}
+      environment. Arbitrary \TikZ coordinates can be used, including
+      Cartesian coordinates (as shown), polar coordinates, and named nodes.
       \item[*options] Optional arguments, or keys, which are described below, with examples.
       \item[*tableau entries]\index{tableau entries} The
       \keyword{tableau entries} are given as a comma-separated list, with commas
@@ -4403,16 +4405,17 @@
 
   \option[\aTableauColour{Main}]{bead=colour}[a \LaTeX\ colour]
 
-  The \option{bead} key sets  the bead colour.
+  The \option{bead} key sets  the bead colour. That is, \option{bead} is a descriptive short-hand for
+  the \TikZ-key \keyword{ball color}.
 
   \begin{example}{abacusBead}
   \Abacus{2}{2^3,1} \qquad
-  \Abacus[bead=black]{3}{4^3,2,1} \qquad
+  \Abacus[bead=black]{3}{4^3,[bead=blue]2,1} \qquad
   \Abacus[bead=red]{4}{4^3,[ball color=blue]2,1}
   \end{example}
 
   The \option{bead} key changes the colour of every bead on the
-  abacus. As shown, the colour of individual beads can be changed by
+  abacus. As shown, the colour of individual beads can also be changed by
   applying the \TikZ-style \keyword{ball color} to the bead.
 
   \option[\textbackslash small]{bead font=font command}[\LaTeX\ font command]
@@ -5494,7 +5497,7 @@ tikz after={ % add the red and blue arrows
   shape of some abacus beads into half-spheres (using the \textsf{R}
   and \textsf{B} styles), and to create ``empty'' beads (using the \textsf{E}
   style, which also shifts the bead text to the bottom right of the bead
-  position), and the use of named coordinates to draw the arrows between beads using the
+  position). Named coordinates are used to draw the arrows between beads using the
   \option{tikz after} key. Notice also that the abacus is specified as a quotient
   (\autoref{SS:quotients}).
 

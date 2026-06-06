@@ -5,6 +5,10 @@
 
 # **aTableau** - Change log
 
+### Version 2.2.1 - 2026-??-??
+- Made empty runners work correctly when abacuses are specified by their
+  quotients with the `beads` key
+
 ### Version 2.2.1 - 2026-06-02
 
 - updated tableaux naming conventions
