@@ -1,6 +1,6 @@
 % ---------------------------------------------------------------------------
 % aTableau - Andrew Mathas (C) 2022-2026
-% Modified: 11:17 Saturday, 06 June 2026
+% Modified: 00:05 Thursday, 11 June 2026
 % ---------------------------------------------------------------------------
 %
 % A LaTeX package for symmetric group combinatorics:
@@ -1256,9 +1256,9 @@
     }
 }
 
-% usage: \__aTableau_shape_to_content:N {partition sequence}
+% usage: \__aTableau_shape_to_contents:N {partition sequence}
 % Diagrams with entries=content are drawn using the \Diagram command
-\cs_new_protected:Npn \__aTableau_shape_to_content:N #1
+\cs_new_protected:Npn \__aTableau_shape_to_contents:N #1
 {
     \tl_clear:N \l__aTableau_entries_tl
     \int_zero:N \l__aTableau_row_int
@@ -1273,6 +1273,31 @@
             \int_compare:nNnTF {\l_tmpa_int} < {0}
             { \__aTableau_tl_put_right_braced:Ne \l__aTableau_entries_tl {\exp_not:N\shortminus\int_eval:n{-\l_tmpa_int}} }
             { \__aTableau_tl_put_right_braced:No \l__aTableau_entries_tl {\int_use:N \l_tmpa_int} }
+        }
+        \tl_set:Nn \l_tmpb_tl {,}
+    }
+}
+
+% usage: \__aTableau_shape_to_ladders:N {partition sequence}
+% Diagrams with entries=last are drawn using the \Diagram command
+\cs_new_protected:Npn \__aTableau_shape_to_ladders:N #1
+{
+\typeout{ladders...}
+    \tl_clear:N \l__aTableau_entries_tl
+    \tl_clear:N \l_tmpb_tl % will become the comma between rows
+    \int_zero:N \l__aTableau_r_int
+    \int_compare:nNnT {\l__aTableau_e_int} = {1000} { \int_zero:N \l__aTableau_e_int }
+    \seq_map_inline:Nn #1
+    {
+        \tl_put_right:No \l__aTableau_entries_tl \l_tmpb_tl
+        \int_incr:N \l__aTableau_r_int
+        \typeout{r=\int_use:N\l__aTableau_r_int,~ch=\int_use:N\l__aTableau_charge_int,~e=\int_use:N\l__aTableau_e_int,~1=##1.}
+        \int_set:Nn \l_tmpa_int {1+\l__aTableau_charge_int - \l__aTableau_r_int + (\l__aTableau_r_int-1)*\l__aTableau_e_int+ 0\seq_item:NV \l__aTableau_skew_seq \l__aTableau_r_int}
+        \typeout{a=\int_use:N\l_tmpa_int.}
+        \int_step_inline:nn {##1}
+        {
+            \__aTableau_tl_put_right_braced:No \l__aTableau_entries_tl {\int_use:N \l_tmpa_int}
+            \int_incr:N \l_tmpa_int
         }
         \tl_set:Nn \l_tmpb_tl {,}
     }
@@ -1340,10 +1365,10 @@
     \seq_put_right:No \l__aTableau_charge_seq {\int_use:N\l__aTableau_r_int}
 }
 
-% usage: \__aTableau_shape_to_hook:N {partition_seq}
+% usage: \__aTableau_shape_to_hooks:N {partition_seq}
 % Return a string for the hook length tableau. Some extra care needed for
 % shifted tableau, which use a different definition of hook length
-\cs_new_protected:Npn \__aTableau_shape_to_hook:N #1
+\cs_new_protected:Npn \__aTableau_shape_to_hooks:N #1
 {
     % now construct the hook tableau
     \tl_clear:N \l__aTableau_entries_tl
@@ -1397,7 +1422,7 @@
 
 % usage: \__aTableau_shape_to_residue:N {partition sequence}
 % Residue diagrams are drawn using the \Tableau command
-\cs_new_protected:Npn \__aTableau_shape_to_residue:N #1
+\cs_new_protected:Npn \__aTableau_shape_to_residues:N #1
 {
     \tl_clear:N \l__aTableau_entries_tl
     \int_zero:N \l__aTableau_row_int
@@ -2114,19 +2139,18 @@
     }
 
     % depending on \l__aTableau_show_tl, generate the tableau entries
-    \str_case:VnF \l__aTableau_show_tl
+    \cs_if_exist:cTF { __aTableau_shape_to_ \l__aTableau_show_tl :N }
     {
-        {columns}  { \__aTableau_shape_to_columns:N  \l__aTableau_shape_seq }
-        {contents} { \__aTableau_shape_to_content:N  \l__aTableau_shape_seq }
-        {first}    { \__aTableau_shape_to_first:N    \l__aTableau_shape_seq }
-        {hooks}    { \__aTableau_shape_to_hook:N     \l__aTableau_shape_seq }
-        {last}     { \__aTableau_shape_to_last:N     \l__aTableau_shape_seq }
-        {residues} { \__aTableau_shape_to_residue:N  \l__aTableau_shape_seq }
-        {rows}     { \__aTableau_shape_to_rows:N     \l__aTableau_shape_seq }
-        {}         { \__aTableau_diagram_for_shape:N \l__aTableau_shape_seq }
+        \use:c { __aTableau_shape_to_ \l__aTableau_show_tl :N } \l__aTableau_shape_seq
     }
     {
-        \msg_error:nnx {aTableau} {unrecognised-entries} {\l__aTableau_show_tl}
+        \tl_if_empty:NTF \l__aTableau_show_tl
+        {
+            \__aTableau_diagram_for_shape:N \l__aTableau_shape_seq
+        }
+        {
+            \msg_error:nne {aTableau} {unrecognised-entries} {\l__aTableau_show_tl}
+        }
     }
     \__aTableau_draw_tableau:V \l__aTableau_entries_tl
 }
@@ -2755,7 +2779,7 @@
         }
     }
     {
-       \msg_error:nnx {aTableau} {invalid-ribbon-specification} {#1}
+       \msg_error:nne {aTableau} {invalid-ribbon-specification} {#1}
     }
 }
 
@@ -3215,7 +3239,7 @@
         % check that we do not have too many components
         \int_compare:oNnT { \seq_count:N \l__aTableau_component_seq } > {\l__aTableau_cols_int}
         {
-            \msg_error:nnx {aTableau} { quotient-components } { \seq_count:N \l__aTableau_component_seq > #1  }
+            \msg_error:nne {aTableau} { quotient-components } { \seq_count:N \l__aTableau_component_seq > #1  }
         }
 
         \int_zero:N \l__aTableau_c_int % offset for each runner
@@ -3481,7 +3505,7 @@
                   {     }
                       { \tl_set:No \l_tmpa_tl { \seq_item:Nn \l__aTableau_texts_seq {##1} } }
                 }
-                { \msg_error:nnx {aTableau} {unrecognised-abacus-label} {  \l__aTableau_show_tl } }
+                { \msg_error:nne {aTableau} {unrecognised-abacus-label} {  \l__aTableau_show_tl } }
                 % draw the bead with style
                 \tl_set:No \l_tmpb_tl { \seq_item:Nn \l__aTableau_styles_seq {##1} }
                 \__aTableau_abacus_bead:enV \l_tmpb_tl {l} \l_tmpa_tl
@@ -3716,7 +3740,7 @@
             }
         }
         {   % unrecognised colour settings
-            \msg_error:nnx {aTableau} {unknown-theme} {#1}
+            \msg_error:nne {aTableau} {unknown-theme} {#1}
         }
     },
     colour~theme .initial:n = default,
@@ -4586,7 +4610,7 @@
           }
     }
     {
-       \msg_error:nnx {aTableau} {unrecognised-aTableau-command} {#2}
+       \msg_error:nne {aTableau} {unrecognised-aTableau-command} {#2}
     }
 }
 

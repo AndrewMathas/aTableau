@@ -2773,17 +2773,21 @@
   \index{last tableau}
   \index{residues}
   \index{first tableau}
+  \index{tableau!columns}
   \index{tableau!contents}
   \index{tableau!first}
   \index{tableau!hooks}
   \index{tableau!last}
+  \index{tableau!ladders}
+  \index{tableau!rows}
   \index{tableau!residues}
 
   The \option{entries} key provides a shortcut for drawing some common
   tableaux of a specified shape, where the entries follow a common
   pattern.
 
-  \option[]{entries=value}[columns, contents, first, hooks, last, residues, rows]
+  \option[]{entries=value}[columns, contents, first, hooks, last, ladders, residues, rows]
+  \option*[]{charge=offsets}[integer offset]
 
   In each case, use \option{charge} to offset the generated entries. The
   possible choices for \option{entries} are:
@@ -2856,6 +2860,29 @@
   \Diagram[russian, entries=hooks]{2^2,1}
   \end{example}
 
+  \item\option{entries=ladders}: Prints the \emph{ladder numbers} of the
+  boxes in the diagram. The ladder number of the box in row~$r$ and
+  column~$c$ is $c-r+e(r-1)$, so the boxes on the same ladder on lines
+  of slope $e-1$ in the diagram (when using the English convention). You
+  also need to set the quantum characteristic \option{e}.
+
+  \begin{example}{diagramLadders}
+  \Diagram[entries=ladders, e=3]{4,3^3} \qquad
+  \Diagram[entries=ladders, e=4]{4,3^3}
+  \end{example}
+  \index{ladder tableau}
+  \index{tableau!ladder}
+  \index{entries!ladder}
+
+  Use \option{conjuate} for the ``conjugate'' ladders of slope $1/(e-1)$.
+
+  \begin{example}{diagramConjugateLadders}
+  \Diagram[entries=ladders,e=3,conjugate]{4^3,1}\qquad
+  \Diagram[entries=ladders,e=4,conjugate]{4^3,1}
+  \end{example}
+
+  Ladders are only defined for \option{cartan=A}.
+
   \item\option{entries=last}: Prints the \emph{last} \textbf{standard}
     tableau of this shape, with respect to the Bruhat order. This is the
     tableau that has the numbers $1,2\dots,n$ entered in order along the
@@ -2893,7 +2920,7 @@
   \cite{MathasTubbenhauer:BAD}.
 
     \smallskip
-    \begin{example}{diagramEntriesResiduesC}
+  \begin{example}{diagramEntriesResiduesC}
   % affine type C : C^{(1)}_{e-1}
   \Diagram[french, entries=residues,
     e=2, cartan=C] {8,4,2}
@@ -3517,7 +3544,7 @@
   Here is a cute use of \option{paths} to add arrows to a skew
   $2$-ribbon tableau:
 
-  \begin{example}[lefthand width=0.35\textwidth]{ribbonTableauCute}
+  \begin{example}[righthand width=0.65\textwidth]{ribbonTableauCute}
   \RibbonTableau[skew={4,3,2,1},
     styles={L={red,semithick,->}, R={red,semithick,<-}},
     paths ={ (L)15c, (L)17c, (L)24c, (L)26c,
@@ -3597,7 +3624,7 @@
   to be the smallest partition that contains all of the ribbons. Use the
   \option{shape} key to directly set the border of the ribbon tableau.
   The partition \option{shape} can be given either as a comma
-  separated list of using exponential notation.
+  separated list, or using exponential notation.
 
   \begin{example}{RibbonShape}
   \RibbonTableau[shape={8^2,6^2}]{26crcc}
@@ -3815,27 +3842,35 @@
   \Multidiagram[entries=columns, charge=0|3]{3,1^2|2^2,1}
   \end{example}
 
-    \item\option{entries=contents}: Prints the tableau where each box is
-    labelled by its \emph{content}, which is the row index minus the
-    column index.
+  \item\option{entries=contents}: Prints the tableau where each box is
+  labelled by its \emph{content}, which is the row index minus the
+  column index.
 
-    \begin{example}{multiEntriesContents}
+  \begin{example}{multiEntriesContents}
   \Multidiagram[entries=contents, charge=0|2]
     {3,2,1|2^2}
   \end{example}
 
-    As shown, the \option{charge} offsets the contents in each
-    \textit{component}. Use \keyword{|} to separate the charges for the
-    different components.
+  As shown, the \option{charge} offsets the contents in each
+  \textit{component}. Use \keyword{|} to separate the charges for the
+  different components.
 
-    \item\option{entries=first}: Prints the \emph{first} \textbf{standard} tableau of this
-    shape, which has the numbers $1,2\dots,n$ entered in order along the
-    rows, working left to right along components, and then reading the
-    rows top to bottom in each component, and left to right along each
-    row.
+  \item\option{entries=first}: Prints the \emph{first} \textbf{standard} tableau of this
+  shape, which has the numbers $1,2\dots,n$ entered in order along the
+  rows, working left to right along components, and then reading the
+  rows top to bottom in each component, and left to right along each
+  row.
 
   \begin{example}{multiEntriesFirst}
   \Multidiagram[entries=first]{3,1^2|2^2,1}
+  \end{example}
+
+  \item\option{entries=ladders}: Prints the ladder numbers in the
+  diagram, which are lines of slope $e=1$. Set the quantum
+  characteristic with~\option{e}.
+
+  \begin{example}{multiLadders}
+  \Multidiagram[entries=ladders, e=2, charge=2|1]{3,2,2|3^3}
   \end{example}
 
     \item\option{entries=last}: Prints the \emph{last} \textbf{standard}
@@ -3844,14 +3879,14 @@
     then reading the columns left to right in each component, and top to
     bottom down each column.
 
-    \begin{example}{multiEntriesLast}
+  \begin{example}{multiEntriesLast}
   \Multidiagram[entries=last]{3,2,2|2^2}
   \end{example}
 
     \item\option{entries=hooks}: Prints the diagram where each box in each
     component is labelled by the corresponding \emph{hook length}.
 
-    \begin{example}{multiEntriesHooks}
+  \begin{example}{multiEntriesHooks}
   \Multidiagram[entries=hooks]{3,1^2|3^3}
   \end{example}
 
@@ -4586,11 +4621,12 @@
 
   \begin{itemize}
 
-    \item\option{entries=beads}:\index{entries!beta}\index{beta numbers!entries}
-    \label{beta numbers!abacuses}
-    Label each bead with the corresponding \emph{beta numbers}, or bead
-    positions.
-    \begin{example}{abacusEntriesBeads}
+  \item\option{entries=beads}:\index{entries!beta}\index{beta numbers!entries}
+  \label{beta numbers!abacuses}
+  Label each bead with the corresponding \emph{beta numbers}, or bead
+  positions.
+
+  \begin{example}{abacusEntriesBeads}
   \Abacus[entries=beads]{3}{3,2^2,0^2} \qquad
   \Abacus[entries=beads]{4}{3,2^2,1^3,0^2}
   \end{example}

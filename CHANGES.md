@@ -6,8 +6,10 @@
 # **aTableau** - Change log
 
 ### Version 2.2.1 - 2026-??-??
-- Made empty runners work correctly when abacuses are specified by their
-  quotients with the `beads` key
+- fixes bug with the `beads` key, so that empty runners now work as advertised when abacuses are
+  specified by their quotients
+- adds a fallback to allow the package to be used if the `atableau.ini` file is not found
+- adds `entries=ladders`
 
 ### Version 2.2.1 - 2026-06-02
 
@@ -15,17 +17,17 @@
 - allows arbitrary TikZ coordinates to be used to position **aTableau** pictures inside `tikzpicture` environments
 - allow `colour theme` to define a custom colour theme
 - adds `entries=columns` and `entries=rows`
-- the `cover` key can be used with multishapes
+- the `cover` key can now be used with multishapes
 - fixed an issue with `entries=last` with skew shapes
-- now directly reading meta data from ini file
+- directly reads meta data from the `atableau.ini`ini file
 - adds image diffs to the testing framework
 
 ### Version 2.2.0 - 2025-10-10
 
 - allows _generalised ribbon tableaux_ with `c`, `C`, `r` and `R` specifications
 - allows _complex styles_ in abacuses and tableaux to be entered as `[...]`, instead of `[{...}]`
-- adds optional _overlay specifications_ for use with **beamer**
 - allows abacuses to be specified by _quotients_
+- adds optional _overlay specifications_ for use with **beamer**
 - adds the `\NewATableauCommand` command for creating custom **aTableau** commands
 - adds the `beads` key for setting the number of beads on an abacus
 - adds the `colour theme` key, which gives a choice of three colour schemes

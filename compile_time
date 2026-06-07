@@ -9,7 +9,9 @@
 # manual takes more than twice as long to compile on an older imac than
 # on a macbook pro M4.
 
-# Andrew Mathas April, 2025
+# uses hyperfine to get the compile time
+
+# Andrew Mathas April, 2026
 
 RECORD_IN="manual_times"
 pdflatex="pdflatex"
@@ -17,7 +19,7 @@ pdflatex="pdflatex"
 
 usage() {
   cat <<END
-usage: record+compile_time [-h] [--record] [--silent]
+usage: record+compile_time [-h] [--record]
 
 Determine the compile time for the current version of the aTableau manual.
 
@@ -29,26 +31,18 @@ END
 
 record_times( ) {
   start_time=$(date "+%s.%N")
-  if [ "$silent" = true ] ; then
-    $1 atableau > /dev/null
-  else
-    $1 atableau
-  fi
-  end_time=$(date "+%s.%N")
-  time=$(printf "%.1f" $(bc -l -e "$end_time-$start_time"))
+  time=$(hyperfine -r $1 --export-csv /dev/stdout --style none  'pdflatex -interaction=batchmode atableau'   | awk -F, 'NR==2 {printf "%.1f\n",$4}')
   pages=$(gawk '/Output written on atableau/ {print substr($5,2,2)}' atableau.log)
   tpage=$(printf "%.2f" $(bc -l -e "$time/$pages"))
   record=$(date "+%Y-%m-%d  $(git describe --tag --abbrev=0)     ${pages}  ${time}    $tpage" )
 }
 
 save_record=false
-silent=false
 
 # parse command line arguments
 while [[ $# -ne 0 ]]; do
   case $1 in
-    --record) shift && save_record=true && silent=true;;
-    --silent) shift && silient=true;;
+    --record) shift && save_record=true;;
     --year)   shift && pdflatex="/usr/local/texlive/$1/bin/universal-darwin/pdflatex" && shift;;
     *) usage && exit ;;
   esac
@@ -57,16 +51,17 @@ done
 
 cat << MESG
 Compiling aTableau manual
-Recording the compile time: ${save_record} (silent: $silent)
+Recording the compile time: ${save_record}
 MESG
 
 if [ "$save_record" = true ]; then
-  record_times latexmk
-  record_times "$pdflatex -interaction=batchmode"
+  latexmk atableau
+  record_times 3
   # append the new compilation time to manual_times
+  echo $record
   echo "$record" >> $RECORD_IN
 else
-  record_times "$pdflatex -interaction=batchmode"
+  record_times 1
 fi
 
 cat $RECORD_IN

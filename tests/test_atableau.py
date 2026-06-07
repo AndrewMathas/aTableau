@@ -36,7 +36,7 @@ options:
 
 HELP = r'''
 This python script is part of the aTableau LaTeX package. It can be used to
-check that the output from the aTableau example files has not changed during
+check that the output from the aTableau example files have not changed during
 development. The example files are extracted from the aTableau manual,
 atableau.tex, which is assumed to either be in the same directory as this
 script, or in the parent directory. If it does not already exist, the script
@@ -45,17 +45,18 @@ creates a symbolic link that is the python equivalent of
     ln -s ../atableau.tex atableau-examples.tex
 
 Running pdflatex on the file atableau-examples.tex extracts all of the examples
-in the manual, creating a separate file in this directory for each example.
-Running this script on the example files compares their output with the
-expected output.
+from the manual, creating a separate file in the current directory for each
+example.  Running this script on the example files compares their output with
+the expected output.
 
 BEFORE starting development, the examples files should be initialised using
 
     test_examples.py -i
 
 This will extract the examples from the manual, and then create a "good" webp
-file for each example, such as ribbon-good.webp. The "good" webp files are
-then used as proxies for the expected output for the examples.
+file for each example, such as ribbon-good.webp, for the example ribbon.tex.
+The "good" webp files are then used as proxies for the expected output for the
+examples.
 
 Once the good files have been initialised, the command
 
@@ -90,7 +91,7 @@ using:
     test_examples -u [files]
 
 There are over 200 examples in the manual, but this script is reasonably quick
-because the examples are processed in parallel.
+in checking all of the example files because they are processed in parallel.
 
 Andrew Mathas
 October 2025
