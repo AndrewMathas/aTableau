@@ -5,66 +5,155 @@
 # this in manual_times, together with the date, version number and
 # number of pages in the manual. When the times are being saved we
 # compile twice so that we get the "real" compile time. For comparison
-# purposes, the same computer should be used because, for example, the
-# manual takes more than twice as long to compile on an older imac than
-# on a macbook pro M4.
-
-# uses hyperfine to get the compile time
+# purposes, the same computer should be used.
+#
+# Uses hyperfine to get the compilation time
+#
+# usage: compile_time [-a] [-r runs] [-s [file]] [-w warmups] [-y year]
+#
+# Determine the compile time for the current version of the aTableau manual.
+#
+#    -a, --all          Generate compilations times for all releases
+#    -r, --runs <NUM>   Set the number of times to compile the manual. Can also be used
+#                       to pass other arguments to hyperfine (default $runs)
+#    -s, --save [FILE]  Record the compile time, version number and number of pages in $manual_times
+#                       This also sets the number of runs, so use -r after -s to override the default
+#    -w, --warmup <NUM> Number of warm up runs (default: $warmups)
+#    -y, --year YEAR    Set the TeXLive release year (default: latest version)
 
 # Andrew Mathas April, 2026
 
-RECORD_IN="manual_times"
-pdflatex="pdflatex"
+all=false
+TEX=""
+manual_times="manual_times"
+runs=1
+warmups=2
+saving=false
 
+TOP=$(cat <<END
+==========================================
+  Compile times for the aTableau manual
+==========================================
+
+These times are relative because the page length is only a crude proxy for the
+complexity of the manual. Compilation times are heavily dependent on the
+computer used to compile the manual, and its current load.
+
+This file can be regenerated using: compile_time -a
+
+Date        Version  Pages  Time  s/page
+-----------------------------------------
+END
+)
 
 usage() {
   cat <<END
-usage: record+compile_time [-h] [--record]
+usage: compile_time [-a] [-r runs] [-s [file]] [-w warmups] [-y year]
 
 Determine the compile time for the current version of the aTableau manual.
 
-  --record: record the compile time, version number and number of pages in $TIMES
-  --year YEAR: set the TeXLive release year (default: latest version)
+  -a, --all          Generate compilations times for all releases
+  -r, --runs <NUM>   Set the number of times to compile the manual. Can also be used
+                     to pass other arguments to hyperfine (default $runs)
+  -s, --save [FILE]  Record the compile time, version number and number of pages in $manual_times
+                     This also sets the number of runs, so use -r after -s to override the default
+  -w, --warmup <NUM> Number of warm up runs (default: $warmups)
+  -y, --year YEAR    Set the TeXLive release year (default: latest version)
 END
   exit 1
 }
 
-record_times( ) {
-  start_time=$(date "+%s.%N")
-  time=$(hyperfine -r $1 --export-csv /dev/stdout --style none  'pdflatex -interaction=batchmode atableau'   | awk -F, 'NR==2 {printf "%.1f\n",$4}')
-  pages=$(gawk '/Output written on atableau/ {print substr($5,2,2)}' atableau.log)
-  tpage=$(printf "%.2f" $(bc -l -e "$time/$pages"))
-  record=$(date "+%Y-%m-%d  $(git describe --tag --abbrev=0)     ${pages}  ${time}    $tpage" )
+measure_compile_time() {
+  ${TEX}latexmk -silent -quiet atableau >& /dev/null
+  run_time=$(hyperfine -w $warmups -r $runs --export-csv /dev/stdout --style none  "${TEX}pdflatex -interaction=batchmode atableau" | awk -F, 'NR==2 {printf "%.1f\n",$4}')
+  if [[ -z $run_time ]]; then
+      echo "compilation failed for $(git describe --tag --abbrev=0)" >&2
+      compile_time=""
+      return 1
+  fi
+  pages=$(gawk '/Output written on atableau/ {gsub(/\(/,"",$5); print $5}' atableau.log)
+  tpage=$(printf "%.2f" $(bc -l -e "$run_time/$pages"))
+  commit_date=$(git show -s --format=%cd --date=format:%Y-%m-%d HEAD)
+  release="${tag:-$(git describe --tag --abbrev=0)}"
+  compile_time="$commit_date   $release    ${pages}   ${run_time}    $tpage"
 }
 
-save_record=false
+time_all_releases() {
+  # when cleaning up we need to know the initial directory
+  rep="$PWD"
+
+  # make a temporary git working tree to look at previous releases
+  worktree=$(mktemp -d "$rep"/.worktree.XXXXXX)
+  git worktree add --detach -q "$worktree"
+
+  # use failures to delete the work tree if there are no errors but keep otherwise
+  failures=0
+  cleanup() {
+    cd /
+    if (( failures == 0 )); then
+      git -C "$rep" worktree remove --force "$worktree"
+    else
+      echo "$failures tag(s) failed; worktree kept for inspection: $worktree" >&2
+    fi
+  }
+  trap cleanup EXIT
+
+  # manual_times may be under version control, so create a temporary version
+  tmp_manual_times="$(mktemp "$rep"/.manual_times.XXXXXX)"
+  echo "$TOP"
+  echo "$TOP" > $tmp_manual_times
+
+  cd "$worktree"
+
+  for tag in $(git tag -l --sort=v:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$'); do
+      git -c advice.detachedHead=false checkout -q -f "$tag" || {
+          echo "checkout of $tag failed" >&2
+          (( failures++ ))
+          continue
+      }
+      measure_compile_time || { (( failures++ )); continue; }
+      echo "$compile_time"
+      [[ $saving == true ]] && echo "$compile_time" >> "$tmp_manual_times"
+  done
+
+  cd - >/dev/null
+  [[ $saving == true ]] && /bin/mv "$tmp_manual_times" "$manual_times"
+
+  echo "Recent throttling events"
+}
 
 # parse command line arguments
 while [[ $# -ne 0 ]]; do
   case $1 in
-    --record) shift && save_record=true;;
-    --year)   shift && pdflatex="/usr/local/texlive/$1/bin/universal-darwin/pdflatex" && shift;;
+    -a|--all ) shift && all=true;;
+    -r|--runs) shift && runs="$1" && shift;;
+    -s|--save) shift && saving=true && runs=3
+      if [[ $# -gt 0 && $1 != -* ]]; then
+        manual_times="$1"
+        shift
+      fi
+      ;;
+    -w|--war*) shift && warmups=$1 && shift ;;
+    -y|--year) shift && TEX="/usr/local/texlive/$1/bin/universal-darwin/" && shift;;
     *) usage && exit ;;
   esac
 done
 
-
-cat << MESG
-Compiling aTableau manual
-Recording the compile time: ${save_record}
-MESG
-
-if [ "$save_record" = true ]; then
-  latexmk atableau
-  record_times 3
+if [ "$saving" = true ]; then
+  measure_compile_time
   # append the new compilation time to manual_times
-  echo $record
-  echo "$record" >> $RECORD_IN
-else
-  record_times 1
-fi
+  echo "$compile_time"
+  echo "$compile_time" >> "$manual_times"
+  cat "$manual_times"
 
-cat $RECORD_IN
-echo
-echo "New time:"
-echo "$record"
+elif [ $all = true ]; then
+  time_all_releases
+
+else
+  measure_compile_time
+
+  cat "$manual_times"
+  echo
+  echo "New time:"
+  echo "$compile_time"
+fi

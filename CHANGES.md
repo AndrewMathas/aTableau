@@ -5,7 +5,7 @@
 
 # **aTableau** - Change log
 
-### Version 2.2.1 - 2026-??-??
+### Version 2.2.2 - 2026-??-??
 - fixes bug with the `beads` key, so that empty runners now work as advertised when abacuses are
   specified by their quotients
 - adds a fallback to allow the package to be used if the `atableau.ini` file is not found

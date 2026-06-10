@@ -1,6 +1,6 @@
 % ---------------------------------------------------------------------------
 % aTableau - Andrew Mathas (C) 2022-2026
-% Modified: 00:05 Thursday, 11 June 2026
+% Modified: 13:23 Thursday, 11 June 2026
 % ---------------------------------------------------------------------------
 %
 % A LaTeX package for symmetric group combinatorics:
@@ -1282,7 +1282,6 @@
 % Diagrams with entries=last are drawn using the \Diagram command
 \cs_new_protected:Npn \__aTableau_shape_to_ladders:N #1
 {
-\typeout{ladders...}
     \tl_clear:N \l__aTableau_entries_tl
     \tl_clear:N \l_tmpb_tl % will become the comma between rows
     \int_zero:N \l__aTableau_r_int
@@ -1291,9 +1290,7 @@
     {
         \tl_put_right:No \l__aTableau_entries_tl \l_tmpb_tl
         \int_incr:N \l__aTableau_r_int
-        \typeout{r=\int_use:N\l__aTableau_r_int,~ch=\int_use:N\l__aTableau_charge_int,~e=\int_use:N\l__aTableau_e_int,~1=##1.}
         \int_set:Nn \l_tmpa_int {1+\l__aTableau_charge_int - \l__aTableau_r_int + (\l__aTableau_r_int-1)*\l__aTableau_e_int+ 0\seq_item:NV \l__aTableau_skew_seq \l__aTableau_r_int}
-        \typeout{a=\int_use:N\l_tmpa_int.}
         \int_step_inline:nn {##1}
         {
             \__aTableau_tl_put_right_braced:No \l__aTableau_entries_tl {\int_use:N \l_tmpa_int}
