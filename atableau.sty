@@ -1,6 +1,6 @@
 % ---------------------------------------------------------------------------
 % aTableau - Andrew Mathas (C) 2022-2026
-% Modified: 13:23 Thursday, 11 June 2026
+% Modified: 20:54 Thursday, 11 June 2026
 % ---------------------------------------------------------------------------
 %
 % A LaTeX package for symmetric group combinatorics:
@@ -1883,7 +1883,7 @@
     \int_zero:N \l__aTableau_row_int
     \int_set:Nn \l__aTableau_col_int { 0\seq_item:Nn \l__aTableau_skew_seq {1}}
 
-    % set the tableau parse, which is slightly different for shifted and
+    % set the tableau parser, which is slightly different for shifted and
     % unshifted tableaux
     \bool_if:NTF \l__aTableau_shifted_bool
     { \cs_set_eq:NN \__aTableau_peek_tableau:w \__aTableau_peek_tableau_shifted:w }

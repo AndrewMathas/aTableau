@@ -93,8 +93,7 @@ using:
 There are over 200 examples in the manual, but this script is reasonably quick
 in checking all of the example files because they are processed in parallel.
 
-Andrew Mathas
-October 2025
+Andrew Mathas 2025-26
 '''
 
 # ------------------------------------------------------------------------

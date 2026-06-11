@@ -1,6 +1,6 @@
 % ----------------------------------------------------------------------
 % atableau_example.cls - Andrew Mathas (C) 2022-2025
-% Modified: 13:19 Thursday, 11 June 2026
+% Modified: 21:03 Thursday, 11 June 2026
 % ----------------------------------------------------------------------
 
 % This class file is part of the testing framework for the aTableau package. It

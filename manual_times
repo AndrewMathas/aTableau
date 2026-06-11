@@ -2,10 +2,10 @@
   Compile times for the aTableau manual
 ==========================================
 
-These times are relative because the page length is only a crude proxy for the
-complexity of the manual. Compilation times are heavily dependent on the
-computer used to compile the manual. The times below were obtained on a Macbook
-pro M4.
+These times are all relative because the page length is only a crude
+proxy for the complexity of the manual. Compilation times are heavily
+dependent on the computer used to compile the manual, and its current
+load.
 
 Date        Version  Pages  Time  s/page
 -----------------------------------------
@@ -16,5 +16,3 @@ Date        Version  Pages  Time  s/page
 2025-02-13  v2.1.1     54  20.1    0.37
 2025-10-10  v2.2.0     64  25.1    0.39 # parsing of complex styles
 2026-06-02  v2.2.1     60  26.2    0.44 # manual using more compact libertinus fonts
-
-

@@ -43,9 +43,10 @@ TOP=$(cat <<END
   Compile times for the aTableau manual
 ==========================================
 
-These times are relative because the page length is only a crude proxy for the
-complexity of the manual. Compilation times are heavily dependent on the
-computer used to compile the manual, and its current load.
+These times are all relative because the page length is only a crude
+proxy for the complexity of the manual. Compilation times are heavily
+dependent on the computer used to compile the manual, and its current
+load.
 
 This file can be regenerated using: compile_time -a
 
@@ -136,6 +137,7 @@ done
 
 if [ "$saving" = true ]; then
   set_manual_compile_time
+
   # append the new compilation time to manual_times
   echo "$compile_time"
   echo "$compile_time" >> "$manual_times"
