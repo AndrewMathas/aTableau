@@ -9,19 +9,27 @@
 #
 # Uses hyperfine to get the compilation time
 #
-# usage: compile_time [-a] [-r runs] [-s [file]] [-w warmups] [-y year]
-#
-# Determine the compile time for the current version of the aTableau manual.
-#
-#    -a, --all          Generate compilations times for all releases
-#    -r, --runs <NUM>   Set the number of times to compile the manual. Can also be used
-#                       to pass other arguments to hyperfine (default $runs)
-#    -s, --save [FILE]  Record the compile time, version number and number of pages in $manual_times
-#                       This also sets the number of runs, so use -r after -s to override the default
-#    -w, --warmup <NUM> Number of warm up runs (default: $warmups)
-#    -y, --year YEAR    Set the TeXLive release year (default: latest version)
-
 # Andrew Mathas April, 2026
+
+# ------------------------------------------------------------------------
+usage() {
+  cat <<END
+usage: compile_time [-a] [-r runs] [-s [file]] [-w warmups] [-y year]
+
+Determine the compile time for the current version of the aTableau manual.
+
+  -a, --all          Generate compilations times for all releases
+  -r, --runs <NUM>   Set the number of times to compile the manual. Can also be used
+                     to pass other arguments to hyperfine (default $runs)
+  -s, --save [FILE]  Record the compile time, version number and number of pages in $manual_times
+                     This also sets the number of runs, so use -r after -s to override the default
+  -w, --warmup <NUM> Number of warm up runs (default: $warmups)
+  -y, --year YEAR    Set the TeXLive release year (default: latest version)
+END
+  exit 1
+}
+
+# ------------------------------------------------------------------------
 
 all=false
 TEX=""
@@ -46,24 +54,8 @@ Date        Version  Pages  Time  s/page
 END
 )
 
-usage() {
-  cat <<END
-usage: compile_time [-a] [-r runs] [-s [file]] [-w warmups] [-y year]
-
-Determine the compile time for the current version of the aTableau manual.
-
-  -a, --all          Generate compilations times for all releases
-  -r, --runs <NUM>   Set the number of times to compile the manual. Can also be used
-                     to pass other arguments to hyperfine (default $runs)
-  -s, --save [FILE]  Record the compile time, version number and number of pages in $manual_times
-                     This also sets the number of runs, so use -r after -s to override the default
-  -w, --warmup <NUM> Number of warm up runs (default: $warmups)
-  -y, --year YEAR    Set the TeXLive release year (default: latest version)
-END
-  exit 1
-}
-
-measure_compile_time() {
+# ------------------------------------------------------------------------
+set_manual_compile_time() {
   ${TEX}latexmk -silent -quiet atableau >& /dev/null
   run_time=$(hyperfine -w $warmups -r $runs --export-csv /dev/stdout --style none  "${TEX}pdflatex -interaction=batchmode atableau" | awk -F, 'NR==2 {printf "%.1f\n",$4}')
   if [[ -z $run_time ]]; then
@@ -78,6 +70,7 @@ measure_compile_time() {
   compile_time="$commit_date   $release    ${pages}   ${run_time}    $tpage"
 }
 
+# ------------------------------------------------------------------------
 time_all_releases() {
   # when cleaning up we need to know the initial directory
   rep="$PWD"
@@ -111,7 +104,7 @@ time_all_releases() {
           (( failures++ ))
           continue
       }
-      measure_compile_time || { (( failures++ )); continue; }
+      set_manual_compile_time || { (( failures++ )); continue; }
       echo "$compile_time"
       [[ $saving == true ]] && echo "$compile_time" >> "$tmp_manual_times"
   done
@@ -122,7 +115,9 @@ time_all_releases() {
   echo "Recent throttling events"
 }
 
-# parse command line arguments
+# ------------------------------------------------------------------------
+# parse command line arguments and run
+
 while [[ $# -ne 0 ]]; do
   case $1 in
     -a|--all ) shift && all=true;;
@@ -140,7 +135,7 @@ while [[ $# -ne 0 ]]; do
 done
 
 if [ "$saving" = true ]; then
-  measure_compile_time
+  set_manual_compile_time
   # append the new compilation time to manual_times
   echo "$compile_time"
   echo "$compile_time" >> "$manual_times"
@@ -150,8 +145,7 @@ elif [ $all = true ]; then
   time_all_releases
 
 else
-  measure_compile_time
-
+  set_manual_compile_time
   cat "$manual_times"
   echo
   echo "New time:"
