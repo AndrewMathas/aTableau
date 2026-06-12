@@ -1,6 +1,6 @@
 % ---------------------------------------------------------------------------
 % aTableau - Andrew Mathas (C) 2022-2026
-% Modified: 20:54 Thursday, 11 June 2026
+% Modified: 22:16 Thursday, 11 June 2026
 % ---------------------------------------------------------------------------
 %
 % A LaTeX package for symmetric group combinatorics:
@@ -3050,11 +3050,11 @@
 % usage: \__aTableau_add_abacus_end:Vnn {abacus_top/abacus_bottom} {row index} {±1}
 % Draw the top/bottom on the abacus. Here:
 %   - #1 is either % \l__aTableau_abacus_top_tl  or \l__aTableau_abacus_bottom_tl
-%   - #2 is the row index for the line we will draw
+%   - #2 is the row index for the line we will draw: it's  0 for the top, or the row index of the last row, for the bottom
 %   - #3, which is ±1, determines whether arrows go up or down
-% either 0, for top, or the row index of the last row, for bottom
 \cs_new_protected:Npn \__aTableau_add_abacus_end:Vnn #1 #2 #3
 {
+    % we checked in \__aTableau_set_abacus_ends:nn that #1 is one of the six possibilities below
     \str_case:Vn #1
     {
         {-}  % draw a line from the just before the first runner to just after the last runner

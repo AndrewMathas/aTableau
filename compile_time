@@ -43,10 +43,11 @@ TOP=$(cat <<END
   Compile times for the aTableau manual
 ==========================================
 
-These times are all relative because the page length is only a crude
-proxy for the complexity of the manual. Compilation times are heavily
-dependent on the computer used to compile the manual, and its current
-load.
+These times give an indication of the relative compilation times for different
+aTableau versions, but they should not be taken too seriously because page
+length is only a crude proxy for the complexity of the package and the manual.
+Compilation times are heavily dependent on the computer used to compile the
+manual, and its current load, and the pdflatex version.
 
 This file can be regenerated using: compile_time -a
 
@@ -113,7 +114,6 @@ time_all_releases() {
   cd - >/dev/null
   [[ $saving == true ]] && /bin/mv "$tmp_manual_times" "$manual_times"
 
-  echo "Recent throttling events"
 }
 
 # ------------------------------------------------------------------------
