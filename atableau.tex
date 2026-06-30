@@ -1,6 +1,6 @@
 % ----------------------------------------------------------------------
 % aTableau manual - Andrew Mathas (C) 2022-2026
-% Modified: 14:09 Tuesday, 30 June 2026
+% Modified: 10:45 Wednesday, 01 July 2026
 % ----------------------------------------------------------------------
 \documentclass{amsart}
 \usepackage[svgnames,table]{xcolor}
@@ -1470,7 +1470,7 @@
           { 1*2*3*4*5, 6*789, {10}*{11}{12}, {13} }
   \end{example}
 
-  Note that the $*$-styling overrides the default styling of the
+  The $*$-styling overrides the default styling of the
   surrounding boxes, such as their borders. This is because the boxes
   with the default styling are placed first, in the order that they are
   entered, after which the boxes that have custom styles are placed.
@@ -1502,11 +1502,10 @@
   a \TikZ node, so any \TikZ-style specifications for a \TikZ node can be
   used.  This example shows that some care is needed when changing the
   style because simply giving a colour changes both the colour used to
-  \textit{fill} the box and the \textit{text colour}, which is why some
-  of the tableau entries in the last example appear to be blank.  If you are
-  already familiar with \TikZ, then you probably already know what to do.
-  If not, here is a short list of useful style specifications for
-  \TikZ nodes:
+  \textit{fill} the box and the \textit{text colour}, which is why some of
+  the entries in the last example appear to be blank.  If you are already
+  familiar with \TikZ, then you probably already know what to do. If not,
+  here is a short list of useful style specifications for \TikZ nodes:
   \begin{center}\index{fill}\index{text}\index{draw}\index{font}
      \rowcolors{2}{}{LightSkyBlue!10}
      \begin{tabular}{ll}\toprule
@@ -1570,7 +1569,7 @@
   \textit{minimum size=5mm} when using the \option{australian} and
   \option{russian} conventions for tableaux.
 
-  For complex or frequently used styles, we recommend using the
+  For complex, or frequently used styles, we recommend using the
   \keyword{\tikzset} command to define the style outside of the
   \keyword{\Tableau} command. This makes your code both easier to read
   and easier to modify. If you need to define a style for a single
@@ -1631,9 +1630,9 @@
   \begin{tikzpicture}[add grid]
     \aTabset{label style={red, font=\tiny}}
     \Tableau(0,0)    [english,   label=1]{123,45}
-    \Tableau(0,0.5)  [french,    label=2]{123,45}
+    \Tableau(90:5mm) [french,    label=2]{123,45}
     \Tableau(2.5,0.5)[russian,   label=3]{123,45}
-    \Tableau(2.5,0)  [australian,label=4]{123,45}
+    \Tableau(0:25mm) [australian,label=4]{123,45}
   \end{tikzpicture}
   \end{example}
 
@@ -1894,7 +1893,7 @@
   index:
   \begin{itemize}[nosep]
     \item increases as the column index increases
-    \item decreases as the column index decreases.
+    \item decreases as the row index increases.
   \end{itemize}
   People working in representation theory may recognise this pattern
   as coming from \emph{residues} in Type~A.
@@ -2121,7 +2120,7 @@
   \begin{example}{tableauPathBox}
   % \usepackage{MnSymbol}
   \aTabset{styles={R={red,text=red,thick},
-    C={cyan,text=cyan,thick}}}
+    C={cyan,text=cyan,thick,draw=none}}}
   \Tableau[path box=\bigcircle,
     paths={(R)14ccrc,(C)23rcc},
   ]{1234,567,89{10}}
@@ -2133,7 +2132,7 @@
   \begin{example}{tableauPathBoxStyle}
   \Tableau[styles={R={red,thick}, C={cyan,thick}},
     paths={(R)14ccrc,(C)23rcc},
-    path box style={draw,circle, minimum size=4mm}
+    path box style={draw, circle, minimum size=4mm}
   ]{1234,567,89{10}}
   \end{example}
 
