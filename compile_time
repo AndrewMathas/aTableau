@@ -101,26 +101,29 @@ time_all_releases() {
                       printf "%s\t%s\n", $2, substr($0,i) }' "$manual_times")
   fi
 
-  # make a temporary git working tree to look at previous releases
+  # make a temporary git working tree to look at previous releases, plus a
+  # temporary copy of manual_times (which may be under version control)
   worktree=$(mktemp -d "$rep"/.worktree.XXXXXX)
+  tmp_manual_times="$(mktemp "$rep"/.manual_times.XXXXXX)"
   git worktree add --detach -q "$worktree"
 
-  # use failures to delete the work tree if there are no errors but keep otherwise
+  # Always remove the temporary worktree and file on exit -- including on a
+  # Ctrl-C (INT) or termination (TERM). Only -9/SIGKILL cannot be trapped.
+  # failures is now used only for the summary message.
   failures=0
   cleanup() {
     cd /
-    if (( failures == 0 )); then
-      git -C "$rep" worktree remove --force "$worktree"
-    else
-      echo "$failures tag(s) failed; worktree kept for inspection: $worktree" >&2
-    fi
+    [[ -n "${worktree:-}" ]] && git -C "$rep" worktree remove --force "$worktree" 2>/dev/null
+    git -C "$rep" worktree prune 2>/dev/null
+    [[ -n "${tmp_manual_times:-}" ]] && /bin/rm -f "$tmp_manual_times"
+    (( failures > 0 )) && echo "$failures tag(s) failed to compile" >&2
   }
   trap cleanup EXIT
+  trap 'exit 130' INT
+  trap 'exit 143' TERM
 
-  # manual_times may be under version control, so create a temporary version
-  tmp_manual_times="$(mktemp "$rep"/.manual_times.XXXXXX)"
   echo "$TOP"
-  echo "$TOP" > $tmp_manual_times
+  echo "$TOP" > "$tmp_manual_times"
 
   cd "$worktree"
 
