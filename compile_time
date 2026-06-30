@@ -22,9 +22,9 @@ Determine the compile time for the current version of the aTableau manual.
   -r, --runs <NUM>   Set the number of times to compile the manual. Can also be used
                      to pass other arguments to hyperfine (default $runs)
   -s, --save [FILE]  Record the compile time, version number and number of pages in $manual_times
-                     This also sets the number of runs, so use -r after -s to override the default
   -w, --warmup <NUM> Number of warm up runs (default: $warmups)
   -y, --year YEAR    Set the TeXLive release year (default: latest version)
+
 END
   exit 1
 }
@@ -35,8 +35,9 @@ all=false
 TEX=""
 manual_times="manual_times"
 runs=1
-warmups=2
+warmups=0
 saving=false
+declare -A saved_comments  # hand-written "# comment" annotations, keyed by version
 
 TOP=$(cat <<END
 ==========================================
@@ -46,36 +47,59 @@ TOP=$(cat <<END
 These times give an indication of the relative compilation times for different
 aTableau versions, but they should not be taken too seriously because page
 length is only a crude proxy for the complexity of the package and the manual.
-Compilation times are heavily dependent on the computer used to compile the
-manual, and its current load, and the pdflatex version.
+Compilation times are depend on the computer used to compile the manual, its
+current load, and the atableau and TeXLive versions.
 
 This file can be regenerated using: compile_time -a
 
-Date        Version  Pages  Time  s/page
------------------------------------------
+Release date  Version  TeXLive  Pages  Time  s/page
+---------------------------------------------------
 END
 )
 
 # ------------------------------------------------------------------------
 set_manual_compile_time() {
+  release="${tag:-$(git tag --sort=-v:refname | head -n1)}"
+  release_date="$(git log -1 --format=%cs "$release")"
+  if [ "$release" = "v2.2.0" ]; then
+    # fix compilation error in v2.2.0 due to change in xcolor
+    sed -i '' 's@^\\rowcolor@%&@' atableau.tex
+  fi
   ${TEX}latexmk -silent -quiet atableau >& /dev/null
-  run_time=$(hyperfine -w $warmups -r $runs --export-csv /dev/stdout --style none  "${TEX}pdflatex -interaction=batchmode atableau" | awk -F, 'NR==2 {printf "%.1f\n",$4}')
+  run_time=$(hyperfine -w $warmups -r $runs --shell none --export-csv /dev/stdout --style none  "${TEX}pdflatex -interaction=batchmode atableau" \
+              | awk -F, 'NR==2 {printf "%.1f\n",$4}')
   if [[ -z $run_time ]]; then
-      echo "compilation failed for $(git describe --tag --abbrev=0)" >&2
+      echo "compilation failed for $release" >&2
       compile_time=""
       return 1
   fi
   pages=$(gawk '/Output written on atableau/ {gsub(/\(/,"",$5); print $5}' atableau.log)
   tpage=$(printf "%.2f" $(bc -l -e "$run_time/$pages"))
-  commit_date=$(git show -s --format=%cd --date=format:%Y-%m-%d HEAD)
-  release="${tag:-$(git describe --tag --abbrev=0)}"
-  compile_time="$commit_date   $release    ${pages}   ${run_time}    $tpage"
+  # record the TeXLive release year of the binary actually used (respects -y)
+  texlive=$(${TEX}pdftex --version 2>/dev/null | sed -n 's/.*(TeX Live \([0-9]*\)).*/\1/p')
+  printf -v compile_time '   %-10s  %-8s   %-6s%4s %6s%7s' "$release_date" "$release" "${texlive:-?}" "$pages" "$run_time" "$tpage"
+  # re-attach any hand-written comment recorded for this release (see
+  # time_all_releases). Use an if-block, not `[[ ]] &&`, so that a missing
+  # comment does not make this (the function's last command) return non-zero.
+  if [[ -n "${saved_comments[$release]:-}" ]]; then
+    compile_time+=" ${saved_comments[$release]}"
+  fi
 }
 
 # ------------------------------------------------------------------------
 time_all_releases() {
   # when cleaning up we need to know the initial directory
   rep="$PWD"
+
+  # remember any hand-written "# comment" annotations in the existing file so
+  # they survive regeneration; key on the version (field 2 of each data row)
+  if [[ -f "$manual_times" ]]; then
+    while IFS=$'\t' read -r ver comment; do
+      saved_comments["$ver"]="$comment"
+    done < <(awk '{ i=index($0,"#");
+                    if (i>0 && $2 ~ /^v[0-9]+\.[0-9]+\.[0-9]+$/)
+                      printf "%s\t%s\n", $2, substr($0,i) }' "$manual_times")
+  fi
 
   # make a temporary git working tree to look at previous releases
   worktree=$(mktemp -d "$rep"/.worktree.XXXXXX)
@@ -106,6 +130,9 @@ time_all_releases() {
           (( failures++ ))
           continue
       }
+      # progress to stderr so the table on stdout stays clean (-a does several
+      # full compiles per tag, so each row can take a few minutes to appear)
+      echo "timing $tag ..." >&2
       set_manual_compile_time || { (( failures++ )); continue; }
       echo "$compile_time"
       [[ $saving == true ]] && echo "$compile_time" >> "$tmp_manual_times"
@@ -121,30 +148,35 @@ time_all_releases() {
 
 while [[ $# -ne 0 ]]; do
   case $1 in
-    -a|--all ) shift && all=true;;
-    -r|--runs) shift && runs="$1" && shift;;
-    -s|--save) shift && saving=true && runs=3
+    -a|--all ) shift && all=true && WARMUPS=1;;
+    -r|--runs) shift && RUNS="$1" && shift;;
+    -s|--save) shift && saving=true && runs=3 && warmups=3 && WARMUPS="${WARMUPS:-3}"
       if [[ $# -gt 0 && $1 != -* ]]; then
-        manual_times="$1"
+        manual_times="$1" # save to specified file
         shift
       fi
       ;;
-    -w|--war*) shift && warmups=$1 && shift ;;
+    -w|--war*) shift && WARMUPS="$1" && shift ;;
     -y|--year) shift && TEX="/usr/local/texlive/$1/bin/universal-darwin/" && shift;;
     *) usage && exit ;;
   esac
 done
 
-if [ "$saving" = true ]; then
+# ensure that runs and warmups are always updated by -r and -w, respectively
+runs="${RUNS:-$runs}"
+warmups="${WARMUPS:-$warmups}"
+
+
+if [ $all = true ]; then
+  time_all_releases
+
+elif [ "$saving" = true ]; then
   set_manual_compile_time
 
   # append the new compilation time to manual_times
   echo "$compile_time"
   echo "$compile_time" >> "$manual_times"
   cat "$manual_times"
-
-elif [ $all = true ]; then
-  time_all_releases
 
 else
   set_manual_compile_time

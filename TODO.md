@@ -11,14 +11,14 @@
 
 ### Documentation
 
-- add an example using polar coordinates to place a picture in a tikzpicture environment
-- check Cartan conventions for residues
+- Add an example using polar coordinates to place a picture in a tikzpicture environment
+- Check Cartan conventions for residues
 
 ### Things we might do at some point
 
-- rewrite ribbons and `\Abacus` to simultaneously parse the specifications and draw the picture
-- rewrite the partition parsing so that it uses quarks
-- beta numbers: allow partition to be specified by beta numbers in `\Diagram` and friends
-- allow custom styling for the different sides of the tableau/diagram borders
+- Rewrite ribbons and `\Abacus` to simultaneously parse the specifications and draw the picture
+- Rewrite the partition parsing so that it uses quarks
+- Beta numbers: allow partition to be specified by beta numbers in `\Diagram` and friends
+- Allow custom styling for the different sides of the tableau/diagram borders
 
 Updated: June 2026

@@ -1,6 +1,6 @@
 % ----------------------------------------------------------------------
 % aTableau manual - Andrew Mathas (C) 2022-2026
-% Modified: 22:29 Thursday, 11 June 2026
+% Modified: 14:09 Tuesday, 30 June 2026
 % ----------------------------------------------------------------------
 \documentclass{amsart}
 \usepackage[svgnames,table]{xcolor}
@@ -22,6 +22,9 @@
 \usepackage{siunitx}
 \usepackage{xltabular}
 \usepackage{xspace}
+
+\pdfcompresslevel=0
+\pdfobjcompresslevel=0
 
 % ----------------------------------------------------------------------
 \usepackage{array}
@@ -61,6 +64,27 @@
 
 % ----------------------------------------------------------------------
 \ExplSyntaxOn
+
+% The property list \l__aTableau_meta_prop, and access function \aTableauMeta
+% are defined in atableau.sty
+
+% map the key-value pairs in the ini file to property entries in \l__aTableau_meta_prop
+\ior_open:NnT \g_tmpa_ior { atableau.ini }
+{   % ini file found
+    \ior_str_map_inline:Nn \g_tmpa_ior
+    {
+        \tl_if_in:nnT {#1} {=}
+        {   % Have: key = value
+            \seq_set_split:Nnn \l_tmpa_seq { = } {#1}
+            % When the version takes the form 2.1.1-rc1 we need
+            % to replace the dash with a dot, so we do this always
+            \str_set:Ne \l_tmpa_str { \seq_item:Nn \l_tmpa_seq {2}}
+            \str_replace_once:Nnn \l_tmpa_str {-} {.}
+            \prop_put:NeV \l__aTableau_meta_prop { \seq_item:Nn \l_tmpa_seq {1} } \l_tmpa_str
+        }
+    }
+    \ior_close:N \g_tmpa_ior
+}
 
 % ----------------------------------------------------------------------
 % In the table summarising the keys, \Yes and \No are used to add links
@@ -259,7 +283,7 @@
 
 % \ifTesting is True when we are testing the examples against previous
 % runs. This is used to define new versions of the example and Example
-% environment that save the example to a file using \SaveExample
+% environments that use \SaveExample to save the examples to a file
 \newif\ifTesting
 
 % Enable \ifTesting for atableau-testing.tex, which is a symbolic link
@@ -346,25 +370,18 @@
 % ---------------------------------------------------------------------------
 \tcbuselibrary{listings, breakable}
 
-\DeclareTotalTCBox\keyword{ O{} v }
-{
-  bottom=0pt,
-  colback  = Ivory,
-  colupper = aTableauInner,
-  fontupper= \bfseries,
-  fontlower= \bfseries,
-  left     = 0mm,
-  right    = 0mm,
-  size     = tight,
-  skin     = tile,
-  top      = 0pt,
-  nobeforeafter,
-  on line,
-  verbatim,
-  shrink tight,
+\DeclareTotalTCBox\keyword{ O{} v }{
+  fontupper=\sffamily,
+  skin=tile,
   size=tight,
+  shrink tight,
+  verbatim,
+  on line,
+  top=-0.25pt,bottom=-0.25pt,left=0mm,right=0mm,
+  colback=Ivory,
+  colupper=aTableauMain,
   #1}
-{#2}
+{\smash{\detokenize{#2}}}
 
 \NewTColorBox{slide}{ O{} }
 {
@@ -405,6 +422,8 @@
 \lstdefinestyle{aTableau}
 {
   style=tcblatex,
+    columns=fullflexible,
+    keepspaces=true,
   classoffset=0,
   texcsstyle=*\color{MediumBlue},%
   deletetexcs={begin, end},
@@ -823,7 +842,7 @@
       \tableofcontents
       \footnotetext{\copyright\,Copyright \aTableauMeta{copyright}
         \quad\aTableauAuthor\\
-        License: \href{https://\aTableauMeta{the README file}}{\aTableauMeta{license}}
+        License: \href{https://\aTableauMeta{license_url}}{\aTableauMeta{license}}
       }
     \end{minipage}
 
@@ -868,7 +887,7 @@
 
   The \aTableau commands are intended to be easy to use and easy to
   customise. For example, partitions can be entered either as a weakly
-  decreasing list of non-negative integers, or using exponential
+  decreasing list of positive integers, or using exponential
   notation, or as a sequence of beta numbers (for the \keyword{\Abacus}
   command). Tableaux are entered as comma-separated words. The
   commands support the main conventions for drawing tableaux and
@@ -932,7 +951,7 @@
   \Diagram[russian]{4,3^2,1}
   \end{example}
   As this example illustrates, partitions can either be typed as a
-  comma-separated list of non-negative integers, or using exponential
+  comma-separated list of positive integers, or using exponential
   notation for the repeated parts, which is usually shorter and easier
   to proofread.
 
@@ -1128,7 +1147,7 @@
   outside and inside a \keyword{tikzpicture} environment. More
   explicitly, the second \keyword{\Diagram} command uses coordinates to
   position the picture inside a \keyword{tikzpicture} environment.
-  Otherwise, the two \keyword{\Diagram} commands in \autoref{diagramCoordinates} below
+  Otherwise, the two \keyword{\Diagram} commands in \autoref{Ex:diagramCoordinates} below
   are identical, except that the second one is embellished with labels
   that are drawn by the other $\TikZ$-commands inside the
   \keyword{tikzpicture} environment.
@@ -1237,7 +1256,7 @@
   \keyword{\Diagram} command is used in a \keyword{tikzpicture}
   environment. Rather than (0,0), any \TikZ coordinate could have been
   used. (As this example uses relative coordinates, a different choice of coordinate
-  will not actually change the picture.) The use of coordinates become more
+  will not actually change the picture.) The use of coordinates becomes more
   meaningful when the \keyword{tikzpicture} environment has more
   components. In the next example, the key \option{name=B} makes the
   named coordinates for the second diagram take the form
@@ -1315,83 +1334,84 @@
 
   \begin{warning}
     The \aTableau package requires an up-to-date version of \LaTeX\
-    because it relies heavily on recent advances in \ctan{LaTeX3}. You
-    will need to update your \LaTeX\ installation if it is older than
-    \TeXLive 2024. Ideally, you should always use the latest release
-    of your preferred \LaTeX\ distribution.
+    because it relies heavily on \ctan{LaTeX3}. You will need to update
+    your \LaTeX\ installation if it is older than \TeXLive 2024.
+    Ideally, you should always use the latest release of your preferred
+    \LaTeX\ distribution.
   \end{warning}
 
   % --------------------------------------------------------------
   \section{Tableaux and Young diagrams}
 
-    \emph{Partitions} are weakly decreasing sequences of non-negative
-    integers. They are fundamental objects in algebraic combinatorics
-    and representation theory.\index{partition} For example,
-    $\lambda=(4,3,3,2,0,0,\dots)$ is a partition of $12$, since the
-    entries sum to~$12$. It is customary to omit the zeros when writing
-    partitions and to use exponents for repeated parts, so we can write
-    this partition in \emph{exponential notation} as
-    $\lambda=(4,3^2,2)$.
+  \emph{Partitions} are weakly decreasing sequences of non-negative
+  integers. They are fundamental objects in algebraic combinatorics and
+  representation theory.\index{partition} For example,
+  $\lambda=(4,3,3,2,0,0,\dots)$ is a partition of $12$, because the
+  entries sum to~$12$. When writing partitions, it is customary to use
+  exponents for repeated parts, and to omit the trailing zeros ---~in
+  fact, \aTableau requires you to omit the zeros. For example,
+  we can write the partition $\lambda$ in \emph{exponential notation} as
+  $(4,3^2,2)$.
 
-    Many authors identify a partition~$\lambda=(\lambda_1,\lambda_2,\dots)$ with its
-    \emph{Young diagram}, which is the set
-    \[
-        [\lambda] = \set{(r,c)|1\le c\le\lambda_r\text{ for }r\ge1}.
-    \]
-    The (Young) diagram is usually visualised as an array of
-    \emph{boxes}, or \emph{nodes}, in the plane.  A \emph{tableau} is a
-    diagram where the boxes are labelled using some alphabet.
-    Equivalently, a diagram is a tableau with empty labels.
-    \index{young diagram@Young diagram|see{diagram}}
-    \index{diagram}
-    \index{tableau}
-    \index{box}
-    \index{node}
-    \index{node|see{box}}
-    \index{exponential notation}
-    \index{partition!exponential notation}
+  Many authors identify a partition~$\lambda=(\lambda_1,\lambda_2,\dots)$ with its
+  \emph{Young diagram}, which is the set
+  \[
+      [\lambda] = \set{(r,c)|1\le c\le\lambda_r\text{ for }r\ge1}.
+  \]
+  The (Young) diagram is usually visualised as an array of \emph{boxes},
+  or \emph{nodes}, in the plane (see \autoref{S:Diagram}).  A
+  \emph{tableau} is a diagram where the boxes are labelled using some
+  alphabet. Equivalently, a diagram is a tableau with empty labels.
+  \index{young diagram@Young diagram|see{diagram}}
+  \index{diagram}
+  \index{tableau}
+  \index{box}
+  \index{node}
+  \index{node|see{box}}
+  \index{exponential notation}
+  \index{partition!exponential notation}
 
-    When using the \emph{English convention}, the diagram of the
-    partition~$\lambda$ is visualised as a left justified array of boxes
-    in the plane, where the first row has~$4$ boxes, the next two lower
-    rows have~$3$ boxes and the last row has~$2$ boxes. The \emph{shape}
-    of a diagram is the partition that gives the number of boxes in each
-    row. Diagrams and tableaux drawn using the \emph{French} convention
-    are given by reflecting in a horizontal line above the diagrams,
-    whereas the \emph{Russian} and \emph{Australian} conventions are
-    given by appropriate rotations of these diagrams. All of these
-    conventions are used in the literature, with some papers using more
-    than one convention in different parts of the manuscript.
+  When using the \emph{English convention}, the diagram of the
+  partition~$\lambda$ is visualised as a left justified array of boxes
+  in the plane, where the first row has~$4$ boxes, the next two lower
+  rows have~$3$ boxes and the last row has~$2$ boxes. The \emph{shape}
+  of a diagram is the partition that gives the number of boxes in each
+  row. Diagrams and tableaux drawn using the \emph{French} convention
+  are given by reflecting in a horizontal line above the diagrams,
+  whereas the \emph{Russian} and \emph{Australian} conventions are
+  given by appropriate rotations of these diagrams. All of these
+  conventions are used in the literature, with some papers using more
+  than one convention in different parts of the manuscript.
 
   % --------------------------------------------------------------
-    \subsection{Tableaux}
-    \indexcmd{Tableau}
-    \label{S:Tableau}
-    This section describes the \keyword{\Tableau} command, which draws
-    tableaux or labelled diagrams. The syntax of this command is:
+  \subsection{Tableaux}
+  \indexcmd{Tableau}
+  \label{S:Tableau}
+  This section describes the \keyword{\Tableau} command, which draws
+  tableaux or labelled diagrams. The syntax of this command is:
 
-    \keyword{\Tableau (x,y) [options] {tableau entries}}
+  \keyword{\Tableau (x,y) [options] {tableau entries}}
 
-    where:
+  where:
 
-    \begin{options}
-      \item[*$(x,y)$]\index{xy@$(x,y)$} The  $(x,y)$-coordinates are
-      needed only if the tableau is part of a \keyword{tikzpicture}
-      environment. Arbitrary \TikZ coordinates can be used, including
-      Cartesian coordinates (as shown), polar coordinates, and named nodes.
-      \item[*options] Optional arguments, or keys, which are described below, with examples.
-      \item[*tableau entries]\index{tableau entries} The
-      \keyword{tableau entries} are given as a comma-separated list, with commas
-      separating rows and each \textit{token}, or braced-group of
-      tokens, being in a separate column. As explained below, each
-      tableau entry can be prefixed by (optional) \TikZ-styling
-      specifications to change their appearance.
-    \end{options}
+  \begin{options}
+    \item[*$(x,y)$]\index{xy@$(x,y)$} The  $(x,y)$-coordinates are
+    needed only if the tableau is part of a \keyword{tikzpicture}
+    environment. Arbitrary \TikZ coordinates can be used, including
+    Cartesian coordinates (as shown), polar coordinates, and named nodes.
+    \item[*options] Optional arguments, or keys, that are described below, with examples.
+    \item[*tableau entries]\index{tableau entries} The
+    \keyword{tableau entries} are given as a comma-separated list, with commas
+    separating rows and each \textit{token}, or braced-group of
+    tokens, being in a separate column. As explained below, each
+    tableau entry can be prefixed by (optional) \TikZ-styling
+    specifications to change their appearance.
+  \end{options}
 
-    We show, using examples, how to use the \keyword{\Tableau} command,
-    starting with basic usage and finishing with style. Inside
-    \keyword{\Tableau} the rows are separated by commas, with the
-    columns given by the ``letters'' in the word for each row:
+  We show, using examples, how to use the \keyword{\Tableau} command,
+  starting with basic usage and finishing with style. Inside
+  \keyword{\Tableau} the rows are separated by commas, with the
+  columns given by the ``letters'' in the word for each row:
 
   \begin{example}{tableauWords}
   \Tableau{ 1234, 56, 7, 8 }       \qquad
@@ -1587,10 +1607,11 @@
   \keyword{\Tableau} command is used inside a \keyword{tikzpicture}
   environment, in which case $(x,y)$ gives the coordinates of the
   ``outside corner'' of the box in row~$1$ and column~$1$ of the
-  tableau. The following example shows how tableaux are placed using
-  $(x,y)$-coordinates inside a \keyword{tikzpicture} environment. This
-  example also shows that, by default, the tableau boxes are square with
-  side lengths of half a unit.
+  tableau. (Arbitrary \TikZ coordinates can be used.) The following
+  example shows how tableaux are placed using $(x,y)$-coordinates inside
+  a \keyword{tikzpicture} environment. This example also shows that, by
+  default, the tableau boxes are square with side lengths of half a
+  unit.
 
   \tikzset{
     add grid/.code = {
@@ -1869,11 +1890,11 @@
   \option{colours} key overrides the \option{box fill} key, so these two
   keys should not be used in the same picture.
 
-  By default, the colours are applied using the type~$A$ residue pattern.
-  This means that colours are assigned cyclically:
+  By default, the colours are assigned cyclically so that the colour
+  index:
   \begin{itemize}[nosep]
-    \item in increasing order of row index
-    \item in decreasing order of column index.
+    \item increases as the column index increases
+    \item decreases as the column index decreases.
   \end{itemize}
   People working in representation theory may recognise this pattern
   as coming from \emph{residues} in Type~A.
@@ -1881,14 +1902,16 @@
   \begin{example}{tableauColours}
   \Tableau[colours={red,green!70!blue,blue!80},
       box text=white]{12345,67,9,{10}}    \qquad
-  \Diagram[colours={black,white}]{4^4}    \qquad
+  \Diagram[colours={black,white},scale=0.5]{8^8}    \qquad
   \end{example}
 
   Rather than placing the colours using the Type~A residue patterns,
   other residue patterns can be used by setting the \option{cartan}
   type. To use other Cartan types, set the \option{cartan} type
-  \textit{before} setting the \option{colours}~(or set the quantum
-  characteristic \option{e} manually).
+  \textit{before} setting the \option{colours}~(or set the
+  \emph{quantum characteristic} \option{e} manually).
+  \index{quantum characteristic}
+  \index{colours!quantum characteristic}
 
   \begin{example}{tableauColourCartan}
   \Diagram[cartan=C, entries=residues,
@@ -2563,10 +2586,10 @@
 
   Like the \keyword{\Tableau} command, the $(x,y)$-coordinates are
   needed only if the diagram is inside a \keyword{tikzpicture}
-  environment.  The \keyword{\Diagram} command allows the
-  \emph{partition} to be specified as either a comma-separated list of
-  \emph{weakly decreasing positive integers}, or using \emph{exponential
-  notation}:
+  environment (and arbitrary $\TikZ$-coordinates can be used).  The
+  \keyword{\Diagram} command allows the \emph{partition} to be specified
+  as either a comma-separated list of \emph{weakly decreasing positive
+  integers}, or using \emph{exponential notation}:
   \index{exponential notation}
   \index{partition!exponential notation}
   \index{diagram!exponential notation}
@@ -2870,7 +2893,7 @@
   \index{tableau!ladder}
   \index{entries!ladder}
 
-  Use \option{conjuate} for the ``conjugate'' ladders of slope $1/(e-1)$.
+  Use \option{conjugate} for the ``conjugate'' ladders of slope $1/(e-1)$.
 
   \begin{example}{diagramConjugateLadders}
   \Diagram[entries=ladders,e=3,conjugate]{4^3,1}\qquad
@@ -2976,9 +2999,10 @@
   \index{exponential notation}
   As with the previous commands, the $(x,y)$--coordinates should be
   given if, and only if, the picture is inside a \keyword{tikzpicture}
-  environment.  The partitions for the inner and outer shapes can either
-  be given as a comma-separated list of non-negative integers, or using
-  exponential notation for repeated parts.
+  environment and arbitrary \TikZ-coordinates can be used.  The
+  partitions for the inner and outer shapes can either be given as a
+  comma-separated list of positive integers, or using exponential
+  notation for repeated parts.
 
   Skew tableaux and skew diagrams should always be connected. Use
   \keyword{\Multidiagram} and \keyword{\Multitableau} to draw
@@ -3182,11 +3206,11 @@
   \keyword{\ShiftedTableau (x,y) [options] {tableau specification}}
 
   As usual, the $(x,y)$-coordinates are necessary if, and only if, these
-  commands are used inside a \keyword{tikzpicture} environment. The
-  partition in a~\keyword{\ShiftedDiagram} can be given using
-  exponential notation and the tableau specification for a
-  \keyword{\ShiftedTableau} can include the usual optional style
-  prefixes.
+  commands are used inside a \keyword{tikzpicture} environment, and
+  arbitrary \TikZ-coordinates can be used. The partition in
+  a~\keyword{\ShiftedDiagram} can be given using exponential notation
+  and the tableau specification for a \keyword{\ShiftedTableau} can
+  include the usual optional style prefixes.
 
   \begin{example}{shiftedTableau}
   \tikzset{R/.style={fill=red!20,circle}}
@@ -3311,10 +3335,10 @@
 
   Like the other \aTableau commands, the $(x,y)$-coordinates are
   optional and are required if, and only if, the diagram is part of a
-  \keyword{tikzpicture} environment. All of the keys for the
-  \keyword{\Tableau} command can be used with \keyword{\RibbonTableau}, so we
-  refer to \autoref{S:Tableau} for a description of the available
-  keys.
+  \keyword{tikzpicture} environment, and arbitrary \TikZ-coordinates can
+  be used. All of the keys for the \keyword{\Tableau} command can be
+  used with \keyword{\RibbonTableau}, so we refer to \autoref{S:Tableau}
+  for a description of the available keys.
 
   % --------------------------------------------------------------
   \subsubsection{Ribbon specifications}
@@ -4148,7 +4172,8 @@
 
   As with other \aTableau commands, the $(x,y)$-coordinates are
   necessary if, and only if, the abacus is part of a
-  \keyword{tikzpicture} environment.  The number of runners is a
+  \keyword{tikzpicture} environment, and arbitrary \TikZ-coordinates can
+  be used.  The number of runners is a
   positive integer that specifies the number of runners, or vertical
   lines, in the abacus.
 
@@ -4156,7 +4181,7 @@
   \subsection{Bead specifications}
 
   In their simplest form, the bead specifications are given as a
-  partition, which can be given as a list of non-negative integers
+  partition, which can be given as a list of positive integers
   or by using exponential notation. The full bead specifications allow
   you to add styling and labels to each bead.
 
@@ -4271,11 +4296,11 @@
   \keyword{\Abacus} command is used inside a \keyword{tikzpicture}
   environment, in which case $(x,y)$ gives the coordinates of the
   ``outside corner'' of the bead in row~$0$ and column~$0$ of the abacus
-  (unlike tableaux, both the row and column indices start from~$0$). The
-  following example demonstrates how abacuses are placed using
-  $(x,y)$-coordinates inside a \keyword{tikzpicture} environment. The
-  example also shows that, by default, the beads and runners in an
-  abacus are half a unit apart.
+  (unlike tableaux, both the row and column indices start from~$0$).
+  Arbitrary \TikZ-coordinates can be used. The following example
+  demonstrates how abacuses are placed using $(x,y)$-coordinates inside
+  a \keyword{tikzpicture} environment. The example also shows that, by
+  default, the beads and runners in an abacus are half a unit apart.
 
   \begin{example}{abacusCoords}
   \begin{tikzpicture}[add grid]
@@ -4965,7 +4990,7 @@
   \NewATableauCommand\MyDiagram{Diagram}
     {ukrainian, box fill=yellow!40,shifted}
   \begin{tikzpicture}[add grid]
-    \MyDiagram(45:0.9){3,2}
+    \MyDiagram(22:1)[tabloid]{3,2,1}
     \MyDiagram(2.5,-1)[tabloid]{3,2,1}
   \end{tikzpicture}
   \end{example}
@@ -5103,9 +5128,9 @@
   You can also use \option{colour theme} to define a new colour scheme by giving
   it a comma separated list of \textit{six colours}, which sets the six colours in
   the order listed in the tables above. The six items in the list
-  must all be valid colours, as recognised by the \ctan{xcolor} package.
+  must be valid colours, as recognised by the \ctan{xcolor} package.
   Setting \option{colour theme} to anything other than one of the names of the three
-  colour scheme, or a list of six colours, gives an error.
+  colour schemes, or to a list of six colours, gives an error.
 
   \begin{example}{colourTheme}
   \aTabset{colour theme={purple,red,pink,
