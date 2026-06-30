@@ -31,3 +31,6 @@ ag --nonumbers "(release|version)" atableau.sty  | ag "="
 ag --nonumbers "copyright" atableau.sty
 ag --nonumbers "(version|date|copyright)\s=" atableau.ini
 ag --nonumbers "copy" README.md
+echo
+echo "Check the version and release date in the manual"
+pdfinfo atableau.pdf | ag --nonumbers "(Title|Date)"
