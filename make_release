@@ -1,0 +1,297 @@
+#! /usr/bin/env bash
+
+# ---------------------------------------------------------------------------
+# ctanify - build the CTAN upload tarball for the aTableau package.
+#
+# Before building the tarball we check that all of the dates in the
+# different components of the package match the release and that the
+# manual has been compiled recently. Any discrepancies are flagged.
+# In particular, the script checks that:
+#
+#   * all version and release dates agree with atableau.ini
+#   * the package version nummber of the form X.Y.Z, rather than
+#     a pre-release version like 2.2.3-a1
+#   * the manual atableau.pdf has been compiled recently and that all
+#     cross-references are up-to-date
+#   * there are no \typeout commands in atableau.sty and atableau.tex
+#   * all example images pass the test_atableau.py tests
+#
+# The script also also strips the \__aTableau_debug:n commands from
+# atableau.sty before saving in creating the tar file. There is
+# a --force option that forces building the tarball.
+#
+# TODO: check the dates in the tracked files in tests
+#
+# Andrew Mathas
+# July 2026
+# ---------------------------------------------------------------------------
+
+cd "$(dirname "$0")" || exit 1
+
+usage() {
+  cat <<END
+usage: ctanify [-f] [-s]
+
+  Run some rundimenatry tests to make sure that atableau is ready for a new
+  releae and, if these tests pass, create a tarball for uploading to ctan
+
+  -f, --force          Build the tarball even if some checks fail
+  -s, --skip-images    Skip the image-comparison check (test_atableau.py)
+
+END
+  exit 1
+}
+
+fails=0           # number of failing tests
+force=false       # if true, force building of tarball
+skip_images=false # if true, skip testing examples with test_atableau.py
+
+while [[ $# -ne 0 ]]; do
+  case $1 in
+    -f | --force) force=true && shift ;;
+    -s | --skip-images) skip_images=true && shift ;;
+    *) usage ;;
+  esac
+done
+
+# --- reporting --------------------------------------------------------------
+RED=$'\033[1;31m'
+GREEN=$'\033[32m'
+FOREST=$'\033[1;38;2;34;139;34m' # ForestGreen (truecolor) for the tick marks
+YELLOW=$'\033[43m\033[1;37m'
+BOLD=$'\033[1m'
+RESET=$'\033[0m'
+
+pass() { printf "  ${FOREST}\xe2\x9c\x93${RESET} %s\n" "$1"; }
+fail() {
+  printf "  ${RED}\xe2\x9c\x97 %s${RESET}\n" "$1"
+  fails=$((fails + 1)) # increment number of failing tests
+}
+success() { printf "  ${FOREST}%s${RESET}\n\n" "$1"; }
+warn()    { printf "  ${YELLOW}%s${RESET}\n\n" "$1"; }
+
+# a "key = value" line from atableau.ini, trailing whitespace trimmed
+ini_value() { gsed -nE "s/^$1[[:space:]]*=[[:space:]]*(.*[^[:space:]])[[:space:]]*\$/\1/p" atableau.ini | head -1; }
+
+# a "key = value," line from the atableau.sty metadata property list
+sty_value() { gsed -nE "s/^[[:space:]]*$1[[:space:]]*=[[:space:]]*([^,]*[^, ]).*/\1/p" atableau.sty | head -1; }
+
+# -- read metadata from the ini and style files ------------------------------
+
+# read metadata from tableau.ini
+ini_version=$(ini_value version)
+ini_version="${ini_version/-/.}"
+ini_date=$(ini_value release_date)
+
+# read metadata from atableau.sty
+sty_version=$(sty_value version)
+sty_date=$(sty_value release_date)
+
+# --- copyright check --------------------------------------------------------
+release_year=$(grep -oE '[0-9]{4}' <<<"$ini_date" | tail -1)
+check_copyright() {
+  local yr
+  yr=$(grep -oE '[0-9]{2,4}' <<<"$1" | tail -1)
+  ((${#yr} == 2)) && yr="20$yr" # expand an abbreviated end year, e.g. 26 -> 2026
+  if [[ -n "$yr" && "$yr" == "$release_year" ]]; then
+    pass "copyright is up to date ($1)"
+  else
+    fail "copyright end year (${yr:-?}) is not the release year $release_year ($1)"
+  fi
+}
+
+# --- metadata ---------------------------------------------------------------
+
+# normalise both release dates to YYYY-MM-DD so the two formats can be compared
+# (atableau.ini uses "30 June 2026 AEST", atableau.sty uses "2026.06.30")
+ini_date_iso=$(date -j -f "%d %B %Y" "$(sed -E 's/[[:space:]]+[A-Za-z]+$//' <<<"$ini_date")" "+%Y-%m-%d" 2>/dev/null)
+sty_date_iso=$(tr '.' '-' <<<"$sty_date")
+
+printf "${BOLD}Checking that aTableau %s is ready for uploading to CTAN ...${RESET}\n\n" "$ini_version"
+
+# The manual is usually being recompiled in the background by vimtex's
+# `latexmk -pvc`, which rewrites atableau.pdf on every save and can therefore
+# corrupt it while we validate it OR while it is added to the tarball. Stop it
+# for the duration. (vimtex restarts it on the next :VimtexCompile / save.)
+pvc_pids=$(pgrep -f 'latexmk.*-pvc.*atableau\.tex')
+if [[ -n "$pvc_pids" ]]; then
+  pids="$([[ $(wc -w <<<"$pvc_pids") -gt 1 ]] && echo s)"
+  warn "Stopping background 'latexmk -pvc' for the manual (${pid} ${pvc_pids})\n"
+  # shellcheck disable=SC2086
+  kill $pvc_pids 2>/dev/null
+  sleep 1 # let latexmk finish writing atableau.pdf and exit
+fi
+
+# --- check version and release date in atableau.ini -------------------------
+echo "aTableau ini file"
+
+if [[ "$ini_version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+  pass "version $ini_version is a proper (non pre-release) semver number"
+else
+  fail "version '$ini_version' looks like a pre-release"
+fi
+check_copyright "$(ini_value copyright)"
+
+# --- check README -----------------------------------------------------
+echo
+echo "README"
+check_copyright "$(grep -m1 -iE '&copy;' README.md)"
+
+# --- check TODO -----------------------------------------------------
+echo
+echo "TODO"
+updated=$(stat -f "%Sm" -t "Updated: %B %Y" TODO.md)
+todo=$(grep -m1 "Updated:" TODO.md)
+if [[ "$updated" == "$todo" ]]; then
+    pass "updated date in TODO is ${updated/Updated:/}"
+else
+  fail "TODO last ${updated/Updated:/updated} (NOT ${todo/Updated: /})"
+fi
+
+# --- check CHANGES -----------------------------------------------------
+echo
+echo "CHANGES"
+changed="## Version ${ini_version} - ${ini_date_iso/\./-/g}"
+changes=$(grep -m1 ${ini_version} CHANGES.md)
+if [[ "$changed" == "$changes" ]]; then
+    pass "changes listed for ${changed/\#\# V/v}"
+else
+    fail "no changes listed for ${changed/\#\# V/v}"
+fi
+
+# --- check manual_times -----------------------------------------------------
+echo
+echo "manual_times"
+times=$(grep -m1 "$ini_version" manual_times)
+if [[ -z "$times" ]]; then
+  fail "$ini_version is not listed"
+else
+  pass $ini_version appears
+fi
+
+# --- check atableau.sty -----------------------------------------------------
+echo
+echo "aTableau style file:"
+if [[ "$sty_version" == *"$ini_version}" ]]; then
+  pass "version matches atableau.ini ($ini_version)"
+else
+  fail "version ($sty_version) does not match atableau.ini ($ini_version)"
+fi
+
+if [[ -n "$ini_date_iso" && "$sty_date_iso" == "$ini_date_iso" ]]; then
+  pass "release date matches atableau.ini ($ini_date_iso)"
+else
+  fail "date ($sty_date) does not match atableau.ini ($ini_date)"
+fi
+check_copyright "$(grep -m1 -iE 'copyright.*\(c\)' atableau.sty)"
+
+# check for \typeout commands in the style file
+typeout=$(grep -E '\\typeout' atableau.sty | grep -vE '\\cs_new_protected:Npn \\__aTableau_debug:n')
+if [[ -z "$typeout" ]]; then
+  pass "the style file does not contain any \\typeout commands"
+else
+  fail "the style file contains: $typeout"
+fi
+
+# --- check atableau manual --------------------------------------------------
+echo
+echo "Manual (atableau.pdf):"
+if [[ ! -f atableau.pdf ]]; then
+  echo "  - atableau.pdf not found -- compiling the manual with latexmk (this takes a while)..."
+  latexmk -pdf -interaction=nonstopmode atableau.tex >/dev/null 2>&1 && pass "built atableau.pdf"
+fi
+if [[ -f atableau.pdf ]]; then
+  if [[ atableau.pdf -nt atableau.tex && atableau.pdf -nt atableau.sty && atableau.pdf -nt atableau.ini ]]; then
+    pass "manual is compiled and newer than atableau.{tex,sty,ini}"
+  else
+    fail "manual is OLDER than atableau.{tex,sty,ini}"
+  fi
+
+  # read the PDF metadata once; stderr is hidden so a mid-write PDF doesn't spew
+  # xref errors (e.g. when latexmk -pvc / vimtex is recompiling in the background)
+  if ! pdf_info=$(pdfinfo atableau.pdf 2>/dev/null); then
+    fail "could not read atableau.pdf"
+  else
+    pdf_title=$(gsed -nE 's/^Title:[[:space:]]*(.*[^[:space:]]).*/\1/p' <<<"$pdf_info")
+    pdf_date=$(gsed -nE 's/^CreationDate:[[:space:]]*(.*[^[:space:]])[[:space:]]*$/\1/p' <<<"$pdf_info")
+
+    if [[ "$pdf_title" == *"${ini_version}" ]]; then
+      pass "manual correctly reports version $ini_version"
+    else
+      fail "manual title '$pdf_title' has the wrong version $ini_version"
+    fi
+
+    if [[ "$(xargs <<<"$pdf_date")" == "$(xargs <<<"$ini_date")" ]]; then
+      pass "manual date matches atableau.ini ($ini_date)"
+    else
+      fail "manual date '$pdf_date' does not match atableau.ini '$ini_date'"
+    fi
+  fi
+else
+  fail "atableau.pdf could not be built with latexmk -- check atableau.log"
+fi
+
+# check for undefined references
+bad_ref=$(grep "There were undefined references" atableau.log)
+if [[ -z $bad_ref ]]; then
+  pass "manual cross-refereces are up to date"
+else
+  fail "${bad_ref/were/are}"
+fi
+
+# check for \typeout commands in the manual
+typeout=$(grep -E '\\typeout' atableau.tex)
+if [[ -z "$typeout" ]]; then
+  pass "the manual does not contain any \\typeout commands"
+else
+  fail "$bad_ref"
+fi
+
+# --- check example images ---------------------------------------------------
+if $skip_images; then
+  printf "\n${YELLOW}Skipping image-comparison check.${RESET}\n"
+else
+  echo
+  echo "Testing example images using test_atableau.py -- this will take a while"
+  test_out=$(./tests/test_atableau.py -q 2>&1)
+  if grep -qE "BAD|Error" <<<"$test_out"; then
+    fail "test_atableau.py reported the images discrepancies:"
+    grep -E "BAD|Error" <<<"$test_out" | sed -E 's/\x1b\[[0-9;]*m//g; s/^/      /'
+  else
+    pass "no image discrepancies"
+  fi
+fi
+
+# --- exit if fails>0 or not forcing -----------------------------------------
+echo
+if ((fails > 0)); then
+  if $force; then
+    warn "${fails} check(s) failed -- building the tarball anyway (--force)\n"
+  else
+    printf "${RED}%d check(s) failed -- tarball NOT built. Use -f to force tarball creation${RESET}\n" "$fails"
+    exit 1
+  fi
+else
+  success "All checks passed"
+fi
+
+# --- build the CTAN tarball -------------------------------------------------
+CTANIFY="ctanify -p atableau -nos"
+
+if [[ "$(tar --version)" != "$(gtar --version)" ]]; then
+  # use gnu-tar because tar on macosx adds spurious system files
+  echo "WARNING: tar is not gnu-tar!"
+fi
+
+# create a copy of atableau.sty so that we can remove the debug commands
+/bin/mv atableau.sty atableau-dev.sty
+gsed '/__aTableau_debug:n/d' atableau-dev.sty >atableau.sty
+
+# create the tar file for ctan
+$CTANIFY atableau.{ini,sty,pdf,tex} atableau_beamer.{pdf,tex} atableau_readme.webp DEPENDS.txt {CHANGES,README,TODO}.md LICENSE
+
+# restore the debug commands
+/bin/mv atableau-dev.sty atableau.sty
+
+echo
+echo "Built the CTAN tarball (atableau.tar.gz)."

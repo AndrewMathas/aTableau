@@ -1,12 +1,14 @@
 % ----------------------------------------------------------------------
-% atableau_example.cls - Andrew Mathas (C) 2022-2025
-% Modified: 21:03 Thursday, 11 June 2026
+% atableau_example.cls - Andrew Mathas (C) 2022-2026
+% Modified: 01:23 Saturday, 11 July 2026
 % ----------------------------------------------------------------------
 
-% This class file is part of the testing framework for the aTableau package. It
-% provides all of the bells and whistles needed to compile the examples from
-% the manual as standalone files. The examples are automatically extracted from
-% the manual when it is compiled using a symbolic link from atableau-examples.tex.
+% This class file is part of the testing framework for the aTableau
+% package. It provides the bells and whistles needed to compile the
+% examples from the manual as standalone files. The examples are
+% automatically extracted from the manual when it is compiled using a
+% symbolic link from atableau-examples.tex.
+%
 % A typical example file looks like:
 %
 %    \documentclass {atableau_example}
@@ -17,9 +19,10 @@
 %
 % The example number and page number are stored in the file as a comment. They
 % are not printed by the corresponding tex/webp file because the example numbers
-% can change change as the manual is updated. The file name is given by the
-% unique label attached to the example environment. The example and page numbers
-% in the example files are used by test_atableau.py when reporting on the examples.
+% can change as the manual is updated. The filename is given by the
+% unique LaTeX label attached to the example environment. The example and page
+% numbers in the example files are used by test_atableau.py when
+% reporting on the examples.
 
 % The python script test_atableau.py converts the LaTeX example files into webp
 % images and then compares them with "good" example images to check for changes
@@ -36,7 +39,7 @@
 \RequirePackage{MnSymbol}
 \RequirePackage[svgnames]{xcolor}
 
-\nofiles  % we do not need an aux file
+\nofiles % we do not need an aux file
 
 % one or more of the example files need the following
 

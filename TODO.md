@@ -1,17 +1,20 @@
 ![version](https://img.shields.io/github/v/tag/AndrewMathas/aTableau?color=success&label=aTableau)
-![LPPL](https://img.shields.io/github/license/note286/xduts?style=flat-square)
-![CTAN](https://img.shields.io/ctan/v/atableau?color=blue&link=https://ctan.org/pkg/atableau)
-![LaTeX](https://img.shields.io/badge/LaTeX-008080?logo=latex&logoColor=fff&style=flat)
+![LaTeX](https://img.shields.io/badge/LaTeX-008080?logo=latex&logoColor=fff)
+[![LPPL](https://img.shields.io/github/license/note286/xduts?style=flat-square)](https://www.latex-project.org/lppl/)
+[![CTAN](https://img.shields.io/ctan/v/atableau?color=blue)](https://ctan.org/pkg/atableau)
+![GitHub Release Date](https://img.shields.io/github/release-date/AndrewMathas/atableau?label=released&color=red)
 
 # aTableau - ToDo list
 
-### Known bugs
+## Known bugs
 
-### Features to be implemented
+- Make the label key work properly with abacuses. The label placement needs adjusting when used with the north and west conventions
 
-### Documentation
+## Features to be implemented
 
-- Add an example using polar coordinates to place a picture in a tikzpicture environment
+## Documentation
+
+- Extract all aTableau examples into one file as a better proxy for testing speed regression
 - Check Cartan conventions for residues
 
 ### Things we might do at some point

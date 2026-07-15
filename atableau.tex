@@ -1,6 +1,6 @@
 % ----------------------------------------------------------------------
 % aTableau manual - Andrew Mathas (C) 2022-2026
-% Modified: 10:45 Wednesday, 01 July 2026
+% Modified: 16:09 Wednesday, 15 July 2026
 % ----------------------------------------------------------------------
 \documentclass{amsart}
 \usepackage[svgnames,table]{xcolor}
@@ -22,9 +22,6 @@
 \usepackage{siunitx}
 \usepackage{xltabular}
 \usepackage{xspace}
-
-\pdfcompresslevel=0
-\pdfobjcompresslevel=0
 
 % ----------------------------------------------------------------------
 \usepackage{array}
@@ -947,7 +944,7 @@
   These four conventions are used
   in exactly the same way with the \keyword{\Diagram} command:
   \begin{example}[lefthand width=0.4\textwidth]{diagramRussians}
-  \Diagram{4,3,3,1} \qquad
+  \Diagram{4,3,3,1} \qquad % defaults to English
   \Diagram[russian]{4,3^2,1}
   \end{example}
   As this example illustrates, partitions can either be typed as a
@@ -1255,14 +1252,15 @@
   The coordinate $(0,0)$ is needed in the last example because the
   \keyword{\Diagram} command is used in a \keyword{tikzpicture}
   environment. Rather than (0,0), any \TikZ coordinate could have been
-  used. (As this example uses relative coordinates, a different choice of coordinate
-  will not actually change the picture.) The use of coordinates becomes more
-  meaningful when the \keyword{tikzpicture} environment has more
-  components. In the next example, the key \option{name=B} makes the
-  named coordinates for the second diagram take the form
-  (\textsf{B-r-c}), instead of the default named coordinates
-  (\textsf{A-r-c}), which are used in the first diagram. This makes it
-  easy to draw a line between two boxes in these tableaux.
+  used. (As \autoref{Ex:diagramCoordinates} uses relative coordinates, a
+  different choice of coordinate will not actually change the picture.)
+
+  The use of coordinates becomes more meaningful when the
+  \keyword{tikzpicture} environment has more components. In the next
+  example, the key \option{name=B} makes the named coordinates for the
+  second diagram take the form (\textsf{B-r-c}), instead of the default
+  named coordinates (\textsf{A-r-c}), which are used in the first diagram.
+  This makes it easy to draw a line between two boxes in these tableaux.
 
   \begin{example}[lefthand width=0.14\textwidth, sidebyside gap=0mm]{diagramNames}
   % \usetikzlibrary{decorations.pathmorphing}
@@ -1399,7 +1397,7 @@
     needed only if the tableau is part of a \keyword{tikzpicture}
     environment. Arbitrary \TikZ coordinates can be used, including
     Cartesian coordinates (as shown), polar coordinates, and named nodes.
-    \item[*options] Optional arguments, or keys, that are described below, with examples.
+    \item[*options] Optional arguments, or keys, which are described below with many examples.
     \item[*tableau entries]\index{tableau entries} The
     \keyword{tableau entries} are given as a comma-separated list, with commas
     separating rows and each \textit{token}, or braced-group of
@@ -1423,7 +1421,7 @@
 
   The tableau specifications can be put on a single line, without any
   spaces. Alternatively, as shown here, spaces and line breaks can be
-  added to improve readability. The one restriction is that you cannot
+  added to improve readability. The only restriction is that you cannot
   have blank lines inside a \keyword{\Tableau} command. As this example
   suggests, by default, the entries in a tableau are typeset in
   mathematics-mode, but this can be changed using the
@@ -1431,8 +1429,8 @@
 
   The tableau entries can be individual characters, or they can be \TeX\
   commands. Tableaux frequently contain entries that are not single
-  characters, or given by commands. In true \TeX-style, such entries are
-  added to a tableau by enclosing them in braces:
+  characters, or given by commands. As is customary in \LaTeX{} documents,
+  such entries are added to a tableau by enclosing them in braces:
 
   \begin{example}{tableauBraces}
     \Tableau{ 13{10}{11}{2x}, 2{y^3}, {r_1} }
@@ -1502,8 +1500,8 @@
   a \TikZ node, so any \TikZ-style specifications for a \TikZ node can be
   used.  This example shows that some care is needed when changing the
   style because simply giving a colour changes both the colour used to
-  \textit{fill} the box and the \textit{text colour}, which is why some of
-  the entries in the last example appear to be blank.  If you are already
+  \textit{fill} the box and the \textit{text colour}, which is why one of
+  the boxes in the last example appears to be blank. If you are already
   familiar with \TikZ, then you probably already know what to do. If not,
   here is a short list of useful style specifications for \TikZ nodes:
   \begin{center}\index{fill}\index{text}\index{draw}\index{font}
@@ -1523,7 +1521,7 @@
        \bottomrule
      \end{tabular}
   \end{center}
-  In the style settings, any valid \LaTeX\ colour name can be used; see, for
+  In these settings, any valid \LaTeX\ colour name can be used; see, for
   example, the \ctan{xcolor} manual. In addition, the style specifications
   \keyword{thin}\!,
   \keyword{thick}\!,
@@ -1538,14 +1536,14 @@
   You can apply ``complicated'' style settings, such as
   \keyword{draw=cyan,ultra thick}, which consists of a comma-separated
   list of \TikZ-style settings, by putting the style setting
-  inside matching square brackets%
+  inside the matching square brackets%
   \footnote{In particular, even though commas are used to separate the
   rows of the tableau, you do not need to enclose the style
   specifications inside both square brackets and braces, [\{...\}],
   because \aTableau is smart enough to match square brackets when reading style.}.
   If you use a style more than once, then a better approach is to
-  define a \TikZ-style for ``complicated'' styles because they are
-  easier to read, proofread, and type.
+  define a \TikZ-style for ``complicated'' styles because custom
+  \TikZ-styles are easier to read, proofread, type, reuse, and change.
 
   \begin{example}{tableauAustralian}
   \Tableau[australian]{
@@ -1561,13 +1559,13 @@
   This example demonstrates that modifying the borders of a box is
   problematic because boxes placed later are likely to overwrite the new
   border style (see \autoref{SS:order}). As a result, modifying the borders
-  of individual boxes is often not a good way to add emphasis to the boxes
-  in a tableau,  so use this sparingly. In addition, the orange circle
-  in this example is too big, but it is what we asked for because the
-  diameter of the circle is the horizontal width of the box. The next
-  example shows that we get a better result using
-  \textit{minimum size=5mm} when using the \option{australian} and
-  \option{russian} conventions for tableaux.
+  of individual boxes is often not a good way to add emphasis to
+  different boxes in a tableau,  so use this sparingly. In addition, the
+  orange circle in this example is too big, but it is what we asked for
+  because the diameter of the circle is the horizontal width of the box.
+  The next example shows that we get a better result using \textit{minimum
+  size=5mm} when using the \option{australian} and \option{russian}
+  conventions for tableaux.
 
   For complex, or frequently used styles, we recommend using the
   \keyword{\tikzset} command to define the style outside of the
@@ -1648,7 +1646,7 @@
   syntax, you can change the appearance of the tableau produced by the
   \keyword{\Tableau} command.  The rest of this section describes these
   keys, their default values, and gives examples of their usage.  Keys
-  are mostly, listed in alphabetical order except that some related keys
+  are mostly listed in alphabetical order except that some related keys
   are discussed together.
 
   The options, or keys, below can be applied to the \keyword{\Tableau}
@@ -1687,22 +1685,25 @@
   combinatorics of defining by example.
 
   \begin{example}[lefthand width=0.3\textwidth]{tableauAustralianFill}
+  Australian\qquad
   \Tableau[australian, styles={B={fill=brown!20, text=red}}]
     {12[B]3,45}
   \end{example}
 
   \begin{example}[lefthand width=0.3\textwidth]{tableauEnglishBlue}
-  \tikzset{B/.style={fill=blue!20, dashed, thick}}
+  English\qquad
+  \tikzset{B/.style={fill=blue!20, dashed, ultra thick}}
   \Tableau[english]{12[B]3,45}
   \end{example}
 
   \begin{example}[lefthand width=0.3\textwidth]{tableauFrenchRed}
-  \tikzset{R/.style={fill=red!20, circle, draw=red,
-            ultra thick}}
+  French\qquad
+  \tikzset{R/.style={fill=Plum,circle,draw=red,ultra thick}}
   \Tableau[french]{12[R]3,45}
   \end{example}
 
   \begin{example}[lefthand width=0.3\textwidth]{tableauRussian}
+  Russian\qquad
   \Tableau[russian, styles={R={fill=red!20,draw=red}}]
     {12[R]3,45}
   \end{example}
@@ -2548,7 +2549,7 @@
   \keyword[width=1.5em,height=1em]{,} \space
   \keyword[width=1.5em,height=1em]{*} \space
   \keyword[width=1.5em,height=1em]{[} \space
-  each has a special meanings in the \textit{tableau specifications}.
+  each has a special meaning in the \textit{tableau specifications}.
   Enclose these characters in braces if you want to use these characters as
   entries in a tableau:
 
@@ -2880,7 +2881,7 @@
 
   \item\option{entries=ladders}: Prints the \emph{ladder numbers} of the
   boxes in the diagram. The ladder number of the box in row~$r$ and
-  column~$c$ is $c-r+e(r-1)$, so the boxes on the same ladder on lines
+  column~$c$ is $c-r+e(r-1)$, so the boxes on the same ladder lie on lines
   of slope $e-1$ in the diagram (when using the English convention). You
   also need to set the quantum characteristic \option{e}.
 
@@ -3473,7 +3474,7 @@
   The ribbon specifications described already are sufficient for drawing
   arbitrary ribbons. To allow more general regions to be drawn inside
   diagrams and tableaux, the ribbon specifications also accept
-  \textsf{R}'s' and~\textsf{C}'s, which \textit{decrease the row index} and
+  \textsf{R}'s and~\textsf{C}'s, which \textit{decrease the row index} and
   \textit{increase the column index}, respectively. That is, when using
   the English convention, the ribbon specifications \textsf{c}, \textsf{C},
   \textsf{r} and \textsf{R} move the (generalised) ribbon in the following directions:
@@ -3922,7 +3923,7 @@
     \item\option{entries=rows}: Prints the tableau in which each box is
       replaced by its row index in each component. As with
       \option{entries=columns}, use \option{charge} with a $|$-separated
-      list entries to offset the row indices in each component.
+      list of entries to offset the row indices in each component.
 
   \begin{example}{multiEntriesRows}
   \Multidiagram[entries=rows]{3,1^2|2^2,1}
@@ -4159,7 +4160,7 @@
   particularly useful in modular representation theory, where the number
   of runners is the (quantum) characteristic. Abacus combinatorics is
   now used in the representation theory of many algebras, with their use
-  now extending far beyond the symmetric groups.
+  extending far beyond the symmetric groups.
 
   The partition corresponding to an abacus is given by counting the
   number of empty bead positions before each bead on the abacus. The
@@ -4195,14 +4196,13 @@
 
   The beads in an abacus correspond to the parts of the partition. Just
   as with the \keyword{\Tableau} command, each of the beads can be given
-  optional styling, which can either be given by prepending a
-  \keyword{*}, which applies the \option{abacus star}, or by
+  optional styling, which can be given either by prepending a
+  \keyword{*}, which applies the \option{abacus star} style, or by
   giving \TikZ style-keys inside square brackets \keyword{[...]}.
   When exponential notation is used, the styles are applied to all of the
   associated beads.
 
   \begin{example}{abacusStyled}
-  \aTabset{align=top}
   \Abacus{3}{3,*2^3,1}  \qquad
   \Abacus{4}{2,*1,[ball color=red]1^2, *1,
     [ball color=orange]1,[bead=brown]0}
@@ -4269,17 +4269,17 @@
   \index{abacus!quotient}
   \index{partition!quotient}
 
-  Rather than specifying a partition, or beta numbers, for an abacus it
-  is also possible to give a $|$-separated list of partitions, or beta
-  numbers, for the corresponding (core and) quotient partition, which
-  corresponds to the partitions obtained by reading the beta numbers
-  down each runner. The quotients can be given as either partitions, or as beta
-  numbers with the \option{beta numbers} key. The syntax is
-  exactly the same as described in the previous section except that the
-  different components of the quotient are separated by a pipe
-  symbol~\keyword{|}. The number of components in the quotient must be less
-  than or equal to the number of runners. Any omitted components in
-  the quotient are assumed to be empty.
+  Rather than specifying the abacus by giving a partition, or a sequence
+  of beta numbers, it is also possible to give a $|$-separated list of
+  partitions, or beta numbers, for the corresponding (core and) quotient
+  partition, which corresponds to the partitions obtained by reading the
+  beta numbers down each runner. The quotients can be given as either
+  partitions, or as beta numbers when the \option{beta numbers} key is
+  used. The syntax is exactly the same as described in the previous
+  section except that the different components of the quotient are
+  separated by a pipe symbol~\keyword{|}. The number of components in the
+  quotient must be less than or equal to the number of runners. Any
+  omitted components in the quotient are assumed to be empty.
 
   \begin{example}{abacusBeta}
   \Abacus{4}{1,0||2,1} \qquad
@@ -4304,10 +4304,10 @@
   \begin{example}{abacusCoords}
   \begin{tikzpicture}[add grid]
     \aTabset{abacus ends=_|, entries=beads}
-    \Abacus(0,0) [south]              {3}{2,1^2}
-    \Abacus(0,2) [east,  bead=red]    {3}{2,1^2}
-    \Abacus(2,-1)[north, bead=orange] {3}{2,1^2}
-    \Abacus(3,1) [west,  bead=brown]  {3}{2,1^2}
+    \Abacus(0,0) [south,label=S]             {3}{2,1^2}
+    \Abacus(90:2)[east, label=E, bead=red]   {3}{2,1^2}
+    \Abacus(2,-1)[north,label=N, bead=orange]{3}{2,1^2}
+    \Abacus(3,1) [west, label=W, bead=brown] {3}{2,1^2}
   \end{tikzpicture}
   \end{example}
 
@@ -4339,13 +4339,14 @@
   \option*[]{west}
 
   Just like tableaux, abacuses have four different conventions.  By
-  default, abacuses are drawn with the runners pointing to the south,
-  from top to bottom, and runners increasing from left to right. Similar
-  to tableaux, we number the rows $0,1,\dots$, and we number the
-  runners, or columns, $0,1,\dots,e-1$, from left to right (when using
-  \option{south}). If there are $e$ runners, then the bead in row~$r$
-  and column~$c$ is in position $er+c$. See \autoref{Ex:abacusBeadPositions}
-  for an example.
+  default, abacuses are drawn with the runners pointing to the south, from
+  top to bottom, and runners increasing from left to right. Unlike
+  tableaux, the row and column indices in abacuses are $0$-based. That is,
+  the rows are numbered $0,1,\dots$, and the columns, or runners, are
+  numbered $0,1,\dots,e-1$, from left to right (when using the
+  \option{south} convention). If there are $e$ runners, then the bead in
+  row~$r$ and column~$c$ is in position $er+c$. See
+  \autoref{Ex:abacusBeadPositions} for an example.
 
   Using the keys \option{east}, \option{north} and \option{west},
   abacuses can be drawn so that the row index increases to the east,
@@ -4364,7 +4365,7 @@
   \option*[very thick, draw=\aTableauColour{Inner}]{abacus ends style=style}[\TikZ-styling]
 
   The \option{abacus ends} key sets the style of the top and
-  bottom of the abacus, using the following of these six symbols:
+  bottom of the abacus, using the following six symbols:
 
   \begin{center}
     \rowcolors{2}{}{LightSkyBlue!10}
@@ -4416,10 +4417,10 @@
       runner style=cyan] {3}{2,1^2,0^3}
   \end{example}
 
-  The \option{traditional} abacus style only supports the $-$
-  and~\_\!\_ settings for \option{abacus ends}. There is also a
-  \option{framed} key, which works better with the
-  \option{traditional} style, that is discussed below.
+  The \option{traditional} abacus style only supports the $-$ and~\_\!\_
+  settings for \option{abacus ends}. There is also a \option{framed} key,
+  which works better with the \option{traditional} style.
+  The \option{framed} key is discussed below.
 
   \option[ball color=\aTableauColour{Star}, text=\aTableauColour{Main}]{abacus star=style}
      [\TikZ-styling]
@@ -4446,7 +4447,7 @@
   to the row index, so decreasing \option{abacus top} raises the line at the
   ``top'' of abacus and increasing \option{abacus top} lowers the line
   at the ``top'' of the abacus.\footnote{Throughout this section, the
-  word ``top'' and ``bottom'' are correct when using the \option{south}
+  words ``top'' and ``bottom'' are correct when using the \option{south}
   convention for abacuses. For any convention, ``top'' should be
   interpreted as row zero, and ``bottom'' as the row with the largest
   row index. Similarly, ``left'' and ``right'' refer to the minimum and
@@ -4652,7 +4653,7 @@
   \end{example}
 
   \item\option{entries=residues}:\index{entries!residues}
-  Label each bead with its residues.
+  Label each bead with its residue.
   \begin{example}{abacusEntriesResidues}
   \Abacus[entries=residues,]{3}{3,2^2,0^2} \qquad
   \Abacus[entries=residues, cartan=C]
@@ -4708,6 +4709,24 @@
   abacuses only support the $\mid$, $-$ and~\_\!\_ settings for
   \option{abacus ends}.
 
+  \option[none]{label=text}[any character/text]<abacus>
+  \option*[font=\textbackslash scriptsize, text=\aTableauColour{Inner}]{label style=style}[\TikZ-styling]<abacus>
+  \index{abacus!label}
+
+  The \option{label} key adds a label to an abacus near the position of
+  the first bead on the abacus. The style of the label can be changed using the
+  \option{label style}<abacus> key.
+
+  \begin{example}{abacusLabel}
+  \Abacus[north, label={\mathtt{t}}]{3}{4^2,1}\quad
+  \Abacus[east, label=0,label style={red}]{3}{3^2,1^3}\quad
+  \Abacus[label style={draw=orange, circle,
+    inner sep=0pt, minimum size=2mm}, label=1]{3}{2,1^6}
+  \end{example}
+
+  Like bead entries, the \option{label}<abacus> is typeset in mathematics
+mode. See also \option{row labels} and \option{runner labels}.
+
   \option[A]{name=text}[text]<abacus>
 
   Just like the tableau commands, the \keyword{abacus} command defines
@@ -4715,7 +4734,7 @@
   abacus. The key \option{name} changes the prefix used for the \TikZ
   named coordinates. By default, the named coordinates take the form
   $(\mathsf{A{-}r{-}c})$, for the bead or tick in row~$r$ and column~$c$
-  of the abacus.
+  of the abacus, where both $r$ and $c$ start counting from zero.
 
   \begin{warning}
     After \option{name=X}, the bead and tick names take the
@@ -5204,8 +5223,8 @@
     \option{halign}            & Horizontal alignment of box entries and bead labels & \Yes & \Yes[abacus] \\
     \option{inner style}       & Set style of inner tableau wall                     & \Yes & \No \\
     \option{inner wall}        & Set colour of inner tableau wall                    & \Yes & \No \\
-    \option{label}             & Set tableau label                                   & \Yes & \No \\
-    \option{label style}       & Set style of tableau labels                         & \Yes & \No \\
+    \option{label}             & Set the picture label                               & \Yes & \Yes[abacus]\\
+    \option{label style}       & Set style of the picture label                      & \Yes & \Yes[abacus]\\
     \option{left delimiter}    & Set left delimiter for a multitableau               & \Yes & \No \\
     \option{math boxes}        & Typeset box and label entries in math-mode          & \Yes & \Yes[abacus] \\
     \option{name}              & Prefix of named coordinates                         & \Yes & \Yes[abacus] \\
@@ -5250,7 +5269,7 @@
     \option{south}             & Make abacus grow towards the south                  & \Yes & \No \\
     \option{styles}            & Shorthand for defining single use \TikZ-styles      & \Yes & \Yes[abacus] \\
     \option{tableau star}      & Set \TikZ-style of tableau $*$-nodes                & \Yes & \No \\
-    \option{tabloid}           & True for a tabloids                                 & \Yes & \No \\
+    \option{tabloid}           & True for a tabloid                                  & \Yes & \No \\
     \option{text boxes}        & Typeset box and label entries in text mode          & \Yes & \Yes[abacus] \\
     \option{tick length}       & Set the length of the ticks on the abacus runners   & \No  & \Yes \\
     \option{tick style}        & Set the style of the ticks on the abacus runners    & \No  & \Yes \\
@@ -5313,6 +5332,7 @@
        aTableau/namedTick       & Named nodes for abacus ticks\\
        aTableau/path            & Paths \\
        aTableau/pathBox         & Boxes in paths \\
+       aTableau/pictureLabel    & Picture labels \\
        aTableau/ribbon          & Ribbons \\
        aTableau/ribbonBox       & Boxes in ribbons \\
        aTableau/rightDelimiter  & Right delimiter in a multishapes\\
@@ -5441,14 +5461,13 @@
   \TikZ diagram coordinates are rarely needed in these pictures.
 
   The first of these examples, which is also from
-  \cite{BowmanDeVisscherHaziStroppel:Arc}, is a little more involved.
-  The ``hard work'' in drawing this picture diagram is done using custom
-  \TikZ-styles, call \textit{pics}, that are a good way of adding repeating
-  features to a \keyword{tikzpicture}. The wavy up and down strings in this
-  picture are down using pics with the same name, which then use the
-  \textit{bendy string} pic to draw the actual strings. These pics take
-  as input the string colour, the starting box, the list of the boxes
-  that the string passes through, and the final box in the string.
+  \cite{BowmanDeVisscherHaziStroppel:Arc}, is a little more involved. The
+  ``hard work'' in drawing this picture is done using custom
+  \TikZ-styles, called \textit{pics}, which are a good way of adding
+  repeating features to a \keyword{tikzpicture}, to draw the wavy up and
+  down strings in this picture. These pics take as input the string
+  colour, the starting box, the list of the boxes that the string passes
+  through, and the final box in the string.
 
 \begin{Example}{tableauUpDown}
 \tikzset{ % reusable keys for drawing the strings in the diagram using named coords
@@ -5461,7 +5480,7 @@
    pics/down string/.style n args = {4}{% {colour}{first}{middle}{last}
      bendy string={#1}{#2}{#3}{#4}{O}{south}{Cap}{Cup}
    },
-   pics/bendy string/.style n args = {8}{%
+   pics/bendy string/.style n args = {8}{% draws the up/down strings
     % {colour}{first coord}{middle coords}{last coord}{O/T}{N/S}{Cup/Cap}{Cap/Cup}
     code = {
       \def\last{#2}                                    % should not be necessary

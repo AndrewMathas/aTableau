@@ -1,9 +1,17 @@
-![version](https://img.shields.io/github/v/tag/AndrewMathas/aTableau?color=success&label=aTableau&v=2)
-![LPPL](https://img.shields.io/badge/license-LPPL%201.3c-orange)
-[![CTAN](https://img.shields.io/ctan/v/atableau?color=blue)](https://ctan.org/pkg/atableau)
+![version](https://img.shields.io/github/v/tag/AndrewMathas/aTableau?color=success&label=aTableau)
 ![LaTeX](https://img.shields.io/badge/LaTeX-008080?logo=latex&logoColor=fff)
+[![LPPL](https://img.shields.io/github/license/note286/xduts?style=flat-square)](https://www.latex-project.org/lppl/)
+[![CTAN](https://img.shields.io/ctan/v/atableau?color=blue)](https://ctan.org/pkg/atableau)
+![GitHub Release Date](https://img.shields.io/github/release-date/AndrewMathas/atableau?label=released&color=red)
 
 # **aTableau** - Change log
+
+## Version 2.2.3 - 202?-??-??
+
+- Allows the `label` key to be used with abacuses
+- Improves speed for creating some pictures by using \tl\_build\_* 
+- Updates the `make_release` script so that it now runs a series of
+  checks to ensure that the package is ready for release
 
 ## Version 2.2.2 - 2026-06-30
 
@@ -59,6 +67,7 @@
 - Adds a key-value interface for the picture options
 - Adds support for the different tableau and abacus conventions
 - Adds stars and styles to tableaux, diagrams, and abacuses
+- Adds `\RibbonTableau`, `\Multidiagram` and `\Multitableau` commands
 - Allows commands to be used both in and outside `tikzpicture` environments
 - Allows TikZ styles to be applied to tableau and abacus entries
 

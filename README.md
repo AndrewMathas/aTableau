@@ -1,7 +1,8 @@
 ![version](https://img.shields.io/github/v/tag/AndrewMathas/aTableau?color=success&label=aTableau)
-![LPPL](https://img.shields.io/github/license/note286/xduts?style=flat-square)
-![CTAN](https://img.shields.io/ctan/v/atableau?color=blue&link=https://ctan.org/pkg/atableau)
-![LaTeX](https://img.shields.io/badge/LaTeX-008080?logo=latex&logoColor=fff&style=flat)
+![LaTeX](https://img.shields.io/badge/LaTeX-008080?logo=latex&logoColor=fff)
+[![LPPL](https://img.shields.io/github/license/note286/xduts?style=flat-square)](https://www.latex-project.org/lppl/)
+[![CTAN](https://img.shields.io/ctan/v/atableau?color=blue)](https://ctan.org/pkg/atableau)
+![GitHub Release Date](https://img.shields.io/github/release-date/AndrewMathas/atableau?label=released&color=red)
 
 # aTableau
 

@@ -1,6 +1,6 @@
 % ---------------------------------------------------------------------------
 % aTableau - Andrew Mathas (C) 2022-2026
-% Modified: 14:08 Tuesday, 30 June 2026
+% Modified: 15:40 Wednesday, 15 July 2026
 % ---------------------------------------------------------------------------
 %
 % A LaTeX package for symmetric group combinatorics:
@@ -22,7 +22,7 @@
 % the package repository github.com/AndrewMathas/aTableau/
 
 % ---------------------------------------------------------------------------
-% load TikZ early to avoid \ExplSyntaxOn...\ExplSyntaxOff wrappers
+% load TikZ and amsfonts early to avoid \ExplSyntaxOn...\ExplSyntaxOff wrappers
 \RequirePackage{tikz}
 \usetikzlibrary{
     arrows.meta,      % for arrows in abacus ends
@@ -263,10 +263,14 @@
 \prop_new:N \l__aTableau_colour_theme_prop% colour theme specifications
 \prop_new:N \l__aTableau_ribbon_prop      % border paths in a ribbon (no speed difference using \prop_new_linked:N)
 
+\seq_new:N \l__aTableau_bead_shape_seq    % destructible working copy of shape_seq for the bead-drawing loop
+\seq_new:N \l__aTableau_bead_styles_seq   % destructible working copy of styles_seq for the bead-drawing loop
+\seq_new:N \l__aTableau_bead_texts_seq    % destructible working copy of texts_seq for the bead-drawing loop
 \seq_new:N \l__aTableau_charge_seq        % sequences of charges = residue/content offset
 \seq_new:N \l__aTableau_colours_seq       % tableau fill colours
 \seq_new:N \l__aTableau_component_seq     % multipartition
 \seq_new:N \l__aTableau_conjugate_seq     % conjugate partition
+\seq_new:N \l__aTableau_conjugate_work_seq% destructible working copy used by \__aTableau_compute_conjugate_partition:N
 \seq_new:N \l__aTableau_dotted_cols_seq   % columns with dots
 \seq_new:N \l__aTableau_dotted_rows_seq   % rows with dots
 \seq_new:N \l__aTableau_cover_seq         % the inner partition for the cover shape
@@ -523,11 +527,14 @@
     },
     % -----------------------------------------------------------------------
     % label styles
+    pictureLabel/.style = {
+        font=\scriptsize,
+        text = \l__aTableau_inner_tl,
+    },
     tableauLabel/.style = {
         shift = {(\fp_eval:n{-0.2*(\l__aTableau_box_row_dx_fp+\l__aTableau_box_col_dx_fp)},
                   \fp_eval:n{-0.2*(\l__aTableau_box_row_dy_fp+\l__aTableau_box_col_dy_fp)})},
-        font=\scriptsize,
-        text = \l__aTableau_inner_tl,
+        aTableau/pictureLabel
     },
     % -----------------------------------------------------------------------
     % tableau star style
@@ -844,8 +851,8 @@
 \cs_generate_variant:Nn \__aTableau_set_bead_coordinates:nnn {nVn, nVV, nnV, noo, non, nVo, noV, nno}
 \cs_generate_variant:Nn \__aTableau_set_box_coordinates:nnn {nVV, nVn, noo, noV, nnV }
 \cs_generate_variant:Nn \__aTableau_set_partition:nn {nV}
-\cs_generate_variant:Nn \__aTableau_tikz_node:nnnn {nVno}
 \cs_generate_variant:Nn \__aTableau_tl_put_right_braced:Nn { NV, Nx, No, Ne }
+\cs_generate_variant:Nn \tl_build_put_right:Nn { NV, Nx, No, Ne }
 
 % ---------------------------------------------------------------------------
 % utility functions
@@ -856,6 +863,43 @@
 {
   \tl_put_right:Nn #1 { {#2} }
 }
+
+% usage: \__aTableau_tl_build_put_right_braced:Nn #1 #2
+% Add braces around #2 and append to #1, which must have been set up with
+% \tl_build_begin:N. Repeated \tl_put_right:Nn on a plain tl variable is
+% O(current length) per call (TeX has to recopy the whole macro body), so
+% building a tl of n items by appending one-by-one is O(n^2) overall;
+% \tl_build_put_right:Nn is O(1) amortised per call, so building the same
+% list this way is O(n). See \__aTableau_tl_put_right_braced:Nn above,
+% which this mirrors, and l3tl-build in the LaTeX3 kernel.
+\cs_new_protected:Nn \__aTableau_tl_build_put_right_braced:Nn
+{
+  \tl_build_put_right:Nn #1 { {#2} }
+}
+\cs_generate_variant:Nn \__aTableau_tl_build_put_right_braced:Nn { NV, Nx, No, Ne }
+
+% ---------------------------------------------------------------------------
+% O(1) indexed access to a sequence
+%
+% \seq_item:Nn requires O(n) time to fetch the nth item of a sequence
+% (sequences do not support random access), so using it inside a loop that
+% already runs over the sequence turns an O(n) algorithm into O(n^2).
+% \__aTableau_seq_to_array:Nn converts a sequence into a set of indexed
+% scratch token lists in a single O(n) pass, so that
+% \__aTableau_array_item:nn can then fetch any entry in O(1) time.
+
+% usage: \__aTableau_seq_to_array:Nn {seq} {array name}
+\cs_new_protected:Npn \__aTableau_seq_to_array:Nn #1 #2
+{
+    \seq_map_indexed_inline:Nn #1
+    {
+        \cs_if_exist:cF {g__aTableau_array_#2_##1_tl} {\tl_new:c {g__aTableau_array_#2_##1_tl}}
+        \tl_set:cn {g__aTableau_array_#2_##1_tl} {##2}
+    }
+}
+
+% usage: \__aTableau_array_item:nn {array name} {index}
+\cs_new:Npn \__aTableau_array_item:nn #1 #2 { \tl_use:c {g__aTableau_array_#1_#2_tl} }
 
 % ---------------------------------------------------------------------------
 % expandable residue functions
@@ -908,7 +952,7 @@
     }
 }
 
-% usage: \__aTableau_residue_D:nn
+% usage: \__aTableau_residue_DD:nn
 % Computes the residue of #1 in affine type D. When e=3 this residue pattern is
 %    0 1 2 3 3 2 1 0 0 1 2 3 3 2 1 0 0 1 ...
 % As with \int_mod:n, the result is left in the input stream.
@@ -1156,14 +1200,22 @@
 
 % usage: \__aTableau_compute_conjugate_partition:N {seq}
 % compute the conjugate partition of <seq> and store in \l__aTableau_conjugate_seq
+%
+% #1 is walked from the right using \seq_pop_right:NN, which is O(1)
+% amortised, instead of \seq_item:NV #1 <index>, which is O(index) because
+% sequences do not support random access. This turns the loop below into
+% O(n) instead of O(n^2). We pop from a working copy, \l__aTableau_conjugate_work_seq,
+% so that the caller's sequence #1 is left untouched.
 \cs_new_protected:Npn \__aTableau_compute_conjugate_partition:N #1
 {
     \seq_clear:N \l__aTableau_conjugate_seq
+    \seq_set_eq:NN \l__aTableau_conjugate_work_seq #1
     \int_zero:N \l_tmpa_int % previous part
     \int_set:No \l__aTableau_r_int {\seq_count:N #1}
     \int_while_do:nn {\l__aTableau_r_int > 0}
     {
-        \int_set:No \l_tmpb_int {\seq_item:NV #1 \l__aTableau_r_int }
+        \seq_pop_right:NN \l__aTableau_conjugate_work_seq \l_tmpa_tl
+        \int_set:Nn \l_tmpb_int {\l_tmpa_tl}
         \int_step_inline:nn { \l_tmpb_int - \l_tmpa_int }
         {
             \seq_put_right:NV \l__aTableau_conjugate_seq \l__aTableau_r_int
@@ -1205,77 +1257,81 @@
 % the dot-sequence ~~~,~~,~~,~,
 \cs_new_protected:Npn \__aTableau_diagram_for_shape:N #1
 {
-    \tl_clear:N \l__aTableau_entries_tl
+    \tl_build_begin:N \l__aTableau_entries_tl
     \tl_clear:N \l_tmpb_tl
     \seq_map_inline:Nn #1
     {
-        \tl_put_right:No \l__aTableau_entries_tl \l_tmpb_tl
-        \tl_put_right:Nx \l__aTableau_entries_tl  { \prg_replicate:nn {##1} {{{~}}} }
+        \tl_build_put_right:No \l__aTableau_entries_tl \l_tmpb_tl
+        \tl_build_put_right:Nx \l__aTableau_entries_tl  { \prg_replicate:nn {##1} {{{~}}} }
         \tl_set:Nn \l_tmpb_tl {,}
     }
+    \tl_build_end:N \l__aTableau_entries_tl
 }
 
 % usage: \__aTableau_shape_to_columns:N {partition sequence}
 % Diagrams with entries=columns are drawn using the \Diagram command
 \cs_new_protected:Npn \__aTableau_shape_to_columns:N #1
 {
-    \tl_clear:N \l__aTableau_entries_tl
+    \tl_build_begin:N \l__aTableau_entries_tl
     \tl_clear:N \l_tmpb_tl
     \seq_map_inline:Nn #1
     {
-        \tl_put_right:No \l__aTableau_entries_tl \l_tmpb_tl
+        \tl_build_put_right:No \l__aTableau_entries_tl \l_tmpb_tl
         \int_set_eq:NN \l__aTableau_col_int \l__aTableau_charge_int
         \int_step_inline:nn {##1}
         {
             \int_incr:N \l__aTableau_col_int
-            \__aTableau_tl_put_right_braced:No \l__aTableau_entries_tl {\int_use:N \l__aTableau_col_int}
+            \__aTableau_tl_build_put_right_braced:No \l__aTableau_entries_tl {\int_use:N \l__aTableau_col_int}
         }
         \tl_set:Nn \l_tmpb_tl {,}
     }
+    \tl_build_end:N \l__aTableau_entries_tl
 }
 
 % usage: \__aTableau_shape_to_contents:N {partition sequence}
 % Diagrams with entries=content are drawn using the \Diagram command
 \cs_new_protected:Npn \__aTableau_shape_to_contents:N #1
 {
-    \tl_clear:N \l__aTableau_entries_tl
+    \tl_build_begin:N \l__aTableau_entries_tl
     \int_zero:N \l__aTableau_row_int
     \tl_clear:N \l_tmpb_tl
     \seq_map_inline:Nn #1
     {
-        \tl_put_right:No \l__aTableau_entries_tl \l_tmpb_tl
+        \tl_build_put_right:No \l__aTableau_entries_tl \l_tmpb_tl
         \int_incr:N \l__aTableau_row_int
         \int_step_inline:nn {##1}
         {
             \int_set:Nn \l_tmpa_int { \l__aTableau_charge_int + ####1 - \l__aTableau_row_int + 0\seq_item:NV \l__aTableau_skew_seq \l__aTableau_row_int }
             \int_compare:nNnTF {\l_tmpa_int} < {0}
-            { \__aTableau_tl_put_right_braced:Ne \l__aTableau_entries_tl {\exp_not:N\shortminus\int_eval:n{-\l_tmpa_int}} }
-            { \__aTableau_tl_put_right_braced:No \l__aTableau_entries_tl {\int_use:N \l_tmpa_int} }
+            { \__aTableau_tl_build_put_right_braced:Ne \l__aTableau_entries_tl {\exp_not:N\shortminus\int_eval:n{-\l_tmpa_int}} }
+            { \__aTableau_tl_build_put_right_braced:No \l__aTableau_entries_tl {\int_use:N \l_tmpa_int} }
         }
         \tl_set:Nn \l_tmpb_tl {,}
     }
+    \tl_build_end:N \l__aTableau_entries_tl
 }
 
 % usage: \__aTableau_shape_to_ladders:N {partition sequence}
 % Diagrams with entries=last are drawn using the \Diagram command
 \cs_new_protected:Npn \__aTableau_shape_to_ladders:N #1
 {
-    \tl_clear:N \l__aTableau_entries_tl
+    \tl_build_begin:N \l__aTableau_entries_tl
     \tl_clear:N \l_tmpb_tl % will become the comma between rows
     \int_zero:N \l__aTableau_r_int
     \int_compare:nNnT {\l__aTableau_e_int} = {1000} { \int_zero:N \l__aTableau_e_int }
     \seq_map_inline:Nn #1
     {
-        \tl_put_right:No \l__aTableau_entries_tl \l_tmpb_tl
+        \tl_build_put_right:No \l__aTableau_entries_tl \l_tmpb_tl
         \int_incr:N \l__aTableau_r_int
         \int_set:Nn \l_tmpa_int {1+\l__aTableau_charge_int - \l__aTableau_r_int + (\l__aTableau_r_int-1)*\l__aTableau_e_int+ 0\seq_item:NV \l__aTableau_skew_seq \l__aTableau_r_int}
         \int_step_inline:nn {##1}
         {
-            \__aTableau_tl_put_right_braced:No \l__aTableau_entries_tl {\int_use:N \l_tmpa_int}
+            \__aTableau_tl_build_put_right_braced:No \l__aTableau_entries_tl {\int_use:N \l_tmpa_int}
             \int_incr:N \l_tmpa_int
         }
         \tl_set:Nn \l_tmpb_tl {,}
     }
+    \tl_build_end:N \l__aTableau_entries_tl
 }
 
 % usage: \__aTableau_shape_to_last:N {partition sequence}
@@ -1310,33 +1366,35 @@
     }
 
     % finally, unpack \l_tmpc_seq into l__aTableau_entries_tl
-    \tl_clear:N \l__aTableau_entries_tl
+    \tl_build_begin:N \l__aTableau_entries_tl
     \tl_clear:N \l_tmpb_tl
     \seq_map_inline:Nn \l_tmpc_seq
     {
-        \tl_put_right:No \l__aTableau_entries_tl \l_tmpb_tl
-        \tl_put_right:Nn \l__aTableau_entries_tl {##1}
+        \tl_build_put_right:No \l__aTableau_entries_tl \l_tmpb_tl
+        \tl_build_put_right:Nn \l__aTableau_entries_tl {##1}
         \tl_set:Nn \l_tmpb_tl {,}
     }
+    \tl_build_end:N \l__aTableau_entries_tl
 }
 
 % usage: \__aTableau_shape_to_first:N {partition sequence}
 % Diagrams with entries=first are drawn using the \Diagram command
 \cs_new_protected:Npn \__aTableau_shape_to_first:N #1
 {
-    \tl_clear:N \l__aTableau_entries_tl
+    \tl_build_begin:N \l__aTableau_entries_tl
     \int_set_eq:NN \l__aTableau_r_int \l__aTableau_charge_int
     \tl_clear:N \l_tmpb_tl
     \seq_map_inline:Nn #1
     {
-        \tl_put_right:No \l__aTableau_entries_tl \l_tmpb_tl
+        \tl_build_put_right:No \l__aTableau_entries_tl \l_tmpb_tl
         \int_step_inline:nn {##1}
         {
             \int_incr:N \l__aTableau_r_int
-            \__aTableau_tl_put_right_braced:NV \l__aTableau_entries_tl \l__aTableau_r_int
+            \__aTableau_tl_build_put_right_braced:NV \l__aTableau_entries_tl \l__aTableau_r_int
         }
         \tl_set:Nn \l_tmpb_tl {,}
     }
+    \tl_build_end:N \l__aTableau_entries_tl
     \seq_put_right:No \l__aTableau_charge_seq {\int_use:N\l__aTableau_r_int}
 }
 
@@ -1345,8 +1403,8 @@
 % shifted tableau, which use a different definition of hook length
 \cs_new_protected:Npn \__aTableau_shape_to_hooks:N #1
 {
-    % now construct the hook tableau
-    \tl_clear:N \l__aTableau_entries_tl
+    % now construct the hook tableau (each branch below sets
+    % \l__aTableau_entries_tl fully, so no need to clear it first)
     \bool_if:NTF \l__aTableau_shifted_bool
     {   % shifted tableau
         % initialise l_tmpc_seq because we will construct the entries in it and unpack at the end
@@ -1381,17 +1439,23 @@
       \int_zero:N \l__aTableau_row_int
       \tl_set:Nn \l_tmpb_tl {}
       \__aTableau_compute_conjugate_partition:N #1
+      % random access into \l__aTableau_conjugate_seq is needed once per cell
+      % below, so convert it to an O(1)-indexable array first (see the
+      % O(1) indexed access to a sequence utilities above)
+      \__aTableau_seq_to_array:Nn \l__aTableau_conjugate_seq {hooks}
+      \tl_build_begin:N \l__aTableau_entries_tl
       \seq_map_inline:Nn #1
       {
-        \tl_put_right:No \l__aTableau_entries_tl \l_tmpb_tl
+        \tl_build_put_right:No \l__aTableau_entries_tl \l_tmpb_tl
         \int_incr:N \l__aTableau_row_int
         \int_step_inline:nn {##1}
         {
-            \tl_set:Ne \l_tmpc_tl { \int_eval:n {##1+\seq_item:Nn \l__aTableau_conjugate_seq {####1} -\l__aTableau_row_int-####1+1} }
-            \__aTableau_tl_put_right_braced:NV \l__aTableau_entries_tl \l_tmpc_tl
+            \tl_set:Ne \l_tmpc_tl { \int_eval:n {##1+\__aTableau_array_item:nn {hooks} {####1} -\l__aTableau_row_int-####1+1} }
+            \__aTableau_tl_build_put_right_braced:NV \l__aTableau_entries_tl \l_tmpc_tl
         }
         \tl_set:Nn \l_tmpb_tl {,}
       }
+      \tl_build_end:N \l__aTableau_entries_tl
     }
 }
 
@@ -1399,41 +1463,43 @@
 % Residue diagrams are drawn using the \Tableau command
 \cs_new_protected:Npn \__aTableau_shape_to_residues:N #1
 {
-    \tl_clear:N \l__aTableau_entries_tl
+    \tl_build_begin:N \l__aTableau_entries_tl
     \int_zero:N \l__aTableau_row_int
     \tl_clear:N \l_tmpb_tl
     \seq_map_inline:Nn #1
     {
-        \tl_put_right:No \l__aTableau_entries_tl \l_tmpb_tl
+        \tl_build_put_right:No \l__aTableau_entries_tl \l_tmpb_tl
         \int_incr:N \l__aTableau_row_int
         \int_step_inline:nn {##1}
         {
             \int_set:Nn \l_tmpa_int { \l__aTableau_charge_int + ####1 - \l__aTableau_row_int }
             \int_add:Nn \l_tmpa_int { + 0\seq_item:NV \l__aTableau_skew_seq \l__aTableau_row_int }
             \tl_set:Nx \l_tmpa_tl { \__aTableau_residue:nn { \l_tmpa_int } {\l__aTableau_e_int} }
-            \__aTableau_tl_put_right_braced:Nx \l__aTableau_entries_tl { \l_tmpa_tl }
+            \__aTableau_tl_build_put_right_braced:Nx \l__aTableau_entries_tl { \l_tmpa_tl }
         }
         \tl_set:Nn \l_tmpb_tl {,}
     }
+    \tl_build_end:N \l__aTableau_entries_tl
 }
 
 % usage: \__aTableau_shape_to_rows:N {partition sequence}
 % Diagrams with entries=rows are drawn using the \Diagram command
 \cs_new_protected:Npn \__aTableau_shape_to_rows:N #1
 {
-    \tl_clear:N \l__aTableau_entries_tl
+    \tl_build_begin:N \l__aTableau_entries_tl
     \tl_clear:N \l_tmpb_tl
     \int_set_eq:NN \l__aTableau_r_int \l__aTableau_charge_int
     \seq_map_inline:Nn #1
     {
-        \tl_put_right:No \l__aTableau_entries_tl \l_tmpb_tl
+        \tl_build_put_right:No \l__aTableau_entries_tl \l_tmpb_tl
         \int_incr:N \l__aTableau_r_int
         \int_step_inline:nn {##1}
         {
-            \__aTableau_tl_put_right_braced:No \l__aTableau_entries_tl {\int_use:N \l__aTableau_r_int}
+            \__aTableau_tl_build_put_right_braced:No \l__aTableau_entries_tl {\int_use:N \l__aTableau_r_int}
         }
         \tl_set:Nn \l_tmpb_tl {,}
     }
+    \tl_build_end:N \l__aTableau_entries_tl
 }
 
 % ---------------------------------------------------------------------------
@@ -1700,14 +1766,6 @@
     }
 }
 
-% usage: \__aTableau_tikz_node:nnnn {style} {label} {fp-coordinate name} {entry}
-% Draw a TikZ node. This simplifies the code and controls expansion
-% TODO: not currently used!
-\cs_new_protected:Nn \__aTableau_tikz_node:nnnn
-{
-    \node[#1] (#2) at (\fp_use:c {l__aTableau_x#3_fp}, \fp_use:c {l__aTableau_y#3_fp}) { \__aTableau_entry:n {#4} };
-}
-
 % usage: \__aTableau_put_tikz_node:nnnnn {token list} {style} {label} {fp-coordinate name} {entry}
 % Like \__aTableau_put_tikz_node:nVno except that we append the node to the
 % token list given by #1
@@ -1719,7 +1777,7 @@
 }
 
 % usage: \__aTableau_draw_label:
-% Add the label to a diagram
+% Add the label to a picture
 \cs_new_protected:Nn \__aTableau_draw_label:
 {
    % determine where the label should be attached, which is the (1,1)-box by default
@@ -1926,7 +1984,6 @@
     \bool_if:NT \l__aTableau_cover_border_bool {
       \seq_if_empty:NF \l__aTableau_cover_seq { \__aTableau_draw_border:nn {cover} {coverBorder} }
     }
-   %\bool_if:NT \l__aTableau_cover_border_bool { \__aTableau_draw_border:nn {cover} {coverBorder}  }
     \bool_if:NT \l__aTableau_skew_boxes_bool  { \__aTableau_draw_skew_boxes: }
     \bool_if:NT \l__aTableau_skew_border_bool { \__aTableau_draw_border:nn {skew}  {skewBorder}  }
     \bool_if:NT \l__aTableau_border_bool      { \__aTableau_draw_border:nn {shape} {border} }
@@ -2028,6 +2085,7 @@
 
 \cs_new_protected:Npn \__aTableau_valign_bottom:n #1 { \__aTableau_box:n { #1 \vss } }
 \cs_new_protected:Npn \__aTableau_valign_centre:n #1 { \__aTableau_box:n { \vss #1 \vss } }
+\cs_set_eq:NN \__aTableau_valign_center:n \__aTableau_valign_centre:n
 \cs_new_protected:Npn \__aTableau_valign_top:n #1    { \__aTableau_box:n { \vss #1 } }
 \cs_set_eq:NN \__aTableau_valign:n \__aTableau_valign_centre:n
 
@@ -3299,6 +3357,14 @@
         }
     }
 
+    % add the abacus label
+    \tl_if_blank:VF \l__aTableau_label_tl
+    {
+       % put the label at the (-0.5,-0.5) position
+       \__aTableau_set_bead_coordinates:nnn {a} {-1.0} {-0.4}
+       % add the label
+       \node[aTableau/pictureLabel] at (\fp_use:N\l__aTableau_xa_fp,\fp_use:N\l__aTableau_ya_fp) { \__aTableau_entry:n{\l__aTableau_label_tl} };
+    }
 
     % determine the number of abacus rows required
     \int_set:Nn \l_tmpa_int { 1+\int_div_truncate:nn {\l__aTableau_row_int} {#1} }
@@ -3419,9 +3485,24 @@
     }
 
     % draw the beads on the abacus last so that they are on top
+    %
+    % \seq_item:Nn is O(index), so calling it on \l__aTableau_shape_seq,
+    % \l__aTableau_texts_seq and \l__aTableau_styles_seq at position ##1
+    % inside this loop is O(beads^2) overall. ##1 increases by 1 every
+    % iteration, so instead we walk working copies of all three sequences
+    % with \seq_pop_left:NN, which is O(1) amortised, giving O(beads)
+    % overall. The pops happen unconditionally, before the dotted-row/col
+    % filter below, so that they stay aligned with ##1 exactly as the
+    % original \seq_item:Nn {##1} lookups were.
+    \seq_set_eq:NN \l__aTableau_bead_shape_seq  \l__aTableau_shape_seq
+    \seq_set_eq:NN \l__aTableau_bead_styles_seq \l__aTableau_styles_seq
+    \seq_set_eq:NN \l__aTableau_bead_texts_seq  \l__aTableau_texts_seq
     \int_step_inline:nn { \l__aTableau_beads_int } % finally, add the beads, with labels and styles
     {
-        \int_set:No \l_tmpa_int { \seq_item:Nn \l__aTableau_shape_seq {##1} } % beta number
+        \seq_pop_left:NN \l__aTableau_bead_shape_seq \l_tmpa_tl
+        \int_set:Nn \l_tmpa_int {\l_tmpa_tl} % beta number
+        \seq_pop_left:NN \l__aTableau_bead_styles_seq \l_tmpb_tl % style for this bead
+        \seq_pop_left:NN \l__aTableau_bead_texts_seq  \l_tmpc_tl % text for this bead (only used when show is blank)
         \int_set:Nn \l__aTableau_row_int { \int_div_truncate:nn {\l_tmpa_int} {\l__aTableau_cols_int} }
         \int_set:Nn \l__aTableau_col_int { \int_mod:nn {\l_tmpa_int} {\l__aTableau_cols_int} }
 
@@ -3478,11 +3559,10 @@
                           }
                       }
                   {     }
-                      { \tl_set:No \l_tmpa_tl { \seq_item:Nn \l__aTableau_texts_seq {##1} } }
+                      { \tl_set:NV \l_tmpa_tl \l_tmpc_tl }
                 }
                 { \msg_error:nne {aTableau} {unrecognised-abacus-label} {  \l__aTableau_show_tl } }
                 % draw the bead with style
-                \tl_set:No \l_tmpb_tl { \seq_item:Nn \l__aTableau_styles_seq {##1} }
                 \__aTableau_abacus_bead:enV \l_tmpb_tl {l} \l_tmpa_tl
             }
         }
@@ -3953,7 +4033,7 @@
     % label
     label .code:n = { \__aTableau_set_multi_tl_key:nn {label} {#1} },
 
-    label~style .code:n = { \__aTableau_tikzset_append:nn {tableauLabel} {#1} },
+    label~style .code:n = { \__aTableau_tikzset_append:nn {pictureLabel} {#1} },
     label~style .value_required:n = true,
 
     % -- paths ---------------------------------------
@@ -4642,7 +4722,6 @@
 %
 % The github repository https://github.com/AndrewMathas/aTableau
 % contains additional files, including a testing framework.
-%
 % ---------------------------------------------------------------------------
 
 % end of atableau.sty

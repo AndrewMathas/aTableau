@@ -3,7 +3,7 @@
 # ---------------------------------------------------------------------------
 # test_atableau.py - Andrew Mathas (C) 2022-2026
 #
-# Requires: 
+# Requires:
 #  - uv -- this runs the script and installs the python dependencies
 #  - ImageMagick is used to create image diffs of changed files
 # ---------------------------------------------------------------------------
@@ -18,23 +18,27 @@
 # ///
 
 
-r'''
-usage: test_atableau.py [-h] [-q] [-t THRESHOLD] [-w WORKERS] [-e | -i | -u] [files ...]
+r"""
+usage: test_atableau.py [-hh] [-d] [-k] [-q] [-v] [-t THRESHOLD] [-w WORKERS]
+                        [-e | -i | -u] [files ...]
 
 positional arguments:
-  files                 Example files to test, with wild cards applied (default: all files)
+  files                     Example files to test, with wild cards applied (default: all files)
 
 options:
   -e, --extract             Extract the examples from the aTableau manual
-  -d, --diff                open image-diffs for the examples that have changed (requires magick)
   -i, --initialise          Initialise all of the good webp files for future comparisons
-  -q, --quiet               Quite mode: only print files with discrepancies
-  -t, --threshold THRESHOLD Threshold for image comparison (default: 5)
   -u, --update              Update the good files as they are checked
-  -w, --workers WORKERS     Number of workers/threads to use when checking examples (default: 8)
-'''
+  -d, --diff                Open image-diffs for the examples that have changed (requires magick)
+  -k, --keep                Keep the generated example image files
+  -q, --quiet               Quiet mode: only print files with discrepancies
+  -v, --verbose             Enable verbose printing
+  -t, --threshold THRESHOLD Percentage of pixels that must differ (default: 0.05)
+  -w, --workers WORKERS     Number of workers to use when checking examples (default: 16)
+  -h, -hh                   Help (use -hh for extended help)
+"""
 
-HELP = r'''
+HELP = r"""
 This python script is part of the aTableau LaTeX package. It can be used to
 check that the output from the aTableau example files have not changed during
 development. The example files are extracted from the aTableau manual,
@@ -94,33 +98,33 @@ There are over 200 examples in the manual, but this script is reasonably quick
 in checking all of the example files because they are processed in parallel.
 
 Andrew Mathas 2025-26
-'''
+"""
 
 # ------------------------------------------------------------------------
 import argparse
-import glob
-import numpy
 import os
 import platform
+import signal
 import subprocess
 import sys
 import tempfile
 
+# for running in parallel
+from concurrent.futures import ProcessPoolExecutor, as_completed
 from pathlib import Path
+
+import numpy
 
 # image conversion and comparison
 from pdf2image import convert_from_path
 from PIL import Image, ImageChops
-
-# for running in parallel
-from concurrent.futures import ProcessPoolExecutor, as_completed
 
 # ------------------------------------------------------------------------
 # execution
 
 # An image magick command to open up an example image and its good
 # version, with an image-diff in the middle.
-COMPARE_IMAGES = r'''magick {image}.webp {image}-good.webp \
+COMPARE_IMAGES = r"""magick {image}.webp {image}-good.webp \
   \( -clone 0 -fuzz 10% -trim +repage -bordercolor white -border 20 \) \
   \( -clone 1 -fuzz 10% -trim +repage -bordercolor white -border 20 \) \
   \( -clone 2 -clone 3 -compose difference -composite -threshold 5% \
@@ -131,22 +135,43 @@ COMPARE_IMAGES = r'''magick {image}.webp {image}-good.webp \
   -background white -bordercolor white -border 10 \
   -bordercolor blue -border 5 \
   +smush +10 {image_diff}
-'''
+"""
+
+# Per-pixel colour difference (0-255) at or below which a change is treated as
+# rendering/encoding noise rather than a genuine change to the example.
+PIXEL_TOLERANCE = 8
+
 
 def run_command(cmd):
-    r'''
-    Short-cut for shell commands
-    '''
-    subprocess.run(cmd, shell=True, check=True, capture_output=True)
+    r"""
+    Short-cut for shell commands. On failure the raised CalledProcessError
+    carries the captured output (as text) so the caller can surface the error.
+    """
+    subprocess.run(cmd, shell=True, check=True, capture_output=True, text=True)
+
+
+def _ignore_sigint():
+    """
+    Worker initialiser: ignore Ctrl-C in the workers so that a SIGINT interrupts
+    only the main process, which then shuts the pool down (see below). Without
+    this the workers each raise their own KeyboardInterrupt and spew tracebacks.
+    """
+    signal.signal(signal.SIGINT, signal.SIG_IGN)
+
 
 def run_parallel_command(options, files):
-    '''
+    """
     Run parallel commands corresponding to options.action on the list of
     example files.
-    '''
+    """
     command = ACTIONS[options.action]
     bad_examples = []
-    with ProcessPoolExecutor(max_workers=options.workers) as executor:
+    # Not using a `with` block: on Ctrl-C its __exit__ would call shutdown(wait=True)
+    # and block until every queued task finished -- making Ctrl-C look ignored.
+    executor = ProcessPoolExecutor(
+        max_workers=options.workers, initializer=_ignore_sigint
+    )
+    try:
         futures = {executor.submit(command, file, options): file for file in files}
         for future in as_completed(futures):
             file = futures[future]
@@ -156,96 +181,137 @@ def run_parallel_command(options, files):
                     bad_examples.append(result)
 
             except Exception as error:
-                print(red_text(f'Error running {options.action} on {file}: {error}'))
-                bad_examples.append(f'Error running {options.action} on {file}: {error}')
+                message = f"Error running {options.action} on {file}: {error}"
+                # surface the tail of any captured output (e.g. the LaTeX error)
+                output = getattr(error, "stdout", "") or getattr(error, "output", "")
+                if output:
+                    message += "\n" + "\n".join(str(output).splitlines()[-15:])
+                print(red_text(message))
+                bad_examples.append(message)
+    except KeyboardInterrupt:
+        print(red_text("\nInterrupted -- stopping."), flush=True)
+        # terminate the workers (they ignore SIGINT) so shutdown returns at once
+        # instead of waiting for the queued examples to finish compiling
+        for process in getattr(executor, "_processes", {}).values():
+            process.terminate()
+        executor.shutdown(wait=True)
+        sys.exit(130)
+    executor.shutdown(wait=True)
 
     if bad_examples:
-        if options.action == 'updating':
+        if options.action == "updating":
             for file in bad_examples:
                 # ask for confirmation before updating good image files
                 # we can't do this from inside a parallel worker
-                if 'Error' in file:
+                if "Error" in file:
                     print(file)
                 else:
-                    response = input(f'Update good image for {file}? [N/y] ')
-                    if response.strip().lower() in ['y','yes']:
-                        os.replace(f'{file}.webp', f'{file}-good.webp')
-                        print(f' - {example_number(file):<14} updated ({file})')
+                    response = input(f"Update good image for {file}? [N/y] ")
+                    if response.strip().lower() in ["y", "yes"]:
+                        os.replace(f"{file}.webp", f"{file}-good.webp")
+                        print(f" - {example_number(file):<14} updated ({file})")
 
         elif not options.quiet:
-            print('\nChanged examples:\n'+'\n'.join(sorted(bad_examples)))
+            print("\nChanged examples:\n" + "\n".join(sorted(bad_examples)))
 
 
 def open_file(file):
-    r'''
+    r"""
     Open an (image) file. Exactly how this is done is platform dependent.
-    '''
+    """
     match platform.system():
-        case 'Darwin':
-            subprocess.run(['open', str(file)])
-        case 'Linux':
-            subprocess.run(['xdg-open', str(file)])
-        case 'Windows':
+        case "Darwin":
+            subprocess.run(["open", str(file)])
+        case "Linux":
+            subprocess.run(["xdg-open", str(file)])
+        case "Windows":
             os.startfile(str(file))
+
 
 # ------------------------------------------------------------------------
 # utility functions
 
+
 def red_text(text):
-    '''
+    """
     Return a string that makes `text` red  when printed to the terminal
-    '''
-    return f'\033[31m{text}\033[39m'
+    """
+    return f"\033[31m{text}\033[39m"
+
 
 def example_number(file):
-    '''
-    Look in the example file `file`.tex to find the example number
-    '''
-    with open(f'{file}.tex', 'r') as example:
+    """
+    Look in the example file `file`.tex to find the example number, which is on
+    a line of the form "% Example N, page M".
+    """
+    with open(f"{file}.tex", "r") as example:
         for line in example:
-            if line.startswith('% Example'):
-                break
+            if line.startswith("% Example"):
+                return line[1:].strip()
 
-    return line[1:].strip()
+    raise ValueError(red_text(f" - no '% Example ...' line found in {file}.tex"))
+
 
 def make_image(file, ext):
-    '''
+    """
     Make a webp image for the example `file` with the specified
     "extension", which is either '-good.webp' or '.webp'
-    '''
-    if not os.path.isfile(f'{file}.tex'):
-        raise FileNotFoundError( red_text(f' - {file} not found!') )
+    """
+    if not os.path.isfile(f"{file}.tex"):
+        raise FileNotFoundError(red_text(f" - {file} not found!"))
 
     # make the LaTeX file halt on error, otherwise run_parallel_command will hang
-    run_command(f'pdflatex -halt-on-error {file}')
-    os.remove(f'{file}.log')
+    run_command(f"pdflatex -halt-on-error -interaction=nonstopmode {file}")
+    os.remove(f"{file}.log")
 
     # make the webp image file
-    webp = convert_from_path(f'{file}.pdf', last_page=1)
-    webp[0].save(f'{file}{ext}', 'WEBP')
-    os.remove(f'{file}.pdf')
+    webp = convert_from_path(f"{file}.pdf", last_page=1)
+    webp[0].save(f"{file}{ext}", "WEBP")
+    os.remove(f"{file}.pdf")
+
 
 def different_images(file, options):
-    '''
-    Return `True` or `False` depending on whether the image has changed
-    '''
-    diff = ImageChops.difference(Image.open(f'{file}.webp'), Image.open(f'{file}-good.webp'))
-    diff_array = numpy.array(diff)
-    mean_diff = diff_array.mean()
+    """
+    Return `True` or `False` depending on whether the image has changed.
 
-    return mean_diff > options.threshold
+    Two images differ if their dimensions differ, or if more than
+    `options.threshold` percent of their pixels differ by more than
+    PIXEL_TOLERANCE.  Counting the fraction of meaningfully-changed pixels is
+    both scale-independent and sensitive to small, localised changes, whereas
+    the mean difference over the whole image is neither.
+    """
+    image = Image.open(f"{file}.webp")
+    good = Image.open(f"{file}-good.webp")
+
+    # A change in size is always a change. (Otherwise ImageChops.difference
+    # silently compares only the overlapping region and can miss the change.)
+    if image.size != good.size:
+        if options.verbose:
+            print(f"{file=}: size changed {good.size} -> {image.size}")
+        return True
+
+    # per-pixel change magnitude (max across colour channels), then the
+    # percentage of pixels that changed by more than the tolerance
+    diff = numpy.asarray(ImageChops.difference(image, good))
+    per_pixel = diff.max(axis=-1) if diff.ndim == 3 else diff
+    changed = 100.0 * numpy.count_nonzero(per_pixel > PIXEL_TOLERANCE) / per_pixel.size
+
+    if options.verbose:
+        print(f"{file=}: {changed=:.3f}%")
+    return changed > options.threshold
+
 
 def find_example_files(files):
-    '''
+    """
     Determine the files to look at -- we glob for maximum effect
-    '''
+    """
     example_files = []
     for file in files:
-        pattern = file if '.' in file else f'*{file}*.tex'
+        pattern = file if "." in file else f"*{file}*.tex"
         example_files.extend(Path(f).stem for f in Path().glob(pattern))
 
     # remove the files that we don't want to test
-    for bad in ['', 'atableau-examples']:
+    for bad in ["", "atableau-examples"]:
         try:
             example_files.remove(bad)
         except ValueError:
@@ -257,166 +323,211 @@ def find_example_files(files):
 # ------------------------------------------------------------------------
 # action -> ACTION[action] = {action}_image()
 
+
 def initialising_image(file, options):
-    '''
+    """
     Recompile the LaTeX example and convert the PDF file to a webp file
     to a "good" webp image, with name `file`-good.webp
-    '''
-    make_image(file, '-good.webp')
+    """
+    make_image(file, "-good.webp")
     if not options.quiet:
-        print(f' - {example_number(file):<14} image created ({file}-good.webp)')
+        print(f" - {example_number(file):<14} image created ({file}-good.webp)")
+
 
 def extracting_image(file, options):
-    '''
+    """
     After updating the example LaTeX files, make good image files for
     any new examples.
-    '''
-    if not os.path.isfile(f'{file}-good.webp'):
+    """
+    if not os.path.isfile(f"{file}-good.webp"):
         initialising_image(file, options)
 
+
 def updating_image(file, options):
-    '''
+    """
     Update the good webp image for file
-    '''
-    make_image(file, '.webp')
+    """
+    make_image(file, ".webp")
     if different_images(file, options):
         return file
 
     else:
         if not options.quiet:
-            print(f' - {example_number(file):<14} has not changed ({file}): NOT updated')
-        os.remove(f'{file}.webp')
+            print(
+                f" - {example_number(file):<14} has not changed ({file}): NOT updated"
+            )
+        if not options.keep:
+            os.remove(f"{file}.webp")
+
 
 def checking_image(file, options):
-    '''
+    """
     Check to see whether the webp file is good
-    '''
-    make_image(file, '.webp')
-    example, page = example_number(file).split(', ')
+    """
+    make_image(file, ".webp")
+    example, page = example_number(file).split(", ")
     if different_images(file, options):
-        bad_example = f' - {example:<13}: BAD {page:<7} ({file})'
+        bad_example = f" - {example:<13}: BAD {page:<7} ({file})"
         print(red_text(bad_example))
         if options.diff:
             # create a side-by-side image and then open it
-            image_diff = Path(tempfile.gettempdir()) / f'{file}.png'
+            image_diff = Path(tempfile.gettempdir()) / f"{file}.png"
             run_command(COMPARE_IMAGES.format(image=file, image_diff=image_diff))
             open_file(image_diff)
 
         return bad_example
 
     elif not options.quiet:
-        print(f' - {example:<13}: OK  {page:<7} ({file})')
+        print(f" - {example:<13}: OK  {page:<7} ({file})")
 
-    os.remove(f'{file}.webp')
+    if not options.keep:
+        os.remove(f"{file}.webp")
+
 
 # possible action commands
 ACTIONS = {
-    'checking':     checking_image,
-    'initialising': initialising_image,
-    'extracting':   extracting_image,
-    'updating':     updating_image,
+    "checking": checking_image,
+    "initialising": initialising_image,
+    "extracting": extracting_image,
+    "updating": updating_image,
 }
 
 # ------------------------------------------------------------------------
-if __name__ == '__main__':
+if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        description='test aTableau example files for changes',
-        add_help=False  # will override default help
+        description="test aTableau example files for changes",
+        add_help=False,  # will override default help
     )
 
-    parser.add_argument('files',
-        nargs='*',
-        default=[''],
-        help='Example files to test, with wild cards applied (default: all files)'
+    parser.add_argument(
+        "files",
+        nargs="*",
+        default=[""],
+        help="Example files to test, with wild cards applied (default: all files)",
     )
 
     action = parser.add_mutually_exclusive_group()
-    action.set_defaults(action='checking')
-    action.add_argument('-e', '--extract',
-        action='store_const',
-        const='extracting',
-        dest='action',
-        help='Extract the examples from the aTableau manual'
+    action.set_defaults(action="checking")
+    action.add_argument(
+        "-e",
+        "--extract",
+        action="store_const",
+        const="extracting",
+        dest="action",
+        help="Extract the examples from the aTableau manual",
     )
-    action.add_argument('-i', '--initialise',
-        action='store_const',
-        const='initialising',
-        dest='action',
-        help='Initialise all of the good webp files for future comparisons'
+    action.add_argument(
+        "-i",
+        "--initialise",
+        action="store_const",
+        const="initialising",
+        dest="action",
+        help="Initialise all of the good webp files for future comparisons",
     )
-    action.add_argument('-u', '--update',
-        action='store_const',
-        const='updating',
-        dest='action',
-        help='Update the good files as they are checked'
+    action.add_argument(
+        "-u",
+        "--update",
+        action="store_const",
+        const="updating",
+        dest="action",
+        help="Update the good files as they are checked",
     )
 
-    parser.add_argument('-d', '--diff',
-        action='store_true',
+    parser.add_argument(
+        "-d",
+        "--diff",
+        action="store_true",
         default=False,
-        help='open image-diffs for the examples that have changed'
+        help="open image-diffs for the examples that have changed",
     )
 
-    parser.add_argument('-q', '--quiet',
-        action='store_true',
+    parser.add_argument(
+        "-k",
+        "--keep",
+        action="store_true",
         default=False,
-        help='Quite mode: only print files with discrepancies (default: False)'
+        help="Keep example image files (default: False)",
     )
 
-    parser.add_argument('-t', '--threshold',
-        action='store',
+    parser.add_argument(
+        "-q",
+        "--quiet",
+        action="store_true",
+        default=False,
+        help="Quiet mode: only print files with discrepancies (default: False)",
+    )
+
+    parser.add_argument(
+        "-t",
+        "--threshold",
+        action="store",
+        type=float,
+        default=0.05,
+        help="Percentage of pixels that must differ for a change (default: 0.05)",
+    )
+
+    parser.add_argument(
+        "-v",
+        "--verbose",
+        action="store_true",
+        default=False,
+        help="Enables verbose printing",
+    )
+
+    parser.add_argument(
+        "-w",
+        "--workers",
+        action="store",
         type=int,
-        default=5,
-        help= f'Threshold for image comparison (default: 5)'
+        default=16,
+        help="Number of workers/threads to use when checking examples (default: 16)",
     )
 
-    parser.add_argument('-w', '--workers',
-        action='store',
-        type=int,
-        default=8,
-        help= f'Number of workers/threads to use when checking examples (default: 8)'
-    )
-
-    parser.add_argument('-h', '--help', action='count', default=0)
+    parser.add_argument("-h", "--help", action="count", default=0)
 
     options = parser.parse_args()
 
     # if run from the atableau directory, cd into the tests directory
-    if os.path.basename( os.getcwd() ) == 'aTableau':
-        os.chdir('tests')
+    if os.path.basename(os.getcwd()) == "aTableau":
+        os.chdir("tests")
 
     # help those who ask for help
     if options.help > 0:
         parser.print_help()
         if options.help == 1:
-            sys.stdout.write('\nFor extended help use -hh\n')
+            sys.stdout.write("\nFor extended help use -hh\n")
         else:
             sys.stdout.write(HELP)
         sys.exit()
 
-    if not os.path.isfile('atableau-examples.tex'):
-        print('Adding a symlink to atableau-examples.tex')
-        if os.path.isfile('atableau.tex'):
-            os.symlink('atableau.tex', 'atableau-examples.tex')
-        elif os.path.isfile('../atableau.tex'):
-            os.symlink('../atableau.tex', 'atableau-examples.tex')
+    if not os.path.isfile("atableau-examples.tex"):
+        print("Adding a symlink to atableau-examples.tex")
+        if os.path.isfile("atableau.tex"):
+            os.symlink("atableau.tex", "atableau-examples.tex")
+        elif os.path.isfile("../atableau.tex"):
+            os.symlink("../atableau.tex", "atableau-examples.tex")
         else:
-            raise FileNotFoundError( red_text(' - unable to find atableau.tex and atableau-examples.tex') )
+            raise FileNotFoundError(
+                red_text(" - unable to find atableau.tex and atableau-examples.tex")
+            )
 
         # next extract the example files
-        options.action = 'extracting'
+        options.action = "extracting"
 
-    if options.action == 'extracting':
-        print('Extracting example files from the aTableau manual')
-        example_files = find_example_files([''])
+    if options.action == "extracting":
+        print("Extracting example files from the aTableau manual")
+        example_files = find_example_files([""])
 
         # remove all of the old example files in case some names have changed
-        for f in Path().glob('*.tex'):
-            if f.stem != 'atableau-examples':
+        for f in Path().glob("*.tex"):
+            if f.stem != "atableau-examples":
                 f.unlink(missing_ok=True)
 
         # extract the examples from the manual (and clean up latex files)
-        run_command('pdflatex -halt-on-error atableau-examples && latexmk -C atableau-examples')
+        run_command(
+            "pdflatex -halt-on-error -interaction=nonstopmode atableau-examples"
+            " && latexmk -C atableau-examples"
+        )
 
     # populate the list of examples that we need to look at
     example_files = find_example_files(options.files)

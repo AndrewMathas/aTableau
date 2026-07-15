@@ -1,3 +1,2 @@
-hard l3kernel
 hard pgf
 soft amsfonts

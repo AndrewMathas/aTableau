@@ -161,7 +161,7 @@ while [[ $# -ne 0 ]]; do
       ;;
     -w|--war*) shift && WARMUPS="$1" && shift ;;
     -y|--year) shift && TEX="/usr/local/texlive/$1/bin/universal-darwin/" && shift;;
-    *) usage && exit ;;
+    *) usage ;;
   esac
 done
 
@@ -177,7 +177,6 @@ elif [ "$saving" = true ]; then
   set_manual_compile_time
 
   # append the new compilation time to manual_times
-  echo "$compile_time"
   echo "$compile_time" >> "$manual_times"
   cat "$manual_times"
 
