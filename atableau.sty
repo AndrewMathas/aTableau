@@ -1,6 +1,6 @@
 % ---------------------------------------------------------------------------
 % aTableau - Andrew Mathas (C) 2022-2026
-% Modified: 15:40 Wednesday, 15 July 2026
+% Modified: 20:17 Wednesday, 12 August 2026
 % ---------------------------------------------------------------------------
 %
 % A LaTeX package for symmetric group combinatorics:
@@ -226,6 +226,7 @@
 \fp_new:N \l__aTableau_box_row_dx_fp      % change in x-coordinate between rows in a tableau
 \fp_new:N \l__aTableau_box_row_dy_fp      % change in y-coordinate between rows in a tableau
 \fp_new:N \l__aTableau_box_wd_fp          % width of a tableau box
+\fp_new:N \l__aTableau_pyramid_fp         % change in row index in a pyramid tableau
 \fp_new:N \l__aTableau_rotate_fp          % rotation angle, set by rotate key
 \fp_new:N \l__aTableau_rows_fp            % number of rows in abacus/tableau
 \fp_new:N \l__aTableau_script_fp          % scaling when used as a subscript
@@ -840,19 +841,20 @@
 \cs_generate_variant:Nn \seq_set_item:Nnn {NVx, Nnx, Nox}
 \cs_generate_variant:Nn \seq_set_from_clist:Nn {co}
 \cs_generate_variant:Nn \seq_set_split:Nnn {cnn}
+\cs_generate_variant:Nn \tl_build_put_right:Nn { NV, Nx, No, Ne }
 
 \cs_generate_variant:Nn \__aTableau_abacus_bead:nnn {enV}
-\cs_generate_variant:Nn \__aTableau_count_row:n {x}
-\cs_generate_variant:Nn \__aTableau_draw_tableau:n {V}
-\cs_generate_variant:Nn \__aTableau_define_html_colour:nn {no, nV}
-\cs_generate_variant:Nn \__aTableau_entry:n {x}
 \cs_generate_variant:Nn \__aTableau_add_ribbon:nn {nV}
+\cs_generate_variant:Nn \__aTableau_count_row:n {x}
+\cs_generate_variant:Nn \__aTableau_define_html_colour:nn {no, nV}
+\cs_generate_variant:Nn \__aTableau_draw_tableau:n {V}
+\cs_generate_variant:Nn \__aTableau_entry:n {x}
 \cs_generate_variant:Nn \__aTableau_put_tikz_node:nnnnn {neVnV,noVno}
 \cs_generate_variant:Nn \__aTableau_set_bead_coordinates:nnn {nVn, nVV, nnV, noo, non, nVo, noV, nno}
 \cs_generate_variant:Nn \__aTableau_set_box_coordinates:nnn {nVV, nVn, noo, noV, nnV }
 \cs_generate_variant:Nn \__aTableau_set_partition:nn {nV}
+\cs_generate_variant:Nn \__aTableau_tl_build_put_right_braced:Nn { NV, Nx, No, Ne }
 \cs_generate_variant:Nn \__aTableau_tl_put_right_braced:Nn { NV, Nx, No, Ne }
-\cs_generate_variant:Nn \tl_build_put_right:Nn { NV, Nx, No, Ne }
 
 % ---------------------------------------------------------------------------
 % utility functions
@@ -865,18 +867,13 @@
 }
 
 % usage: \__aTableau_tl_build_put_right_braced:Nn #1 #2
-% Add braces around #2 and append to #1, which must have been set up with
-% \tl_build_begin:N. Repeated \tl_put_right:Nn on a plain tl variable is
-% O(current length) per call (TeX has to recopy the whole macro body), so
-% building a tl of n items by appending one-by-one is O(n^2) overall;
-% \tl_build_put_right:Nn is O(1) amortised per call, so building the same
-% list this way is O(n). See \__aTableau_tl_put_right_braced:Nn above,
-% which this mirrors, and l3tl-build in the LaTeX3 kernel.
+% A \tl_build_* version of \__aTableau_tl_build_put_right_brace that
+% must be used inside matching \tl_build_begin:N ... \tl_build_end:N
+% Used for efficiency reasons
 \cs_new_protected:Nn \__aTableau_tl_build_put_right_braced:Nn
 {
   \tl_build_put_right:Nn #1 { {#2} }
 }
-\cs_generate_variant:Nn \__aTableau_tl_build_put_right_braced:Nn { NV, Nx, No, Ne }
 
 % ---------------------------------------------------------------------------
 % O(1) indexed access to a sequence
@@ -886,7 +883,7 @@
 % already runs over the sequence turns an O(n) algorithm into O(n^2).
 % \__aTableau_seq_to_array:Nn converts a sequence into a set of indexed
 % scratch token lists in a single O(n) pass, so that
-% \__aTableau_array_item:nn can then fetch any entry in O(1) time.
+% \__aTableau_array_item:nn can fetch any entry in O(1) time.
 
 % usage: \__aTableau_seq_to_array:Nn {seq} {array name}
 \cs_new_protected:Npn \__aTableau_seq_to_array:Nn #1 #2
@@ -1053,9 +1050,9 @@
 }
 
 % Initialise \__aTableau_peek_tableau:w to the default (non-shifted) variant.
-% For non-shofted and shifted tableaux, this is set dynamically to either
-% \__aTableau_peek_tableau_main:w or \__aTableau_peek_tableau_shifted:w
-% by \__aTableau_draw_tableau:n.
+% For non-shifted and shifted tableaux, \__aTableau_draw_tableau:n sets
+% this dynamically to either \__aTableau_peek_tableau_main:w or
+% to \__aTableau_peek_tableau_shifted:w
 \cs_set_eq:NN \__aTableau_peek_tableau:w \__aTableau_peek_tableau_main:w
 
 % usage: \__aTableau_peek_count_style:w
@@ -2028,8 +2025,8 @@
 \cs_new_protected:Npn \__aTableau_set_box_coordinates_normal:nnn #1 #2 #3
 {
     \tl_set:Nx \l__aTableau_name_tl {\l__aTableau_prefix_tl-\int_eval:n{1+#2}-\int_eval:n {1+#3}}
-    \fp_set:cn {l__aTableau_x#1_fp} {\l__aTableau_x_fp+(#2+0.5)*\l__aTableau_box_row_dx_fp+(#3+0.5)*\l__aTableau_box_col_dx_fp }
-    \fp_set:cn {l__aTableau_y#1_fp} {\l__aTableau_y_fp+(#2+0.5)*\l__aTableau_box_row_dy_fp+(#3+0.5)*\l__aTableau_box_col_dy_fp }
+    \fp_set:cn {l__aTableau_x#1_fp} {\l__aTableau_x_fp+(0.5+#2)*\l__aTableau_box_row_dx_fp+(0.5+#3+(#2)*\l__aTableau_pyramid_fp)*\l__aTableau_box_col_dx_fp }
+    \fp_set:cn {l__aTableau_y#1_fp} {\l__aTableau_y_fp+(0.5+#2)*\l__aTableau_box_row_dy_fp+(0.5+#3+(#2)*\l__aTableau_pyramid_fp)*\l__aTableau_box_col_dy_fp }
 %   \__aTableau_debug:n {~-~#1-box~coordinates:~\l__aTableau_name_tl~=~(\fp_use:c{l__aTableau_x#1_fp},~\fp_use:c{l__aTableau_y#1_fp})}
     \__aTableau_update_extrema:n #1
 }
@@ -2043,8 +2040,8 @@
 \cs_new_protected:Npn \__aTableau_set_box_coordinates_conjugate:nnn #1 #2 #3
 {
     \tl_set:Nx \l__aTableau_name_tl {\l__aTableau_prefix_tl-\int_eval:n{1+#3}-\int_eval:n {1+#2}}
-    \fp_set:cn {l__aTableau_x#1_fp} {\l__aTableau_x_fp+(#3+0.5)*\l__aTableau_box_row_dx_fp+(#2+0.5)*\l__aTableau_box_col_dx_fp }
-    \fp_set:cn {l__aTableau_y#1_fp} {\l__aTableau_y_fp+(#3+0.5)*\l__aTableau_box_row_dy_fp+(#2+0.5)*\l__aTableau_box_col_dy_fp }
+    \fp_set:cn {l__aTableau_x#1_fp} {\l__aTableau_x_fp+(0.5+#3)*\l__aTableau_box_row_dx_fp+(0.5+#2)*\l__aTableau_box_col_dx_fp }
+    \fp_set:cn {l__aTableau_y#1_fp} {\l__aTableau_y_fp+(0.5+#3)*\l__aTableau_box_row_dy_fp+(0.5+#2)*\l__aTableau_box_col_dy_fp }
     \__aTableau_update_extrema:n #1
 %   \__aTableau_debug:n {~-~conjugate~box~coordinates:~\l__aTableau_name_tl~=~(\fp_use:c{l__aTableau_x#1_fp},~\fp_use:c{l__aTableau_y#1_fp})}
 }
@@ -4115,6 +4112,15 @@
     cover colour .tl_set:N = \l__aTableau_cover_border_tl,
     cover color .tl_set:N = \l__aTableau_cover_border_tl,
     cover colour .initial:n = aTableauSkew,
+
+    % -- pyramid tableaux
+    pyramid .code:n = {
+      \bool_if:cTF {c_#1_bool}
+        { \fp_set:Nn \l__aTableau_pyramid_fp {0.5} }
+        { \fp_set:Nn \l__aTableau_pyramid_fp {0} }
+    },
+    pyramid .default:n = true,
+    pyramid .initial:n = false,
 
     % -- skew settings ------------
     skew .code:n = \__aTableau_set_multi_shape_key:nn {skew} {#1},

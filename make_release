@@ -1,7 +1,7 @@
 #! /usr/bin/env bash
 
 # ---------------------------------------------------------------------------
-# ctanify - build the CTAN upload tarball for the aTableau package.
+# make_release - build the aTableau tarball for uploading to CTAN
 #
 # Before building the tarball we check that all of the dates in the
 # different components of the package match the release and that the
@@ -17,8 +17,8 @@
 #   * all example images pass the test_atableau.py tests
 #
 # The script also also strips the \__aTableau_debug:n commands from
-# atableau.sty before saving in creating the tar file. There is
-# a --force option that forces building the tarball.
+# atableau.sty before saving creating the tar file. There is a --force
+# option that forces building the tarball.
 #
 # TODO: check the dates in the tracked files in tests
 #

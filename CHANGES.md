@@ -1,5 +1,4 @@
 ![version](https://img.shields.io/github/v/tag/AndrewMathas/aTableau?color=success&label=aTableau)
-![LaTeX](https://img.shields.io/badge/LaTeX-008080?logo=latex&logoColor=fff)
 [![LPPL](https://img.shields.io/github/license/note286/xduts?style=flat-square)](https://www.latex-project.org/lppl/)
 [![CTAN](https://img.shields.io/ctan/v/atableau?color=blue)](https://ctan.org/pkg/atableau)
 ![GitHub Release Date](https://img.shields.io/github/release-date/AndrewMathas/atableau?label=released&color=red)
@@ -9,7 +8,8 @@
 ## Version 2.2.3 - 202?-??-??
 
 - Allows the `label` key to be used with abacuses
-- Improves speed for creating some pictures by using \tl\_build\_* 
+- Adds the `pyramid` key for drawing pyramid tableaux
+- Improves speed for creating some pictures by using \tl_build\_\*
 - Updates the `make_release` script so that it now runs a series of
   checks to ensure that the package is ready for release
 
