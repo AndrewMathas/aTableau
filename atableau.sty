@@ -1,6 +1,6 @@
 % ---------------------------------------------------------------------------
 % aTableau - Andrew Mathas (C) 2022-2026
-% Modified: 16:02 Thursday, 20 August 2026
+% Modified: 16:11 Thursday, 20 August 2026
 % ---------------------------------------------------------------------------
 %
 % A LaTeX package for symmetric group combinatorics:
@@ -1266,7 +1266,7 @@
 }
 
 % usage: \__aTableau_shape_to_columns:N {partition sequence}
-% Diagrams with entries=columns are drawn using the \Diagram command
+% Draws diagrams when entries=columns is used
 \cs_new_protected:Npn \__aTableau_shape_to_columns:N #1
 {
     \tl_build_begin:N \l__aTableau_entries_tl
@@ -1286,7 +1286,7 @@
 }
 
 % usage: \__aTableau_shape_to_contents:N {partition sequence}
-% Diagrams with entries=content are drawn using the \Diagram command
+% Draws diagrams when entries=content is used
 \cs_new_protected:Npn \__aTableau_shape_to_contents:N #1
 {
     \tl_build_begin:N \l__aTableau_entries_tl
@@ -1309,7 +1309,7 @@
 }
 
 % usage: \__aTableau_shape_to_ladders:N {partition sequence}
-% Diagrams with entries=last are drawn using the \Diagram command
+% Draws diagrams when entries=ladders is used
 \cs_new_protected:Npn \__aTableau_shape_to_ladders:N #1
 {
     \tl_build_begin:N \l__aTableau_entries_tl

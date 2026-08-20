@@ -1,6 +1,6 @@
 % ----------------------------------------------------------------------
 % aTableau manual - Andrew Mathas (C) 2022-2026
-% Modified: 16:02 Thursday, 20 August 2026
+% Modified: 12:00 Friday, 21 August 2026
 % ----------------------------------------------------------------------
 \documentclass{amsart}
 \usepackage[svgnames,table]{xcolor}
@@ -2223,13 +2223,13 @@
   \end{example}
 
   As this example indicates, ribbons are assumed to be contained inside
-  the diagram of the tableau, so they do not change the border of a
-  tableau.
+  the diagram of the tableau, so they are placed before the border of
+  the tableau is drawn; see \autoref{SS:order} for more details.
 
   \option[]{snobs=ribbon specifications}[list snobs]
   \option*[]{snob box=text}[A node entry]
   \option*[]{snob box style=style}[\TikZ-styling]
-  \option*[draw=\aTableauColour{Inner}, thin]{snob style=style}[\TikZ-styling]
+  \option*[dra=\aTableauColour{Inner}, thin]{snob style=style}[\TikZ-styling]
 
   Use \option{snobs} to add ribbons to the tableau, which are ribbons
   that are placed \textit{after} the border of the diagram is drawn.
@@ -2244,11 +2244,12 @@
   \end{example}
 
   The difference between this picture and the one given above using
-  \option{ribbons} is that \option{snobs} are drawn \textit{after}
-  the tableau border, which causes the border to disappear for these
-  nodes.  For this reason, in most cases you should normally avoid
-  \option{snobs} and use \option{ribbons}. This said, \option{snobs} are
-  exactly what are needed in \autoref{Ex:multiGarnir}.
+  \option{ribbons} is that \option{snobs} are drawn \textit{after} the
+  tableau border, which causes the border to disappear for these nodes
+  (\autoref{SS:order} describes the tableau drawing order). For this
+  reason, in most cases you should normally avoid \option{snobs} and use
+  \option{ribbons}. This said, \option{snobs} are exactly what are
+  needed in \autoref{Ex:multiGarnir}.
 
   Since snobs are placed after the tableau is drawn, they provide a way
   to add content outside of the tableau or diagram, as shown by the
@@ -2278,7 +2279,7 @@
   \Tableau[rotate=160]{123,45}
   \end{example}
 
-  Only the boxes in the tableau, not their entries, are rotated.  Only
+  Only the boxes in the tableau, not their entries, are rotated. Only
   one \option{rotate} key should be used in any given picture. For
   efficiency reasons, the tableau conventions, such as
   \option{russian} and \option{australian}, should be used in
@@ -2341,7 +2342,7 @@
     key with the \aTableau command because the \TikZ \keyword{scale} key
     does not scale individual objects in the environment.
     Another alternative is to use \keyword{transform canvas={scale=?}} in the
-    \keyword{tikzpicture}.
+    options of the \keyword{tikzpicture} environment.
   \end{warning}
 
   \option[0.5]{script=value}[decimal number]
@@ -2351,7 +2352,7 @@
   as subscripts and superscripts, in which case they are automatically rescaled
   to slightly smaller sizes. The \option{script} and \option{scriptscript}
   keys give finer control over the sizes of subscripts and subsubscripts,
-  respectively, which can be used in conjunction with the \option{scale},
+  respectively. These keys can be used in conjunction with the \option{scale},
   \option{xscale} and \option{yscale} keys.
 
   \begin{example}{tableauSubscript}
@@ -2361,11 +2362,11 @@
 
   \option[false]{shifted}[true/false]
 
-  Set \option{shifted} to \textsf{true} for a shifted tableau or shifted
-  diagram. Shifted tableaux, and shifted diagrams, are discussed in more
-  detail in \autoref{S:Shifted}, which describes the \keyword{\ShiftedDiagram}
-  and \keyword{\ShiftedTableau} commands, which produce pictures like the
-  following:
+  Use \option{shifted} to draw \emph{shifted tableaux} or
+  \emph{shifted diagrams}. Shifted tableaux, and shifted diagrams, are
+  discussed in more detail in \autoref{S:Shifted}, which describes the
+  \keyword{\ShiftedDiagram} and \keyword{\ShiftedTableau} commands,
+  which produce pictures like the following:
 
   \begin{example}{tableauShifted}
   \Tableau[shifted]{123,45} \qquad
@@ -2376,22 +2377,6 @@
   \keyword{\ShiftedDiagram{2^2,1}{3,2^2}}, respectively, can be used for
   these two pictures. See \autoref{S:Shifted} for the options specific
   to shifted tableaux and shifted diagrams.
-
-  \option[fill=\aTableauColour{Star}]{tableau star=style}[\TikZ-styling]
-
-  Use \option{tableau star} to change the style of the starred entries
-  of a tableau. (In \TikZ parlance, \option{tableau star} \emph{appends}
-  these styles to the default \option{tableau star}.)
-
-  \begin{example}{tableauStarStyleText}
-  \Tableau[tableau star={text=magenta, draw=cyan, thick}]
-    {1*2*3,4*5} \qquad
-  \Tableau[tableau star={fill=orange!50}]{1*2*3,4*5}
-  \end{example}
-
-  Note that the tableau border is drawn \textit{after} the
-  \option{tableau star} is applied. You can use \option{snobs} to draw
-  over the top of the border.
 
   \option[]{styles=\TikZ-styles}[List of styles]
 
@@ -2426,6 +2411,22 @@
   onwards. (Notice the use of \keyword{\aTabset} here. Using \keyword{\tikzset{styles={...}}}
   will result in an error.)
 
+  \option[fill=\aTableauColour{Star}]{tableau star=style}[\TikZ-styling]
+
+  Use \option{tableau star} to change the style of the starred entries
+  of a tableau. (In \TikZ parlance, \option{tableau star} \emph{appends}
+  these styles to the default \option{tableau star} style.)
+
+  \begin{example}{tableauStarStyleText}
+  \Tableau[tableau star={text=magenta, draw=cyan, thick}]
+    {1*2*3,4*5} \qquad
+  \Tableau[tableau star={fill=orange!50}]{1*2*3,4*5}
+  \end{example}
+
+  Note that the tableau border is drawn \textit{after} the
+  \option{tableau star} is applied. You can use \option{snobs} to draw
+  over the top of the border.
+
   \option[false]{tabloid}[true/false]
 
   Use the \option{tabloid} key to draw a tabloid. This key is discussed in
@@ -2440,6 +2441,31 @@
   Equivalently, the command \keyword{\Tabloid{123,45}} can be used for
   the first of these pictures.  See \autoref{S:Tabloid} for the options
   specific to tabloids.
+
+  \option[]{tikz before=\TikZ commands}[\TikZ commands]
+  \option*[]{tikz after=\TikZ commands}[\TikZ commands]
+
+  These keys inject \TikZ code into the underlying \keyword{tikzpicture}
+  environment, where the tableau is drawn after the
+  \option{tikz before} commands, and before the \option{tikz before}
+  commands.
+
+  \begin{example}[lefthand width=0.24\textwidth]{tableauTikzBefore}
+  \Tableau[
+    tikz before={\draw[help lines, step=0.5](-0.5,-2)grid(2,0.5);},
+    tikz after={
+      \draw[ultra thick, red](A-1-3.north east)--(A-1-3.south east)
+               --(A-2-1.north east)--(A-3-1.south east)
+               --(A-3-1.south west);
+   }]{134,567,89}
+  \end{example}
+
+  Both before and after hooks are provided because later \TikZ commands are
+  drawn over the top of earlier ones, so the order matters. Note that the
+  \emph{before} code cannot use the named coordinates \textsf{A-r-c}
+  because this code is executed before these nodes are constructed,
+  which happens when the tableau is drawn. For more information about
+  the drawing order used for tableaux, see \autoref{SS:order}.
 
   \option[]{tikzpicture=keys}[\TikZ-keys]
 
@@ -2477,30 +2503,6 @@
   \end{example}
 
   (See the \ctan{tikzmark} package for extensions of this idea.)
-
-  \option[]{tikz before=\TikZ commands}[\TikZ commands]
-  \option*[]{tikz after=\TikZ commands}[\TikZ commands]
-
-  These keys inject \TikZ code into the underlying \keyword{tikzpicture}
-  environment, where the tableau is constructed, before and after the
-  \keyword{\Tableau} command, respectively.
-
-  \begin{example}[lefthand width=0.24\textwidth]{tableauTikzBefore}
-  \Tableau[
-    tikz before={\draw[help lines, step=0.5](-0.5,-2)grid(2,0.5);},
-    tikz after={
-      \draw[ultra thick, red](A-1-3.north east)--(A-1-3.south east)
-               --(A-2-1.north east)--(A-3-1.south east)
-               --(A-3-1.south west);
-   }]{134,567,89}
-  \end{example}
-
-  Both before and after hooks are provided because later \TikZ commands are
-  drawn over the top of earlier ones, so the order matters. Note that the
-  \emph{before} code cannot use the named coordinates \textsf{A-r-c}
-  because this code is executed before these nodes are constructed,
-  which happens when the tableau is drawn. For more information about
-  the drawing order used for tableaux, see \autoref{SS:order}.
 
   % --------------------------------------------------------------
   \subsubsection{Compositions}
@@ -2917,7 +2919,7 @@
   Use \option{conjugate} for the ``conjugate'' ladders of slope $1/(e-1)$.
 
   \begin{example}{diagramConjugateLadders}
-  \Diagram[entries=ladders,e=3,conjugate]{4^3,1}\qquad
+  \Diagram[entries=ladders,e=3,conjugate]{4^3,1} \qquad
   \Diagram[entries=ladders,e=4,conjugate]{4^3,1}
   \end{example}
 

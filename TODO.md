@@ -7,8 +7,6 @@
 
 ## Features to be implemented
 
-- Add `entries=sreddal` for ladders of slope 1/e-1
-
 ## Known bugs
 
 - `\SkewDiagram[entries=columns]{2,1}{2^2,1}` produces dubious results
