@@ -5,20 +5,22 @@
 
 # aTableau - ToDo list
 
+## Features to be implemented
+
+- Add `entries=sreddal` for ladders of slope 1/e-1
+
 ## Known bugs
 
-## Features to be implemented
+- `\SkewDiagram[entries=columns]{2,1}{2^2,1}` produces dubious results
 
 ## Documentation
 
-- Extract all aTableau examples into one file as a better proxy for testing speed regression
 - Check Cartan conventions for residues
 
 ### Things we might do at some point
 
-- Rewrite ribbons and `\Abacus` to simultaneously parse the specifications and draw the picture
 - Rewrite the partition parsing so that it uses quarks
 - Beta numbers: allow partition to be specified by beta numbers in `\Diagram` and friends
 - Allow custom styling for the different sides of the tableau/diagram borders
 
-Updated: July 2026
+Updated: August 2026

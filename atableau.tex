@@ -1,6 +1,6 @@
 % ----------------------------------------------------------------------
 % aTableau manual - Andrew Mathas (C) 2022-2026
-% Modified: 19:06 Wednesday, 12 August 2026
+% Modified: 16:02 Thursday, 20 August 2026
 % ----------------------------------------------------------------------
 \documentclass{amsart}
 \usepackage[svgnames,table]{xcolor}
@@ -1409,10 +1409,10 @@
     specifications to change their appearance.
   \end{options}
 
-  We show, using examples, how to use the \keyword{\Tableau} command,
-  starting with basic usage and finishing with style. Inside
-  \keyword{\Tableau} the rows are separated by commas, with the
-  columns given by the ``letters'' in the word for each row:
+  Using examples, this section shows how to use the \keyword{\Tableau}
+  command, starting with basic usage and finishing with style. Inside
+  \keyword{\Tableau} the rows are separated by commas, with the columns
+  given by the ``letters'' in the word for each row:
 
   \begin{example}{tableauWords}
   \Tableau{ 1234, 56, 7, 8 }       \qquad
@@ -1500,13 +1500,14 @@
   entries in the tableau.
 
   Omitting some technicalities, each box in a tableau is constructed as
-  a \TikZ node, so any \TikZ-style specifications for a \TikZ node can be
-  used.  This example shows that some care is needed when changing the
-  style because simply giving a colour changes both the colour used to
-  \textit{fill} the box and the \textit{text colour}, which is why one of
-  the boxes in the last example appears to be blank. If you are already
-  familiar with \TikZ, then you probably already know what to do. If not,
-  here is a short list of useful style specifications for \TikZ nodes:
+  a \TikZ node, so any \TikZ-style specifications for a \TikZ node can
+  be used.  \autoref{Ex:tableauFrench} shows that some care is needed
+  when changing the style because simply giving a colour changes both
+  the colour used to \textit{fill} the box and the \textit{text colour},
+  which is why one of the boxes in the last example appears to be blank.
+  If you are already familiar with \TikZ, then you probably already know
+  what to do. If not, here is a short list of useful style
+  specifications for \TikZ nodes:
   \begin{center}\index{fill}\index{text}\index{draw}\index{font}
      \rowcolors{2}{}{LightSkyBlue!10}
      \begin{tabular}{ll}\toprule
@@ -1518,13 +1519,13 @@
        \keyword{font}\textcolor{orange}{$=\langle\text{font commands}\rangle$}
             & Sets the font \\
        \keyword{opacity}\textcolor{orange}{$=\langle\text{value}\rangle$}
-            & Sets both the drawing and filling opacity to $\langle\text{value}\rangle$\\
+            & Sets the drawing and filling opacity\\
        \keyword{text}\textcolor{orange}{$=\langle\text{colour}\rangle$}
             & Sets the text colour in the node \\
        \bottomrule
      \end{tabular}
   \end{center}
-  In these settings, any valid \LaTeX\ colour name can be used; see, for
+  In the colour settings, any valid \LaTeX\ colour name can be used; see, for
   example, the \ctan{xcolor} manual. In addition, the style specifications
   \keyword{thin}\!,
   \keyword{thick}\!,
@@ -2166,17 +2167,19 @@
   \option[false]{pyramid}[false/true]
   \index{pyramid tableau}
 
-  In a \emph{pyramid tableau} each row is indented by half a box
-  compared with the previous row. The shape of the pyramid tableaux
-  should be contained inside a self conjugate partition.
+  Use the \option{pyramid} key to draw \emph{pyramid tableaux}, which
+  are tableaux that have each row indented by half a box compared with
+  the previous row. The shape of the pyramid tableaux should be
+  contained inside a self conjugate partition.
 
   \begin{example}{pyramidTableaux}
   \Tableau[pyramid]{123,45,6} \space
-  \Tableau[pyramid,french]{123,45,6} \space
+  \Tableau[pyramid,french]{123,*4*5,*6} \space
   \Diagram[pyramid,australian]{3,2,1}
   \end{example}
 
-  The \option{pyramid} key is not designed to work with the \option{}
+  The \option{pyramid} key is not compatible with the \option{conjugate}
+  key.
 
   \option[]{ribbons=ribbon specifications}[list of ribbons]
   \option*[]{ribbon box=text}[A node entry]
@@ -2214,7 +2217,7 @@
 
   \begin{example}{tableauRibbonStyle}
   \Tableau[tableau star={fill=green!80!blue,text=white},
-    ribbon style={fill=yellow,text=red},
+    ribbon box style={fill=yellow,text=red},
     ribbons={15_A,24_B,42_C,51_D},
   ]{123*4,567,89*{10},*{11}}
   \end{example}
@@ -3259,12 +3262,12 @@
   \index{entries!shifted tableaux}
   The \option{entries} key works as expected for shifted diagrams:
 
-  \begin{Example}{shiftedEntries}
-  \ShiftedDiagram[entries=contents]{4,2,1} \qquad
-  \ShiftedDiagram[entries=first]{4,2,1} \qquad
-  \ShiftedDiagram[entries=hooks]{4,2,1} \qquad
-  \ShiftedDiagram[entries=last]{4,2,1} \qquad
-  \ShiftedDiagram[entries=residues, e=2, cartan=DD]{4,2,1}
+  \begin{Example}{shiftedEntries}  \aTabset{text boxes, label style={font=\small,text=red}}
+  \ShiftedDiagram[entries=contents,label=contents]{4,2,1} \qquad
+  \ShiftedDiagram[entries=first, label=first]{4,2,1} \qquad
+  \ShiftedDiagram[entries=hooks, label=hooks]{4,2,1} \qquad
+  \ShiftedDiagram[entries=last, label=last]{4,2,1} \qquad
+  \ShiftedDiagram[entries=residues, label=residues, e=2, cartan=DD]{4,2,1}
   \end{Example}
 
   The definition of hook lengths for shifted diagrams can be found, for
@@ -3828,7 +3831,8 @@
   \option[$-$]{empty}[any \LaTeX{}]
 
   The \option{empty} option determines what is printed when a component
-  diagram is empty. By default, a minus sign~$-$ is used.
+  diagram is empty. By default, a minus sign~$-$ is display for empty
+  components.
 
   \begin{example}{multiEmpty}
   \Multitableau{ 123,45 | | 67,89} \par
@@ -3860,9 +3864,8 @@
 
   The \option{entries} key automatically adds particular types of
   entries to a tableau of the specified shape.  Use \option{charge} to
-  provide offsets in each component when using \option{entries=contents}
-  and \option{entries=residues} {(}the \option{charge} is ignored by other
-  values for \option{entries}).
+  provide a $|$-separated list of offsets for the components when using
+  \option{entries=contents}.
 
   \nopagebreak[0]
   The possible choices are:
@@ -3940,7 +3943,11 @@
   \Multidiagram[entries=residues, e=2]{3,2,1|1^3}
   \end{example}
 
-    \item\option{entries=rows}: Prints the tableau in which each box is
+  \medskip\noindent
+  As in \autoref{SS:entries}, residues for the other affine Cartan types
+  can be specified using \option{cartan=value}.
+
+  \item\option{entries=rows}: Prints the tableau in which each box is
       replaced by its row index in each component.
 
   \begin{example}{multiEntriesRows}
@@ -3955,10 +3962,6 @@
   \Multidiagram[french, entries=residues, e=3,
     charge=1|2]{3,2,1|1^2}
   \end{example}
-
-  \medskip\noindent
-  As in \autoref{SS:entries}, residues for the other affine Cartan types
-  can be specified using \option{cartan=value}.
 
   \end{itemize}
 
