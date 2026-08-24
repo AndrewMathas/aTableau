@@ -202,29 +202,29 @@ if [[ ! -f atableau.pdf ]]; then
 fi
 if [[ -f atableau.pdf ]]; then
   if [[ atableau.pdf -nt atableau.tex && atableau.pdf -nt atableau.sty && atableau.pdf -nt atableau.ini ]]; then
-    pass "manual is compiled and newer than atableau.{tex,sty,ini}"
+    pass "the manual is compiled and newer than atableau.{tex,sty,ini}"
   else
-    fail "manual is OLDER than atableau.{tex,sty,ini}"
+    fail "the manual is OLDER than atableau.{tex,sty,ini}"
   fi
 
   # read the PDF metadata once; stderr is hidden so a mid-write PDF doesn't spew
   # xref errors (e.g. when latexmk -pvc / vimtex is recompiling in the background)
   if ! pdf_info=$(pdfinfo atableau.pdf 2>/dev/null); then
-    fail "could not read atableau.pdf"
+    fail "unable to read atableau.pdf"
   else
     pdf_title=$(gsed -nE 's/^Title:[[:space:]]*(.*[^[:space:]]).*/\1/p' <<<"$pdf_info")
     pdf_date=$(gsed -nE 's/^CreationDate:[[:space:]]*(.*[^[:space:]])[[:space:]]*$/\1/p' <<<"$pdf_info")
 
     if [[ "$pdf_title" == *"${ini_version}" ]]; then
-      pass "manual correctly reports version $ini_version"
+      pass "the manual correctly reports version $ini_version"
     else
-      fail "manual title '$pdf_title' has the wrong version $ini_version"
+      fail "the manual title '$pdf_title' has the wrong version $ini_version"
     fi
 
     if [[ "$(xargs <<<"$pdf_date")" == "$(xargs <<<"$ini_date")" ]]; then
-      pass "manual date matches atableau.ini ($ini_date)"
+      pass "the manual date matches atableau.ini ($ini_date)"
     else
-      fail "manual date '$pdf_date' does not match atableau.ini '$ini_date'"
+      fail "the manual date '$pdf_date' does not match atableau.ini '$ini_date'"
     fi
   fi
 else
@@ -234,9 +234,20 @@ fi
 # check for undefined references
 bad_ref=$(grep "There were undefined references" atableau.log)
 if [[ -z $bad_ref ]]; then
-  pass "manual cross-refereces are up to date"
+  pass "cross-references in the manual are up to date"
 else
   fail "${bad_ref/were/are}"
+fi
+
+# check that the two examples tableauTikzpicture andtableauOverlay are
+# on the same page of the manual (as there is an arrow between them)
+tikz_page=$(awk -F'[{}]' '/\\newlabel\{Ex:tableauTikzpicture\}/ {print $7; exit}' atableau.aux)
+overlay_page=$(awk -F'[{}]' '/\\newlabel\{Ex:tableauOverlay\}/ {print $7; exit}' atableau.aux)
+
+if [[ "$tikz_page" == "$overlay_page" ]]; then
+    pass "the remember picture and overlay examples are both on page $tikz_page"
+else
+    fail "the remember picture and overlay examples are on DIFFERENT pages: $tikz_page and $overlay_page"
 fi
 
 # check for \typeout commands in the manual

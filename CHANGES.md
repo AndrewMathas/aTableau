@@ -5,10 +5,13 @@
 
 # **aTableau** - Change log
 
-## Version 2.2.3 - 202?-??-??
+## Version 2.3.0 - 202?-??-??
 
 - Allows the `label` key to be used with abacuses
+- Adds the `\YoungWall` command for drawing Young Walls
 - Adds the `pyramid` key for drawing pyramid tableaux
+- Adds the `reverse` key for reversing the column order
+- Adds a plethysm example
 - Improves speed for creating some pictures by using \tl_build\_\*
 - Updates the `make_release` script so that it now runs a series of
   checks to ensure that the package is ready for release

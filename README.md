@@ -15,6 +15,7 @@ A LaTeX package for **symmetric group combinatorics**, with commands for:
 - Tableaux
 - Tabloids
 - Young diagrams
+- Young walls
 
 ![aTableau example](./aTableau_readme.webp)
 
@@ -35,6 +36,7 @@ A LaTeX package for **symmetric group combinatorics**, with commands for:
     \RibbonTableau[russian, skew={4,1^2}]{16rcrrrccrcc, 26, 34rc}
     \ShiftedTableau[skew boxes]{1*23,4*5}
     \SkewDiagram[skew border style={dashed,fill=red!10},skew border]{1^2}{2^3}
+    \YoungWall{*H0/0*H0/0,11,H2/2H2/2,1}
 ```
 
 ### Dependencies

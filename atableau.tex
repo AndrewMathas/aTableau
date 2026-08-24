@@ -1,6 +1,6 @@
 % ----------------------------------------------------------------------
 % aTableau manual - Andrew Mathas (C) 2022-2026
-% Modified: 12:00 Friday, 21 August 2026
+% Modified: 09:38 Tuesday, 25 August 2026
 % ----------------------------------------------------------------------
 \documentclass{amsart}
 \usepackage[svgnames,table]{xcolor}
@@ -439,6 +439,7 @@
     SkewDiagram,
     Tableau,
     Tabloid,
+    YoungWall,
   },%
 % Highlighting of multi-word keys is not possible, so we do not highlight the keys
 %  classoffset=1, % aTableau package options
@@ -801,8 +802,9 @@
         skew tableaux,
         multitableaux,
         shifted tableaux,
+        ribbon tableaux,
       and
-        ribbon tableaux.
+        Young walls.
 
       This package requires \TeXLive 2024 or later.
     \end{quote}
@@ -1005,7 +1007,7 @@
   \autoref{SS:abcoordinates} for more detail about using these
   coordinates for tableaux and abacuses, respectively.
 
-  The \aTableau package provides eleven commands for drawing
+  The \aTableau package provides twelve commands for drawing
   pictures:
   \begin{center}
     \rowcolors{1}{}{LightSkyBlue!10}
@@ -1024,6 +1026,7 @@
       SkewTableau    & A skew tableau                    & \autoref{S:Skew} \\
       Tableau        & A tableau                         & \autoref{S:Tableau} \\
       Tabloid        & A tabloid                         & \autoref{S:Tabloid} \\
+      YoungWall      & A Young wall                      & \autoref{S:YoungWall}\\
       \bottomrule
     \end{tabular}
   \end{center}
@@ -1440,7 +1443,7 @@
   \end{example}
 
   % --------------------------------------------------------------
-  \subsubsection{Adding style}
+  \subsubsection{Adding style}\label{S:TableauSpecs}
   \index{tableau star}
   \index{*|see{abacus star and tableau star}}
   \index{tableau entries!tableau star}
@@ -2168,9 +2171,9 @@
   \index{pyramid tableau}
 
   Use the \option{pyramid} key to draw \emph{pyramid tableaux}, which
-  are tableaux that have each row indented by half a box compared with
-  the previous row. The shape of the pyramid tableaux should be
-  contained inside a self conjugate partition.
+  are tableaux that have each row indented by half a box relative to
+  the previous row. To display properly, the shape of a pyramid tableau should be
+  (contained inside) a self-conjugate partition.
 
   \begin{example}{pyramidTableaux}
   \Tableau[pyramid]{123,45,6} \space
@@ -2179,6 +2182,20 @@
   \end{example}
 
   The \option{pyramid} key is not compatible with the \option{conjugate}
+  key.
+
+  \option[false]{reverse}[false/true]
+
+  The \option{reverse} key reverses the order of the columns of tableaux
+  and diagrams.
+
+  \begin{example}{reverseTableaux}
+  \Tableau[reverse]{123,45,6} \quad
+  \Tableau[reverse,french]{123,*4*5,*6} \quad
+  \Diagram[reverse,australian]{3,2,1}
+  \end{example}
+
+  The \option{reverse} key is not compatible with the \option{conjugate}
   key.
 
   \option[]{ribbons=ribbon specifications}[list of ribbons]
@@ -2238,7 +2255,7 @@
 
   \begin{example}{tableauSnobs}
   \Tableau[tableau star={fill=green!80!blue, text=white},
-    snob style={fill=yellow, text=red},
+    snob style={fill=yellow},
     snobs={15_A,24_B,42_C,51_D},
   ]{123*4,567,89*{10},*{11}}
   \end{example}
@@ -2249,7 +2266,10 @@
   (\autoref{SS:order} describes the tableau drawing order). For this
   reason, in most cases you should normally avoid \option{snobs} and use
   \option{ribbons}. This said, \option{snobs} are exactly what are
-  needed in \autoref{Ex:multiGarnir}.
+  needed in \autoref{Ex:multiGarnir}. Notice also that to check the text
+  colour inside \option{snobs} {(}and \option{ribbons}), you have to use
+  \option{snob box style}, which styles the individual boxes, and not
+  \option{snob style}, which styles the snob.
 
   Since snobs are placed after the tableau is drawn, they provide a way
   to add content outside of the tableau or diagram, as shown by the
@@ -2525,7 +2545,7 @@
   shape, compositions are not fully supported in the sense that many of the
   options/keys assume that the diagrams are of partition shape. In addition,
   some options assume that tableaux and diagrams do not contain empty rows
-  and that the diagrams are \textit{connected}, in the sense that their
+  and that the diagrams are \emph{connected}, in the sense that their
   boundary can be drawn without lifting the pen off the page.  (For
   disconnected tableaux and diagrams, see the \keyword{\Multidiagram}
   and \keyword{\Multitableau} commands in \autoref{S:Multitableau}.)
@@ -2542,10 +2562,9 @@
   following:
   \begin{itemize}[nosep]
     \item First, the tableau entries that use the default styling are
-    placed in the order that they appear in the \textit{tableau
-    specifications}.
+    placed in the order that they appear in the \emph{tableau specifications}.
     \item Secondly, the styled tableau entries are placed in the order
-    that they appear in the \textit{tableau specifications}.
+    that they appear in the \emph{tableau specifications}.
     \item Next, the nodes in any \option{ribbons} and ribbon
     \option{paths} are placed, again in the order that the ribbons are
     listed. For each ribbon, first the border of the ribbon is drawn,
@@ -2572,7 +2591,7 @@
   \keyword[width=1.5em,height=1em]{,} \space
   \keyword[width=1.5em,height=1em]{*} \space
   \keyword[width=1.5em,height=1em]{[} \space
-  each has a special meaning in the \textit{tableau specifications}.
+  each has a special meaning in the \emph{tableau specifications}.
   Enclose these characters in braces if you want to use these characters as
   entries in a tableau:
 
@@ -2722,7 +2741,7 @@
   \end{example}
 
   As this example suggests, if the row and column indices are in increasing
-  \textit{consecutive} order, then the corresponding rows or columns are
+  \emph{consecutive} order, then the corresponding rows or columns are
   replaced as a block. Non-consecutive indices are treated separately.
 
   \begin{example}{diagramDottedCols}
@@ -3427,7 +3446,7 @@
   Often you want to style the entire ribbon, instead of styling
   the individual boxes in the ribbon. The (optional) style for an
   entire ribbon is given inside parentheses $(...)$ at the
-  \textit{beginning} of the ribbon specification. The ribbons in the
+  \emph{beginning} of the ribbon specification. The ribbons in the
   last example are much easier to see if we add some \keyword{(...)}-styling:
 \begin{example}{ribbonFilled}
   \RibbonTableau{
@@ -3450,7 +3469,7 @@
   takes precedence over the \keyword{(...)}-style of the entire ribbon.
 
   It is often useful to label some of the boxes in a ribbon, which can
-  be achieved by specifying the content of a box as a \textit{subscript} of
+  be achieved by specifying the content of a box as a \emph{subscript} of
   the corresponding entry in the ribbon specification:
 
   \begin{example}{ribbonTableauFrench}
@@ -3499,8 +3518,8 @@
   The ribbon specifications described already are sufficient for drawing
   arbitrary ribbons. To allow more general regions to be drawn inside
   diagrams and tableaux, the ribbon specifications also accept
-  \textsf{R}'s and~\textsf{C}'s, which \textit{decrease the row index} and
-  \textit{increase the column index}, respectively. That is, when using
+  \textsf{R}'s and~\textsf{C}'s, which \emph{decrease the row index} and
+  \emph{increase the column index}, respectively. That is, when using
   the English convention, the ribbon specifications \textsf{c}, \textsf{C},
   \textsf{r} and \textsf{R} move the (generalised) ribbon in the following directions:
 
@@ -3897,7 +3916,7 @@
   \end{example}
 
   As shown, the \option{charge} offsets the contents in each
-  \textit{component}. Use \keyword{|} to separate the charges for the
+  \emph{component}. Use \keyword{|} to separate the charges for the
   different components.
 
   \item\option{entries=first}: Prints the \emph{first} \textbf{standard} tableau of this
@@ -4175,6 +4194,69 @@
   \option{entries=first} is used to populate most of the tableau
   entries, after which \option{snobs=...} is used to rewrite the
   ``bricks'' in the homogeneous Garnir belt.
+
+  % --------------------------------------------------------------
+  \subsection{Young walls}\label{S:YoungWall}
+  \index{Young walls}
+
+  \emph{Young walls}~\cite{Kang:YoungWalls} are used to describe
+  canonical bases of quantum groups of affine type. Strictly speaking,
+  Young walls are not tableaux, but they are close enough that they can
+  be drawn using the \keyword{\Tableau} command and some
+  \TikZ-styling. The \keyword{\YoungWall} command formalises the
+  construction of Young walls and introduces a custom syntax that makes
+  it slightly easier to draw them. As with all other \aTableau commands,
+  the syntax of this command is:
+
+  \keyword{\YoungWall (x,y) [options] {Young wall specifications}}
+
+  As always, the coordinates are required if and only if the Young wall
+  is drawn inside a \keyword{tikzpicture} environment. The
+  \emph{Young wall specifications} are the same as
+  tableau specifications (\autoref{S:TableauSpecs}), except that Young
+  wall specifications accept additional processing for adding the
+  following special ``bricks'' to the walls:
+
+  \begin{itemize}[nosep]\aTabset{align=bottom, no border}
+    \item \keyword{Ha/b} adds a horizontal brick \YoungWall{Ha/b}~,
+    and \keyword{*Ha/b} adds a ground state brick \YoungWall{*Ha/b}
+    \item \keyword{Ta/b} adds a triangular brick \YoungWall{Ta/b}~,
+    and \keyword{*Ta/b} adds a ground state brick \YoungWall{*Ta/b}
+    \item \keyword{Va/b} adds a vertical brick \YoungWall{Va/b},
+    which is not usually added to Young walls.
+  \end{itemize}
+
+  As a result, the letters \keyword{H}, \keyword{T} and \keyword{V} are
+  restricted inside the \keyword{\YoungWall} command. To place one of
+  these characters in a Young wall, enclose it in braces:
+  \keyword{\YoungWall{{H}{V}}}. After letters \keyword{H}, \keyword{T}
+  and \keyword{V}, \aTableau always expects to find \keyword{a/b}, where
+  \keyword{a} and \keyword{b} can either be a single character, or a
+  word enclosed in braces. Use the non-breaking space character
+  \keyword{~} to omit \keyword{a} or \keyword{b} from the brick. When
+  there is an asterisk before an \keyword{H} or \keyword{T}, then the
+  brick is assumed to belong to the \emph{ground state} of the wall, so
+  it is shaded.
+
+  \begin{Example}[before=\aTabset{align=bottom}]{youngWalls}
+  \YoungWall{*H0/0*H0/0,11,H2/2H~/2,1}\qquad \YoungWall{V0/1V2/0V1/0V0/1} \qquad
+  \YoungWall{*T1/0*T0/1,2,T3/~}       \qquad \YoungWall{02,1,2} \qquad
+  \YoungWall{*T0/1*T1/0*T0/1,22,T~/4} \qquad \YoungWall[scale=1.6]{*T{n{-}1}/n}
+  \end{Example}
+
+  (In the last example, the braces around the minus sign in
+  \keyword{n{-}1} disables the extra spacing that \LaTeX{} automatically
+  puts around mathematical operators in math-mode.)
+
+  \option[\aTableauColour{Star}]{ground state=colour}[a \LaTeX\ colour]
+
+  Sets the background colour of the ground state bricks \keyword{*Ha/b}
+  and \keyword{*Ta/b}.
+
+  \begin{example}{groundState}
+  \YoungWall[ground state=orange]
+    {*T0/1*T~/~*T0/1,2,2,T3/~}
+  \end{example}
 
   % --------------------------------------------------------------
   \section{Abacuses} \label{S:Abacus} \index{abacus} \indexcmd{Abacus}
@@ -4999,7 +5081,7 @@ mode. See also \option{row labels} and \option{runner labels}.
     \begin{tabular}{*4l}
       Abacus& Diagram& Multidiagram& Multitableau\\
       RibbonTableau&ShiftedDiagram&ShiftedTableau& SkewDiagram\\
-      SkewTableau& Tableau& Tabloid &
+      SkewTableau& Tableau& Tabloid & YoungWall
     \end{tabular}
   \end{center}
   The $\langle$keys$\rangle$ are a comma-separated list of \aTableau
@@ -5221,6 +5303,7 @@ mode. See also \option{row labels} and \option{runner labels}.
     \option*{border}           & Draw the tableau border                             & \Yes & \No \\
     \option{border colour}     & Set tableau border colour                           & \Yes & \No \\
     \option{border style}      & Set tableau border style                            & \Yes & \No \\
+    \option{box font}          & Set tableau box font                                & \Yes & \No \\
     \option{box height}        & Set tableau box height                              & \Yes & \No \\
     \option{box style}         & Set tableau box style                               & \Yes & \No \\
     \option{box width}         & Set tableau box width                               & \Yes & \No \\
@@ -5233,8 +5316,8 @@ mode. See also \option{row labels} and \option{runner labels}.
     \option{cover}             & Draw a covering partition                           & \Yes & \No \\
     \option*{cover border}     & Draw border of covering tableau                     & \Yes & \No \\
     \option{cover border style}& Set \TikZ-style of the cover border                 & \Yes & \No \\
-    \option*{cover boxes}      & Enable drawing of cover boxes                       & \Yes & \No \\
     \option{cover box style}   & Set \TikZ-style of the cover boxes                  & \Yes & \No \\
+    \option*{cover boxes}      & Enable drawing of cover boxes                       & \Yes & \No \\
     \option{e}                 & Set the quantum characteristic for residues         & \Yes & \Yes[abacus] \\
     \option{east}              & Make abacuses grow towards the east                 & \No  & \Yes\\
     \option{delimiters}        & Set delimiters for multitableaux and multidiagrams  & \Yes & \No  \\
@@ -5245,6 +5328,7 @@ mode. See also \option{row labels} and \option{runner labels}.
     \option{entries}           & Add entries to tableaux and abacuses                & \Yes & \Yes[abacus] \\
     \option{framed}            & Draw a frame around the abacus                      & \No  & \Yes \\
     \option{french}            & Use the French convention for tableaux              & \Yes & \No \\
+    \option{ground state}      & Set background colour for Young walls ground state  & \Yes & \No \\
     \option{halign}            & Horizontal alignment of box entries and bead labels & \Yes & \Yes[abacus] \\
     \option{inner style}       & Set style of inner tableau wall                     & \Yes & \No \\
     \option{inner wall}        & Set colour of inner tableau wall                    & \Yes & \No \\
@@ -5264,10 +5348,8 @@ mode. See also \option{row labels} and \option{runner labels}.
     \option{ribbon box style}  & Set the style of boxes on a ribbon                  & \Yes & \No \\
     \option{ribbon style}      & Set the ribbon style                                & \Yes & \No \\
     \option{right delimiter}   & Set right delimiter for a multitableau              & \No  & \Yes \\
+    \option{reverse}           & Reverses columns in tableaux and diagrams           & \Yes & \No  \\
     \option{rotate}            & Rotate the picture anti-clockwise                   & \Yes & \Yes \\
-    \option*{separators}       & Enable separators in a multitableau                 & \Yes & \No \\
-    \option*{skew border}      & Set skew border colour                              & \Yes & \No \\
-    \option*{skew boxes}       & Enable drawing of skew boxes                        & \Yes & \No \\
     \option{row label style}   & Set the style of the abacus labels                  & \No  & \Yes \\
     \option{row labels}        & List of labels for the abacus rows                  & \No  & \Yes \\
     \option{rows}              & Set number of rows in a multitableau or abacus      & \Yes & \Yes[abacus] \\
@@ -5281,15 +5363,18 @@ mode. See also \option{row labels} and \option{runner labels}.
     \option{scriptscript}      & Set the \aTableau scale for subsubscripts           & \Yes & \Yes(scale-abacus) \\
     \option{script}            & Set the \aTableau scale for subscripts              & \Yes & \Yes(scale-abacus) \\
     \option{separation}        & Set distance between components in a multitableau   & \Yes & \No \\
-    \option{separator colour}  & Set separator colour for a multitableau             & \Yes & \No \\
     \option{separator}         & Set separator colour in a multitableau              & \Yes & \No \\
+    \option{separator colour}  & Set separator colour for a multitableau             & \Yes & \No \\
+    \option*{separators}       & Enable separators in a multitableau                 & \Yes & \No \\
     \option{shape}             & Set the shape of a ribbon tableau                   & \Yes & \No \\
     \option{shifted}           & True for a shifted tableau                          & \Yes & \No \\
+    \option{skew}              & Set inner skew shape                                & \Yes & \No \\
+    \option*{skew border}      & Set skew border colour                              & \Yes & \No \\
     \option{skew border style} & Set the \TikZ-style of the skew border              & \Yes & \No \\
     \option{skew box style}    & Set the \TikZ-style of the skew boxes               & \Yes & \No \\
-    \option{skew}              & Set inner skew shape                                & \Yes & \No \\
-    \option{snob box style}    & Set the style of boxes on a snob                    & \Yes & \No \\
+    \option*{skew boxes}       & Enable drawing of skew boxes                        & \Yes & \No \\
     \option{snob box}          & Set default box entry for a snob                    & \Yes & \No \\
+    \option{snob box style}    & Set the style of boxes on a snob                    & \Yes & \No \\
     \option{snob style}        & Setcw the snob style                                & \Yes & \No \\
     \option{snobs}             & add snobs to tableau                                & \Yes & \No \\
     \option{south}             & Make abacuses grow towards the south                & \Yes & \No \\
@@ -5462,7 +5547,7 @@ mode. See also \option{row labels} and \option{runner labels}.
   }
   \end{example}
 
-  The entries of a tableau are usually single characters, or numbers,
+  The entries of tableaux are usually single characters, or numbers,
   but they can be more complicated. The paper
   \cite{BowmanDeVisscherHaziStroppel:Arc} contains
   tableaux with entries that are \emph{symbols}, produced by
@@ -5481,12 +5566,32 @@ mode. See also \option{row labels} and \option{runner labels}.
   }
   \end{example}
 
-  From the \aTableau perspective, the most interesting feature of the next
-  three pictures is that they illustrate the power of named coordinates for
-  tableaux boxes; see \autoref{E:NodeNames}. As a result, explicit
-  \TikZ diagram coordinates are rarely needed in these pictures.
+  \index{plethsym}
+  The following example from ~\cite{PagetWildon:Foulkes} describes
+  plethysm by drawing tableaux inside a tableau. By enclosing the full
+  command in braces, it is possible to nest tableaux when using the
+  \keyword{\Tableau} command. When you do this all settings
+  are inherited so, for example, the true \option{scale} of the inner
+  tableaux in this example is $0.7=2\times0.35$.
 
-  The first of these examples, which is also from
+  \begin{example}{nestedTableau}
+  \NewATableauCommand\Plethysm{Tableau}
+    {scale=0.35, box font=\scriptsize,
+     colour theme=classic}
+  \Tableau[scale=2]{
+    {\Plethysm{{1_1}{2_1},{1_2}}}
+    {\Plethysm{{1_3}{2_2},{2_3}}}
+    {\Plethysm{{1_4}{3_1},{1_5}}}
+    {\Plethysm{{1_6}{3_2},{2_4}}},
+    {\Plethysm{{1_7}{2_5},{1_8}}}
+  }
+  \end{example}
+
+  From the \aTableau perspective, the most interesting feature of the
+  next three pictures is that they illustrate the power of named
+  coordinates for tableaux boxes; see \autoref{E:NodeNames}. As a
+  result, explicit \TikZ diagram coordinates are rarely needed in these
+  pictures. The first of these examples, which is also from
   \cite{BowmanDeVisscherHaziStroppel:Arc}, is a little more involved.
   The ``hard work'' in drawing this picture is done using custom
   \TikZ-styles, called \textit{pics}, which are a good way of adding
@@ -5636,7 +5741,7 @@ tikz after={ % add the red and blue arrows
 
 % ----------------------------------------------------------------------
 % bibliography
-% \bibliography{papers}
+%\bibliography{papers}
 \bibliographystyle{andrew}
 
 \begin{thebibliography}{10}
@@ -5661,8 +5766,8 @@ tikz after={ % add the red and blue arrows
 \bibitem{EvseevMathas:DeformedKLR}
 \textsc{A.~Evseev and A.~Mathas},
   \href{http://dx.doi.org/10.5802/art.8}{\textit{Content systems and
-  deformations of cyclotomic {KLR} algebras of type~$A$ and~$C$}}, Annals of
-  Representation Theory, \textbf{1} (2024), 193--297.
+  deformations of cyclotomic {KLR} algebras of type~{$A$} and~{$C$}}}, Ann.
+  Represent. Theory, \textbf{1} (2024), 193--297.
 \newblock \href{http://arxiv.org/abs/2209.00134}{arXiv:2209.00134}.
 
 \bibitem{Fayers:DyckTilings}
@@ -5686,6 +5791,12 @@ tikz after={ % add the red and blue arrows
 \bibitem{James:YoungD}
 \textsc{G.~James}, \textit{Some combinatorial results involving {Y}oung
   diagrams}, Math. Proc. Cambridge Philos. Soc., \textbf{83} (1978), 1--10.
+
+\bibitem{Kang:YoungWalls}
+\textsc{S.-J. Kang},
+  \href{http://dx.doi.org/10.1112/S0024611502013734}{\textit{Crystal bases for
+  quantum affine algebras and combinatorics of {Y}oung walls}}, Proc. London
+  Math. Soc. (3), \textbf{86} (2003), 29--69.
 
 \bibitem{KMR:UniversalSpecht}
 \textsc{A.~Kleshchev, A.~Mathas, and A.~Ram},
@@ -5713,9 +5824,9 @@ tikz after={ % add the red and blue arrows
 
 \bibitem{MathasTubbenhauer:BAD}
 \textsc{A.~Mathas and D.~Tubbenhauer},
-  \href{http://dx.doi.org/10.1112/jlms.12706}{\textit{Cellularity
-  for weighted KLRW algebras of types $B$, $A^{(2)}$, $D^{(2)}$}}, Journal of
-  the London Mathematical Society, \textbf{107} (2023), 1002--1044.
+  \href{http://dx.doi.org/10.1112/jlms.12706}{\textit{Cellularity for weighted
+  KLRW algebras of types $B$, $A^{(2)}$, $D^{(2)}$}}, Journal of the London
+  Mathematical Society, \textbf{107} (2023), 1002--1044.
 \newblock \href{http://arxiv.org/abs/2201.01998}{arXiv:2201.01998}.
 
 \bibitem{Mendes:hooks}
@@ -5726,6 +5837,12 @@ tikz after={ % add the red and blue arrows
 \textsc{B.~Muniz}, \href{https://arxiv.org/abs/2505.21738}{\textit{Symplectic
   Branching through Crystals}}, 2025.
 \newblock \href{http://arxiv.org/abs/2505.21738}{arXiv:2505.21738}.
+
+\bibitem{PagetWildon:Foulkes}
+\textsc{R.~Paget and M.~Wildon},
+  \href{http://dx.doi.org/10.1112/plms.12210}{\textit{Generalized {F}oulkes
+  modules and maximal and minimal constituents of plethysms of {S}chur
+  functions}}, Proc. Lond. Math. Soc. (3), \textbf{118} (2019), 1153--1187.
 
 \bibitem{KerovVershik}
 \textsc{A.~M. Ver\v~sik and S.~V. Kerov}, \textit{Asymptotic behavior of the
