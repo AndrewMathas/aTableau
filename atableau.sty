@@ -1,6 +1,6 @@
 % ---------------------------------------------------------------------------
 % aTableau - Andrew Mathas (C) 2022-2026
-% Modified: 22:15 Monday, 24 August 2026
+% Modified: 16:25 Tuesday, 25 August 2026
 % ---------------------------------------------------------------------------
 %
 % A LaTeX package for symmetric group combinatorics:
@@ -1364,14 +1364,14 @@
 % list of integers, or as a comma separated list of integers with exponents
 % giving the multiplicity of each part. For example, 4,3,3,3,2 and 4,3^3,2
 % are both supported.
-% TODO: ?? Remove the hack below using \seq_set_split:Nnn and rewrite using quarks
 \cs_new_protected:Npn \__aTableau_set_partition:nn #1 #2
 {
   \seq_clear:c {l__aTableau_#1_seq}
   \clist_map_inline:nn {#2} { \__aTableau_add_to_partition:nn {#1} {##1} }
 }
 
-% add parts to the partition \l__aTableau_#1_seq given input
+% usage: \__aTableau_add_to_partition:nN {partition} {part}
+% Adds a part to the partition \l__aTableau_#1_seq given input
 % of the form k or k^r
 \cs_new_protected:Npn \__aTableau_add_to_partition:nn #1 #2
 {
@@ -1385,10 +1385,9 @@
 }
 
 % usage: \__aTableau_diagram_for_shape:N {partition}
-% Young diagrams are drawn using the \Tableau command by generating
-% a sequence of ~ for the partition. For example,
-% it replaces the sequence 3,2,2,1 with
-% the dot-sequence ~~~,~~,~~,~,
+% Young diagrams are drawn using the \Tableau command by generating a
+% sequence of ~ for the partition. For example, it replaces the sequence
+% 3,2,2,1 with the dot-sequence ~~~,~~,~~,~,
 \cs_new_protected:Npn \__aTableau_diagram_for_shape:N #1
 {
     \tl_build_begin:N \l__aTableau_entries_tl
@@ -1403,15 +1402,17 @@
 }
 
 % usage: \__aTableau_shape_to_columns:N {partition sequence}
-% Draws diagrams when entries=columns is used
+% Adds the column indices to a diagram when entries=columns is used
 \cs_new_protected:Npn \__aTableau_shape_to_columns:N #1
 {
     \tl_build_begin:N \l__aTableau_entries_tl
     \tl_clear:N \l_tmpb_tl
+    \int_zero:N \l__aTableau_row_int
     \seq_map_inline:Nn #1
     {
         \tl_build_put_right:No \l__aTableau_entries_tl \l_tmpb_tl
-        \int_set_eq:NN \l__aTableau_col_int \l__aTableau_charge_int
+        \int_incr:N \l__aTableau_row_int
+        \int_set:Nn \l__aTableau_col_int { \l__aTableau_charge_int + 0\seq_item:NV \l__aTableau_skew_seq \l__aTableau_row_int }
         \int_step_inline:nn {##1}
         {
             \int_incr:N \l__aTableau_col_int
@@ -1423,7 +1424,7 @@
 }
 
 % usage: \__aTableau_shape_to_contents:N {partition sequence}
-% Draws diagrams when entries=content is used
+% Adds contents to a diagram when entries=content is used
 \cs_new_protected:Npn \__aTableau_shape_to_contents:N #1
 {
     \tl_build_begin:N \l__aTableau_entries_tl
@@ -1446,7 +1447,7 @@
 }
 
 % usage: \__aTableau_shape_to_ladders:N {partition sequence}
-% Draws diagrams when entries=ladders is used
+% Adds ladder n umbers to a diagram when entries=ladders is used
 \cs_new_protected:Npn \__aTableau_shape_to_ladders:N #1
 {
     \tl_build_begin:N \l__aTableau_entries_tl
@@ -1469,7 +1470,7 @@
 }
 
 % usage: \__aTableau_shape_to_last:N {partition sequence}
-% Diagrams with entries=last are drawn using the \Diagram command
+% Adds the last standard tableau to a diagram when entries=last is used
 \cs_new_protected:Npn \__aTableau_shape_to_last:N #1
 {
     % initialise \l_tmpc_seq -- should not be necessary but otherwise \seq_item:NV fails
@@ -1512,7 +1513,7 @@
 }
 
 % usage: \__aTableau_shape_to_first:N {partition sequence}
-% Diagrams with entries=first are drawn using the \Diagram command
+% Adds the initial tableau to a diagram when entries=first is used
 \cs_new_protected:Npn \__aTableau_shape_to_first:N #1
 {
     \tl_build_begin:N \l__aTableau_entries_tl
@@ -1983,12 +1984,12 @@
     \bool_if:NTF \l__aTableau_conjugate_bool
     {
       % adding to the left-hand side
-      \fp_add:Nn \l__aTableau_xa_fp {\l__aTableau_box_col_dx_fp}
-      \fp_add:Nn \l__aTableau_ya_fp {\l__aTableau_box_col_dy_fp}
+      \fp_add:Nn \l__aTableau_xa_fp {\l__aTableau_reverse_fp*\l__aTableau_box_col_dx_fp}
+      \fp_add:Nn \l__aTableau_ya_fp {\l__aTableau_reverse_fp*\l__aTableau_box_col_dy_fp}
 
       % adding to the right-hand side
-      \fp_add:Nn \l__aTableau_xb_fp {\l__aTableau_box_col_dx_fp}
-      \fp_add:Nn \l__aTableau_yb_fp {\l__aTableau_box_col_dy_fp}
+      \fp_add:Nn \l__aTableau_xb_fp {\l__aTableau_reverse_fp*\l__aTableau_box_col_dx_fp}
+      \fp_add:Nn \l__aTableau_yb_fp {\l__aTableau_reverse_fp*\l__aTableau_box_col_dy_fp}
 
       \bool_if:NTF \l__aTableau_tabloid_bool
       {
@@ -2222,8 +2223,8 @@
 \cs_new_protected:Npn \__aTableau_set_box_coordinates_conjugate:nnn #1 #2 #3
 {
     \tl_set:Nx \l__aTableau_name_tl {\l__aTableau_prefix_tl-\int_eval:n{1+#3}-\int_eval:n {1+#2}}
-    \fp_set:cn {l__aTableau_x#1_fp} {\l__aTableau_x_fp+(0.5+#3)*\l__aTableau_box_row_dx_fp+(0.5+#2)*\l__aTableau_box_col_dx_fp }
-    \fp_set:cn {l__aTableau_y#1_fp} {\l__aTableau_y_fp+(0.5+#3)*\l__aTableau_box_row_dy_fp+(0.5+#2)*\l__aTableau_box_col_dy_fp }
+    \fp_set:cn {l__aTableau_x#1_fp} {\l__aTableau_x_fp+(0.5+#3)*\l__aTableau_box_row_dx_fp+(0.5+(#2)*\l__aTableau_reverse_fp)*\l__aTableau_box_col_dx_fp }
+    \fp_set:cn {l__aTableau_y#1_fp} {\l__aTableau_y_fp+(0.5+#3)*\l__aTableau_box_row_dy_fp+(0.5+(#2)*\l__aTableau_reverse_fp)*\l__aTableau_box_col_dy_fp }
     \__aTableau_update_extrema:n #1
 %   \__aTableau_debug:n {~-~conjugate~box~coordinates:~\l__aTableau_name_tl~=~(\fp_use:c{l__aTableau_x#1_fp},~\fp_use:c{l__aTableau_y#1_fp})}
 }

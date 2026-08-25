@@ -12,9 +12,9 @@
 - Adds the `pyramid` key for drawing pyramid tableaux
 - Adds the `reverse` key for reversing the column order
 - Adds a plethysm example
+- Fixes a bug when using `entries=columns` for skew shapes
 - Improves speed for creating some pictures by using \tl_build\_\*
-- Updates the `make_release` script so that it now runs a series of
-  checks to ensure that the package is ready for release
+- Updates the `make_release` script so that it now runs a series of checks to ensure that the package is ready for release
 
 ## Version 2.2.2 - 2026-06-30
 

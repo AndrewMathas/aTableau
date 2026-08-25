@@ -7,11 +7,7 @@
 
 ## Features to be implemented
 
-- Young walls: work in progress
-
 ## Known bugs
-
-- `\SkewDiagram[entries=columns]{2,1}{2^2,1}` produces dubious results
 
 ## Documentation
 

@@ -173,12 +173,15 @@ def run_parallel_command(options, files):
     )
     try:
         futures = {executor.submit(command, file, options): file for file in files}
+        passed = 0
         for future in as_completed(futures):
             file = futures[future]
             try:
                 result = future.result()  # Raises exception if command() fails
                 if result:
                     bad_examples.append(result)
+                else:
+                    passed += 1
 
             except Exception as error:
                 message = f"Error running {options.action} on {file}: {error}"
@@ -188,6 +191,7 @@ def run_parallel_command(options, files):
                     message += "\n" + "\n".join(str(output).splitlines()[-15:])
                 print(red_text(message))
                 bad_examples.append(message)
+
     except KeyboardInterrupt:
         print(red_text("\nInterrupted -- stopping."), flush=True)
         # terminate the workers (they ignore SIGINT) so shutdown returns at once
@@ -196,6 +200,7 @@ def run_parallel_command(options, files):
             process.terminate()
         executor.shutdown(wait=True)
         sys.exit(130)
+
     executor.shutdown(wait=True)
 
     if bad_examples:
@@ -213,6 +218,9 @@ def run_parallel_command(options, files):
 
         elif not options.quiet:
             print("\nChanged examples:\n" + "\n".join(sorted(bad_examples)))
+
+    if not options.quiet:
+        print(f"\n{passed} examples {options.action.replace('ing', 'ed')}")
 
 
 def open_file(file):
