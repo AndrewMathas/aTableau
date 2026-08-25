@@ -1,6 +1,6 @@
 % ---------------------------------------------------------------------------
 % aTableau - Andrew Mathas (C) 2022-2026
-% Modified: 16:41 Tuesday, 25 August 2026
+% Modified: 00:49 Wednesday, 26 August 2026
 % ---------------------------------------------------------------------------
 %
 % A LaTeX package for symmetric group combinatorics:
@@ -4561,7 +4561,6 @@
 
 % ---------------------------------------------------------------------------
 % Usage: \__aTableau_set_origin:nn (x,y)
-% Set the Cartesian coordinates for the corner of the (1,1) box
 % Extract (x,y)-coordinates from a general TikZ coordinate following the
 % answer https://tex.stackexchange.com/a/33765/234252 of Andrew Stacey
 \cs_new_protected:Npn \__aTableau_set_origin:n #1
@@ -4572,7 +4571,7 @@
 }
 
 % usage: \__aTableau_tikzpicture:nnn {origin} {aTableau command}
-%  - #1: origin are Cartesian coordinates in the form x,y, or NoValue
+%  - #1: origin = TikZ coordinates, or NoValue
 %  - #2: an internal aTableau command with parameters for drawing something
 % Except for \aTabset and \NewATableauCommand, all public-facing commands
 % use \__aTableau_tikzpicture:nnn, which ensures that the command is
@@ -4649,7 +4648,6 @@
 % usage: \__aTableau_beamer_wrapper:nnnn {overlay specification} {settings} {origin} {aTableau command}
 \cs_new_protected:Npn \__aTableau_beamer_wrapper:nnnn #1 #2 #3 #4
 {
-    % Keep changes to settings local by working inside a group
     % Process the keys before invoking \__aTableau_tikzpicture:nn so
     % that the beamer key can change the beamer overlay command
     \group_begin:
@@ -4882,14 +4880,14 @@
           {
             \bool_if:NTF \l__aTableau_beamer_bool
             {
-                % \TabloidCommand <overlay specs> (x,y) [style] {entries}
+                % \YoungWall <overlay specs> (x,y) [style] {entries}
                 \NewDocumentCommand#1{ d<> d() O{} m }
                 {
-                    \__aTableau_beamer_wrapper:nnnn {##1} {#3,##3} {##2} { \__aTableau_young_wall:n {##4} }
+                    \__aTableau_beamer_wrapper:nnnn {##1} {french,reverse,#3,##3} {##2} { \__aTableau_young_wall:n {##4} }
                 }
             }
             {
-                % \TabloidCommand (x,y) [style] {entries}
+                % \YoungWall (x,y) [style] {entries}
                 \NewDocumentCommand#1{ d() O{} m }
                 {
                     \__aTableau_command_wrapper:nnn {french,reverse,#3,##2} {##1} { \__aTableau_young_wall:n {##3} }

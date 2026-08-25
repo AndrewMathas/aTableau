@@ -15,7 +15,6 @@
 
 ### Things we might do at some point
 
-- Rewrite the partition parsing so that it uses quarks
 - Beta numbers: allow partition to be specified by beta numbers in `\Diagram` and friends
 - Allow custom styling for the different sides of the tableau/diagram borders
 
