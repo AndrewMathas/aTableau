@@ -45,6 +45,30 @@ A LaTeX package for **symmetric group combinatorics**, with commands for:
 
 The **aTableau** package requires Tex Live 2024, or later, as it relies heavily on the LaTeX3 programming environment
 
+## Package files
+
+The package consists of:
+
+- atableau.ini - metadata for the package
+- atableau.pdf - PDF file for the manual
+- atableau.sty - package style file
+- atableau.tex - the LaTeX source for manual
+- atableau_beamer.pdf - image used in manual
+- atableau_beamer.tex - latex source for image in manual
+- atableau_readme.tex - latex source for image in README file
+- atableau_readme.webp - image used in the README file
+- DEPENDS.txt - LaTeX dependencies
+- LICENSE - package licence
+- README.md - github page README file
+- CHANGES.md - change log
+- TODO.md - todo list
+- make_release - shell script that runs some sanity checks and then creates the ctan tar file
+- manual_times - rough regression test giving times for each version to compile the manual
+- compile_time - shell script for updating manual_times. Uses hyperfine
+- tests/test_atableau.py - python script that checks for changes in the examples from the manual
+- tests/atableau_example.cls - class file for testing examples from the manual
+
+
 ## Author
 
 Andrew Mathas <br>

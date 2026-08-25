@@ -172,7 +172,7 @@ fi
 # --- check atableau.sty -----------------------------------------------------
 echo
 echo "aTableau style file:"
-if [[ "$sty_version" == *"$ini_version}" ]]; then
+if [[ "$sty_version" == *"$ini_version" ]]; then
   pass "version matches atableau.ini ($ini_version)"
 else
   fail "version ($sty_version) does not match atableau.ini ($ini_version)"

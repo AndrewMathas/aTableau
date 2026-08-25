@@ -5,7 +5,7 @@
 
 # **aTableau** - Change log
 
-## Version 2.3.0 - 202?-??-??
+## Version 2.3.0 - 2026-08-25
 
 - Allows the `label` key to be used with abacuses
 - Adds the `\YoungWall` command for drawing Young Walls
