@@ -102,10 +102,11 @@ check_copyright() {
 
 # --- metadata ---------------------------------------------------------------
 
-# normalise both release dates to YYYY-MM-DD so the two formats can be compared
-# (atableau.ini uses "30 June 2026 AEST", atableau.sty uses "2026.06.30")
+# normalise both release dates to YYYY-MM-DD so that whitespace doesn't
+# matter (atableau.ini and atableau.sty both use "D Month YYYY TZ", e.g.
+# "2 October 2026 AEST")
 ini_date_iso=$(date -j -f "%d %B %Y" "$(sed -E 's/[[:space:]]+[A-Za-z]+$//' <<<"$ini_date")" "+%Y-%m-%d" 2>/dev/null)
-sty_date_iso=$(tr '.' '-' <<<"$sty_date")
+sty_date_iso=$(date -j -f "%d %B %Y" "$(sed -E 's/[[:space:]]+[A-Za-z]+$//' <<<"$sty_date")" "+%Y-%m-%d" 2>/dev/null)
 
 printf "${BOLD}Checking that aTableau %s is ready for uploading to CTAN ...${RESET}\n\n" "$ini_version"
 
@@ -181,7 +182,7 @@ fi
 # --- check atableau.sty -----------------------------------------------------
 echo
 echo "aTableau style file:"
-if [[ "$sty_version" == *"$ini_version" ]]; then
+if [[ "$(xargs <<< "$sty_version")" == "$(xargs <<< "$ini_version")" ]]; then
   pass "version matches atableau.ini ($ini_version)"
 else
   fail "version ($sty_version) does not match atableau.ini ($ini_version)"

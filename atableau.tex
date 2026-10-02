@@ -1,6 +1,6 @@
 % ----------------------------------------------------------------------
 % aTableau manual - Andrew Mathas (C) 2022-2026
-% Modified: 18:31 Friday, 02 October 2026
+% Modified: 19:12 Friday, 02 October 2026
 % ----------------------------------------------------------------------
 \documentclass{amsart}
 \usepackage[svgnames,table]{xcolor}
@@ -76,7 +76,10 @@
             % When the version takes the form 2.1.1-rc1 we need
             % to replace the dash with a dot, so we do this always
             \str_set:Ne \l_tmpa_str { \seq_item:Nn \l_tmpa_seq {2}}
-            \str_replace_once:Nnn \l_tmpa_str {-} {.}
+            \seq_if_in:NnT \l_tmpa_seq {version}
+            {
+                \str_replace_once:Nnn \l_tmpa_str {-} {.}
+            }
             \prop_put:NeV \l__aTableau_meta_prop { \seq_item:Nn \l_tmpa_seq {1} } \l_tmpa_str
         }
     }
