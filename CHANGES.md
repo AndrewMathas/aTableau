@@ -1,17 +1,23 @@
-![version](https://img.shields.io/github/v/tag/AndrewMathas/aTableau?color=success&label=aTableau)
-[![LPPL](https://img.shields.io/github/license/note286/xduts?style=flat-square)](https://www.latex-project.org/lppl/)
+[![version](https://img.shields.io/github/v/tag/AndrewMathas/aTableau?color=success&label=aTableau)](https://github.com/AndrewMathas/aTableau/releases/)
 [![CTAN](https://img.shields.io/ctan/v/atableau?color=blue)](https://ctan.org/pkg/atableau)
+[![LPPL](https://img.shields.io/github/license/note286/xduts?style=flat-square)](https://www.latex-project.org/lppl/)
 ![GitHub Release Date](https://img.shields.io/github/release-date/AndrewMathas/atableau?label=released&color=red)
 
 # **aTableau** - Change log
 
+## Version 2.3.1 - 2026-10-02
+
+- Adds the `bricked` key to allow Young bricks to be used in ordinary tableaux
+- Allow Young walls to be used with the four tableaux conventions
+- Fixes an alignment bug for cover and skew boxes
+
 ## Version 2.3.0 - 2026-08-25
 
-- Allows the `label` key to be used with abacuses
 - Adds the `\YoungWall` command for drawing Young Walls
 - Adds the `pyramid` key for drawing pyramid tableaux
 - Adds the `reverse` key for reversing the column order
 - Adds a plethysm example
+- Allows the `label` key to be used with abacuses
 - Fixes a bug when using `entries=columns` for skew shapes
 - Improves speed for creating some pictures by using \tl_build\_\*
 - Updates the `make_release` script so that it now runs a series of checks to ensure that the package is ready for release

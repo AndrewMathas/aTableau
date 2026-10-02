@@ -1,6 +1,6 @@
 % ---------------------------------------------------------------------------
 % aTableau - Andrew Mathas (C) 2022-2026
-% Modified: 00:49 Wednesday, 26 August 2026
+% Modified: 14:41 Friday, 02 October 2026
 % ---------------------------------------------------------------------------
 %
 % A LaTeX package for symmetric group combinatorics:
@@ -56,8 +56,8 @@
 
 \prop_set_from_keyval:Nn \l__aTableau_meta_prop
 {
-    release_date = 2026.08.25,
-    version = 2.3.0,
+    release_date = 2026.08.25, % @bump@
+    version = 2.3.0,           % @bump@
     description = A~LaTeX~package~for~symmetric~group~combinatorics
 }
 
@@ -200,6 +200,7 @@
 \bool_new:N \l__aTableau_beta_numbers_bool% true if specifying beta numbers
 \bool_new:N \l__aTableau_border_bool      % true if drawing tableau border
 \bool_new:N \l__aTableau_boxes_bool       % true if drawing inner tableau walls
+\bool_new:N \l__aTableau_bricked_bool     % true if using the Young wall brick parser
 \bool_new:N \l__aTableau_conjugate_bool   % true if drawing conjugate tableau/diagram
 \bool_new:N \l__aTableau_cover_border_bool% true if drawing cover border
 \bool_new:N \l__aTableau_cover_boxes_bool % true if drawing cover boxes
@@ -311,6 +312,7 @@
 \tl_new:N \l__aTableau_box_font_tl        % font for tableau boxes
 \tl_new:N \l__aTableau_box_shape_tl       % shape of tableau boxes
 \tl_new:N \l__aTableau_box_text_tl        % text colour for tableau boxes
+\tl_new:N \l__aTableau_brick_font_tl      % font for Young bricks
 \tl_new:N \l__aTableau_capture_exp_tl     % contains captured exponent
 \tl_new:N \l__aTableau_capture_part_tl    % contains captured part
 \tl_new:N \l__aTableau_capture_style_tl   % contains captured style
@@ -657,54 +659,67 @@
         fill = \l__aTableau_ground_state_tl,
         aTableau/youngWall
     },
-    youngBox/.style = {
-        anchor    = center,
-        inner~sep = 0pt,
-        rotate    = \fp_use:N \l__aTableau_rotate_fp,
-        text      = \l__aTableau_box_text_tl,
-        font      = \scriptsize,
-    },
     youngWall/.style = {
         draw = aTableauMain,
         thin,
     },
+    youngBrick/.style = {
+        aTableau/aTableauBox,
+        font      = \l__aTableau_brick_font_tl,
+
+    },
     brickt/.style~args={#1/#2}{
         path~picture={
-          \draw[aTableau/youngWall](path~picture~bounding~box.south~west) --
-              (path~picture~bounding~box.north~east);
-          \node[aTableau/youngBox] at ([shift={(-0.125,0.125)}]path~picture~bounding~box){$#1$};
-          \node[aTableau/youngBox] at ([shift={(0.125,-0.125)}]path~picture~bounding~box){$#2$};
+          \draw[aTableau/youngWall](path~picture~bounding~box.BOTL)--(path~picture~bounding~box.TOPR);
+          \node[aTableau/youngBrick] at ([shift={(\fp_eval:n{0.25*(\l__aTableau_box_row_dx_fp-\l__aTableau_box_col_dx_fp)},
+                                                  \fp_eval:n{0.25*(\l__aTableau_box_row_dy_fp-\l__aTableau_box_col_dy_fp)})}]
+               path~picture~bounding~box.center){$#1$};
+          \node[aTableau/youngBrick] at ([shift={(\fp_eval:n{0.25*(\l__aTableau_box_col_dx_fp-\l__aTableau_box_row_dx_fp)},
+                                                  \fp_eval:n{0.25*(\l__aTableau_box_col_dy_fp-\l__aTableau_box_row_dy_fp)})}]
+               path~picture~bounding~box.center){$#2$};
         }
     },
     brickT/.style~args={#1/#2}{
         path~picture={
-          \draw[aTableau/groundState] (path~picture~bounding~box.south~west) -|
-              (path~picture~bounding~box.north~east) -- cycle;
-          \node[aTableau/youngBox] at ([shift={(-0.125,0.125)}]path~picture~bounding~box){$#1$};
-          \node[aTableau/youngBox] at ([shift={(0.125,-0.125)}]path~picture~bounding~box){$#2$};
+          \fill[aTableau/groundState](path~picture~bounding~box.BOTL)--(path~picture~bounding~box.BOTR)
+            --(path~picture~bounding~box.TOPR)--cycle;
+          \node[aTableau/youngBrick] at ([shift={(\fp_eval:n{0.25*(\l__aTableau_box_row_dx_fp-\l__aTableau_box_col_dx_fp)},
+                                                  \fp_eval:n{0.25*(\l__aTableau_box_row_dy_fp-\l__aTableau_box_col_dy_fp)})}]
+               path~picture~bounding~box.center){$#1$};
+          \node[aTableau/youngBrick] at ([shift={(\fp_eval:n{0.25*(\l__aTableau_box_col_dx_fp-\l__aTableau_box_row_dx_fp)},
+                                                  \fp_eval:n{0.25*(\l__aTableau_box_col_dy_fp-\l__aTableau_box_row_dy_fp)})}]
+               path~picture~bounding~box.center){$#2$};
         }
     },
     brickH/.style~args={#1/#2}{
         path~picture={
-          \fill[aTableau/groundState] (path~picture~bounding~box.south~west)
-             rectangle (path~picture~bounding~box.east);
-          \draw[aTableau/youngWall](path~picture~bounding~box.west)--(path~picture~bounding~box.east);
-          \node[aTableau/youngBox] at ([shift={(0,0.125)}]path~picture~bounding~box){$#1$};
-          \node[aTableau/youngBox] at ([shift={(0,-0.125)}]path~picture~bounding~box){$#2$};
+          \fill[aTableau/groundState](path~picture~bounding~box.BOTL)--(path~picture~bounding~box.LEFT)
+            --(path~picture~bounding~box.RIGH)--(path~picture~bounding~box.BOTR)--cycle;
+          \draw[aTableau/youngWall] (path~picture~bounding~box.LEFT)--(path~picture~bounding~box.RIGH);
+          \node[aTableau/youngBrick] at ([shift={(\fp_eval:n{0.25*\l__aTableau_box_row_dx_fp},\fp_eval:n{0.25*\l__aTableau_box_row_dy_fp})}]
+               path~picture~bounding~box.center){$#1$};
+          \node[aTableau/youngBrick] at ([shift={(\fp_eval:n{-0.25*\l__aTableau_box_row_dx_fp},\fp_eval:n{-0.25*\l__aTableau_box_row_dy_fp})}]
+               path~picture~bounding~box.center){$#2$};
         }
     },
     brickh/.style~args={#1/#2}{
         path~picture={
-          \draw[aTableau/youngWall](path~picture~bounding~box.west)--(path~picture~bounding~box.east);
-          \node[aTableau/youngBox] at ([shift={(0,0.125)}]path~picture~bounding~box){$#1$};
-          \node[aTableau/youngBox] at ([shift={(0,-0.125)}]path~picture~bounding~box){$#2$};
+          % see the comment in brickH above
+          \draw[aTableau/youngWall] (path~picture~bounding~box.LEFT)--(path~picture~bounding~box.RIGH);
+          \node[aTableau/youngBrick] at ([shift={(\fp_eval:n{0.25*\l__aTableau_box_row_dx_fp},\fp_eval:n{0.25*\l__aTableau_box_row_dy_fp})}]
+               path~picture~bounding~box.center){$#1$};
+          \node[aTableau/youngBrick] at ([shift={(\fp_eval:n{-0.25*\l__aTableau_box_row_dx_fp},\fp_eval:n{-0.25*\l__aTableau_box_row_dy_fp})}]
+               path~picture~bounding~box.center){$#2$};
       }
     },
     brickv/.style~args={#1/#2}{
         path~picture={
-          \draw[aTableau/youngWall](path~picture~bounding~box.south)--(path~picture~bounding~box.north);
-          \node[aTableau/youngBox] at ([shift={(-0.125,0)}]path~picture~bounding~box){$#1$};
-          \node[aTableau/youngBox] at ([shift={(0.125,0)}]path~picture~bounding~box){$#2$};
+          % see the comment in brickH above
+          \draw[aTableau/youngWall] (path~picture~bounding~box.BOT)--(path~picture~bounding~box.TOP);
+          \node[aTableau/youngBrick] at ([shift={(\fp_eval:n{-0.25*\l__aTableau_box_col_dx_fp},\fp_eval:n{-0.25*\l__aTableau_box_col_dy_fp})}]
+               path~picture~bounding~box.center){$#1$};
+          \node[aTableau/youngBrick] at ([shift={(\fp_eval:n{ 0.25*\l__aTableau_box_col_dx_fp},\fp_eval:n{ 0.25*\l__aTableau_box_col_dy_fp})}]
+               path~picture~bounding~box.center){$#2$};
         }
     },
 }
@@ -740,6 +755,16 @@
 % ---------------------------------------------------------------------------
 % tableau styles: english, french, australian and russian - called from settings
 
+% usage:\l__aTableau_tikz_anchor_alias:nnn {shape} {alias} {TikZ anchor}
+% Create an alias to a TikZ anchor so that we can uniformly refer to the
+% corners of the cells in the different styles (this is only used for
+% the bricks in Young walls). The styles define aliases for the eight
+% anchors around the cells: N, NE, E, SE, S, SW, W, NW
+\cs_new_protected:Npn \l__aTableau_tikz_anchor_alias:nnn #1 #2 #3
+{
+  \cs_set_eq:cc {pgf@anchor@#1@#2} {pgf@anchor@#1@#3}
+}
+
 % usage: \__aTableau_set_tableau_style:nnnn {col_dx}{col_dy}{row_dx}{row_dy}
 % Set the style/convention for tableaus
 \cs_new:Npn \__aTableau_set_tableau_style:nnnn #1 #2 #3 #4
@@ -756,6 +781,14 @@
     \fp_set:Nn \l__aTableau_box_wd_fp {\l__aTableau_xscale_fp*0.5}
     \tl_set:Nn \l__aTableau_box_shape_tl {rectangle}
     \__aTableau_set_tableau_style:nnnn {1}{0}{0}{-1}
+    \l__aTableau_tikz_anchor_alias:nnn {rectangle} {TOP}  {south}
+    \l__aTableau_tikz_anchor_alias:nnn {rectangle} {TOPL} {south~west}
+    \l__aTableau_tikz_anchor_alias:nnn {rectangle} {TOPR} {south~east}
+    \l__aTableau_tikz_anchor_alias:nnn {rectangle} {BOT}  {north}
+    \l__aTableau_tikz_anchor_alias:nnn {rectangle} {BOTL} {north~west}
+    \l__aTableau_tikz_anchor_alias:nnn {rectangle} {BOTR} {north~east}
+    \l__aTableau_tikz_anchor_alias:nnn {rectangle} {LEFT} {west}
+    \l__aTableau_tikz_anchor_alias:nnn {rectangle} {RIGH} {east}
 }
 
 \cs_new:Nn \__aTableau_set_tableau_style_french:
@@ -764,6 +797,14 @@
     \fp_set:Nn \l__aTableau_box_wd_fp {\l__aTableau_xscale_fp*0.5}
     \tl_set:Nn \l__aTableau_box_shape_tl {rectangle}
     \__aTableau_set_tableau_style:nnnn {1}{0}{0}{1}
+    \l__aTableau_tikz_anchor_alias:nnn {rectangle} {TOP}  {north}
+    \l__aTableau_tikz_anchor_alias:nnn {rectangle} {TOPL} {north~west}
+    \l__aTableau_tikz_anchor_alias:nnn {rectangle} {TOPR} {north~east}
+    \l__aTableau_tikz_anchor_alias:nnn {rectangle} {BOT}  {south}
+    \l__aTableau_tikz_anchor_alias:nnn {rectangle} {BOTL} {south~west}
+    \l__aTableau_tikz_anchor_alias:nnn {rectangle} {BOTR} {south~east}
+    \l__aTableau_tikz_anchor_alias:nnn {rectangle} {LEFT} {west}
+    \l__aTableau_tikz_anchor_alias:nnn {rectangle} {RIGH} {east}
 }
 
 \cs_new:Nn \__aTableau_set_tableau_style_australian:
@@ -772,6 +813,18 @@
     \fp_set:Nn \l__aTableau_box_wd_fp {\l__aTableau_xscale_fp*0.7012}
     \tl_set:Nn \l__aTableau_box_shape_tl {diamond}
     \__aTableau_set_tableau_style:nnnn {0.5}{-0.5}{-0.5}{-0.5}
+    % these alias the rectangle shape, not diamond: path~picture~bounding~box
+    % (used by the brick#1=#2/#3 styles) always resolves anchors using plain
+    % rectangle semantics, regardless of \l__aTableau_box_shape_tl, since it
+    % is the node's axis-aligned bounding box, not the node itself
+    \l__aTableau_tikz_anchor_alias:nnn {rectangle} {TOP}  {south~west}
+    \l__aTableau_tikz_anchor_alias:nnn {rectangle} {TOPL} {west}
+    \l__aTableau_tikz_anchor_alias:nnn {rectangle} {TOPR} {south}
+    \l__aTableau_tikz_anchor_alias:nnn {rectangle} {BOT}  {north~east}
+    \l__aTableau_tikz_anchor_alias:nnn {rectangle} {BOTL} {north}
+    \l__aTableau_tikz_anchor_alias:nnn {rectangle} {BOTR} {east}
+    \l__aTableau_tikz_anchor_alias:nnn {rectangle} {LEFT} {north~west}
+    \l__aTableau_tikz_anchor_alias:nnn {rectangle} {RIGH} {south~east}
 }
 
 \cs_new:Nn \__aTableau_set_tableau_style_russian:
@@ -780,6 +833,15 @@
     \fp_set:Nn \l__aTableau_box_wd_fp {\l__aTableau_xscale_fp*0.7012}
     \tl_set:Nn \l__aTableau_box_shape_tl {diamond}
     \__aTableau_set_tableau_style:nnnn {0.5}{0.5}{-0.5}{0.5}
+    % see the comment in \__aTableau_set_tableau_style_australian: above
+    \l__aTableau_tikz_anchor_alias:nnn {rectangle} {TOP}  {north~west}
+    \l__aTableau_tikz_anchor_alias:nnn {rectangle} {TOPL} {west}
+    \l__aTableau_tikz_anchor_alias:nnn {rectangle} {TOPR} {north}
+    \l__aTableau_tikz_anchor_alias:nnn {rectangle} {BOT}  {south~east}
+    \l__aTableau_tikz_anchor_alias:nnn {rectangle} {BOTL} {south}
+    \l__aTableau_tikz_anchor_alias:nnn {rectangle} {BOTR} {east}
+    \l__aTableau_tikz_anchor_alias:nnn {rectangle} {LEFT} {south~west}
+    \l__aTableau_tikz_anchor_alias:nnn {rectangle} {RIGH} {north~east}
 }
 
 % ---------------------------------------------------------------------------
@@ -1932,9 +1994,10 @@
 % Draw the cover boxes using ribbons
 \cs_new_protected:Nn \__aTableau_draw_cover_boxes:
 {
-   % override the ribbon style inside this group
+   % override the ribbon style inside this group: append so that we
+   % don't lose offsets used by the border
    \tikzset{aTableau/ribbonBox/.style=aTableau/coverBox}
-   \tikzset{aTableau/ribbon/.style={draw=none,fill=none}}
+   \tikzset{aTableau/ribbon/.append~style={draw=none,fill=none}}
    \int_zero:N \l__aTableau_r_int
    \seq_map_inline:Nn \l__aTableau_cover_seq
    {
@@ -1956,9 +2019,10 @@
 \cs_new_protected:Nn \__aTableau_draw_skew_boxes:
 {
    \group_begin:
-     % override the ribbon style inside this group
+     % override the ribbon style inside this group: append so that we
+     % don't lose offsets used by the border
      \tikzset{aTableau/ribbonBox/.style=aTableau/skewBox}
-     \tikzset{aTableau/ribbon/.style={draw=none,fill=none}}
+     \tikzset{aTableau/ribbon/.append~style={draw=none,fill=none}}
      \int_zero:N \l__aTableau_r_int
      \seq_map_inline:Nn \l__aTableau_skew_seq
      {
@@ -2054,14 +2118,15 @@
     \int_zero:N \l__aTableau_row_int
     \int_set:Nn \l__aTableau_col_int { 0\seq_item:Nn \l__aTableau_skew_seq {1}}
 
-    % set the tableau parser, which is slightly different for shifted and
-    % unshifted tableaux
+    % set the tableau parser, which is slightly different for shifted and unshifted tableaux
     \bool_if:NTF \l__aTableau_shifted_bool
     { \cs_set_eq:NN \__aTableau_peek_tableau:w \__aTableau_peek_tableau_shifted:w }
     { \cs_set_eq:NN \__aTableau_peek_tableau:w \__aTableau_peek_tableau_main:w }
 
     % set the style peeking command
-    \cs_set_eq:NN \__aTableau_peek_tableau_style:w \__aTableau_peek_tableau_style_normal:w
+    \bool_if:NTF \l__aTableau_bricked_bool
+    { \cs_set_eq:NN \__aTableau_peek_tableau_style:w \__aTableau_peek_young_wall_style:w }
+    { \cs_set_eq:NN \__aTableau_peek_tableau_style:w \__aTableau_peek_tableau_style_normal:w }
 
     % Parse #1 into the rows and columns with style. Initially we used
     % \seq_set_split:Nnn here, but this required double bracing multi-character
@@ -2132,48 +2197,6 @@
 
     % add snobs
     \tl_if_empty:VF \l__aTableau_snobs_tl { \__aTableau_add_ribbon:nV {snob} \l__aTableau_snobs_tl }
-}
-
-% usage: \__aTableau_young_wall:n {tableau specifications}
-% Draw a Young wall
-\cs_new_protected:Npn \__aTableau_young_wall:n #1
-{
-    % set the star style
-    \tl_set:Nn \l__aTableau_starstyle_tl {aTableau/tableauStar}
-
-    % disable interior boxes if boxes_bool is false
-    \bool_if:NF \l__aTableau_boxes_bool { \__aTableau_tikzset_append:nn {tableauBox} {draw=none} }
-
-    % record the tableau shape as we go so that we can draw the border
-    % in finalise_tableau
-    \seq_clear:N \l__aTableau_shape_seq
-
-    % the styled boxes are drawn at the end
-    \tl_clear:N \l__aTableau_styled_nodes_tl
-
-    % set initial row and column
-    \int_zero:N \l__aTableau_row_int
-    \int_set:Nn \l__aTableau_col_int { 0\seq_item:Nn \l__aTableau_skew_seq {1}}
-
-    % set the tableau parser, which is slightly different for shifted and
-    % unshifted tableaux
-    \bool_if:NTF \l__aTableau_shifted_bool
-    { \cs_set_eq:NN \__aTableau_peek_tableau:w \__aTableau_peek_tableau_shifted:w }
-    { \cs_set_eq:NN \__aTableau_peek_tableau:w \__aTableau_peek_tableau_main:w }
-
-    \cs_set_eq:NN \__aTableau_peek_tableau_style:w \__aTableau_peek_young_wall_style:w
-
-    % Parse #1 into the rows and columns with style. Initially we used
-    % \seq_set_split:Nnn here, but this required double bracing multi-character
-    % entries whenever there was only one entry in a row. Now we peek for the
-    % commas and the style simultaneously.
-    \__aTableau_peek_tableau_main:w #1 \q_recursion_tail \q_recursion_stop
-
-    % add the nodes with style
-    \l__aTableau_styled_nodes_tl
-
-    % add the labels, ribbons, snobs and border
-    \__aTableau_finalise_tableau:
 }
 
 % ---------------------------------------------------------------------------
@@ -4193,6 +4216,19 @@
     no~boxes .bool_set_inverse:N = \l__aTableau_boxes_bool,
     no~boxes .default:n = true,
 
+    brick~font .tl_set:N = \l__aTableau_brick_font_tl,
+    brick~font .value_required:n = true,
+    brick~font .initial:n = \scriptsize,
+
+    bricked .code:n = {
+        \bool_if:cTF {c_#1_bool}
+        { \bool_set_true:N  \l__aTableau_bricked_bool }
+        { \bool_set_false:N \l__aTableau_bricked_bool }
+    },
+    bricked .default:n = true,
+    bricked .initial:n = false,
+    bricked .value_required:n = false,
+
     colours .code:n = \__aTableau_set_colours:n {#1},
     colors  .code:n = \__aTableau_set_colours:n {#1},
     colours .value_required:n = true,
@@ -4682,14 +4718,14 @@
           {
             \bool_if:NTF \l__aTableau_beamer_bool
             {
-                % \AbacusCommand <overlay specs> (x,y) [style] {#runners} {partition}
+                % \AbacusCommand <overlay specs> (coord) [style] {#runners} {partition}
                 \NewDocumentCommand#1{ d<> d() O{} m m }
                 {
                     \__aTableau_beamer_wrapper:nnnn {##1} {#3,##3} {##2} { \__aTableau_abacus:nn {##4} {##5} }
                 }
             }
             {
-                % \AbacusCommand (x,y) [style] {#runners} {partition}
+                % \AbacusCommand (coord) [style] {#runners} {partition}
                 \NewDocumentCommand#1{ d() O{} m m }
                 {
                     \__aTableau_command_wrapper:nnn {#3,##2} {##1} { \__aTableau_abacus:nn {##3} {##4} }
@@ -4700,14 +4736,14 @@
           {
             \bool_if:NTF \l__aTableau_beamer_bool
             {
-                % \DiagramCommand <overlay specs> (x,y) [style] {entries}
+                % \DiagramCommand <overlay specs> (coord) [style] {entries}
                 \NewDocumentCommand#1{ d<> d() O{} m }
                 {
                     \__aTableau_beamer_wrapper:nnnn {##1} {#3,##3} {##2} { \__aTableau_draw_diagram:n {##4} }
                 }
             }
             {
-                % \DiagramCommand (x,y) [style] {entries}
+                % \DiagramCommand (coord) [style] {entries}
                 \NewDocumentCommand#1{ d() O{} m }
                 {
                     \__aTableau_command_wrapper:nnn {#3,##2} {##1} { \__aTableau_draw_diagram:n {##3} }
@@ -4718,14 +4754,14 @@
           {
             \bool_if:NTF \l__aTableau_beamer_bool
             {
-                % \MultidiagramCommand <overlay specs> (x,y) [style] {entries}
+                % \MultidiagramCommand <overlay specs> (coord) [style] {entries}
                 \NewDocumentCommand#1{ d<> d() O{} m }
                 {
                     \__aTableau_beamer_wrapper:nnnn {##1} {#3,##3} {##2} { \__aTableau_multidiagram:n {##4} }
                 }
             }
             {
-                % \MultidiagramCommand (x,y) [style] {entries}
+                % \MultidiagramCommand (coord) [style] {entries}
                 \NewDocumentCommand#1{ d() O{} m }
                 {
                     \__aTableau_command_wrapper:nnn {#3,##2} {##1} { \__aTableau_multidiagram:n {##3} }
@@ -4736,14 +4772,14 @@
           {
             \bool_if:NTF \l__aTableau_beamer_bool
             {
-                % \MultitableauCommand <overlay specs> (x,y) [style] {entries}
+                % \MultitableauCommand <overlay specs> (coord) [style] {entries}
                 \NewDocumentCommand#1{ d<> d() O{} m }
                 {
                     \__aTableau_beamer_wrapper:nnnn {##1} {#3,##3} {##2} { \__aTableau_multitableau:n {##4} }
                 }
             }
             {
-                % \MultitableauCommand (x,y) [style] {entries}
+                % \MultitableauCommand (coord) [style] {entries}
                 \NewDocumentCommand#1{ d() O{} m }
                 {
                     \__aTableau_command_wrapper:nnn {#3,##2} {##1} { \__aTableau_multitableau:n {##3} }
@@ -4754,14 +4790,14 @@
           {
             \bool_if:NTF \l__aTableau_beamer_bool
             {
-                % \RibbonTableauCommand <overlay specs> (x,y) [style] {entries}
+                % \RibbonTableauCommand <overlay specs> (coord) [style] {entries}
                 \NewDocumentCommand#1{ d<> d() O{} m }
                 {
                     \__aTableau_beamer_wrapper:nnnn {##1} {#3,##3} {##2} { \__aTableau_ribbon_tableau:n {##4} }
                 }
             }
             {
-                % \RibbonTableauCommand (x,y) [style] {entries}
+                % \RibbonTableauCommand (coord) [style] {entries}
                 \NewDocumentCommand#1{ d() O{} m }
                 {
                     \__aTableau_command_wrapper:nnn {#3,##2} {##1} { \__aTableau_ribbon_tableau:n {##3} }
@@ -4772,14 +4808,14 @@
           {
             \bool_if:NTF \l__aTableau_beamer_bool
             {
-                % \ShiftedDiagramCommand <overlay specs> (x,y) [style] {entries}
+                % \ShiftedDiagramCommand <overlay specs> (coord) [style] {entries}
                 \NewDocumentCommand#1{ d<> d() O{} m }
                 {
                     \__aTableau_beamer_wrapper:nnnn {##1} {shifted,#3,##3} {##2} { \__aTableau_draw_diagram:n {##4} }
                 }
             }
             {
-                % \ShiftedDiagramCommand (x,y) [style] {entries}
+                % \ShiftedDiagramCommand (coord) [style] {entries}
                 \NewDocumentCommand#1{ d() O{} m }
                 {
                     \__aTableau_command_wrapper:nnn {shifted,#3,##2} {##1} { \__aTableau_draw_diagram:n {##3} }
@@ -4790,14 +4826,14 @@
           {
             \bool_if:NTF \l__aTableau_beamer_bool
             {
-                % \ShiftedTableauCommand <overlay specs> (x,y) [style] {entries}
+                % \ShiftedTableauCommand <overlay specs> (coord) [style] {entries}
                 \NewDocumentCommand#1{ d<> d() O{} m }
                 {
                     \__aTableau_beamer_wrapper:nnnn {##1} {shifted,#3,##3} {##2} { \__aTableau_draw_tableau:n {##4} }
                 }
             }
             {
-                % \ShiftedTableauCommand (x,y) [style] {entries}
+                % \ShiftedTableauCommand (coord) [style] {entries}
                 \NewDocumentCommand#1{ d() O{} m }
                 {
                     \__aTableau_command_wrapper:nnn {shifted,#3,##2} {##1} { \__aTableau_draw_tableau:n {##3} }
@@ -4808,14 +4844,14 @@
           {
             \bool_if:NTF \l__aTableau_beamer_bool
             {
-                % \SkewDiagramCommand <overlay specs> (x,y) [style] {skew shape} {entries}
+                % \SkewDiagramCommand <overlay specs> (coord) [style] {skew shape} {entries}
                 \NewDocumentCommand#1{ d<> d() O{} m m }
                 {
                     \__aTableau_beamer_wrapper:nnnn {##1} {skew={##4},#3,##3} {##2} { \__aTableau_draw_diagram:n {##5} }
                 }
             }
             {
-                % \SkewDiagramCommand (x,y) [style] {skew shape} {entries}
+                % \SkewDiagramCommand (coord) [style] {skew shape} {entries}
                 \NewDocumentCommand#1{ d() O{} m m }
                 {
                     \__aTableau_command_wrapper:nnn {skew={##3},#3,##2} {##1} { \__aTableau_draw_diagram:n {##4} }
@@ -4826,14 +4862,14 @@
           {
             \bool_if:NTF \l__aTableau_beamer_bool
             {
-                % \SkewTableauCommand <overlay specs> (x,y) [style] {skew shape} {entries}
+                % \SkewTableauCommand <overlay specs> (coord) [style] {skew shape} {entries}
                 \NewDocumentCommand#1{ d<> d() O{} m m }
                 {
                     \__aTableau_beamer_wrapper:nnnn {##1} {skew={##4},#3,##3} {##2} { \__aTableau_draw_tableau:n {##5} }
                 }
             }
             {
-                % \SkewTableauCommand (x,y) [style] {skew shape} {entries}
+                % \SkewTableauCommand (coord) [style] {skew shape} {entries}
                 \NewDocumentCommand#1{ d() O{} m m }
                 {
                     \__aTableau_command_wrapper:nnn {skew={##3},#3,##2} {##1} { \__aTableau_draw_tableau:n {##4} }
@@ -4844,14 +4880,14 @@
           {
             \bool_if:NTF \l__aTableau_beamer_bool
             {
-                % \TableauCommandCommand <overlay specs> (x,y) [style] {entries}
+                % \TableauCommandCommand <overlay specs> (coord) [style] {entries}
                 \NewDocumentCommand#1{ d<> d() O{} m }
                 {
                     \__aTableau_beamer_wrapper:nnnn {##1} {#3,##3} {##2} { \__aTableau_draw_tableau:n {##4} }
                 }
             }
             {
-                % \TableauCommandCommand (x,y) [style] {entries}
+                % \TableauCommandCommand (coord) [style] {entries}
                 \NewDocumentCommand#1{ d() O{} m }
                 {
                     \__aTableau_command_wrapper:nnn {#3,##2} {##1} { \__aTableau_draw_tableau:n {##3} }
@@ -4862,14 +4898,14 @@
           {
             \bool_if:NTF \l__aTableau_beamer_bool
             {
-                % \TabloidCommand <overlay specs> (x,y) [style] {entries}
+                % \TabloidCommand <overlay specs> (coord) [style] {entries}
                 \NewDocumentCommand#1{ d<> d() O{} m }
                 {
                     \__aTableau_beamer_wrapper:nnnn {##1} {tabloid,#3,##3} {##2} { \__aTableau_draw_tableau:n {##4} }
                 }
             }
             {
-                % \TabloidCommand (x,y) [style] {entries}
+                % \TabloidCommand (coord) [style] {entries}
                 \NewDocumentCommand#1{ d() O{} m }
                 {
                     \__aTableau_command_wrapper:nnn {tabloid,#3,##2} {##1} { \__aTableau_draw_tableau:n {##3} }
@@ -4880,17 +4916,17 @@
           {
             \bool_if:NTF \l__aTableau_beamer_bool
             {
-                % \YoungWall <overlay specs> (x,y) [style] {entries}
+                % \YoungWall <overlay specs> (coord) [style] {entries}
                 \NewDocumentCommand#1{ d<> d() O{} m }
                 {
-                    \__aTableau_beamer_wrapper:nnnn {##1} {french,reverse,#3,##3} {##2} { \__aTableau_young_wall:n {##4} }
+                    \__aTableau_beamer_wrapper:nnnn {##1} {bricked,french,reverse,#3,##3} {##2} { \__aTableau_draw_tableau:n {##4} }
                 }
             }
             {
-                % \YoungWall (x,y) [style] {entries}
+                % \YoungWall (coord) [style] {entries}
                 \NewDocumentCommand#1{ d() O{} m }
                 {
-                    \__aTableau_command_wrapper:nnn {french,reverse,#3,##2} {##1} { \__aTableau_young_wall:n {##3} }
+                    \__aTableau_command_wrapper:nnn {french,reverse,bricked,#3,##2} {##1} { \__aTableau_draw_tableau:n {##3} }
                 }
             }
           }

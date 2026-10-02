@@ -1,6 +1,6 @@
 % ----------------------------------------------------------------------
 % aTableau manual - Andrew Mathas (C) 2022-2026
-% Modified: 08:43 Wednesday, 26 August 2026
+% Modified: 10:22 Friday, 02 October 2026
 % ----------------------------------------------------------------------
 \documentclass{amsart}
 \usepackage[svgnames,table]{xcolor}
@@ -974,8 +974,8 @@
   You can change the default options at any point in your document using
   the \keyword{\aTabset} command, and you can use custom options for any
   particular \aTableau picture. In addition, you can define customised
-  \aTableau commands using \keyword{\NewATableauCommand}; see
-  \autoref{SS:NewTableau}.
+  \aTableau commands, which use a prescribed list of options, using
+  \keyword{\NewATableauCommand}; see \autoref{SS:NewTableau}.
   \indexcmd{aTabset}
 
   Each \aTableau command accepts an optional list of key-value
@@ -2186,14 +2186,16 @@
 
   \option[false]{reverse}[false/true]
 
-  The \option{reverse} key reverses the order of the columns of tableaux
-  and diagrams.
+  The \option{reverse} key reverses the direction in which the columns of tableaux
+  and diagrams increase.
 
   \begin{example}{reverseTableaux}
   \Tableau[reverse]{123,45,6} \quad
   \Tableau[reverse,french]{123,*4*5,*6} \quad
   \Diagram[reverse,australian]{3,2,1}
   \end{example}
+
+  This option is implicitly used by the \keyword{\YoungWall} command.
 
   \option[]{ribbons=ribbon specifications}[list of ribbons]
   \option*[]{ribbon box=text}[A node entry]
@@ -2721,6 +2723,22 @@
   \Diagram[conjugate]{3,2,2} \qquad
   \Diagram[russian, conjugate]{2,1^3}
   \end{example}
+
+  \option[true]{bricked}[true/false]
+
+  The \option{bricked} key enables the special parsing of the
+  \emph{bricks} \keyword{H}, \keyword{T} and \keyword{V}, an their
+  starred variants, that are available inside the \keyword{\YoungWall}
+  command.
+
+  \begin{example}{bricked}
+  \Tableau[bricked]{*H0/0*H0/0,11,H2/2H~/2,1}
+  \ShiftedTableau[bricked]{0H2/0,*T0/11,2} \qquad
+  \SkewTableau[bricked]{2,1}{*Tm/n}
+  \end{example}
+
+  See \autoref{S:YoungWall} for a description of how to use the
+  bricks.
 
   \option[]{dotted cols=column indices}[comma-separated list of columns]
   \option*[]{dotted rows=row indices}[comma-separated list of rows]
@@ -4224,8 +4242,9 @@
   \end{itemize}
 
   As a result, the letters \keyword{H}, \keyword{T} and \keyword{V} are
-  restricted inside the \keyword{\YoungWall} command. To place one of
-  these characters in a Young wall, enclose it in braces:
+  restricted inside the \keyword{\YoungWall} command, and they must
+  always be followed by \keyword{a/b}. To place one of the special
+  ``brick characters'' inside a Young wall, first enclose it in braces:
   \keyword{\YoungWall{{H}{V}}}. After letters \keyword{H}, \keyword{T}
   and \keyword{V}, \aTableau always expects to find \keyword{a/b}, where
   \keyword{a} and \keyword{b} can either be a single character, or a
@@ -4242,8 +4261,14 @@
   \end{Example}
 
   (In the last example, the braces around the minus sign in
-  \keyword{n{-}1} disables the extra spacing that \LaTeX{} automatically
-  puts around mathematical operators in math-mode.)
+  \keyword{n{-}1} disable the extra operator spacing that \LaTeX{}
+  automatically puts around mathematical operators in math-mode.)
+
+  In practice, the \keyword{\YoungWall} is command is identical to using
+  \keyword{\Tableau} with the keys \option{bricked}, \option{french},
+  and \option{reverse}. Consequently, all of the \keyword{\Tableau} keys
+  can be used with \keyword{\YoungWall}. In addition, the following
+  dedicated keys are available.
 
   \option[\aTableauColour{Star}]{ground state=colour}[a \LaTeX\ colour]
 
@@ -4254,6 +4279,9 @@
   \YoungWall[ground state=orange]
     {*T0/1*T~/~*T0/1,2,2,T3/~}
   \end{example}
+
+  Use the \option{bricked} to enable parsing the bricks\keyword{H},
+  \keyword{T} and \keyword{V} in ordinary tableaux.
 
   % --------------------------------------------------------------
   \section{Abacuses} \label{S:Abacus} \index{abacus} \indexcmd{Abacus}
@@ -4457,8 +4485,8 @@
   north, and west, respectively.
 
   \begin{Example}{abacusConventions}
-\Abacus[south,entries=beads]{2}{4^2,2,1}\qquad\Abacus[east,entries=beads]{2}{4^2,2,1}\qquad
-\Abacus[north,entries=beads]{2}{4^2,2,1}\qquad\Abacus[west,entries=beads]{2}{4^2,2,1}
+\Abacus[south,entries=beads]{3}{4^2,2,1}\qquad\Abacus[east,entries=beads]{3}{4^2,2,1}\qquad
+\Abacus[north,entries=beads]{3}{4^2,2,1}\qquad\Abacus[west,entries=beads]{3}{4^2,2,1}
   \end{Example}
 
   To make these conventions clearer, we have used
@@ -5051,7 +5079,7 @@ mode. See also \option{row labels} and \option{runner labels}.
   \section{Customising \aTableau}\label{S:keys}
 
   This section describes how to further customise \aTableau by defining
-  your own \aTableau commands, using \option{colour theme}s, and
+  your own \aTableau commands, changing the \option{colour theme}, and
   using \aTableau with \ctan{beamer}. This section also contains a
   compact listing, and brief description, of the many \aTableau keys
   that were described in earlier sections.
@@ -5325,7 +5353,7 @@ mode. See also \option{row labels} and \option{runner labels}.
     \option{entries}           & Add entries to tableaux and abacuses                & \Yes & \Yes[abacus] \\
     \option{framed}            & Draw a frame around the abacus                      & \No  & \Yes \\
     \option{french}            & Use the French convention for tableaux              & \Yes & \No \\
-    \option{ground state}      & Set background colour for Young walls ground state  & \Yes & \No \\
+    \option{ground state}      & Sets colour of ground state bricks in a Young wall  & \Yes & \No \\
     \option{halign}            & Horizontal alignment of box entries and bead labels & \Yes & \Yes[abacus] \\
     \option{inner style}       & Set style of inner tableau wall                     & \Yes & \No \\
     \option{inner wall}        & Set colour of inner tableau wall                    & \Yes & \No \\
@@ -5461,7 +5489,7 @@ mode. See also \option{row labels} and \option{runner labels}.
        aTableau/tableauBox      & Tableau boxes\\
        aTableau/tableauLabel    & Tableau labels \\
        aTableau/tableauStar     & Tableau stars \\
-       aTableau/youngBox        & Bricks in Young walls \\
+       aTableau/youngBrick      & Bricks in Young walls \\
        aTableau/youngWall       & Borders of bricks in Young walls \\
        \bottomrule
     \end{xltabular}

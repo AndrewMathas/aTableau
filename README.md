@@ -1,6 +1,6 @@
-![version](https://img.shields.io/github/v/tag/AndrewMathas/aTableau?color=success&label=aTableau)
-[![LPPL](https://img.shields.io/github/license/note286/xduts?style=flat-square)](https://www.latex-project.org/lppl/)
+[![version](https://img.shields.io/github/v/tag/AndrewMathas/aTableau?color=success&label=aTableau)](https://github.com/AndrewMathas/aTableau/releases/)
 [![CTAN](https://img.shields.io/ctan/v/atableau?color=blue)](https://ctan.org/pkg/atableau)
+[![LPPL](https://img.shields.io/github/license/note286/xduts?style=flat-square)](https://www.latex-project.org/lppl/)
 ![GitHub Release Date](https://img.shields.io/github/release-date/AndrewMathas/atableau?label=released&color=red)
 
 # aTableau
@@ -16,8 +16,6 @@ A LaTeX package for **symmetric group combinatorics**, with commands for:
 - Tabloids
 - Young diagrams
 - Young walls
-
-
 
 <img src="./aTableau_readme.webp" align="right" width="330" alt="aTableau example">
 
@@ -35,7 +33,6 @@ A LaTeX package for **symmetric group combinatorics**, with commands for:
 ```
 
 <br clear="right">
-
 
 ### Dependencies
 
