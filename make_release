@@ -122,13 +122,22 @@ if [[ -n "$pvc_pids" ]]; then
   sleep 1 # let latexmk finish writing atableau.pdf and exit
 fi
 
+# --- check that all changes have been committed -----------------------------
+echo "Checking git repository"
+if git diff-index --quiet HEAD --; then
+  pass "No uncomitted changes in the repository"
+else
+  fail "There are uncomitted changes in the repository!!!"
+fi
+
 # --- check version and release date in atableau.ini -------------------------
+echo
 echo "aTableau ini file"
 
 if [[ "$ini_version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
   pass "version $ini_version is a proper (non pre-release) semver number"
 else
-  fail "version '$ini_version' looks like a pre-release"
+  fail "version $ini_version looks like a pre-release"
 fi
 check_copyright "$(ini_value copyright)"
 

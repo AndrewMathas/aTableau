@@ -7,8 +7,6 @@
 
 ## Features to be implemented
 
-- Allow brick parsing for arbitrary tableaux
-
 ## Known bugs
 
 ## Documentation
@@ -22,4 +20,4 @@
 - Allow partitions to be specified by beta numbers in `\Diagram` and friends
 - Allow custom styling for the different sides of the tableau/diagram borders
 
-Updated: August 2026
+Updated: October 2026

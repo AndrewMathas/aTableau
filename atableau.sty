@@ -1,6 +1,6 @@
 % ---------------------------------------------------------------------------
 % aTableau - Andrew Mathas (C) 2022-2026
-% Modified: 14:41 Friday, 02 October 2026
+% Modified: 15:06 Friday, 02 October 2026
 % ---------------------------------------------------------------------------
 %
 % A LaTeX package for symmetric group combinatorics:
@@ -759,7 +759,8 @@
 % Create an alias to a TikZ anchor so that we can uniformly refer to the
 % corners of the cells in the different styles (this is only used for
 % the bricks in Young walls). The styles define aliases for the eight
-% anchors around the cells: N, NE, E, SE, S, SW, W, NW
+% anchors around the cells: N, NE, E, SE, S, SW, W, NW. These are used
+% with 'picture path', which always uses a node of rectangle shape.
 \cs_new_protected:Npn \l__aTableau_tikz_anchor_alias:nnn #1 #2 #3
 {
   \cs_set_eq:cc {pgf@anchor@#1@#2} {pgf@anchor@#1@#3}

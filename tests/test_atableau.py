@@ -20,7 +20,7 @@
 
 r"""
 usage: test_atableau.py [-hh] [-d] [-k] [-q] [-v] [-t THRESHOLD] [-w WORKERS]
-                        [-e | -i | -u] [files ...]
+                        [-e | -i | -u | -l] [files ...]
 
 positional arguments:
   files                     Example files to test, with wild cards applied (default: all files)
@@ -29,6 +29,7 @@ options:
   -e, --extract             Extract the examples from the aTableau manual
   -i, --initialise          Initialise all of the good webp files for future comparisons
   -u, --update              Update the good files as they are checked
+  -l, --lastdiff            Open image-diffs for the examples that failed on the last checking run
   -d, --diff                Open image-diffs for the examples that have changed (requires magick)
   -k, --keep                Keep the generated example image files
   -q, --quiet               Quiet mode: only print files with discrepancies
@@ -77,6 +78,14 @@ tests all of the example files with names that contain 'tableau'. Use
     test_examples.py -d tableau
 
 to display image diffs of each discrepancy with a good file.
+
+Every plain checking run records the examples that failed in
+tests/.test_failures. Running
+
+    test_examples.py -l
+
+re-checks just those examples and opens an image-diff for any that are
+still bad, without having to remember which files failed or re-type them.
 
 When new examples are added to the manual, they can be extracted using:
 
@@ -141,6 +150,10 @@ COMPARE_IMAGES = r"""magick {image}.webp {image}-good.webp \
 # rendering/encoding noise rather than a genuine change to the example.
 PIXEL_TOLERANCE = 8
 
+# Where the file stems that failed the last plain checking run are recorded,
+# for -l/--lastdiff to re-check and diff without retyping them.
+LAST_FAILURES_FILE = ".test_failures"
+
 
 def run_command(cmd):
     r"""
@@ -166,6 +179,7 @@ def run_parallel_command(options, files):
     """
     command = ACTIONS[options.action]
     bad_examples = []
+    failed_files = []  # raw file stems, for -l/--lastdiff (see save_last_failures)
     # Not using a `with` block: on Ctrl-C its __exit__ would call shutdown(wait=True)
     # and block until every queued task finished -- making Ctrl-C look ignored.
     executor = ProcessPoolExecutor(
@@ -180,6 +194,7 @@ def run_parallel_command(options, files):
                 result = future.result()  # Raises exception if command() fails
                 if result:
                     bad_examples.append(result)
+                    failed_files.append(file)
                 else:
                     passed += 1
 
@@ -191,6 +206,7 @@ def run_parallel_command(options, files):
                     message += "\n" + "\n".join(str(output).splitlines()[-15:])
                 print(red_text(message))
                 bad_examples.append(message)
+                failed_files.append(file)
 
     except KeyboardInterrupt:
         print(red_text("\nInterrupted -- stopping."), flush=True)
@@ -202,6 +218,9 @@ def run_parallel_command(options, files):
         sys.exit(130)
 
     executor.shutdown(wait=True)
+
+    if options.action == "checking":
+        save_last_failures(failed_files)
 
     if bad_examples:
         if options.action == "updating":
@@ -221,6 +240,29 @@ def run_parallel_command(options, files):
 
     if not options.quiet:
         print(f"\n{passed} examples {options.action.replace('ing', 'ed')}")
+
+
+def save_last_failures(failed_files):
+    r"""
+    Record the file stems that just failed a checking run in
+    LAST_FAILURES_FILE, for -l/--lastdiff to pick up later. Always
+    overwrites: an empty list clears a previous run's stale failures.
+    """
+    with open(LAST_FAILURES_FILE, "w") as failures:
+        failures.write("\n".join(sorted(failed_files)))
+        if failed_files:
+            failures.write("\n")
+
+
+def load_last_failures():
+    r"""
+    Return the file stems recorded by the last checking run, or an empty
+    list if LAST_FAILURES_FILE does not exist yet.
+    """
+    if not os.path.isfile(LAST_FAILURES_FILE):
+        return []
+    with open(LAST_FAILURES_FILE, "r") as failures:
+        return [line.strip() for line in failures if line.strip()]
 
 
 def open_file(file):
@@ -357,6 +399,12 @@ def updating_image(file, options):
     """
     make_image(file, ".webp")
     if different_images(file, options):
+        if options.diff:
+            # create a side-by-side image and then open it, so that it is
+            # visible when we are asked whether to update the good image
+            image_diff = Path(tempfile.gettempdir()) / f"{file}.png"
+            run_command(COMPARE_IMAGES.format(image=file, image_diff=image_diff))
+            open_file(image_diff)
         return file
 
     else:
@@ -439,6 +487,14 @@ if __name__ == "__main__":
         const="updating",
         dest="action",
         help="Update the good files as they are checked",
+    )
+    action.add_argument(
+        "-l",
+        "--lastdiff",
+        action="store_const",
+        const="lastdiff",
+        dest="action",
+        help="Open image-diffs for the examples that failed on the last checking run",
     )
 
     parser.add_argument(
@@ -537,8 +593,26 @@ if __name__ == "__main__":
             " && latexmk -C atableau-examples"
         )
 
-    # populate the list of examples that we need to look at
-    example_files = find_example_files(options.files)
+    if options.action == "lastdiff" or (
+        options.action == "updating" and options.files == [""]
+    ):
+        # re-check exactly the files that failed last time (no wildcard
+        # matching: these are already-resolved file stems) and open a
+        # diff for any that are still bad, or (for a filename-less -u)
+        # update just those rather than every example
+        example_files = load_last_failures()
+        if not example_files:
+            print(
+                f"No failures recorded in {LAST_FAILURES_FILE}"
+                " -- run test_atableau.py first"
+            )
+            sys.exit()
+        if options.action == "lastdiff":
+            options.action = "checking"
+            options.diff = True
+    else:
+        # populate the list of examples that we need to look at
+        example_files = find_example_files(options.files)
 
     # act on the example files
     run_parallel_command(options, example_files)

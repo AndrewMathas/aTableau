@@ -1,6 +1,6 @@
 % ----------------------------------------------------------------------
 % aTableau manual - Andrew Mathas (C) 2022-2026
-% Modified: 10:22 Friday, 02 October 2026
+% Modified: 18:31 Friday, 02 October 2026
 % ----------------------------------------------------------------------
 \documentclass{amsart}
 \usepackage[svgnames,table]{xcolor}
@@ -147,36 +147,57 @@
 
 % Add an index entry for a key. The *-form underlines the page number,
 % indicating that it is the definition of the key, and records this in
-% \l__aTableau_index_prop. When the * is not present, we check to make
+% \g__aTableau_index_prop. When the * is not present, we check to make
 % sure that an underlined entry has not already been added for this
 % page.
-\prop_new:N \l__aTableau_index_prop
+\prop_new:N \g__aTableau_index_prop
+
 \NewDocumentCommand\AddIndexEntry{ sm }
 {
-    \tl_set:No \l_tmpc_tl {#2-\thepage}
     \IfBooleanTF{#1}
     {
-        \prop_put:NVn \l__aTableau_index_prop \l_tmpc_tl {}
-        \index{#2|underline}
+        \prop_gput:Nen \g__aTableau_index_prop {#2} {underline}
     }
-    { \prop_if_in:NVF \l__aTableau_index_prop \l_tmpc_tl { \index{#2} } }
+    {
+        \prop_if_in:NeF \g__aTableau_index_prop {#2}
+        {
+            \prop_gput:Nen \g__aTableau_index_prop {#2} {plain}
+        }
+    }
+}
+
+% Create the index entries only on shipout so that we do not add
+% page entries for an entry that are both underlined and not underlined
+\AddToHook{shipout/before}
+{
+    \prop_map_inline:Nn \g__aTableau_index_prop
+    {
+        \str_if_eq:nnTF {#2} {underline}
+        { \index{#1|underline} }
+        { \index{#1} }
+    }
+    \prop_gclear:N \g__aTableau_index_prop
 }
 
 % \option*[default value]{option name}[accepted values]<hyperlink context>(link name)
 % The \option command is slightly overloaded, both in terms of arguments
-% (there are five) and in terms of use.
-% 1. If #2 is given then \option gives the syntax for the using this key:
+% (there are six, including the *) and in terms of use.
+% 1. If #2 is given, then \option gives the syntax for using this key:
 %    - #1=* determines whether a \newline or \bigskip is inserted. The
-%      *-version is used when a block of keys are listed together
-%    - #2 gives the default options
-%    - #3 is the key name and optionally may take the form key=value
-%      to describe the allowed values. If the value is given then it is
-%      printed in orange after the key inside \langle...\rangle. This is
-%      intended for "generic values like 'value' or 'style'.
-%      The key component of #2 is used to add a hyperlink to the current
-%      location, which takes the form Key:<key>-<context>, where the
-%      <context> is added only if #5 is supplied
-%    - any accepted values in #3 are printed in the right-hand margin
+%      #2 is the default value.
+%      #3 is the key name.
+%      #4 is the accepted-values optional argument.
+%      #5 is the <context> argument.
+%      #6 is the (link name) argument.
+% The *-version is used  to prevent extra line breaks when a block of
+% keys are listed together. The #4 parameter is the key name and
+% optionally may take the form key=value to describe the allowed values.
+% If the value is given then it is printed in orange after the key
+% inside \langle...\rangle. This is intended for "generic values like
+% 'value' or 'style'. The key component of #2 is used to add a hyperlink
+% to the current location, which takes the form Key:<key>-<context>,
+% where the <context> is added only if #5 is supplied - any accepted
+% values in #3 are printed in the right-hand margin
 % 2. When #2 (=default value) is omitted, this is an inline citation of
 %    the key. A hyperlink is added
 
@@ -989,7 +1010,7 @@
 
   The general syntax of an \aTableau command is:
   \begin{quote}
-    \keyword{\Command (x,y) [options] {...specifications...}}
+    \keyword{\Command (coord) [options] {...specifications...}}
   \end{quote}
 
   \index{coordinates}
@@ -997,13 +1018,12 @@
   \index{coordinates!polar coordinates}
   \index{Cartesian coordinates}
   \index{polar coordinates}
-  The $(x,y)$-coordinates are optional, being necessary if (and only if)
-  the diagram is part of a~\keyword{tikzpicture} environment, as in
-  \autoref{Ex:diagramCoordinates} below. Throughout the manual,
-  coordinates are mostly specified as Cartesian coordinates. In fact,
-  arbitrary \TikZ coordinates can be used to position \aTableau pictures
-  inside a \texttt{tikzpicture} environment, including polar coordinates
-  and named coordinates. See \autoref{SS:coordinates} and
+  The $(coord)$-coordinates are optional, being necessary if (and only
+  if) the diagram is part of a~\keyword{tikzpicture} environment, as in
+  \autoref{Ex:diagramCoordinates} below. Arbitrary \TikZ coordinates can
+  be used to position \aTableau pictures inside a \texttt{tikzpicture}
+  environment, including Cartesian coordinates, polar coordinates and
+  named coordinates. See \autoref{SS:coordinates} and
   \autoref{SS:abcoordinates} for more detail about using these
   coordinates for tableaux and abacuses, respectively.
 
@@ -1050,9 +1070,10 @@
   function of this manual is to describe these keys, with examples. This
   section emphasises only some of these options. Every key can be set
   ``globally'' using \keyword{\aTabset{...options...}}, which sets the
-  keys in the current \LaTeX{} group. Alternatively, they can be set
-  ``locally'' as an option for the current picture. As mentioned already,
-  the default options for the document can also be set via
+  keys for the remainder of the current \LaTeX{} group, or the remainder
+  of the document when used at the top level. Alternatively, they can be
+  set ``locally'' as an option for the current picture. As mentioned
+  already, the default options for the document can also be set via
   \keyword{\usepackage[options]{atableau}}.\indexcmd{aTabset}
 
   Many of the \aTableau options are specific to the particular pictures
@@ -1173,15 +1194,16 @@
   From the viewpoint of \aTableau, the most important point of
   \autoref{Ex:diagramCoordinates} is that the first \keyword{\Diagram}
   command is a standalone diagram, whereas the second one is inside a
-  \keyword{tikzpicture} environment, so it \textit{requires} a Cartesian
-  coordinate, which in this case is $(0,0)$. Most of the right-hand
-  picture is drawn by the~\keyword{\Diagram} command, which is exactly
-  the same as the left-hand picture, even though most of the commands in
-  the \keyword{tikzpicture} environment are \TikZ commands. In
-  particular, in both pictures, the shading of the boxes in the
-  \emph{$(1,2)$-hook} and the \emph{$(1,2)$-rim hook} is done by the
-  \option{ribbons} key, which is one of the mechanisms \aTableau
-  provides for adding ``extra'' boxes to tableaux and diagrams.
+  \keyword{tikzpicture} environment, so it \textit{requires} a
+  coordinate coordinate, which in this case is the Cartesian coordinate
+  $(0,0)$. Most of the right-hand picture is drawn by
+  the~\keyword{\Diagram} command, which is exactly the same as the
+  left-hand picture, even though most of the commands in the
+  \keyword{tikzpicture} environment are \TikZ commands. In particular,
+  in both pictures, the shading of the boxes in the \emph{$(1,2)$-hook}
+  and the \emph{$(1,2)$-rim hook} is done by the \option{ribbons} key,
+  which is one of the mechanisms \aTableau provides for adding ``extra''
+  boxes to tableaux and diagrams.
 
   Inside the \keyword{tikzpicture} environment, the Young diagram is
   placed at position $(0,0)$ by the \keyword{\Diagram} command. The
@@ -1394,15 +1416,15 @@
   This section describes the \keyword{\Tableau} command, which draws
   tableaux or labelled diagrams. The syntax of this command is:
 
-  \keyword{\Tableau (x,y) [options] {tableau entries}}
+  \keyword{\Tableau (coord) [options] {tableau entries}}
 
   where:
 
   \begin{options}
-    \item[*$(x,y)$]\index{xy@$(x,y)$} The  $(x,y)$-coordinates are
+    \item[*$(coord)$]\index{xy@$(coord)$} The  $(coord)$-coordinates are
     needed only if the tableau is part of a \keyword{tikzpicture}
     environment. Arbitrary \TikZ coordinates can be used, including
-    Cartesian coordinates (as shown), polar coordinates, and named nodes.
+    Cartesian coordinates, polar coordinates, and named nodes.
     \item[*options] Optional arguments, or keys, which are described below with many examples.
     \item[*tableau entries]\index{tableau entries} The
     \keyword{tableau entries} are given as a comma-separated list, with commas
@@ -1604,15 +1626,15 @@
 
   % --------------------------------------------------------------
   \subsubsection{Tableau coordinates}\label{SS:coordinates}
-  \index{xy@$(x,y)$}
+  \index{xy@$(coord)$}
   \index{coordinates!tableau}
 
-  The $(x,y)$-coordinates are required if, and only if, the
+  The $(coord)$-coordinates are required if, and only if, the
   \keyword{\Tableau} command is used inside a \keyword{tikzpicture}
-  environment, in which case $(x,y)$ gives the coordinates of the
+  environment, in which case $(coord)$ gives the coordinates of the
   ``outside corner'' of the box in row~$1$ and column~$1$ of the
   tableau. (Arbitrary \TikZ coordinates can be used.) The following
-  example shows how tableaux are placed using $(x,y)$-coordinates inside
+  example shows how tableaux are placed using $(coord)$-coordinates inside
   a \keyword{tikzpicture} environment. This example also shows that, by
   default, the tableau boxes are square with side lengths of half a
   unit.
@@ -1661,7 +1683,7 @@
   brackets:
   \begin{center}
     \keyword{\Tableau [options] {tableau entries}}\quad or \quad
-    \keyword{\Tableau (x,y) [options] {tableau entries}}.
+    \keyword{\Tableau (coord) [options] {tableau entries}}.
   \end{center}
   The options can appear in any order, with later options having
   precedence over earlier ones.
@@ -2491,7 +2513,7 @@
   This command adds an optional argument to the underlying
   \keyword{tikzpicture} environment, which contains the tableau. The
   \option{tikzpicture} option is ignored  when the \keyword{\Tableau}
-  command is equipped with $(x,y)$-coordinates.
+  command is equipped with $(coord)$-coordinates.
 
   An interesting application of the \option{tikzpicture} key is for
   annotating a tableau. Consider:
@@ -2623,9 +2645,9 @@
   \keyword{\Diagram} command.  The \keyword{\Diagram} command uses
   almost exactly the same syntax as the \keyword{\Tableau} command:
 
-  \keyword{\Diagram (x,y) [options] {partition}}
+  \keyword{\Diagram (coord) [options] {partition}}
 
-  Like the \keyword{\Tableau} command, the $(x,y)$-coordinates are
+  Like the \keyword{\Tableau} command, the $(coord)$-coordinates are
   needed only if the diagram is inside a \keyword{tikzpicture}
   environment (and arbitrary $\TikZ$-coordinates can be used).  The
   \keyword{\Diagram} command allows the \emph{partition} to be specified
@@ -2727,12 +2749,12 @@
   \option[true]{bricked}[true/false]
 
   The \option{bricked} key enables the special parsing of the
-  \emph{bricks} \keyword{H}, \keyword{T} and \keyword{V}, an their
+  \emph{bricks} \keyword{H}, \keyword{T} and \keyword{V}, and their
   starred variants, that are available inside the \keyword{\YoungWall}
   command.
 
   \begin{example}{bricked}
-  \Tableau[bricked]{*H0/0*H0/0,11,H2/2H~/2,1}
+  \Tableau[bricked]{*H0/0*H0/0,11,H2/2H~/2,1} \qquad
   \ShiftedTableau[bricked]{0H2/0,*T0/11,2} \qquad
   \SkewTableau[bricked]{2,1}{*Tm/n}
   \end{example}
@@ -3050,11 +3072,11 @@
   skew partition. Skew partitions and skew tableaux can be drawn using
   the commands:
 
-  \keyword{\SkewDiagram (x,y) [options] {inner shape} {outer shape}}\newline
-  \keyword{\SkewTableau (x,y) [options] {inner shape} {skew tableau specifications}}
+  \keyword{\SkewDiagram (coord) [options] {inner shape} {outer shape}}\newline
+  \keyword{\SkewTableau (coord) [options] {inner shape} {skew tableau specifications}}
 
   \index{exponential notation}
-  As with the previous commands, the $(x,y)$--coordinates should be
+  As with the previous commands, the $(coord)$--coordinates should be
   given if, and only if, the picture is inside a \keyword{tikzpicture}
   environment and arbitrary \TikZ-coordinates can be used.  The
   partitions for the inner and outer shapes can either be given as a
@@ -3259,10 +3281,10 @@
   row, so that the first box in each row has content~$0$. These diagrams
   and tableaux can be drawn using the following commands:
 
-  \keyword{\ShiftedDiagram (x,y) [options] {partition }}\newline
-  \keyword{\ShiftedTableau (x,y) [options] {tableau specification}}
+  \keyword{\ShiftedDiagram (coord) [options] {partition }}\newline
+  \keyword{\ShiftedTableau (coord) [options] {tableau specification}}
 
-  As usual, the $(x,y)$-coordinates are necessary if, and only if, these
+  As usual, the $(coord)$-coordinates are necessary if, and only if, these
   commands are used inside a \keyword{tikzpicture} environment, and
   arbitrary \TikZ-coordinates can be used. The partition in
   a~\keyword{\ShiftedDiagram} can be given using exponential notation
@@ -3320,7 +3342,7 @@
   with lines above and below each row, and without side borders.
   Tabloids can be drawn with the \keyword{\Tabloid} command.
 
-  \keyword{\Tabloid (x,y) [options] {partition }}
+  \keyword{\Tabloid (coord) [options] {partition }}
 
   The \keyword{\Tabloid} command functions in the same way as the
   \keyword{\Tableau} command, except that it draws tabloids. In fact,
@@ -3390,9 +3412,9 @@
 
   Ribbon tableaux can be drawn with the command:
 
-  \keyword{\RibbonTableau (x,y) [options] {ribbon specifications}}
+  \keyword{\RibbonTableau (coord) [options] {ribbon specifications}}
 
-  Like the other \aTableau commands, the $(x,y)$-coordinates are
+  Like the other \aTableau commands, the $(coord)$-coordinates are
   optional and are required if, and only if, the diagram is part of a
   \keyword{tikzpicture} environment, and arbitrary \TikZ-coordinates can
   be used. All of the keys for the \keyword{\Tableau} command can be
@@ -3725,8 +3747,8 @@
   \aTableau provides the \keyword{\Multidiagram} and
   \keyword{\Multitableau} commands for drawing these diagrams.
 
-  \keyword{\Multidiagram (x,y) [options] {multipartition specifications} }\newline
-  \keyword{\Multitableau (x,y) [options] {multitableau specifications}   }
+  \keyword{\Multidiagram (coord) [options] {multipartition specifications} }\newline
+  \keyword{\Multitableau (coord) [options] {multitableau specifications}   }
 
   \index{components}
   \index{multidiagram!components}
@@ -4213,6 +4235,7 @@
   % --------------------------------------------------------------
   \subsection{Young walls}\label{S:YoungWall}
   \index{Young walls}
+  \indexcmd{YoungWall}
 
   \emph{Young walls}~\cite{Kang:YoungWalls} are used to describe
   canonical bases of quantum groups of affine type. Strictly speaking,
@@ -4223,7 +4246,7 @@
   it slightly easier to draw them. As with all other \aTableau commands,
   the syntax of this command is:
 
-  \keyword{\YoungWall (x,y) [options] {Young wall specifications}}
+  \keyword{\YoungWall (coord) [options] {Young wall specifications}}
 
   As always, the coordinates are required if and only if the Young wall
   is drawn inside a \keyword{tikzpicture} environment. The
@@ -4264,7 +4287,7 @@
   \keyword{n{-}1} disable the extra operator spacing that \LaTeX{}
   automatically puts around mathematical operators in math-mode.)
 
-  In practice, the \keyword{\YoungWall} is command is identical to using
+  In practice, the \keyword{\YoungWall} command is identical to using
   \keyword{\Tableau} with the keys \option{bricked}, \option{french},
   and \option{reverse}. Consequently, all of the \keyword{\Tableau} keys
   can be used with \keyword{\YoungWall}. In addition, the following
@@ -4277,7 +4300,7 @@
 
   \begin{example}{groundState}
   \YoungWall[ground state=orange]
-    {*T0/1*T~/~*T0/1,2,2,T3/~}
+    {*T0/1*T~/~*T0/1,2,2,T~/3}
   \end{example}
 
   Use the \option{bricked} to enable parsing the bricks\keyword{H},
@@ -4300,9 +4323,9 @@
   partition, has a similar syntax to the \keyword{\Tableau} and
   \keyword{\Diagram} commands:
 
-  \keyword{\Abacus (x,y) [options] {number of runners} {bead specifications}}
+  \keyword{\Abacus (coord) [options] {number of runners} {bead specifications}}
 
-  As with other \aTableau commands, the $(x,y)$-coordinates are
+  As with other \aTableau commands, the $(coord)$-coordinates are
   necessary if, and only if, the abacus is part of a
   \keyword{tikzpicture} environment, and arbitrary \TikZ-coordinates can
   be used.  The number of runners is a
@@ -4420,16 +4443,16 @@
 
   % --------------------------------------------------------------
   \subsection{Abacus coordinates}\label{SS:abcoordinates}
-  \index{xy@$(x,y)$}
+  \index{xy@$(coord)$}
   \index{coordinates!abacus}
 
-  The $(x,y)$-coordinates are required if, and only if, the
+  The $(coord)$-coordinates are required if, and only if, the
   \keyword{\Abacus} command is used inside a \keyword{tikzpicture}
-  environment, in which case $(x,y)$ gives the coordinates of the
+  environment, in which case $(coord)$ gives the coordinates of the
   ``outside corner'' of the bead in row~$0$ and column~$0$ of the abacus
   (unlike tableaux, both the row and column indices start from~$0$).
   Arbitrary \TikZ-coordinates can be used. The following example
-  demonstrates how abacuses are placed using $(x,y)$-coordinates inside
+  demonstrates how abacuses are placed using $(coord)$-coordinates inside
   a \keyword{tikzpicture} environment. The example also shows that, by
   default, the beads and runners in an abacus are half a unit apart.
 
@@ -4493,7 +4516,7 @@
   \option{entries=beads}<abacus> to label the beads in these abacuses by
   their bead positions, or \emph{beta numbers}.
 
-  \option[$-|$]{abacus ends}[any pair of: $-$  \_\!\_  .  *  $|$  \textgreater]
+  \option[$-|$]{abacus ends}[any pair of: $-$,  \_, \_, .,  *,  $|$,  \textgreater]
   \option*[very thick, draw=\aTableauColour{Inner}]{abacus ends style=style}[\TikZ-styling]
 
   The \option{abacus ends} key sets the style of the top and
@@ -5163,7 +5186,7 @@ mode. See also \option{row labels} and \option{runner labels}.
   \ctan{beamer} overlay commands:
 
   \begin{quote}
-    \keyword{\Command <overlay specifications> (x,y) [options] {...specifications...}}
+    \keyword{\Command <overlay specifications> (coord) [options] {...specifications...}}
   \end{quote}
 
   This enhanced syntax is automatically available whenever the \ctan{beamer}
@@ -5353,7 +5376,7 @@ mode. See also \option{row labels} and \option{runner labels}.
     \option{entries}           & Add entries to tableaux and abacuses                & \Yes & \Yes[abacus] \\
     \option{framed}            & Draw a frame around the abacus                      & \No  & \Yes \\
     \option{french}            & Use the French convention for tableaux              & \Yes & \No \\
-    \option{ground state}      & Sets colour of ground state bricks in a Young wall  & \Yes & \No \\
+    \option{ground state}      & Set the colour of ground state bricks in a Young wall  & \Yes & \No \\
     \option{halign}            & Horizontal alignment of box entries and bead labels & \Yes & \Yes[abacus] \\
     \option{inner style}       & Set style of inner tableau wall                     & \Yes & \No \\
     \option{inner wall}        & Set colour of inner tableau wall                    & \Yes & \No \\
@@ -5367,13 +5390,13 @@ mode. See also \option{row labels} and \option{runner labels}.
     \option{path box}          & Set default box entry for each path                 & \Yes & \No \\
     \option{path box style}    & Set the box style on a path                         & \Yes & \No \\
     \option{path style}        & Set the style of a path                             & \Yes & \No \\
-    \option{pyramid}           & Draw a pyramid tabelau                              & \Yes & \No \\
+    \option{pyramid}           & Draw a pyramid tableau                              & \Yes & \No \\
     \option{ribbons}           & Add ribbons to tableau                              & \Yes & \No \\
     \option{ribbon box}        & Set default box entry for a ribbon                  & \Yes & \No \\
     \option{ribbon box style}  & Set the style of boxes on a ribbon                  & \Yes & \No \\
     \option{ribbon style}      & Set the ribbon style                                & \Yes & \No \\
     \option{right delimiter}   & Set right delimiter for a multitableau              & \No  & \Yes \\
-    \option{reverse}           & Reverses columns in tableaux and diagrams           & \Yes & \No  \\
+    \option{reverse}           & Reverse columns in tableaux and diagrams           & \Yes & \No  \\
     \option{rotate}            & Rotate the picture anti-clockwise                   & \Yes & \Yes \\
     \option{row label style}   & Set the style of the abacus labels                  & \No  & \Yes \\
     \option{row labels}        & List of labels for the abacus rows                  & \No  & \Yes \\
@@ -5400,8 +5423,8 @@ mode. See also \option{row labels} and \option{runner labels}.
     \option*{skew boxes}       & Enable drawing of skew boxes                        & \Yes & \No \\
     \option{snob box}          & Set default box entry for a snob                    & \Yes & \No \\
     \option{snob box style}    & Set the style of boxes on a snob                    & \Yes & \No \\
-    \option{snob style}        & Setcw the snob style                                & \Yes & \No \\
-    \option{snobs}             & add snobs to tableau                                & \Yes & \No \\
+    \option{snob style}        & Set the snob style                                  & \Yes & \No \\
+    \option{snobs}             & Add snobs to a tableau                              & \Yes & \No \\
     \option{south}             & Make abacuses grow towards the south                & \Yes & \No \\
     \option{styles}            & Shorthand for defining single use \TikZ-styles      & \Yes & \Yes[abacus] \\
     \option{tableau star}      & Set \TikZ-style of tableau $*$-nodes                & \Yes & \No \\
@@ -5414,7 +5437,7 @@ mode. See also \option{row labels} and \option{runner labels}.
     \option{tikz before}       & \TikZ-code injected before \aTableau picture        & \Yes & \Yes[abacus] \\
     \option{tikzpicture}       & Set the \texttt{tikzpicture} environment keys       & \Yes & \No \\
     \option{traditional}       & Use the traditional abacus style                    & \No  & \Yes \\
-    \option{unshaded}          & Removes shading from the abacus beads               & \No  & \Yes \\
+    \option{unshaded}          & Remove the shading from the abacus beads            & \No  & \Yes \\
     \option{valign}            & Set vertical alignment                              & \Yes & \Yes[abacus] \\
     \option{west}              & Make abacuses grow towards the west                 & \Yes & \No \\
     \option{xoffsets}          & Set the $x$-offsets for components in a multitableau& \Yes & \No \\
@@ -5424,8 +5447,8 @@ mode. See also \option{row labels} and \option{runner labels}.
     \bottomrule
   \end{xltabular}
 
-  All keys can be used with all \aTableau pictures. Keys that do not affect
-  a given picture are silently ignored.
+  All keys can be used with all \aTableau pictures. Unsupported keys are
+  accepted and ignored, without giving an error.
 
   % --------------------------------------------------------------
   \subsection{\aTableau styles}\label{S:TikZStyles}
@@ -5454,7 +5477,7 @@ mode. See also \option{row labels} and \option{runner labels}.
        aTableau/abacusEnds      & Tops and bottoms of abacus runners\\
        aTableau/abacusLabel     & Abacus labels \\
        aTableau/abacusRunner    & Abacus runners\\
-       aTableau/abacusStar      & Abacus starss \\
+       aTableau/abacusStar      & Abacus stars \\
        aTableau/abacusTick      & Abacus ticks \\
        aTableau/aTableauBox     & Tableau boxes \\
        aTableau/border          & Tableau borders \\
@@ -5468,16 +5491,16 @@ mode. See also \option{row labels} and \option{runner labels}.
        aTableau/coverBox        & Boxes for covering partitions\\
        aTableau/delimiter       & Delimiters in multishapes\\
        aTableau/dottedLine      & Adds dotted lines. Used by \option{dotted rows} and \option{dotted cols}\\
-       aTableau/groundState     & Background colour for Young wall ground satte \\
+       aTableau/groundState     & Background colour for Young wall ground state \\
        aTableau/innerWall       & Inner tableau walls\\
-       aTableau/leftDelimiter   & Left delimiter in a multishapes\\
+       aTableau/leftDelimiter   & Left delimiter in a multishape\\
        aTableau/namedTick       & Named nodes for abacus ticks\\
        aTableau/path            & Paths \\
        aTableau/pathBox         & Boxes in paths \\
        aTableau/pictureLabel    & Picture labels \\
        aTableau/ribbon          & Ribbons \\
        aTableau/ribbonBox       & Boxes in ribbons \\
-       aTableau/rightDelimiter  & Right delimiter in a multishapes\\
+       aTableau/rightDelimiter  & Right delimiter in a multishape\\
        aTableau/rowLabel        & Abacus row labels\\
        aTableau/runnerLabel     & Abacus runner labels\\
        aTableau/separatorLine   & Separator lines in multishapes\\
@@ -5600,7 +5623,7 @@ mode. See also \option{row labels} and \option{runner labels}.
   \end{example}
 
   \index{plethsym}
-  The following example from ~\cite{PagetWildon:Foulkes} describes
+  The following example from~\cite{PagetWildon:Foulkes} describes
   plethysm by drawing tableaux inside a tableau. By enclosing the full
   command in braces, it is possible to nest tableaux when using the
   \keyword{\Tableau} command. When you do this all settings

@@ -8,8 +8,9 @@
 ## Version 2.3.1 - 2026-10-02
 
 - Adds the `bricked` key to allow Young bricks to be used in ordinary tableaux
-- Allow Young walls to be used with the four tableaux conventions
+- Allows Young walls to be used with the four tableaux conventions
 - Fixes an alignment bug for cover and skew boxes
+- Improved indexing in **aTableau** manual
 
 ## Version 2.3.0 - 2026-08-25
 
